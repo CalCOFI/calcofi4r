@@ -1,0 +1,16 @@
+reference:
+- title: "Read"
+  contents:
+  - has_concept("read")
+- title: "Analyze"
+  contents:
+  - has_concept("analyze")
+- title: "Visualize"
+  contents:
+  - has_concept("visualize")
+- title: "Data"
+  contents:
+  - has_concept("data")
+- title: "Other"
+  contents:
+  - lacks_concepts(c("read", "analyze", "visualize", "data"))

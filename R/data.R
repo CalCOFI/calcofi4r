@@ -10,6 +10,7 @@
 #'   ...
 #' }
 #' @source \url{http://www.diamondse.info/}
+#' @concept data
 "bottle"
 
 #' Oceanographic DIC data
@@ -24,4 +25,5 @@
 #'   ...
 #' }
 #' @source \url{http://www.diamondse.info/}
+#' @concept data
 "dic"

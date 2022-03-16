@@ -68,4 +68,66 @@ dic <- d_cast %>%
         Bottle_O2_µmol_kg = `Bottle.O2..æmol.Kg.`),
     by = c("Cst_Cnt" = "ID")) %>%
   mutate(Date = lubridate::as_date(Date, format = "%m/%d/%Y"))
+
+
+d_DIC <- read_csv(DIC_csv, skip=1, col_names = F, guess_max = 1000000)
+names(d_DIC) <- str_split(
+  readLines(DIC_csv, n=1), ",")[[1]] %>%
+  str_replace("\xb5", "µ")
+
+
+
 usethis::use_data(dic, overwrite = TRUE)
+
+# stations ----
+
+# for summary, want to group by Sta_Code because each data point has a diff Sta_ID
+get_pts <- function(data) {
+  data %>%
+    filter(
+      !is.na(Lat_Dec),
+      !is.na(Lon_Dec)) %>%
+    group_by(
+      Sta_ID) %>%
+    summarize(
+      lon            = mean(Lon_Dec),
+      lat            = mean(Lat_Dec),
+      Sta_ID_Line    = mean(Sta_ID_Line),
+      Sta_ID_Station = mean(Sta_ID_Station)) %>%
+    st_as_sf(
+      coords = c("lon", "lat"), crs=4326, remove = F) %>%
+    mutate(
+      offshore = ifelse(Sta_ID_Station > 60, T, F))
+}
+
+
+get_pts(bottle_cast) %>% mapview(zcol="offshore")
+get_pts(DIC_cast) %>% mapview(zcol="offshore")
+
+# keys ----
+
+# downloaded CSV from CalCOFI website and added extra columns for plotting
+key_bottle <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/18c6eSGRf0bSdraDocjn3-j1rUIxN2WKqxsEnPQCR6rA/edit#gid=2046976359") %>%
+  na_if("n.a.") %>%
+  mutate(
+    dataset    = "bottle_cast",
+    source_url = source_url[1])
+
+
+key_dic <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1SGfGMJUhiYZKIh746p5pGn7cD0cOcTA3g_imAnvyz88/edit#gid=0") %>%
+  na_if("n.a.") %>%
+  mutate(
+    dataset    = "DIC_cast",
+    source_url = source_url[1])
+
+data_key <- bind_rows(key_bottle, key_DIC) %>%
+  select(dataset, field_name, title, description_abbv, everything())
+
+
+# convert to var_lookup
+var_lookup_key_tbl <- data_key %>%
+  filter(!is.na(description_abbv))
+var_lookup_key <- var_lookup_key_tbl %>%
+  split(seq(nrow(.))) %>%
+  lapply(as.list)
+names(var_lookup_key) <- var_lookup_key_tbl$field_name
