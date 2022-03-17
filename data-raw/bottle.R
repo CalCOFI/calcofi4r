@@ -13,14 +13,18 @@ select <- dplyr::select
 # paths ----
 dir_data <- switch(
   Sys.info()["nodename"],
-  `ben-mbpro` = "/Users/bbest/My Drive (ben@ecoquants.com)/projects/calcofi/data",
+  #`ben-mbpro` = "/Users/bbest/My Drive (ben@ecoquants.com)/projects/calcofi/data",
+  `Bens-MacBook-Pro.local` = "/Users/bbest/My Drive/projects/calcofi/data",
   `Cristinas-MacBook-Pro.local` = "/Volumes/GoogleDrive/.shortcut-targets-by-id/13pWB5x59WSBR0mr9jJjkx7rri9hlUsMv/calcofi/data")
 # TODO: get Erin's Google Drive path and "nodename")
-bottle_csv <- file.path(dir_data, "/oceanographic-data/bottle-database/CalCOFI_Database_194903-202001_csv_22Sep2021/194903-202001_Bottle.csv")
-cast_csv <- file.path(dir_data, "/oceanographic-data/bottle-database/CalCOFI_Database_194903-202001_csv_22Sep2021/194903-202001_Cast.csv")
-bottle_cast_rds <- file.path(dir_data, "/oceanographic-data/bottle-database/bottle_cast.rds")
 
-DIC_csv  <- file.path(dir_data, "/DIC/CalCOFI_DICs_200901-201507_28June2018.csv")
+# Gdrive source paths
+bottle_csv      <- file.path(dir_data, "/oceanographic-data/bottle-database/CalCOFI_Database_194903-202001_csv_22Sep2021/194903-202001_Bottle.csv")
+cast_csv        <- file.path(dir_data, "/oceanographic-data/bottle-database/CalCOFI_Database_194903-202001_csv_22Sep2021/194903-202001_Cast.csv")
+bottle_cast_rds <- file.path(dir_data, "/oceanographic-data/bottle-database/bottle_cast.rds")
+DIC_csv         <- file.path(dir_data, "/DIC/CalCOFI_DICs_200901-201507_28June2018.csv")
+
+# calcofi4r destination paths
 calcofi_geo           <- here("data/calcofi_oceano-bottle-stations_convex-hull.geojson")
 calcofi_offshore_geo  <- here("data/calcofi_oceano-bottle-stations_convex-hull_offshore.geojson")
 calcofi_nearshore_geo <- here("data/calcofi_oceano-bottle-stations_convex-hull_nearshore.geojson")
@@ -29,22 +33,53 @@ calcofi_nearshore_geo <- here("data/calcofi_oceano-bottle-stations_convex-hull_n
 stopifnot(dir.exists(dir_data))
 stopifnot(any(file.exists(bottle_csv,cast_csv)))
 
-# read data
-d_bottle <- read_csv(bottle_csv, skip=1, col_names = F)
+# read csv sources ----
+d_bottle <- read_csv(bottle_csv, skip=1, col_names = F, guess_max = 1000000)
+#d_bottle_problems() <- problems()
 names(d_bottle) <- str_split(
   readLines(bottle_csv, n=1), ",")[[1]] %>%
   str_replace("\xb5", "µ")
-d_cast   <- read_csv(cast_csv)
-d_DIC    <- read.csv(DIC_csv, fileEncoding="latin1")
-# %>%
-#   separate(
-#     `Line Sta_ID`, c("Sta_ID_Line", "Sta_ID_Station"),
-#     sep=" ", remove=F) %>%
-#   mutate(
-#     Sta_ID_Line    = as.double(Sta_ID_Line),
-#     Sta_ID_Station = as.double(Sta_ID_Station),
-#     offshore       = ifelse(Sta_ID_Station > 60, T, F))
 
+d_cast  <- read_csv(cast_csv) %>%
+  separate(
+    Sta_ID, c("Sta_ID_line", "Sta_ID_station"),
+    sep=" ", remove=F) %>%
+  mutate(
+    Sta_ID_line    = as.double(Sta_ID_line),
+    Sta_ID_station = as.double(Sta_ID_station))
+
+d_DIC <- read_csv(DIC_csv, skip=1, col_names = F, guess_max = 1000000)
+names(d_DIC) <- str_split(
+  readLines(DIC_csv, n=1), ",")[[1]] %>%
+  str_replace("\xb5", "µ")
+d_DIC <- d_DIC %>%
+  rename("Sta_ID"="Line Sta_ID") %>%
+  separate(
+    Sta_ID, c("Sta_ID_line", "Sta_ID_station"),
+    sep=" ", remove=F) %>%
+  mutate(
+    Sta_ID_line    = as.double(Sta_ID_line),
+    Sta_ID_station = as.double(Sta_ID_station))
+
+# stations ----
+stations <- d_cast %>%
+  select(Lon_Dec, Lat_Dec, Sta_ID, Sta_ID_line, Sta_ID_station) %>%
+  filter(
+    !is.na(Lon_Dec),
+    !is.na(Lat_Dec)) %>%
+  group_by(
+    Sta_ID_station) %>%
+  summarize(
+    lon            = mean(Lon_Dec),
+    lat            = mean(Lat_Dec),
+    lon_sd         = sd(Lon_Dec),
+    lat_sd         = sd(Lat_Dec),
+    Sta_ID_lines   = paste(Sta_ID_line, collapse=";")) %>%
+  mutate(
+    offshore = ifelse(Sta_ID_station > 60, T, F)) %>%
+  st_as_sf(
+    coords = c("lon", "lat"), crs=4326, remove = F)
+usethis::use_data(stations, overwrite = TRUE)
 
 # bottle ----
 bottle <- d_cast %>%
@@ -70,16 +105,12 @@ dic <- d_cast %>%
   mutate(Date = lubridate::as_date(Date, format = "%m/%d/%Y"))
 
 
-d_DIC <- read_csv(DIC_csv, skip=1, col_names = F, guess_max = 1000000)
-names(d_DIC) <- str_split(
-  readLines(DIC_csv, n=1), ",")[[1]] %>%
-  str_replace("\xb5", "µ")
 
 
 
 usethis::use_data(dic, overwrite = TRUE)
 
-# stations ----
+
 
 # for summary, want to group by Sta_Code because each data point has a diff Sta_ID
 get_pts <- function(data) {
@@ -92,12 +123,12 @@ get_pts <- function(data) {
     summarize(
       lon            = mean(Lon_Dec),
       lat            = mean(Lat_Dec),
-      Sta_ID_Line    = mean(Sta_ID_Line),
-      Sta_ID_Station = mean(Sta_ID_Station)) %>%
+      Sta_ID_line    = mean(Sta_ID_line),
+      Sta_ID_station = mean(Sta_ID_station)) %>%
     st_as_sf(
       coords = c("lon", "lat"), crs=4326, remove = F) %>%
     mutate(
-      offshore = ifelse(Sta_ID_Station > 60, T, F))
+      offshore = ifelse(Sta_ID_station > 60, T, F))
 }
 
 
