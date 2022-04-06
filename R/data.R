@@ -121,8 +121,8 @@
 #'   \item{DbSta_ID}{Line and Station}
 #'   \item{Cast_ID}{Cast Identifier [Century] - [YY][MM][ShipCode] - [CastType][Julian Day] - [CastTime]-[Line][Sta]}
 #'   \item{Sta_ID}{Line and Station}
-#'   \item{Sta_ID_line}{TO BE ADDED}
-#'   \item{Sta_ID_station}{TO BE ADDED}
+#'   \item{Sta_ID_line}{Line data - the first half of the value from the Sta_ID field}
+#'   \item{Sta_ID_station}{Station data - the second half of the value from the Sta_ID field}
 #'   \item{Quarter}{Quarter of the year}
 #'   \item{Sta_Code}{Station Designation (See Station_ID and 0-St_Code for codes)}
 #'   \item{Distance}{Nautical miles from coast intercept, calculated from estimated latitude and longitude}
