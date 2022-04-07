@@ -1,6 +1,6 @@
 Package: calcofi4r
 Title: CalCOFI R helper functions
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(
   person("Ben", "Best", email = "ben@ecoquants.com", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2686-0784")),

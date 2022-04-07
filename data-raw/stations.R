@@ -130,4 +130,11 @@ stations <- stations %>%
       select(Sta_ID, is_sccoos),
     by = "Sta_ID")
 
+# column order ----
+stations <- stations %>%
+  select(
+    Sta_ID, Sta_ID_line, Sta_ID_station,
+    lon, lat,
+    offshore,
+    is_cast, is_cce, is_ccelter, is_sccoos)
 usethis::use_data(stations, overwrite = TRUE)

@@ -1,3 +1,7 @@
+# calcofi4r 0.1.2
+
+* ∆ order of `stations` columns
+
 # calcofi4r 0.1.1
 
 * \+ authors
