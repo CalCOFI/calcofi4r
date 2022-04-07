@@ -1,3 +1,5 @@
 ^calcofi4r\.Rproj$
 ^\.Rproj\.user$
 ^data-raw$
+^\.github$
+^LICENSE\.md$
