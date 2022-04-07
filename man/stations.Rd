@@ -5,7 +5,7 @@
 \alias{stations}
 \title{Oceanographic stations}
 \format{
-TBD...e.g., A data frame with 53940 rows and 10 variables:
+A data frame with 53940 rows and 10 variables.
 \describe{
 \item{price}{price, in US dollars}
 \item{carat}{weight of the diamond, in carats}

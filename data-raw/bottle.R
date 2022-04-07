@@ -1,22 +1,15 @@
 # code to prepare `bottle` and related datasets
 
-# libraries ----
-if (!require("librarian")){
-  install.packages("librarian")
-  library(librarian)
-}
+source(here::here("data-raw/_common.R")) # dir_data, librarian::
+
 librarian::shelf(
   dplyr, DT, dygraphs, glue, gstat, here, lubridate, mapview, purrr, readr,
   raster, rmapshaper, sf, skimr, stars, stringr, tidyr)
 select <- dplyr::select
+options(readr.show_col_types = F)
 
 # paths ----
-dir_data <- switch(
-  Sys.info()["nodename"],
-  #`ben-mbpro` = "/Users/bbest/My Drive (ben@ecoquants.com)/projects/calcofi/data",
-  `Bens-MacBook-Pro.local` = "/Users/bbest/My Drive/projects/calcofi/data",
-  `Cristinas-MacBook-Pro.local` = "/Volumes/GoogleDrive/.shortcut-targets-by-id/13pWB5x59WSBR0mr9jJjkx7rri9hlUsMv/calcofi/data")
-# TODO: get Erin's Google Drive path and "nodename")
+source(here("data-raw/_common.R"))
 
 # Gdrive source paths
 bottle_csv      <- file.path(dir_data, "/oceanographic-data/bottle-database/CalCOFI_Database_194903-202001_csv_22Sep2021/194903-202001_Bottle.csv")
@@ -40,46 +33,105 @@ names(d_bottle) <- str_split(
   readLines(bottle_csv, n=1), ",")[[1]] %>%
   str_replace("\xb5", "µ")
 
-d_cast  <- read_csv(cast_csv) %>%
-  separate(
-    Sta_ID, c("Sta_ID_line", "Sta_ID_station"),
-    sep=" ", remove=F) %>%
-  mutate(
-    Sta_ID_line    = as.double(Sta_ID_line),
-    Sta_ID_station = as.double(Sta_ID_station))
+d_cast  <- read_csv(cast_csv)
 
 d_DIC <- read_csv(DIC_csv, skip=1, col_names = F, guess_max = 1000000)
 names(d_DIC) <- str_split(
   readLines(DIC_csv, n=1), ",")[[1]] %>%
   str_replace("\xb5", "µ")
+# d_DIC %>% head() %>% View()
 d_DIC <- d_DIC %>%
-  rename("Sta_ID"="Line Sta_ID") %>%
-  separate(
-    Sta_ID, c("Sta_ID_line", "Sta_ID_station"),
-    sep=" ", remove=F) %>%
-  mutate(
-    Sta_ID_line    = as.double(Sta_ID_line),
-    Sta_ID_station = as.double(Sta_ID_station))
+  rename("Sta_ID"="Line Sta_ID")
 
 # stations ----
 stations <- d_cast %>%
-  select(Lon_Dec, Lat_Dec, Sta_ID, Sta_ID_line, Sta_ID_station) %>%
+  select(Lon_Dec, Lat_Dec, Sta_ID) %>%
   filter(
     !is.na(Lon_Dec),
     !is.na(Lat_Dec)) %>%
   group_by(
-    Sta_ID_station) %>%
+    Sta_ID) %>%
   summarize(
     lon            = mean(Lon_Dec),
     lat            = mean(Lat_Dec),
     lon_sd         = sd(Lon_Dec),
-    lat_sd         = sd(Lat_Dec),
-    Sta_ID_lines   = paste(Sta_ID_line, collapse=";")) %>%
+    lat_sd         = sd(Lat_Dec)) %>%
+  separate(
+    Sta_ID, c("Sta_ID_line", "Sta_ID_station"), sep=" ", remove=F, convert=T) %>%
   mutate(
     offshore = ifelse(Sta_ID_station > 60, T, F)) %>%
   st_as_sf(
     coords = c("lon", "lat"), crs=4326, remove = F)
-usethis::use_data(stations, overwrite = TRUE)
+#usethis::use_data(stations, overwrite = TRUE)
+
+stations$Sta_ID
+lonlat_to_stationid <- function(lon, lat){
+  proj <- "/Users/bbest/homebrew/bin/proj" # on Ben's MacBookPro
+  system(glue("echo {lon} {lat} | {proj} +proj=calcofi +epsg=4326"), intern=T) %>%
+    stringr::str_replace("\t", " ")
+}
+stationid_to_lonlat <- function(stationid){
+  proj <- "/Users/bbest/homebrew/bin/proj" # on Ben's MacBookPro
+  # https://proj.org/apps/proj.html
+  system(glue("echo {stationid} | {proj} +proj=calcofi +epsg=4326  -I -f '%.4f'"), intern=T) %>%
+    stringr::str_replace("\t", " ")
+}
+
+stationid_to_lonlat(stations$Sta_ID[1])
+stations <- stations %>%
+  mutate(
+    lonlat_proj = map_chr(Sta_ID, stationid_to_lonlat)) %>%
+  separate(lonlat_proj, c("lon_proj", "lat_proj"), sep=" ", convert = T)
+
+    lon_proj    = map_dbl(lonlat_proj, function(x) str_sp)
+  )
+
+m <- st_distance(stations, stations)
+m <- units::drop_units(m)
+m[lower.tri(m, diag=T)] <- NA
+which(m == 0, arr.ind = T)
+#       row  col
+# [1,]  616  617
+# [2,]  616  618
+# [3,]  617  618
+# [4,]  631  632
+# ...
+# [30,] 2147 2149
+# [31,] 2148 2149
+# [32,] 2107 2168
+# [33,] 2334 2335
+stations[c(616,617),]
+#   Sta_ID      Sta_ID_line Sta_ID_station   lon   lat lon_sd lat_sd offshore         geometry
+#   <chr>             <dbl>          <dbl> <dbl> <dbl>  <dbl>  <dbl> <lgl>         <POINT [°]>
+# 1 071.0 085.5          71           85.5 -124.  34.9      0      0 TRUE     (-124.0667 34.9)
+# 2 071.0 085.7          71           85.7 -124.  34.9      0      0 TRUE     (-124.0667 34.9)
+lonlat_to_stationid(-124.0667, 34.9)
+# [1] "70.77 85.48"
+stationid_to_lonlat("071.0 085.5")
+# [1] "-124.0384 34.8588"
+stationid_to_lonlat("071.0 085.7")
+# [1] "-124.0524 34.8522"
+
+stations_cce <- read_tsv(cce_stations_txt, skip = 2) %>%
+  select(lon = LonDec, lat = LatDec) %>%
+  st_as_sf(
+    coords = c("lon", "lat"), crs=4326, remove = F) %>%
+  mutate(
+    line_sta = map2_chr(lon, lat, function(x, y){
+      system(glue("echo {x} {y} | {proj} +proj=calcofi +epsg=4326"), intern=T) }),
+    line = map_dbl(line_sta, function(x)
+
+
+m[]
+m[1,1]
+v <- m[lower.tri(m)] %>% as.vector()
+
+range(v)
+
+library(ggplot2)
+ggplot(stations, aes(x = lon_sd)) +
+  geom_histogram(aes(y = ..density..)) +
+  geom_density()
 
 # bottle ----
 bottle <- d_cast %>%

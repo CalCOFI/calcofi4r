@@ -5,22 +5,152 @@
 \alias{dic}
 \title{Oceanographic DIC data}
 \format{
-TBD...e.g., A data frame with 53940 rows and 10 variables:
+TBD...e.g., A data frame with 35376 rows and 82 variables:
 \describe{
-\item{price}{price, in US dollars}
-\item{carat}{weight of the diamond, in carats}
+\item{Cst_Cnt}{Cast Count - All CalCOFI casts ever conducted, consecutively numbered}
+\item{Cruise_ID}{Cruise identifier \link{Year}-\link{Month}-\link{Day}-C-\link{Ship Code}}
+\item{Cruise.x}{Cruise Name \link[=Month]{Year}}
+\item{Cruz_Sta}{Cruise Name and Station \link[=Month]{Year}[Line][Station]}
+\item{DbSta_ID}{Line and Station}
+\item{Cast_ID}{Cast Identifier \link{Century} - [YY][MM][ShipCode] - \link[=Julian Day]{CastType} - \link{CastTime}-\link[=Sta]{Line}}
+\item{Sta_ID}{Line and Station}
+\item{Quarter}{Quarter of the year}
+\item{Sta_Code}{Station Designation (See Station_ID and 0-St_Code for codes)}
+\item{Distance}{Nautical miles from coast intercept, calculated from estimated latitude and longitude}
+\item{Date}{Date (Month Day Year)}
+\item{Year}{Year}
+\item{Month}{Month}
+\item{Julian_Date}{OA Date: days since December 30, 1899}
+\item{Julian_Day}{Julian Day of the year}
+\item{Time}{Time (UTC) CTD reached terminal depth}
+\item{Lat_Dec}{Observed Latitude in decimal degrees}
+\item{Lat_Deg}{Observed Latitude in degrees}
+\item{Lat_Min}{Observed Latitude in minutes}
+\item{Lat_Hem}{Observed Latitude Hemisphere}
+\item{Lon_Dec}{Observed Longitude in decimal degrees}
+\item{Lon_Deg}{Observed Longitude in degrees}
+\item{Lon_Min}{Observed Longitude in minutes}
+\item{Lon_Hem}{Observed Longitude Hemisphere}
+\item{Rpt_Line}{Reported Line Number}
+\item{St_Line}{Nearest Standard Line}
+\item{Ac_Line}{Calculated actual line from observed latitude and longitude}
+\item{Rpt_Sta}{Reported Station Number}
+\item{St_Station}{Nearest Standard Station Number}
+\item{Ac_Sta}{Calculated actual station from observed lat and long}
+\item{Bottom_D}{Bottom depth in meters}
+\item{Secchi}{Secchi disk depth in meters}
+\item{ForelU}{Water color; Only used in CalCOFI dataset from 1988-10 through 1998-04 (Forel-Ule Scale)}
+\item{Ship_Name}{Ship's Name}
+\item{Ship_Code}{Ship's NODC Code}
+\item{Data_Type}{Data Type}
+\item{Order_Occ}{Order station was occupied (within each cruise)}
+\item{Event_Num}{Event number; includes all research opperations within each cruise (e.g. nets, CTD)}
+\item{Cruz_Leg}{Leg of cruise, if multiple legs}
+\item{Orig_Sta_ID}{IEH Reported Station ID}
+\item{Data_Or}{}
+\item{Cruz_Num}{Cruise Designation (Year Month)}
+\item{IntChl}{Integrated Chlorophyll per half light day (milligrams chl per square meter per half light day)}
+\item{IntC14}{Integrated Primary Productivity per half light day (milligrams C per square meter per half light day)}
+\item{Inc_Str}{Incubation Start Time (PST)}
+\item{Inc_End}{Incubation End Time (PST)}
+\item{PST_LAN}{Time of Local Apparent Noon (PST)}
+\item{Civil_T}{Time of Civil Twilight (PST)}
+\item{TimeZone}{Time Zone}
+\item{Wave_Dir}{Wave Direction reported using an abbreviated 360° azimuth circle with 00 representing True North, 18 represents 180°}
+\item{Wave_Ht}{Wave Height in feet}
+\item{Wave_Prd}{Wave Period in seconds}
+\item{Wind_Dir}{Reported using an abbreviated 360 degree azimuth circle with 0 representing True North, 18 representing 180 degrees}
+\item{Wind_Spd}{Wind Speed in knots}
+\item{Barometer}{Millibars to the tenths}
+\item{Dry_T}{Dry Air Temperature from a Sling Psychrometer in degrees Celsius}
+\item{Wet_T}{Wet Air Temperature from a Sling Psychrometer in degrees Celsius}
+\item{Wea}{1 Digit Code from The World Meteorological Organization, Code source WMO 4501}
+\item{Cloud_Typ}{1 Digit Code from The World Meteorological Organization, Code source WMO 0500}
+\item{Cloud_Amt}{1 Digit Code from The World Meteorological Organization, Code source WMO 2700, in oktas}
+\item{Visibility}{1 Digit Code from The World Meteorological Organization, Code source WMO 4300}
+\item{Cast_Index}{CalCOFI Hydrographic Database Cast Table Index; 1 = CalCOFI database's 1st cast record}
+\item{Btl_Cnt}{CalCOFI Hydrographic Database Bottle Table Index; 1 = CalCOFI database's 1st bottle record}
+\item{Cruise.y}{CalCOFI Cruise Designation with century prefix; CalCOFI 0901 = 200901}
+\item{Depthm}{Sample Depth in meters}
+\item{Depth_ID}{Unique database index built from:Century-CruiseShip-Casttype-Julian DOY-UTC Time-LineSta-DepthDup-Record Indicator}
+\item{DIC1}{DIC Analysis - Dissolved Inorganic Carbon Measurement, first sample}
+\item{DIC2}{DIC Analysis - Dissolved Inorganic Carbon Measurement from a duplicate sample drawn from same depth as DIC 1}
+\item{TA1}{DIC Analysis - Total Alkalinity Measurement, first sample; same DIC bottle as DIC 1}
+\item{TA2}{DIC Analysis - Total Alkalinity Measurement from a duplicate sample drawn from same depth as TA 1}
+\item{pH1}{Spectrophotometrically measured pH per kilogram seawater}
+\item{pH2}{Spectrophotometrically measured pH per kilogram seawater from a duplicate sample drawn from same depth as pH 1}
+\item{Salinity1}{DIC Analysis - Salinity value from DIC 1 bottle}
+\item{Salinity2}{DIC Analysis - Salinity value from DIC 2 bottle}
+\item{Temperature_degC}{CTD Temperature from Bottle Sample Depth}
+\item{Bottle.Salinity}{CalCOFI Salinity Measurement from DIC Depth}
+\item{Bottle_O2_ml_L}{CalCOFI Oxygen Measurement in milliliters/liter, from DIC Depth}
+\item{Bottle_O2_µmol_kg}{CalCOFI Oxygen Measurement in umoles/Kg, from DIC Depth}
+\item{Sigma.theta}{Sigma-theta Density calculated from CalCOFI data}
+\item{DIC.Bottle_ID1}{DIC 1 Bottle Index Number}
+\item{DIC.Bottle_ID2}{DIC 2 Bottle Index Number}
+\item{DIC.Quality.Comment}{Quality Control Comments on DIC samples after processing}
 ...
 }
 }
 \source{
-\url{http://www.diamondse.info/}
+\url{https://calcofi.org/data/oceanographic-data/dic/}
 }
 \usage{
 dic
 }
 \description{
-TBD...e.g., A dataset containing the prices and other attributes of almost 54,000
-diamonds.
+CalCOFI collects samples for inorganic carbon and total alkalinity at
+specific stations throughout the cruise track. Seawater samples are
+collected from several depths, preserved and brought back to SIO for
+total inorganic carbon and total alkalinity analysis. These
+measurements allow the calculation of pH and pCO2. The objectives of
+these measurements are: first, the long-term characterization of the
+inorganic carbon system and its response to changing ocean climate,
+and second, measurements of pH in the coastal zone in order to
+monitor the anthropogenic impact on coastal ecosystems in the
+Southern California Bight.
+}
+\details{
+DIC samples for Dave Keeling were also collected on CalCOFI stations
+90.70, 90.90, & 90.120 from Sep 1986 (CalCOFI 8609NH) to Nov 2002
+(CalCOFI 0211NH). In Aug 2008, DIC sampling restarted on 7 stations,
+grew to 10 stations in Jan 2011, and currently DIC has expanded
+substantially (see map & table below). Dissolved inorganic carbon
+(DIC) and total alkalinity (TA) data have only been integrated into
+the CalCOFI hydrographic dataset since Aug 2008, then Jan 2009
+through presently. Similarly, pH data have only been integrated into
+the CalCOFI hydrographic dataset since April 2014.
+
+CODES USED IN DATASET
+Sta_Code (Station Codes)
+"ST" - Standard CalCOFI Station
+"SCO" - SCCOOS nearshore/20m Station
+"NRO" - Not Regularly Occupied Original CalCOFI Station
+"OCO" - Occasionally CalCOFI Occupied
+"IMX" - IMECOCAL Occupied
+"NST" - Non-Standard Station
+"MBR" - MBARI Occupied Station
+
+Data_Type (Data Type)
+"PR" - Productivity Cast
+"HY" - Hydrographic Cast
+"10" - Ten-meter Cast
+"CT" - Compressed CTD Cast (Low Resolution)
+"MX" - Mixed CTD and Bottle Data
+
+_qual, qua, or q (Quality Code; associated with discrete samples; examples: "O_qual", "Chlqua", "PO4q")
+Blank - Data OK
+"4" - Value zeroed due to value below detection limit
+"6" - Data taken from CTD sensor
+"8" - Technician thinks value is suspect
+"9" - Missing Data
+
+RecInd (Record Indicator)
+"3" - Observed Data
+"4" - Educated office guess (ghost)
+"5" - Data from STD or CTD sensor
+"6" - Duplicate Depth
+"7" - Interpolated to a standard depth
 }
 \concept{data}
 \keyword{datasets}
