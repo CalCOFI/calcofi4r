@@ -1,10 +1,18 @@
 Package: calcofi4r
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: CalCOFI R helper functions
+Version: 0.1.0
 Authors@R: 
-    person("Ben", "Best", , "ben@ecoquants.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-2686-0784"))
-Description: What the package does (one paragraph).
+  person(
+    "Ben", "Best", , "ben@ecoquants.com", 
+      role = c("aut", "cre"),
+      comment = c(ORCID = "0000-0002-2686-0784"),
+    "Jai", "Ranganathan", , "jai.ranganathan@gmail.com", 
+      role = c("aut"),
+      comment = c(ORCID = ""),
+    "Cristina", "Dobbelaere", , "cdobbelaere@ucsb.edu", 
+      role = c("aut"),
+      comment = c(ORCID = ""))
+Description: The California Cooperative Oceanic Fisheries Investigations (CalCOFI) has been surveying the California Current since 1949. This R package provides helper functions to read, analyze and visualize the data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
