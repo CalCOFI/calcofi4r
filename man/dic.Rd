@@ -109,18 +109,17 @@ inorganic carbon system and its response to changing ocean climate,
 and second, measurements of pH in the coastal zone in order to
 monitor the anthropogenic impact on coastal ecosystems in the
 Southern California Bight.
-
+}
+\details{
 DIC samples for Dave Keeling were also collected on CalCOFI stations
 90.70, 90.90, & 90.120 from Sep 1986 (CalCOFI 8609NH) to Nov 2002
 (CalCOFI 0211NH). In Aug 2008, DIC sampling restarted on 7 stations,
 grew to 10 stations in Jan 2011, and currently DIC has expanded
-substantially (see map & table below). Dissolved inorganic carbon
+substantially. Dissolved inorganic carbon
 (DIC) and total alkalinity (TA) data have only been integrated into
 the CalCOFI hydrographic dataset since Aug 2008, then Jan 2009
 through presently. Similarly, pH data have only been integrated into
 the CalCOFI hydrographic dataset since April 2014.
-}
-\details{
 \subsection{Codes used in data set}{
 
 \strong{Sta_Code (Station Codes)}

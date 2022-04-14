@@ -279,16 +279,6 @@
 #' monitor the anthropogenic impact on coastal ecosystems in the
 #' Southern California Bight.
 #'
-#' DIC samples for Dave Keeling were also collected on CalCOFI stations
-#' 90.70, 90.90, & 90.120 from Sep 1986 (CalCOFI 8609NH) to Nov 2002
-#' (CalCOFI 0211NH). In Aug 2008, DIC sampling restarted on 7 stations,
-#' grew to 10 stations in Jan 2011, and currently DIC has expanded
-#' substantially (see map & table below). Dissolved inorganic carbon
-#' (DIC) and total alkalinity (TA) data have only been integrated into
-#' the CalCOFI hydrographic dataset since Aug 2008, then Jan 2009
-#' through presently. Similarly, pH data have only been integrated into
-#' the CalCOFI hydrographic dataset since April 2014.
-#'
 #' @format TBD...e.g., A data frame with 35376 rows and 82 variables:
 #' \describe{
 #'   \item{Cst_Cnt}{Cast Count - All CalCOFI casts ever conducted, consecutively numbered}
@@ -378,6 +368,16 @@
 #' @source \url{https://calcofi.org/data/oceanographic-data/dic/}
 #' @concept data
 #' @details
+#' DIC samples for Dave Keeling were also collected on CalCOFI stations
+#' 90.70, 90.90, & 90.120 from Sep 1986 (CalCOFI 8609NH) to Nov 2002
+#' (CalCOFI 0211NH). In Aug 2008, DIC sampling restarted on 7 stations,
+#' grew to 10 stations in Jan 2011, and currently DIC has expanded
+#' substantially. Dissolved inorganic carbon
+#' (DIC) and total alkalinity (TA) data have only been integrated into
+#' the CalCOFI hydrographic dataset since Aug 2008, then Jan 2009
+#' through presently. Similarly, pH data have only been integrated into
+#' the CalCOFI hydrographic dataset since April 2014.
+#'
 #' ### Codes used in data set
 #' **Sta_Code (Station Codes)**
 #' - "ST" - Standard CalCOFI Station
