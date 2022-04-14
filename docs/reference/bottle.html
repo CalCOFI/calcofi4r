@@ -439,34 +439,39 @@ sequentially/indexed by the "Btl_Cnt" column.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
-    <p>CODES USED IN DATASET
-Sta_Code (Station Codes)
-"ST" - Standard CalCOFI Station
-"SCO" - SCCOOS nearshore/20m Station
-"NRO" - Not Regularly Occupied Original CalCOFI Station
-"OCO" - Occasionally CalCOFI Occupied
-"IMX" - IMECOCAL Occupied
-"NST" - Non-Standard Station
-"MBR" - MBARI Occupied Station</p>
-<p>Data_Type (Data Type)
-"PR" - Productivity Cast
-"HY" - Hydrographic Cast
-"10" - Ten-meter Cast
-"CT" - Compressed CTD Cast (Low Resolution)
-"MX" - Mixed CTD and Bottle Data</p>
-<p>_qual, qua, or q (Quality Code; associated with discrete samples; examples: "O_qual", "Chlqua", "PO4q")
-Blank - Data OK
-"4" - Value zeroed due to value below detection limit
-"6" - Data taken from CTD sensor
-"8" - Technician thinks value is suspect
-"9" - Missing Data</p>
-<p>RecInd (Record Indicator)
-"3" - Observed Data
-"4" - Educated office guess (ghost)
-"5" - Data from STD or CTD sensor
-"6" - Duplicate Depth
-"7" - Interpolated to a standard depth</p>
-<p>CALCOFI BOTTLE SAMPLING</p>
+    
+<div class="section">
+<h3 id="codes-used-in-data-set">Codes used in data set<a class="anchor" aria-label="anchor" href="#codes-used-in-data-set"></a></h3>
+
+
+<p><strong>Sta_Code (Station Codes)</strong></p><ul><li><p>"ST" - Standard CalCOFI Station</p></li>
+<li><p>"SCO" - SCCOOS nearshore/20m Station</p></li>
+<li><p>"NRO" - Not Regularly Occupied Original CalCOFI Station</p></li>
+<li><p>"OCO" - Occasionally CalCOFI Occupied</p></li>
+<li><p>"IMX" - IMECOCAL Occupied</p></li>
+<li><p>"NST" - Non-Standard Station</p></li>
+<li><p>"MBR" - MBARI Occupied Station</p></li>
+</ul><p><strong>Data_Type (Data Type)</strong></p><ul><li><p>"PR" - Productivity Cast</p></li>
+<li><p>"HY" - Hydrographic Cast</p></li>
+<li><p>"10" - Ten-meter Cast</p></li>
+<li><p>"CT" - Compressed CTD Cast (Low Resolution)</p></li>
+<li><p>"MX" - Mixed CTD and Bottle Data</p></li>
+</ul><p><strong>_qual, qua, or q (Quality Code; associated with discrete samples; examples: "O_qual", "Chlqua", "PO4q")</strong></p><ul><li><p>Blank - Data OK</p></li>
+<li><p>"4" - Value zeroed due to value below detection limit</p></li>
+<li><p>"6" - Data taken from CTD sensor</p></li>
+<li><p>"8" - Technician thinks value is suspect</p></li>
+<li><p>"9" - Missing Data</p></li>
+</ul><p><strong>RecInd (Record Indicator)</strong></p><ul><li><p>"3" - Observed Data</p></li>
+<li><p>"4" - Educated office guess (ghost)</p></li>
+<li><p>"5" - Data from STD or CTD sensor</p></li>
+<li><p>"6" - Duplicate Depth</p></li>
+<li><p>"7" - Interpolated to a standard depth</p></li>
+</ul></div>
+
+<div class="section">
+<h3 id="calcofi-bottle-sampling">CalCOFI bottle sampling<a class="anchor" aria-label="anchor" href="#calcofi-bottle-sampling"></a></h3>
+
+
 <p>CalCOFI deploys a Seabird 911+ CTD with a 24-place Seabird carousel
 mounted inside a 24-10L bottle, epoxy-coated rosette frame. Bottle
 sampling is based on the historical "bottles-hung-on-wire" sampling
@@ -534,6 +539,8 @@ sensors. Bottles still trap seawater from specific depths in
 leak-proof bottles for analyses on-board the ship. In use by CalCOFI
 1993-present.</p></li>
 </ul></div>
+
+    </div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

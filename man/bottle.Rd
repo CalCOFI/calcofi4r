@@ -147,38 +147,48 @@ measurement. Each row is a unique bottle/sampling depth, numbered
 sequentially/indexed by the "Btl_Cnt" column.
 }
 \details{
-CODES USED IN DATASET
-Sta_Code (Station Codes)
-"ST" - Standard CalCOFI Station
-"SCO" - SCCOOS nearshore/20m Station
-"NRO" - Not Regularly Occupied Original CalCOFI Station
-"OCO" - Occasionally CalCOFI Occupied
-"IMX" - IMECOCAL Occupied
-"NST" - Non-Standard Station
-"MBR" - MBARI Occupied Station
+\subsection{Codes used in data set}{
 
-Data_Type (Data Type)
-"PR" - Productivity Cast
-"HY" - Hydrographic Cast
-"10" - Ten-meter Cast
-"CT" - Compressed CTD Cast (Low Resolution)
-"MX" - Mixed CTD and Bottle Data
+\strong{Sta_Code (Station Codes)}
+\itemize{
+\item "ST" - Standard CalCOFI Station
+\item "SCO" - SCCOOS nearshore/20m Station
+\item "NRO" - Not Regularly Occupied Original CalCOFI Station
+\item "OCO" - Occasionally CalCOFI Occupied
+\item "IMX" - IMECOCAL Occupied
+\item "NST" - Non-Standard Station
+\item "MBR" - MBARI Occupied Station
+}
 
-_qual, qua, or q (Quality Code; associated with discrete samples; examples: "O_qual", "Chlqua", "PO4q")
-Blank - Data OK
-"4" - Value zeroed due to value below detection limit
-"6" - Data taken from CTD sensor
-"8" - Technician thinks value is suspect
-"9" - Missing Data
+\strong{Data_Type (Data Type)}
+\itemize{
+\item "PR" - Productivity Cast
+\item "HY" - Hydrographic Cast
+\item "10" - Ten-meter Cast
+\item "CT" - Compressed CTD Cast (Low Resolution)
+\item "MX" - Mixed CTD and Bottle Data
+}
 
-RecInd (Record Indicator)
-"3" - Observed Data
-"4" - Educated office guess (ghost)
-"5" - Data from STD or CTD sensor
-"6" - Duplicate Depth
-"7" - Interpolated to a standard depth
+\strong{_qual, qua, or q (Quality Code; associated with discrete samples; examples: "O_qual", "Chlqua", "PO4q")}
+\itemize{
+\item Blank - Data OK
+\item "4" - Value zeroed due to value below detection limit
+\item "6" - Data taken from CTD sensor
+\item "8" - Technician thinks value is suspect
+\item "9" - Missing Data
+}
 
-CALCOFI BOTTLE SAMPLING
+\strong{RecInd (Record Indicator)}
+\itemize{
+\item "3" - Observed Data
+\item "4" - Educated office guess (ghost)
+\item "5" - Data from STD or CTD sensor
+\item "6" - Duplicate Depth
+\item "7" - Interpolated to a standard depth
+}
+}
+
+\subsection{CalCOFI bottle sampling}{
 
 CalCOFI deploys a Seabird 911+ CTD with a 24-place Seabird carousel
 mounted inside a 24-10L bottle, epoxy-coated rosette frame. Bottle
@@ -248,6 +258,7 @@ Reversing thermometers have been replaced by dual CTD temperature
 sensors. Bottles still trap seawater from specific depths in
 leak-proof bottles for analyses on-board the ship. In use by CalCOFI
 1993-present.
+}
 }
 }
 \concept{data}

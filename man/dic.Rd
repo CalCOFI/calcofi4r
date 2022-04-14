@@ -109,8 +109,7 @@ inorganic carbon system and its response to changing ocean climate,
 and second, measurements of pH in the coastal zone in order to
 monitor the anthropogenic impact on coastal ecosystems in the
 Southern California Bight.
-}
-\details{
+
 DIC samples for Dave Keeling were also collected on CalCOFI stations
 90.70, 90.90, & 90.120 from Sep 1986 (CalCOFI 8609NH) to Nov 2002
 (CalCOFI 0211NH). In Aug 2008, DIC sampling restarted on 7 stations,
@@ -120,37 +119,48 @@ substantially (see map & table below). Dissolved inorganic carbon
 the CalCOFI hydrographic dataset since Aug 2008, then Jan 2009
 through presently. Similarly, pH data have only been integrated into
 the CalCOFI hydrographic dataset since April 2014.
+}
+\details{
+\subsection{Codes used in data set}{
 
-CODES USED IN DATASET
-Sta_Code (Station Codes)
-"ST" - Standard CalCOFI Station
-"SCO" - SCCOOS nearshore/20m Station
-"NRO" - Not Regularly Occupied Original CalCOFI Station
-"OCO" - Occasionally CalCOFI Occupied
-"IMX" - IMECOCAL Occupied
-"NST" - Non-Standard Station
-"MBR" - MBARI Occupied Station
+\strong{Sta_Code (Station Codes)}
+\itemize{
+\item "ST" - Standard CalCOFI Station
+\item "SCO" - SCCOOS nearshore/20m Station
+\item "NRO" - Not Regularly Occupied Original CalCOFI Station
+\item "OCO" - Occasionally CalCOFI Occupied
+\item "IMX" - IMECOCAL Occupied
+\item "NST" - Non-Standard Station
+\item "MBR" - MBARI Occupied Station
+}
 
-Data_Type (Data Type)
-"PR" - Productivity Cast
-"HY" - Hydrographic Cast
-"10" - Ten-meter Cast
-"CT" - Compressed CTD Cast (Low Resolution)
-"MX" - Mixed CTD and Bottle Data
+\strong{Data_Type (Data Type)}
+\itemize{
+\item "PR" - Productivity Cast
+\item "HY" - Hydrographic Cast
+\item "10" - Ten-meter Cast
+\item "CT" - Compressed CTD Cast (Low Resolution)
+\item "MX" - Mixed CTD and Bottle Data
+}
 
-_qual, qua, or q (Quality Code; associated with discrete samples; examples: "O_qual", "Chlqua", "PO4q")
-Blank - Data OK
-"4" - Value zeroed due to value below detection limit
-"6" - Data taken from CTD sensor
-"8" - Technician thinks value is suspect
-"9" - Missing Data
+\strong{_qual, qua, or q (Quality Code; associated with discrete samples; examples: "O_qual", "Chlqua", "PO4q")}
+\itemize{
+\item Blank - Data OK
+\item "4" - Value zeroed due to value below detection limit
+\item "6" - Data taken from CTD sensor
+\item "8" - Technician thinks value is suspect
+\item "9" - Missing Data
+}
 
-RecInd (Record Indicator)
-"3" - Observed Data
-"4" - Educated office guess (ghost)
-"5" - Data from STD or CTD sensor
-"6" - Duplicate Depth
-"7" - Interpolated to a standard depth
+\strong{RecInd (Record Indicator)}
+\itemize{
+\item "3" - Observed Data
+\item "4" - Educated office guess (ghost)
+\item "5" - Data from STD or CTD sensor
+\item "6" - Duplicate Depth
+\item "7" - Interpolated to a standard depth
+}
+}
 }
 \concept{data}
 \keyword{datasets}
