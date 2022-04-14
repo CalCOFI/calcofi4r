@@ -1,5 +1,6 @@
 #' Oceanographic bottle data
 #'
+#' @description
 #' This dataset contains oceanographic data. This table includes
 #' oceanographic measurements for each bottle/sampling depth ever
 #' completed on a CalCOFI cruise. There are additional data code
@@ -7,6 +8,7 @@
 #' measurement. Each row is a unique bottle/sampling depth, numbered
 #' sequentially/indexed by the "Btl_Cnt" column.
 #'
+#' @details
 #' CODES USED IN DATASET
 #' Sta_Code (Station Codes)
 #' "ST" - Standard CalCOFI Station
@@ -244,16 +246,24 @@
 
 #' Oceanographic stations
 #'
-#' TBD...e.g., A dataset containing the prices and other attributes of almost 54,000
-#' diamonds.
+#' The geographic locations of every bottle sampling station utilized on a CalCOFI
+#' cruise. This data set is an extraction and modification of the CalCOFI cast table.
 #'
-#' @format A data frame with 53940 rows and 10 variables.
+#' @format A data frame with 2634 rows and 11 variables.
 #' \describe{
-#'   \item{price}{price, in US dollars}
-#'   \item{carat}{weight of the diamond, in carats}
-#'   ...
+#'   \item{Sta_ID}{Line and Station}
+#'   \item{Sta_ID_line}{Line data - the first half of the value from the Sta_ID field}
+#'   \item{Sta_ID_station}{Station data - the second half of the value from the Sta_ID field}
+#'   \item{lon}{Station longitude}
+#'   \item{lat}{Station latitude}
+#'   \item{offshore}{A Boolean variable, with "TRUE" indicating an offshore CalCOFI station.}
+#'   \item{is_cast}{To be added}
+#'   \item{is_cce}{To be added}
+#'   \item{is_ccelter}{To be added}
+#'   \item{is_sccoos}{To be added}
+#'   \item{geometry}{A vector containing the station latitude and longitude}
 #' }
-#' @source \url{http://www.diamondse.info/}
+#' @source \url{https://calcofi.org/data/oceanographic-data/bottle-database/}
 #' @concept data
 "stations"
 

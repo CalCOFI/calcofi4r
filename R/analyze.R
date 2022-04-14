@@ -10,8 +10,10 @@
 #' @import glue
 #' @return
 #' @export
+#' @examples \dontrun{
+#' get_oceano_var_aoi("Bottle O2(ml_L)", cinms_ply, "year", 0, 4000)
+#' }
 #'
-#' @examples
 get_oceano_var_aoi <- function(
     var, aoi,
     date_step = c("year", "day", "week", "month", "quarter", "decade"),

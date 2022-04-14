@@ -29,4 +29,10 @@ get_oceano_var_aoi(
 \description{
 Get oceanographic variable for area of interest
 }
+\examples{
+\dontrun{
+get_oceano_var_aoi("Bottle O2(ml_L)", cinms_ply, "year", 0, 4000)
+}
+
+}
 \concept{analyze}
