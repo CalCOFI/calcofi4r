@@ -55,37 +55,37 @@ cruise. This data set is an extraction and modification of the CalCOFI cast tabl
     <div id="format">
     <h2>Format</h2>
     <p>A data frame with 2634 rows and 11 variables.</p><dl><dt>Sta_ID</dt>
-<dd><p>Line and Station</p></dd>
+<dd><p>Station ID</p></dd>
 
 <dt>Sta_ID_line</dt>
-<dd><p>Line data - the first half of the value from the Sta_ID field</p></dd>
+<dd><p>Line component of the Station ID</p></dd>
 
 <dt>Sta_ID_station</dt>
-<dd><p>Station data - the second half of the value from the Sta_ID field</p></dd>
+<dd><p>Station component of the Station ID</p></dd>
 
 <dt>lon</dt>
-<dd><p>Station longitude</p></dd>
+<dd><p>Station longitude in decimal degrees</p></dd>
 
 <dt>lat</dt>
-<dd><p>Station latitude</p></dd>
+<dd><p>Station latitude in decimal degrees</p></dd>
 
 <dt>offshore</dt>
-<dd><p>A Boolean variable, with "TRUE" indicating an offshore CalCOFI station.</p></dd>
+<dd><p><code>Sta_ID_station</code> &gt; 60</p></dd>
 
 <dt>is_cast</dt>
-<dd><p>To be added</p></dd>
+<dd><p>In the bottle cast database as of 2022-04-01</p></dd>
 
 <dt>is_cce</dt>
-<dd><p>To be added</p></dd>
+<dd><p>In the California Coastal Ecosystem (CCE) set of stations</p></dd>
 
 <dt>is_ccelter</dt>
-<dd><p>To be added</p></dd>
+<dd><p>In the California Coastal Ecosystem (CCE) Long-Term Ecological Research (LTER) set of stations</p></dd>
 
 <dt>is_sccoos</dt>
-<dd><p>To be added</p></dd>
+<dd><p>In the Southern California Coastal Ocean Observing (SCOOS) set of stations</p></dd>
 
 <dt>geometry</dt>
-<dd><p>A vector containing the station latitude and longitude</p></dd>
+<dd><p>Station latitude and longitude as a geographic projection (SIRD 4326)</p></dd>
 
 
 </dl></div>

@@ -251,17 +251,17 @@
 #'
 #' @format A data frame with 2634 rows and 11 variables.
 #' \describe{
-#'   \item{Sta_ID}{Line and Station}
-#'   \item{Sta_ID_line}{Line data - the first half of the value from the Sta_ID field}
-#'   \item{Sta_ID_station}{Station data - the second half of the value from the Sta_ID field}
-#'   \item{lon}{Station longitude}
-#'   \item{lat}{Station latitude}
-#'   \item{offshore}{A Boolean variable, with "TRUE" indicating an offshore CalCOFI station.}
-#'   \item{is_cast}{To be added}
-#'   \item{is_cce}{To be added}
-#'   \item{is_ccelter}{To be added}
-#'   \item{is_sccoos}{To be added}
-#'   \item{geometry}{A vector containing the station latitude and longitude}
+#'   \item{Sta_ID}{Station ID}
+#'   \item{Sta_ID_line}{Line component of the Station ID}
+#'   \item{Sta_ID_station}{Station component of the Station ID}
+#'   \item{lon}{Station longitude in decimal degrees}
+#'   \item{lat}{Station latitude in decimal degrees}
+#'   \item{offshore}{`Sta_ID_station` > 60}
+#'   \item{is_cast}{In the bottle cast database as of 2022-04-01}
+#'   \item{is_cce}{In the California Coastal Ecosystem (CCE) set of stations}
+#'   \item{is_ccelter}{In the California Coastal Ecosystem (CCE) Long-Term Ecological Research (LTER) set of stations}
+#'   \item{is_sccoos}{In the Southern California Coastal Ocean Observing (SCOOS) set of stations}
+#'   \item{geometry}{Station latitude and longitude as a geographic projection (SIRD 4326)}
 #' }
 #' @source \url{https://calcofi.org/data/oceanographic-data/bottle-database/}
 #' @concept data
