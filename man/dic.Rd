@@ -5,7 +5,7 @@
 \alias{dic}
 \title{Oceanographic DIC data}
 \format{
-TBD...e.g., A data frame with 35376 rows and 82 variables:
+A data frame with 35376 rows and 82 variables
 \describe{
 \item{Cst_Cnt}{Cast Count - All CalCOFI casts ever conducted, consecutively numbered}
 \item{Cruise_ID}{Cruise identifier \link{Year}-\link{Month}-\link{Day}-C-\link{Ship Code}}
@@ -89,7 +89,6 @@ TBD...e.g., A data frame with 35376 rows and 82 variables:
 \item{DIC.Bottle_ID1}{DIC 1 Bottle Index Number}
 \item{DIC.Bottle_ID2}{DIC 2 Bottle Index Number}
 \item{DIC.Quality.Comment}{Quality Control Comments on DIC samples after processing}
-...
 }
 }
 \source{

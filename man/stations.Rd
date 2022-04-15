@@ -5,7 +5,7 @@
 \alias{stations}
 \title{Oceanographic stations}
 \format{
-A data frame with 2634 rows and 11 variables.
+A data frame with 2634 rows and 11 variables
 \describe{
 \item{Sta_ID}{Station ID}
 \item{Sta_ID_line}{Line component of the Station ID}

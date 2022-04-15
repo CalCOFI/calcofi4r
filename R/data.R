@@ -8,7 +8,7 @@
 #' measurement. Each row is a unique bottle/sampling depth, numbered
 #' sequentially/indexed by the "Btl_Cnt" column.
 #'
-#' @format A data frame with 889500 rows and 123 variables.
+#' @format A data frame with 889500 rows and 123 variables
 #' \describe{
 #'   \item{Cst_Cnt}{Cast Count - All CalCOFI casts ever conducted, consecutively numbered}
 #'   \item{Cruise_ID}{Cruise identifier [Year]-[Month]-[Day]-C-[Ship Code]}
@@ -247,7 +247,7 @@
 #' The geographic locations of every bottle sampling station utilized on a CalCOFI
 #' cruise. This data set is an extraction and modification of the CalCOFI cast table.
 #'
-#' @format A data frame with 2634 rows and 11 variables.
+#' @format A data frame with 2634 rows and 11 variables
 #' \describe{
 #'   \item{Sta_ID}{Station ID}
 #'   \item{Sta_ID_line}{Line component of the Station ID}
@@ -279,7 +279,7 @@
 #' monitor the anthropogenic impact on coastal ecosystems in the
 #' Southern California Bight.
 #'
-#' @format TBD...e.g., A data frame with 35376 rows and 82 variables:
+#' @format A data frame with 35376 rows and 82 variables
 #' \describe{
 #'   \item{Cst_Cnt}{Cast Count - All CalCOFI casts ever conducted, consecutively numbered}
 #'   \item{Cruise_ID}{Cruise identifier [Year]-[Month]-[Day]-C-[Ship Code]}
@@ -363,7 +363,6 @@
 #'   \item{DIC.Bottle_ID1}{DIC 1 Bottle Index Number}
 #'   \item{DIC.Bottle_ID2}{DIC 2 Bottle Index Number}
 #'   \item{DIC.Quality.Comment}{Quality Control Comments on DIC samples after processing}
-#'   ...
 #' }
 #' @source \url{https://calcofi.org/data/oceanographic-data/dic/}
 #' @concept data

@@ -5,7 +5,7 @@
 \alias{bottle}
 \title{Oceanographic bottle data}
 \format{
-A data frame with 889500 rows and 123 variables.
+A data frame with 889500 rows and 123 variables
 \describe{
 \item{Cst_Cnt}{Cast Count - All CalCOFI casts ever conducted, consecutively numbered}
 \item{Cruise_ID}{Cruise identifier \link{Year}-\link{Month}-\link{Day}-C-\link{Ship Code}}
