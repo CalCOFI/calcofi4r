@@ -52,7 +52,7 @@
 #'   \item{Event_Num}{Event number; includes all research opperations within each cruise (e.g. nets, CTD)}
 #'   \item{Cruz_Leg}{Leg of cruise, if multiple legs}
 #'   \item{Orig_Sta_ID}{IEH Reported Station ID}
-#'   \item{Data_Or}{TO BE ADDED}
+#'   \item{Data_Or}{Data Origin, punch card short code used to designate the institution that collected the data (e.g. Scripps)}
 #'   \item{Cruz_Num}{Cruise Designation (Year Month)}
 #'   \item{IntChl}{Integrated Chlorophyll per half light day (milligrams chl per square meter per half light day)}
 #'   \item{IntC14}{Integrated Primary Productivity per half light day (milligrams C per square meter per half light day)}
@@ -321,7 +321,7 @@
 #'   \item{Event_Num}{Event number; includes all research opperations within each cruise (e.g. nets, CTD)}
 #'   \item{Cruz_Leg}{Leg of cruise, if multiple legs}
 #'   \item{Orig_Sta_ID}{IEH Reported Station ID}
-#'   \item{Data_Or}{}
+#'   \item{Data_Or}{Data Origin, punch card short code used to designate the institution that collected the data (e.g. Scripps)}
 #'   \item{Cruz_Num}{Cruise Designation (Year Month)}
 #'   \item{IntChl}{Integrated Chlorophyll per half light day (milligrams chl per square meter per half light day)}
 #'   \item{IntC14}{Integrated Primary Productivity per half light day (milligrams C per square meter per half light day)}
