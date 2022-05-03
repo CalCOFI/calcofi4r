@@ -1,6 +1,6 @@
 Package: calcofi4r
 Title: CalCOFI R helper functions
-Version: 0.1.2
+Version: 0.2.0
 Authors@R: c(
   person("Ben", "Best", email = "ben@ecoquants.com", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2686-0784")),
@@ -18,5 +18,7 @@ LazyData: true
 Imports: 
     dplyr,
     dygraphs,
+    httr2,
+    readr,
     sf,
     xts

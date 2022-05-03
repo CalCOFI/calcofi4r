@@ -1,3 +1,7 @@
+# calcofi4r 0.2.0
+
+* + `get_variables()`, `get_timeseries()` for reading from the API at https://api.calcofi.io
+
 # calcofi4r 0.1.2
 
 * ∆ order of `stations` columns
