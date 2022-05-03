@@ -7,13 +7,12 @@
 \format{
 A data frame with 2634 rows and 11 variables
 \describe{
-\item{Sta_ID}{Station ID}
-\item{Sta_ID_line}{Line component of the Station ID}
-\item{Sta_ID_station}{Station component of the Station ID}
+\item{sta_id}{Station ID}
+\item{sta_id_line}{Line component of the Station ID}
+\item{sta_id_station}{Station component of the Station ID}
 \item{lon}{Station longitude in decimal degrees}
 \item{lat}{Station latitude in decimal degrees}
-\item{offshore}{\code{Sta_ID_station} > 60}
-\item{is_cast}{In the bottle cast database as of 2022-04-01}
+\item{is_offshore}{\code{Sta_ID_station} > 60}
 \item{is_cce}{In the California Coastal Ecosystem (CCE) set of stations}
 \item{is_ccelter}{In the California Coastal Ecosystem (CCE) Long-Term Ecological Research (LTER) set of stations}
 \item{is_sccoos}{In the Southern California Coastal Ocean Observing (SCOOS) set of stations}
