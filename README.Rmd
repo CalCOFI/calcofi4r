@@ -7,7 +7,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-R package of helper functions for reading and visualizing data from the CalCOFI API](https://api.calcofi.io).
+R package of helper functions for reading and visualizing data from the CalCOFI API at [api.calcofi.io](https://api.calcofi.io).
 
 ```{r knitr, include = FALSE}
 knitr::opts_chunk$set(

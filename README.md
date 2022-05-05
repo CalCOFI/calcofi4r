@@ -2,7 +2,7 @@ calcofi4r
 ================
 
 R package of helper functions for reading and visualizing data from the
-CalCOFI API\](<https://api.calcofi.io>).
+CalCOFI API at [api.calcofi.io](https://api.calcofi.io).
 
 ## Install R package
 
@@ -95,7 +95,7 @@ with(v[1,],
 
 # get path of temporary file to store raster
 (r_tif <- tempfile(fileext=".tif"))
-#> [1] "/var/folders/yw/yhdcs2vn44qbyqhktjhbl4br0000gn/T//Rtmp68iO0d/filec3ca285f66a2.tif"
+#> [1] "/var/folders/yw/yhdcs2vn44qbyqhktjhbl4br0000gn/T//RtmpENZzPg/filec6806f92bc40.tif"
 
 # use second variable from previously fetched v
 c(v$table_field[2], v$plot_label[2])
@@ -107,7 +107,7 @@ get_raster(
   cruise_id = "2020-01-05-C-33RL",
   depth_m_min = 0, depth_m_max = 200,
   out_tif = r_tif)
-#> [1] "/var/folders/yw/yhdcs2vn44qbyqhktjhbl4br0000gn/T//Rtmp68iO0d/filec3ca285f66a2.tif"
+#> [1] "/var/folders/yw/yhdcs2vn44qbyqhktjhbl4br0000gn/T//RtmpENZzPg/filec6806f92bc40.tif"
 
 # read raster
 r <- raster::raster(r_tif)
