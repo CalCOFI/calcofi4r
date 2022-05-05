@@ -2,17 +2,52 @@
 % Please edit documentation in R/visualize.R
 \name{plot_timeseries}
 \alias{plot_timeseries}
-\title{Plot timeseries}
+\title{Plot interactive time series of an oceanographic variable}
 \usage{
-plot_timeseries(d)
+plot_timeseries(
+  d,
+  fld_date,
+  fld_avg,
+  fld_sd,
+  title = "Temperature",
+  y_label = "Temperature (ºC)",
+  color = "red"
+)
 }
 \arguments{
-\item{d}{data frame with expected fields (\code{Date}, \code{var_q10}, \code{var_avg}, \code{var_q90}) from \code{\link[=get_oceano_var_aoi]{get_oceano_var_aoi()}}}
+\item{d}{data frame with data}
+
+\item{fld_date}{unquoted name of field containing the date, e.g. \code{year}}
+
+\item{fld_avg}{unquoted name of field containing the average value, e.g. \code{t_deg_c_avg}}
+
+\item{fld_sd}{unquoted name of field containing the standard deviation, e.g. \code{sd}}
+
+\item{title}{quoted title, Default is \code{"Temperature"}.}
+
+\item{y_label}{quoted label for y-axis. Default is \code{"Temperature (ºC)"}.}
+
+\item{color}{quoted color. Should be one of \code{grDevices::colors()}. Default is \code{"red"}.}
 }
 \value{
-\link[dygraphs:dygraph]{dygraphs::dygraph}
+interactive plot of \code{dygraphs::dygraph()}
 }
 \description{
-Plot timeseries
+Plot interactive time series of an oceanographic variable
+}
+\examples{
+# get variables
+(v <- get_variables())
+
+# get data for the first variable
+(d <- get_timeseries(v$table_field[1]))
+
+# plot time series with the first variable
+with(v[1,],
+  plot_timeseries(
+    # data and columns (from d)
+    d, year, t_deg_c_avg, t_deg_c_sd,
+    # plot attributes (from v)
+    plot_title, plot_label, plot_color))
 }
 \concept{visualize}

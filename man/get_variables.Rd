@@ -18,4 +18,7 @@ data frame with columns:
 \description{
 Get variables from CalCOFI API
 }
+\examples{
+get_variables()
+}
 \concept{read}

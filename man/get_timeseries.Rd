@@ -12,7 +12,7 @@ get_timeseries(
   date_beg = NULL,
   date_end = NULL,
   time_step = "year",
-  stats = c("mean", "sd")
+  stats = c("p10", "mean", "p90")
 )
 }
 \arguments{
@@ -36,15 +36,25 @@ or a climatology ("quarter","month","week","julianday","hour").
 Default is \code{"year"}.}
 
 \item{stats}{Statistics to show per \code{date_step}. Acceptable values include any combination of:
-"mean", "median", "min", "max", "sd" or "p#"
+"avg", "median", "min", "max", "sd" or "p#"
 where "sd" is the standard deviation and
 "p#" represents the percentile value 0 to 100 within available range of values.
-Default is \code{c("mean", "sd")}.}
+Default is \code{c("p10", "mean", "p90")}.}
 }
 \value{
 
 }
 \description{
 Get timeseries summary from CalCOFI API
+}
+\examples{
+get_timeseries(
+  variable = "ctdcast_bottle.t_deg_c",
+  aoi_wkt = "POLYGON ((-120.6421 33.36241, -118.9071 33.36241, -118.9071 34.20707, -120.6421 34.20707, -120.6421 33.36241))",
+  depth_m_min = 0, depth_m_max = 200,
+  date_beg = "2000-01-01", date_end = "2020-01-01",
+  time_step = "year",
+  stats = c("p10", "mean", "p90"))
+
 }
 \concept{read}

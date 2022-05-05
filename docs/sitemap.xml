@@ -16,7 +16,19 @@
     <loc>https://calcofi.github.io/calcofi4r/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://calcofi.github.io/calcofi4r/articles/calccofi4r.html</loc>
+  </url>
+  <url>
+    <loc>https://calcofi.github.io/calcofi4r/articles/calcofi4r.html</loc>
+  </url>
+  <url>
+    <loc>https://calcofi.github.io/calcofi4r/articles/index.html</loc>
+  </url>
+  <url>
     <loc>https://calcofi.github.io/calcofi4r/authors.html</loc>
+  </url>
+  <url>
+    <loc>https://calcofi.github.io/calcofi4r/data-oceano_man-old.html</loc>
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/index.html</loc>
@@ -31,7 +43,13 @@
     <loc>https://calcofi.github.io/calcofi4r/reference/dic.html</loc>
   </url>
   <url>
+    <loc>https://calcofi.github.io/calcofi4r/reference/get_cruises.html</loc>
+  </url>
+  <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/get_oceano_var_aoi.html</loc>
+  </url>
+  <url>
+    <loc>https://calcofi.github.io/calcofi4r/reference/get_raster.html</loc>
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/get_timeseries.html</loc>
@@ -41,6 +59,9 @@
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://calcofi.github.io/calcofi4r/reference/map_raster.html</loc>
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/plot_timeseries.html</loc>
