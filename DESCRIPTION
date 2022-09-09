@@ -25,7 +25,8 @@ Imports:
     leaflet,
     raster,
     readr,
-    sf
+    sf,
+    stringr
 Suggests: 
     knitr,
     rmarkdown
