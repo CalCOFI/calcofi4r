@@ -131,6 +131,8 @@ tbl_to_contour_ply <- function(df, ply, k=60, cw=0.1){
   # check column names in data frame
   stopifnot(all(c("lon", "lat", "v") %in% names(df)))
 
+  # check geographic projection of input polygon boundary
+  stopifnot(sf::st_crs(ply) == sf::st_crs(4326))
 
   # filter NAs
   df <- df %>%
@@ -149,12 +151,13 @@ tbl_to_contour_ply <- function(df, ply, k=60, cw=0.1){
   # make regularized grid of points
   g <- sf::st_make_grid(
     pts, cellsize = c(cw, cw), what = "centers") %>%
-    sf::st_as_sf(crs = 4326) %>%
+    sf::st_as_sf() %>%
     rename(geom = x) %>%
     cbind(., sf::st_coordinates(.)) %>%
-    dplyr::rename(lon = X, lat = Y) %>%
-    dplyr::mutate(
-      in_ply = sf::st_intersects(ply, geom, sparse = F)[1,])
+    dplyr::rename(lon = X, lat = Y) # %>%
+    # dplyr::mutate(
+    #   in_ply = sf::st_intersects(ply, geom, sparse = F)[1,])
+  g$in_ply <- sf::st_intersects(ply, g, sparse = F)[1,]
   # table(g$in_ply)
 
   # predict values using fitted model
