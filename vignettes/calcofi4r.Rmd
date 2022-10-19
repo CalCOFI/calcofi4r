@@ -33,10 +33,31 @@ library(calcofi4r)
 with(v[1,],
   plot_timeseries(
     # data and columns (from d)
-    d, year, t_deg_c_avg, t_deg_c_sd,
+    d, year, val_avg, val_sd,
     # plot attributes (from v)
     plot_title, plot_label, plot_color))
 ```
+
+## Contour map a variable
+
+```{r}
+library(mapview)
+
+# show first 6 rows of example data frame with temperature as variable
+head(stations_t_degc)
+
+# show bounding polygon
+mapView(area_calcofi_extended)
+```
+
+```{r}
+# generate contour polygon, aka isobands, using generalized additive model
+v_ply <- tbl_to_contour_ply(stations_t_degc, area_calcofi_extended)
+
+# show generated 
+mapView(v_ply, zcol="v", layer.name="temp(ºC)")
+```
+
 
 ## Map interpolated oceanographic variable for a cruise
 

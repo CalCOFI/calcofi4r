@@ -19,3 +19,25 @@
 #' @source \url{https://calcofi.org/data/oceanographic-data/bottle-database/}
 #' @concept data
 "stations"
+
+#' Stations with Temperature data
+#'
+#' Extended CalCOFI stations with temperature (º Celsius) as example data frame
+#' for visualization functions.
+#'
+#' @format A data frame with 9,865 rows and 3 variables \describe{
+#'   \item{lon}{longitude}
+#'   \item{lat}{latitude}
+#'   \item{v}{variable, in this case temperature (º Celsius)}
+#' @source \url{https://calcofi.org/sampling-info/station-positions/} \url{https://calcofi.org/data/oceanographic-data/bottle-database/}
+#' @concept data
+"stations_t_degc"
+
+#' Area of CalCOFI Extended Stations
+#'
+#' Convex hull of extended CalCOFI stations, additionally clipped by land (`rnaturalearthhires::states10`).
+#'
+#' @format A single `sf` spatial feature
+#' @source \url{https://calcofi.org/sampling-info/station-positions/}
+#' @concept data
+"area_calcofi_extended"

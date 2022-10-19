@@ -105,3 +105,96 @@ map_raster <- function(
         title = legend_title) %>%
       flyToBounds(b[['xmin']], b[['ymin']], b[['xmax']], b[['ymax']])
 }
+
+#' Table to Contour Map
+#'
+#' Fit generalized additive model to a variable in space using a smoother on
+#' latitude & longitude. Further clip by bouding polygon.
+#'
+#' @param df data frame containing the fields: `lon` (longitude), `lat`
+#'   (latitude) and `v` (value)
+#' @param ply polygon describing the study area mask
+#' @param k number of knots to use on the spatial smoother `s(lon, lat)`;
+#'   default: `60`
+#' @param k cell width in decimal degrees to run interpolation; default: `0.1`
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' v_ply <- tbl_to_contour_ply(stations_t_degc, area_calcofi_extended)
+#' mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
+tbl_to_contour_ply <- function(df, ply, k=60, cw=0.1){
+
+  # check column names in data frame
+  stopifnot(all(c("lon", "lat", "v") %in% names(df)))
+
+  # filter NAs
+  df <- df %>%
+    dplyr::filter(!is.na(v))
+
+  # get points
+  pts <- sf::st_as_sf(
+    df,
+    coords = c("lon", "lat"), crs = 4326, remove = T)
+
+  # fit generalized additive model using a smoother on latitude & longitude
+  f <- mgcv::gam(
+    v ~ s(lon, lat, k = k),
+    data = df, method = "REML")
+
+  # make regularized grid of points
+  g <- sf::st_make_grid(
+    pts, cellsize = c(cw, cw), what = "centers") %>%
+    sf::st_as_sf() %>%
+    cbind(., sf::st_coordinates(.)) %>%
+    dplyr::rename(lon = X, lat = Y) %>%
+    dplyr::mutate(
+      in_ply = sf::st_intersects(ply, ., sparse = F)[1,])
+
+  # predict values using fitted model
+  g$v <- predict(
+    f, newdata = g, type = "response")
+
+  # matrix from grid for input to isobands()
+  m <- g %>%
+    sf::st_drop_geometry() %>%
+    dplyr::select(-in_ply) %>%
+    tidyr::pivot_wider(
+      names_from = lon, values_from = v) %>%
+    tibble::column_to_rownames("lat") %>%
+    as.matrix()
+
+  # pull values within the polygon for determining breaks
+  v <- g %>%
+    dplyr::filter(in_ply) %>%
+    dplyr::pull(v)
+
+  # determine breaks, pad lower value
+  brks <- scales::extended_breaks(5)(v)
+  brks <- c(brks[1]-diff(brks)[1], brks)
+
+  # get isobands
+  b <- isoband::isobands(
+    dimnames(m)[[2]], dimnames(m)[[1]], m,
+    brks[-1], brks[-length(brks)]) # , levels_low, levels_high)
+
+  # convert to sf polygon
+  b_sf <- tibble::tibble(
+    geom = isoband::iso_to_sfg(b),
+    name = names(geom),
+    v_lo = stringr::str_split(name, ':', simplify=T)[,1] %>% as.numeric(),
+    v_hi = stringr::str_split(name, ':', simplify=T)[,2] %>% as.numeric()) %>%
+    dplyr::rowwise() %>%
+    mutate(
+      v = mean(c(v_lo, v_hi))) %>%
+    sf::st_as_sf(crs=4326)
+
+  # clip land
+  sf::st_agr(b_sf) = "constant"
+  b_sf <- sf::st_intersection(b_sf, ply)
+
+  b_sf
+}
+
+
