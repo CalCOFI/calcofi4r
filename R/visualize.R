@@ -126,6 +126,8 @@ map_raster <- function(
 #' mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
 tbl_to_contour_ply <- function(df, ply, k=60, cw=0.1){
 
+  # df = stations_t_degc; ply=area_calcofi_extended; k=60; cw=0.1
+
   # check column names in data frame
   stopifnot(all(c("lon", "lat", "v") %in% names(df)))
 
@@ -147,10 +149,12 @@ tbl_to_contour_ply <- function(df, ply, k=60, cw=0.1){
   g <- sf::st_make_grid(
     pts, cellsize = c(cw, cw), what = "centers") %>%
     sf::st_as_sf() %>%
+    rename(geom = x) %>%
     cbind(., sf::st_coordinates(.)) %>%
     dplyr::rename(lon = X, lat = Y) %>%
     dplyr::mutate(
-      in_ply = sf::st_intersects(ply, ., sparse = F)[1,])
+      in_ply = sf::st_intersects(ply, geom, sparse = F)[1,])
+  # table(g$in_ply)
 
   # predict values using fitted model
   g$v <- predict(
@@ -193,6 +197,7 @@ tbl_to_contour_ply <- function(df, ply, k=60, cw=0.1){
   # clip land
   sf::st_agr(b_sf) = "constant"
   b_sf <- sf::st_intersection(b_sf, ply)
+  # mapview::mapView(b_sf, zcol = "v")
 
   b_sf
 }
