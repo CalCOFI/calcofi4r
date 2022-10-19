@@ -131,6 +131,7 @@ tbl_to_contour_ply <- function(df, ply, k=60, cw=0.1){
   # check column names in data frame
   stopifnot(all(c("lon", "lat", "v") %in% names(df)))
 
+
   # filter NAs
   df <- df %>%
     dplyr::filter(!is.na(v))
@@ -148,7 +149,7 @@ tbl_to_contour_ply <- function(df, ply, k=60, cw=0.1){
   # make regularized grid of points
   g <- sf::st_make_grid(
     pts, cellsize = c(cw, cw), what = "centers") %>%
-    sf::st_as_sf() %>%
+    sf::st_as_sf(crs = 4326) %>%
     rename(geom = x) %>%
     cbind(., sf::st_coordinates(.)) %>%
     dplyr::rename(lon = X, lat = Y) %>%
