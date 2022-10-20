@@ -27,7 +27,9 @@ knitr::opts_chunk$set(
 devtools::load_all()
 ```
 
-## Map contours of a variable
+## Map contours
+
+Map contours of an oceanographic variable from CTD cast bottle data.
 
 ```{r map_contours}
 # map contours, aka isobands, of variable using generalized additive model (GAM)
@@ -38,8 +40,9 @@ v_ply <- map_contours(
 mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
 ```
 
+## Plot time series
 
-## Plot time series of an oceanographic variable
+Plot time series of an oceanographic variable from CTD cast bottle data.
 
 ```{r plot_timeseries}
 library(calcofi4r)
@@ -59,7 +62,10 @@ with(v[1,],
     plot_title, plot_label, plot_color))
 ```
 
-## Plot depth of an oceanographic variable
+## Plot depth
+
+Plot depth of an oceanographic variable from CTD cast bottle data.
+
 
 ```{r plot_depth}
 head(bottle_temp_depth)
@@ -70,7 +76,9 @@ plot_depth(
   interactive = F)
 ```
 
-## Map interpolated oceanographic variable for a cruise
+## Map raster
+
+Map raster of interpolated oceanographic variable for a cruise.
 
 ```{r map_raster}
 # get cruises

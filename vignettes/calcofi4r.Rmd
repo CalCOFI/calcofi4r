@@ -9,19 +9,23 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r, include = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 # devtools::document()
 # devtools::install_local(here::here(), force=T) # install local
-devtools::load_all()
+# library(calcofi4r) # devtools::load_all()
 ```
 
-## Map contours of a variable
+## Map contours
 
-```{r}
+Map contours of an oceanographic variable from CTD cast bottle data.
+
+```{r map_contours}
+library(calcofi4r)
+
 # show first 6 rows of example data frame with temperature in space as variable
 head(bottle_temp_lonlat)
 
@@ -36,11 +40,11 @@ v_ply <- map_contours(
 mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
 ```
 
-## Plot time series of an oceanographic variable
+## Plot time series
 
-```{r setup}
-# library(calcofi4r) # devtools::load_all()
+Plot time series of an oceanographic variable from CTD cast bottle data.
 
+```{r plot_timeseries}
 # get variables
 (v <- get_variables())
 
@@ -56,9 +60,11 @@ with(v[1,],
     plot_title, plot_label, plot_color))
 ```
 
-## Plot depth of an oceanographic variable
+## Plot depth
 
-```{r}
+Plot depth of an oceanographic variable from CTD cast bottle data.
+
+```{r plot_depth}
 head(bottle_temp_depth)
 
 # plot depth with the station data
@@ -66,9 +72,11 @@ plot_depth(df = bottle_temp_depth, variable = "Temperature")
 ```
 
 
-## Map interpolated oceanographic variable for a cruise
+## Map raster
 
-```{r}
+Map raster of interpolated oceanographic variable for a cruise.
+
+```{r map_raster}
 # get cruises
 (z <- get_cruises())
 
@@ -92,7 +100,7 @@ r <- raster::raster(r_tif)
 map_raster(r, v$plot_label[2])
 ```
 
-```{r}
+```{r cleanup}
 # cleanup by deleting temporary file
 unlink(r_tif)
 ```

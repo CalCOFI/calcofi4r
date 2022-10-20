@@ -6,7 +6,9 @@ CalCOFI API at [api.calcofi.io](https://api.calcofi.io).
 
 ## Install R package
 
-## Map contours of a variable
+## Map contours
+
+Map contours of an oceanographic variable from CTD cast bottle data.
 
 ``` r
 # map contours, aka isobands, of variable using generalized additive model (GAM)
@@ -19,7 +21,9 @@ mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
 
 ![](man/figures/map_contours-1.png)<!-- -->
 
-## Plot time series of an oceanographic variable
+## Plot time series
+
+Plot time series of an oceanographic variable from CTD cast bottle data.
 
 ``` r
 library(calcofi4r)
@@ -62,7 +66,9 @@ with(v[1,],
 
 ![](man/figures/plot_timeseries-1.png)<!-- -->
 
-## Plot depth of an oceanographic variable
+## Plot depth
+
+Plot depth of an oceanographic variable from CTD cast bottle data.
 
 ``` r
 head(bottle_temp_depth)
@@ -85,7 +91,9 @@ plot_depth(
 
 ![](man/figures/plot_depth-1.png)<!-- -->
 
-## Map interpolated oceanographic variable for a cruise
+## Map raster
+
+Map raster of interpolated oceanographic variable for a cruise.
 
 ``` r
 # get cruises
@@ -107,7 +115,7 @@ plot_depth(
 
 # get path of temporary file to store raster
 (r_tif <- tempfile(fileext=".tif"))
-#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpZFLFdm/file144af411eac5a.tif"
+#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpI0fPJb/file147f720fa0732.tif"
 
 # use second variable from previously fetched v
 c(v$table_field[2], v$plot_label[2])
@@ -119,7 +127,7 @@ get_raster(
   cruise_id = "2020-01-05-C-33RL",
   depth_m_min = 0, depth_m_max = 200,
   out_tif = r_tif)
-#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpZFLFdm/file144af411eac5a.tif"
+#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpI0fPJb/file147f720fa0732.tif"
 
 # read raster
 r <- raster::raster(r_tif)
