@@ -1,3 +1,7 @@
+# calcofi4r 0.4.1
+
+* rename `tbl_to_contour_ply()` to `map_contours()`
+
 # calcofi4r 0.4.0
 
 * \+ `tbl_to_contour_ply()` and example data `area_calcofi_extended` `stations_t_degc`

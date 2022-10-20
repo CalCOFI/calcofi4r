@@ -122,9 +122,9 @@ map_raster <- function(
 #' @export
 #' @concept visualize
 #' @examples
-#' v_ply <- tbl_to_contour_ply(stations_t_degc, area_calcofi_extended)
+#' v_ply <- map_contours(stations_t_degc, area_calcofi_extended)
 #' mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
-tbl_to_contour_ply <- function(df, ply, k=60, cw=0.1){
+map_contours <- function(df, ply, k=60, cw=0.1){
 
   # df=stations_t_degc; ply=area_calcofi_extended; k=60; cw=0.1
 
@@ -133,7 +133,7 @@ tbl_to_contour_ply <- function(df, ply, k=60, cw=0.1){
 
   # check geographic projection of input polygon boundary
   if(sf::st_crs(ply) != sf::st_crs(4326)){
-    warning(glue::glue("The input parameter `ply` to function `tbl_to_contour_ply()` is not exactly geographic coordinate ref system (4326), so setting."))
+    warning(glue::glue("The input parameter `ply` to function `map_contours()` is not exactly geographic coordinate ref system (4326), so setting."))
     ply <- sf::st_set_crs(ply, 4326)
   }
 

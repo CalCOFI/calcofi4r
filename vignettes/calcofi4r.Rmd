@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 ## Plot time series of an oceanographic variable
 
 ```{r setup}
-library(calcofi4r) # devtools::load_all()
+# library(calcofi4r) # devtools::load_all()
 
 # get variables
 (v <- get_variables())
@@ -38,25 +38,23 @@ with(v[1,],
     plot_title, plot_label, plot_color))
 ```
 
-## Contour map a variable
+## Map contours of a variable
 
 ```{r}
-library(mapview)
-
 # show first 6 rows of example data frame with temperature as variable
 head(stations_t_degc)
 
 # show bounding polygon
-mapView(area_calcofi_extended)
+mapview::mapView(area_calcofi_extended)
 ```
 
 ```{r}
-# generate contour polygon, aka isobands, using generalized additive model
-v_ply <- tbl_to_contour_ply(
+# map contours, aka isobands, of variable using generalized additive model (GAM)
+v_ply <- map_contours(
   df = stations_t_degc, ply = area_calcofi_extended)
 
-# show generated 
-mapView(v_ply, zcol="v", layer.name="temp(ºC)")
+# show contour polygons on map 
+mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
 ```
 
 

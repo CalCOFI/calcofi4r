@@ -46,6 +46,17 @@ with(v[1,],
     plot_title, plot_label, plot_color))
 ```
 
+## Map contours of a variable
+
+```{r}
+# map contours, aka isobands, of variable using generalized additive model (GAM)
+v_ply <- map_contours(
+  df = stations_t_degc, ply = area_calcofi_extended)
+
+# show contour polygons on map 
+mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
+```
+
 ## Map interpolated oceanographic variable for a cruise
 
 ```{r map_raster}

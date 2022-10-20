@@ -61,6 +61,19 @@ with(v[1,],
 
 ![](man/figures/plot_timeseries-1.png)<!-- -->
 
+## Map contours of a variable
+
+``` r
+# map contours, aka isobands, of variable using generalized additive model (GAM)
+v_ply <- map_contours(
+  df = stations_t_degc, ply = area_calcofi_extended)
+
+# show contour polygons on map 
+mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
+```
+
+![](man/figures/unnamed-chunk-1-1.png)<!-- -->
+
 ## Map interpolated oceanographic variable for a cruise
 
 ``` r
@@ -92,7 +105,7 @@ with(v[1,],
 
 # get path of temporary file to store raster
 (r_tif <- tempfile(fileext=".tif"))
-#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmplB9boY/file10c0d29024f0e.tif"
+#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpOJrhSM/file11a5673c63706.tif"
 
 # use second variable from previously fetched v
 c(v$table_field[2], v$plot_label[2])
@@ -104,7 +117,7 @@ get_raster(
   cruise_id = "2020-01-05-C-33RL",
   depth_m_min = 0, depth_m_max = 200,
   out_tif = r_tif)
-#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmplB9boY/file10c0d29024f0e.tif"
+#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpOJrhSM/file11a5673c63706.tif"
 
 # read raster
 r <- raster::raster(r_tif)
