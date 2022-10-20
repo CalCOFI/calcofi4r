@@ -56,16 +56,16 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">get_timeseries</span><span class="op">(</span>
-  variable <span class="op">=</span> <span class="st">"ctdcast_bottle.t_deg_c"</span>,
-  aoi_wkt <span class="op">=</span> <span class="cn">NULL</span>,
-  depth_m_min <span class="op">=</span> <span class="cn">NULL</span>,
-  depth_m_max <span class="op">=</span> <span class="cn">NULL</span>,
-  date_beg <span class="op">=</span> <span class="cn">NULL</span>,
-  date_end <span class="op">=</span> <span class="cn">NULL</span>,
-  time_step <span class="op">=</span> <span class="st">"year"</span>,
-  stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p10"</span>, <span class="st">"mean"</span>, <span class="st">"p90"</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_timeseries</span><span class="op">(</span></span>
+<span>  variable <span class="op">=</span> <span class="st">"ctdcast_bottle.t_deg_c"</span>,</span>
+<span>  aoi_wkt <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  depth_m_min <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  depth_m_max <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  date_beg <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  date_end <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  time_step <span class="op">=</span> <span class="st">"year"</span>,</span>
+<span>  stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p10"</span>, <span class="st">"mean"</span>, <span class="st">"p90"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -73,67 +73,58 @@
     <dl><dt>variable</dt>
 <dd><p>Variable to fetch from the CalCOFI API. One of <code>table_field</code> values from <code><a href="get_variables.html">get_variables()</a></code>.
 Default is <code>"ctdcast_bottle.t_deg_c"</code>.</p></dd>
+
+
 <dt>aoi_wkt</dt>
 <dd><p>Area of interest (AOI), spatially described as
 <a href="https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry" class="external-link">well-known text (WKT)</a>.</p></dd>
+
+
 <dt>depth_m_min</dt>
 <dd><p>Minimum depth range in meters, e.g. 0. Default is <code>NULL</code>, as in not filtered.</p></dd>
+
+
 <dt>depth_m_max</dt>
 <dd><p>Maximum depth range in meters, e.g. 5351. Default is <code>NULL</code>, as in not filtered.</p></dd>
+
+
 <dt>date_beg</dt>
 <dd><p>Beginning of date range, e.g."1949-02-28". Default is <code>NULL</code>, as in not filtered.</p></dd>
+
+
 <dt>date_end</dt>
 <dd><p>End of date range, e.g. "2020-01-26". Default is <code>NULL</code>, as in not filtered.</p></dd>
+
+
 <dt>time_step</dt>
 <dd><p>Time step over which to summarize. One of: a sequential
 increment ("decade","year","year.quarter","year.month","year.week","date"),
 or a climatology ("quarter","month","week","julianday","hour").
 Default is <code>"year"</code>.</p></dd>
+
+
 <dt>stats</dt>
 <dd><p>Statistics to show per <code>date_step</code>. Acceptable values include any combination of:
 "avg", "median", "min", "max", "sd" or "p#"
 where "sd" is the standard deviation and
 "p#" represents the percentile value 0 to 100 within available range of values.
 Default is <code>c("p10", "mean", "p90")</code>.</p></dd>
+
 </dl></div>
-    <div id="value">
-    <h2>Value</h2>
-    
-    </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu">get_timeseries</span><span class="op">(</span></span>
-<span class="r-in">  variable <span class="op">=</span> <span class="st">"ctdcast_bottle.t_deg_c"</span>,</span>
-<span class="r-in">  aoi_wkt <span class="op">=</span> <span class="st">"POLYGON ((-120.6421 33.36241, -118.9071 33.36241, -118.9071 34.20707, -120.6421 34.20707, -120.6421 33.36241))"</span>,</span>
-<span class="r-in">  depth_m_min <span class="op">=</span> <span class="fl">0</span>, depth_m_max <span class="op">=</span> <span class="fl">200</span>,</span>
-<span class="r-in">  date_beg <span class="op">=</span> <span class="st">"2000-01-01"</span>, date_end <span class="op">=</span> <span class="st">"2020-01-01"</span>,</span>
-<span class="r-in">  time_step <span class="op">=</span> <span class="st">"year"</span>,</span>
-<span class="r-in">  stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p10"</span>, <span class="st">"mean"</span>, <span class="st">"p90"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 20 × 4</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     year t_deg_c_avg t_deg_c_sd n_obs</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>  <span style="text-decoration: underline;">2</span>000        11.7       2.63   400</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>  <span style="text-decoration: underline;">2</span>001        11.8       2.55   394</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>  <span style="text-decoration: underline;">2</span>002        11.7       2.40   380</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>  <span style="text-decoration: underline;">2</span>003        11.7       2.44   373</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>  <span style="text-decoration: underline;">2</span>004        11.8       2.52   372</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>  <span style="text-decoration: underline;">2</span>005        11.6       2.29   392</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>  <span style="text-decoration: underline;">2</span>006        12.1       2.85   391</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>  <span style="text-decoration: underline;">2</span>007        11.9       2.51   330</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>  <span style="text-decoration: underline;">2</span>008        11.8       2.71   425</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>  <span style="text-decoration: underline;">2</span>009        12.0       2.60   377</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span>  <span style="text-decoration: underline;">2</span>010        12.0       2.41   349</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span>  <span style="text-decoration: underline;">2</span>011        11.5       2.38   378</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span>  <span style="text-decoration: underline;">2</span>012        11.7       2.64   377</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">14</span>  <span style="text-decoration: underline;">2</span>013        11.7       2.53   389</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">15</span>  <span style="text-decoration: underline;">2</span>014        13.0       3.38   316</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">16</span>  <span style="text-decoration: underline;">2</span>015        13.2       3.33   399</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">17</span>  <span style="text-decoration: underline;">2</span>016        12.8       2.89   385</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">18</span>  <span style="text-decoration: underline;">2</span>017        12.3       2.67   371</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">19</span>  <span style="text-decoration: underline;">2</span>018        12.1       3.01   349</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">20</span>  <span style="text-decoration: underline;">2</span>019        12.4       2.62   384</span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">get_timeseries</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  variable <span class="op">=</span> <span class="st">"ctdcast_bottle.t_deg_c"</span>,</span></span>
+<span class="r-in"><span>  aoi_wkt <span class="op">=</span> <span class="st">"POLYGON ((-120.6421 33.36241, -118.9071 33.36241, -118.9071 34.20707, -120.6421 34.20707, -120.6421 33.36241))"</span>,</span></span>
+<span class="r-in"><span>  depth_m_min <span class="op">=</span> <span class="fl">0</span>, depth_m_max <span class="op">=</span> <span class="fl">200</span>,</span></span>
+<span class="r-in"><span>  date_beg <span class="op">=</span> <span class="st">"2000-01-01"</span>, date_end <span class="op">=</span> <span class="st">"2020-01-01"</span>,</span></span>
+<span class="r-in"><span>  time_step <span class="op">=</span> <span class="st">"year"</span>,</span></span>
+<span class="r-in"><span>  stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p10"</span>, <span class="st">"mean"</span>, <span class="st">"p90"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error in resp_abort(resp, error_body(req, resp)) : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   HTTP 500 Internal Server Error.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in last_response() %&gt;% resp_body_json() %&gt;% .$message %&gt;% stop():</span> Error in (function (variable = "ctd_bottles.t_degc", species_group = NULL, : nrow(v) == 1 is not TRUE</span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -144,13 +135,11 @@ Default is <code>c("p10", "mean", "p90")</code>.</p></dd>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Ben Best, Jai Ranganathan, Cristina Dobbelaere,
-CalCOFI.</p>
+  <p></p><p>Developed by Ben Best, Jai Ranganathan, Cristina Dobbelaere, CalCOFI.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

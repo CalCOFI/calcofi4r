@@ -56,13 +56,13 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">get_raster</span><span class="op">(</span>
-  variable <span class="op">=</span> <span class="st">"ctdcast_bottle.t_deg_c"</span>,
-  cruise_id <span class="op">=</span> <span class="st">"1949-03-01-C-31CR"</span>,
-  depth_m_min <span class="op">=</span> <span class="cn">NULL</span>,
-  depth_m_max <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">out_tif</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_raster</span><span class="op">(</span></span>
+<span>  variable <span class="op">=</span> <span class="st">"ctdcast_bottle.t_deg_c"</span>,</span>
+<span>  cruise_id <span class="op">=</span> <span class="st">"1949-03-01-C-31CR"</span>,</span>
+<span>  depth_m_min <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  depth_m_max <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">out_tif</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -70,39 +70,49 @@
     <dl><dt>variable</dt>
 <dd><p>Variable to fetch from the CalCOFI API. One of <code>table_field</code> values from <code><a href="get_variables.html">get_variables()</a></code>.
 Default is <code>"ctdcast_bottle.t_deg_c"</code>.</p></dd>
+
+
 <dt>cruise_id</dt>
 <dd><p>Cruise identifier. One of <code>cruise_id</code> values from <code><a href="get_cruises.html">get_cruises()</a></code>.
 Default is the first cruise "1949-03-01-C-31CR".</p></dd>
+
+
 <dt>depth_m_min</dt>
 <dd><p>Minimum depth range in meters, e.g. 0. Default is <code>NULL</code>, as in not filtered.</p></dd>
+
+
 <dt>depth_m_max</dt>
 <dd><p>Maximum depth range in meters, e.g. 5351. Default is <code>NULL</code>, as in not filtered.</p></dd>
+
+
 <dt>out_tif</dt>
 <dd><p>Output path to write raster (*.tif)</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>path to output raster in GeoTIFF format (*.tif)</p>
+    
+
+<p>path to output raster in GeoTIFF format (*.tif)</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">out_tif</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext<span class="op">=</span><span class="st">".tif"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">get_raster</span><span class="op">(</span></span>
-<span class="r-in">  variable <span class="op">=</span> <span class="st">"ctdcast_bottle.t_deg_c"</span>,</span>
-<span class="r-in">  cruise_id <span class="op">=</span> <span class="st">"1949-03-01-C-3d1CR"</span>,</span>
-<span class="r-in">  depth_m_min <span class="op">=</span> <span class="fl">0</span>, depth_m_max <span class="op">=</span> <span class="fl">200</span>,</span>
-<span class="r-in">  out_tif <span class="op">=</span> <span class="va">out_tif</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">out_tif</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext<span class="op">=</span><span class="st">".tif"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">get_raster</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  variable <span class="op">=</span> <span class="st">"ctdcast_bottle.t_deg_c"</span>,</span></span>
+<span class="r-in"><span>  cruise_id <span class="op">=</span> <span class="st">"1949-03-01-C-3d1CR"</span>,</span></span>
+<span class="r-in"><span>  depth_m_min <span class="op">=</span> <span class="fl">0</span>, depth_m_max <span class="op">=</span> <span class="fl">200</span>,</span></span>
+<span class="r-in"><span>  out_tif <span class="op">=</span> <span class="va">out_tif</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Error in resp_abort(resp, error_body(req, resp)) : </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   HTTP 500 Internal Server Error.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in last_response() %&gt;% resp_body_json() %&gt;% .$message %&gt;% stop():</span> Error in st_transform.sfc(st_geometry(x), crs, ...): cannot transform sfc object with missing crs</span>
-<span class="r-in"><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html" class="external-link">raster</a></span><span class="op">(</span><span class="va">out_tif</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Error in .local(.Object, ...) : </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in last_response() %&gt;% resp_body_json() %&gt;% .$message %&gt;% stop():</span> Error in (function (variable = "ctd_bottles.t_degc", cruise_id = "2020-01-05-C-33RL", : nrow(v) == 1 is not TRUE</span>
+<span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html" class="external-link">raster</a></span><span class="op">(</span><span class="va">out_tif</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//Rtmp6W4cGo/file10d2054f858a7.tif: No such file or directory (GDAL error 4)</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in .rasterObjectFromFile(x, band = band, objecttype = "RasterLayer",     ...):</span> Cannot create a RasterLayer object from this file. (file does not exist)</span>
-<span class="r-in"><span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'plot': object 'r' not found</span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">out_tif</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">out_tif</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -113,13 +123,11 @@ Default is the first cruise "1949-03-01-C-31CR".</p></dd>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Ben Best, Jai Ranganathan, Cristina Dobbelaere,
-CalCOFI.</p>
+  <p></p><p>Developed by Ben Best, Jai Ranganathan, Cristina Dobbelaere, CalCOFI.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

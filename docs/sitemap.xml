@@ -16,9 +16,6 @@
     <loc>https://calcofi.github.io/calcofi4r/LICENSE.html</loc>
   </url>
   <url>
-    <loc>https://calcofi.github.io/calcofi4r/articles/calccofi4r.html</loc>
-  </url>
-  <url>
     <loc>https://calcofi.github.io/calcofi4r/articles/calcofi4r.html</loc>
   </url>
   <url>
@@ -37,10 +34,7 @@
     <loc>https://calcofi.github.io/calcofi4r/news/index.html</loc>
   </url>
   <url>
-    <loc>https://calcofi.github.io/calcofi4r/reference/bottle.html</loc>
-  </url>
-  <url>
-    <loc>https://calcofi.github.io/calcofi4r/reference/dic.html</loc>
+    <loc>https://calcofi.github.io/calcofi4r/reference/area_calcofi_extended.html</loc>
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/get_cruises.html</loc>
@@ -68,5 +62,11 @@
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/stations.html</loc>
+  </url>
+  <url>
+    <loc>https://calcofi.github.io/calcofi4r/reference/stations_t_degc.html</loc>
+  </url>
+  <url>
+    <loc>https://calcofi.github.io/calcofi4r/reference/tbl_to_contour_ply.html</loc>
   </url>
 </urlset>

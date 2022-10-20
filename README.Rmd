@@ -41,7 +41,7 @@ library(calcofi4r)
 with(v[1,],
   plot_timeseries(
     # data and columns (from d)
-    d, year, t_deg_c_avg, t_deg_c_sd,
+    d, year, val_avg, val_sd,
     # plot attributes (from v)
     plot_title, plot_label, plot_color))
 ```

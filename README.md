@@ -18,46 +18,43 @@ library(calcofi4r)
 
 # get variables
 (v <- get_variables())
-#> Rows: 7 Columns: 5
+#> Rows: 3 Columns: 6
 #> ── Column specification ────────────────────────────────────────────────────────
 #> Delimiter: ","
-#> chr (5): category, table_field, plot_title, plot_label, plot_color
+#> chr (6): category, table_field, plot_title, plot_label, plot_color, color_pa...
 #> 
 #> ℹ Use `spec()` to retrieve the full column specification for this data.
 #> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-#> # A tibble: 7 × 5
-#>   category      table_field                     plot_title plot_label plot_color
-#>   <chr>         <chr>                           <chr>      <chr>      <chr>     
-#> 1 Oceanographic ctdcast_bottle.t_deg_c          Sea Surfa… Temperatu… red       
-#> 2 Oceanographic ctdcast_bottle.salnty           Salinity   Salinity … gray      
-#> 3 Oceanographic ctdcast_bottle_dic.bottle_o2_m… Oxygen Co… Oxygen (m… blue      
-#> 4 Oceanographic ctdcast_bottle_dic.bottle_o2_m… Oxygen Co… Oxygen (µ… blue      
-#> 5 Oceanographic ctdcast_bottle_dic.dic1         Dissolved… DIC (µmol… brown     
-#> 6 Oceanographic ctdcast_bottle_dic.dic2         Dissolved… DIC (µmol… brown     
-#> 7 Oceanographic ctdcast_bottle.o2sat            Oxygen Sa… Oxygen pe… blue
+#> # A tibble: 3 × 6
+#>   category      table_field          plot_title        plot_la…¹ plot_…² color…³
+#>   <chr>         <chr>                <chr>             <chr>     <chr>   <chr>  
+#> 1 Oceanographic ctd_bottles.t_degc   Temperature       Temperat… red     Reds   
+#> 2 Oceanographic ctd_bottles.salinity Salinity          Salinity… purple  Purples
+#> 3 Oceanographic ctd_bottles.o2sat    Oxygen Saturation Oxygen p… blue    Blues  
+#> # … with abbreviated variable names ¹​plot_label, ²​plot_color, ³​color_palette
 
 # fetch time series data for the first variable from CalCOFI API
 (d <- get_timeseries(v$table_field[1]))
 #> # A tibble: 71 × 4
-#>     year t_deg_c_avg t_deg_c_sd n_obs
-#>    <dbl>       <dbl>      <dbl> <dbl>
-#>  1  1949        9.12       4.68 28081
-#>  2  1950        9.12       4.37 38298
-#>  3  1951        9.19       4.54 40459
-#>  4  1952       10.4        4.03 31690
-#>  5  1953       10.6        3.71 29789
-#>  6  1954       10.8        4.33 18874
-#>  7  1955       10.1        4.71 23248
-#>  8  1956       11.2        4.41 14274
-#>  9  1957       13.0        5.04 19072
-#> 10  1958       12.1        4.71 24324
+#>     year val_avg val_sd n_obs
+#>    <dbl>   <dbl>  <dbl> <dbl>
+#>  1  1949    9.12   4.68 28081
+#>  2  1950    9.12   4.37 38298
+#>  3  1951    9.19   4.54 40459
+#>  4  1952   10.4    4.03 31690
+#>  5  1953   10.6    3.71 29789
+#>  6  1954   10.8    4.33 18874
+#>  7  1955   10.1    4.71 23248
+#>  8  1956   11.2    4.41 14274
+#>  9  1957   13.0    5.04 19072
+#> 10  1958   12.1    4.71 24324
 #> # … with 61 more rows
 
 # plot time series with the first variable
 with(v[1,],
   plot_timeseries(
     # data and columns (from d)
-    d, year, t_deg_c_avg, t_deg_c_sd,
+    d, year, val_avg, val_sd,
     # plot attributes (from v)
     plot_title, plot_label, plot_color))
 ```
@@ -72,14 +69,14 @@ with(v[1,],
 #> Rows: 658 Columns: 8
 #> ── Column specification ────────────────────────────────────────────────────────
 #> Delimiter: ","
-#> chr  (1): cruise_id
+#> chr  (1): cruiseid
 #> dbl  (5): lon_min, lon_max, lat_min, lat_max, n_casts
 #> date (2): date_beg, date_end
 #> 
 #> ℹ Use `spec()` to retrieve the full column specification for this data.
 #> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 #> # A tibble: 658 × 8
-#>    cruise_id       date_beg   date_end   lon_min lon_max lat_min lat_max n_casts
+#>    cruiseid        date_beg   date_end   lon_min lon_max lat_min lat_max n_casts
 #>    <chr>           <date>     <date>       <dbl>   <dbl>   <dbl>   <dbl>   <dbl>
 #>  1 2020-01-05-C-3… 2020-01-05 2020-01-26   -126.   -117.    29.9    37.8     104
 #>  2 2019-11-04-C-3… 2019-11-04 2019-11-18   -124.   -117.    29.8    35.1      75
@@ -95,11 +92,11 @@ with(v[1,],
 
 # get path of temporary file to store raster
 (r_tif <- tempfile(fileext=".tif"))
-#> [1] "/var/folders/yw/yhdcs2vn44qbyqhktjhbl4br0000gn/T//RtmpENZzPg/filec6806f92bc40.tif"
+#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmplB9boY/file10c0d29024f0e.tif"
 
 # use second variable from previously fetched v
 c(v$table_field[2], v$plot_label[2])
-#> [1] "ctdcast_bottle.salnty"               "Salinity (practical salinity scale)"
+#> [1] "ctd_bottles.salinity"                "Salinity (practical salinity scale)"
 
 # fetch interpolated raster from CalCOFI API
 get_raster(
@@ -107,7 +104,7 @@ get_raster(
   cruise_id = "2020-01-05-C-33RL",
   depth_m_min = 0, depth_m_max = 200,
   out_tif = r_tif)
-#> [1] "/var/folders/yw/yhdcs2vn44qbyqhktjhbl4br0000gn/T//RtmpENZzPg/filec6806f92bc40.tif"
+#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmplB9boY/file10c0d29024f0e.tif"
 
 # read raster
 r <- raster::raster(r_tif)

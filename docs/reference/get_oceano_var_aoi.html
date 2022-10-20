@@ -56,39 +56,44 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">get_oceano_var_aoi</span><span class="op">(</span>
-  <span class="va">var</span>,
-  <span class="va">aoi</span>,
-  date_step <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year"</span>, <span class="st">"day"</span>, <span class="st">"week"</span>, <span class="st">"month"</span>, <span class="st">"quarter"</span>, <span class="st">"decade"</span><span class="op">)</span>,
-  depth_min <span class="op">=</span> <span class="fl">0</span>,
-  depth_max <span class="op">=</span> <span class="fl">10</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_oceano_var_aoi</span><span class="op">(</span></span>
+<span>  <span class="va">var</span>,</span>
+<span>  <span class="va">aoi</span>,</span>
+<span>  date_step <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year"</span>, <span class="st">"day"</span>, <span class="st">"week"</span>, <span class="st">"month"</span>, <span class="st">"quarter"</span>, <span class="st">"decade"</span><span class="op">)</span>,</span>
+<span>  depth_min <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  depth_max <span class="op">=</span> <span class="fl">10</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>var</dt>
 <dd><p>variable of interest (TODO: see keys)</p></dd>
+
+
 <dt>aoi</dt>
 <dd><p>area of interest</p></dd>
+
+
 <dt>date_step</dt>
 <dd><p>eg month, quarter, year</p></dd>
+
+
 <dt>depth_min</dt>
 <dd><p>depth minimum</p></dd>
+
+
 <dt>depth_max</dt>
 <dd><p>depth maximum</p></dd>
+
 </dl></div>
-    <div id="value">
-    <h2>Value</h2>
-    
-    </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="fu">get_oceano_var_aoi</span><span class="op">(</span><span class="st">"Bottle O2(ml_L)"</span>, <span class="va">cinms_ply</span>, <span class="st">"year"</span>, <span class="fl">0</span>, <span class="fl">4000</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu">get_oceano_var_aoi</span><span class="op">(</span><span class="st">"Bottle O2(ml_L)"</span>, <span class="va">cinms_ply</span>, <span class="st">"year"</span>, <span class="fl">0</span>, <span class="fl">4000</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -99,13 +104,11 @@
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Ben Best, Jai Ranganathan, Cristina Dobbelaere,
-CalCOFI.</p>
+  <p></p><p>Developed by Ben Best, Jai Ranganathan, Cristina Dobbelaere, CalCOFI.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>
