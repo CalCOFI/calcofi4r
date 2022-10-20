@@ -1,6 +1,10 @@
+# calcofi4r 0.5.1
+
+* handle defaults with `plot_depth()`, streamline headings in article and descriptions in functions
+
 # calcofi4r 0.5.0
 
-* \+ `plot_depth` and example data `bottle_temp_depth`
+* \+ `plot_depth()` and example data `bottle_temp_depth`
 * `stations_t_degc` -> `bottle_temp_lonlat`
 
 # calcofi4r 0.4.1
