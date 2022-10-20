@@ -9,15 +9,21 @@ plot_depth(df, variable = "Temperature", interactive = TRUE)
 \arguments{
 \item{df}{data frame with columns: \code{cast_count}, \code{depth_m}, \code{v}}
 
-\item{variable}{variable (character), should be one of \code{plot_title} from \code{get_variables()}; default: \code{"Temperature"}}
+\item{variable}{variable (character), should be one of \code{plot_title} from
+\code{get_variables()}; default: \code{"Temperature"}}
 
 \item{interactive}{whether to render interactive plot; default: \code{TRUE}}
 }
 \value{
-interactive plot of type \code{plotly::ggplotly()} or static plot of type \code{ggplot2::ggplot()}.
+interactive plot of type \code{plotly::ggplotly()} or static plot of type
+\code{ggplot2::ggplot()}.
 }
 \description{
-Plot interactive depth of an oceanographic variable
+The plot initially has descending depth on y-axis and ascending variable
+(e.g., Temperature) on x-axis with each line representing a unique CTD cast
+across each depth recorded. If the plot is interactive, then on hover the CTD
+cast (uniquely identified by \code{cast_count}) is highlighted in red and others
+dimmed in gray.
 }
 \examples{
 # plot depth with the station data

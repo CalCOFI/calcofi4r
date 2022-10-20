@@ -1,10 +1,18 @@
 #' Plot interactive depth of an oceanographic variable
 #'
+#' The plot initially has descending depth on y-axis and ascending variable
+#' (e.g., Temperature) on x-axis with each line representing a unique CTD cast
+#' across each depth recorded. If the plot is interactive, then on hover the CTD
+#' cast (uniquely identified by `cast_count`) is highlighted in red and others
+#' dimmed in gray.
+#'
 #' @param df data frame with columns: `cast_count`, `depth_m`, `v`
 #' @param interactive whether to render interactive plot; default: `TRUE`
-#' @param variable variable (character), should be one of `plot_title` from `get_variables()`; default: `"Temperature"`
+#' @param variable variable (character), should be one of `plot_title` from
+#'   `get_variables()`; default: `"Temperature"`
 #'
-#' @return interactive plot of type `plotly::ggplotly()` or static plot of type `ggplot2::ggplot()`.
+#' @return interactive plot of type `plotly::ggplotly()` or static plot of type
+#'   `ggplot2::ggplot()`.
 #' @concept visualize
 #' @import dplyr ggplot2 plotly stringr
 #' @export
