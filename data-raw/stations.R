@@ -11,8 +11,8 @@ stations <- sf::read_sf(con, "stations") %>%
     is_cce, is_ccelter, is_sccoos)
 usethis::use_data(stations, overwrite = TRUE)
 
-# stations_t_degc ----
-stations_t_degc <- tbl(con, "stations_order") %>%
+# bottle_temp_lonlat ----
+bottle_temp_lonlat <- tbl(con, "stations_order") %>%
   left_join(
     tbl(con, "ctd_casts"),
     by = c(
@@ -26,10 +26,10 @@ stations_t_degc <- tbl(con, "stations_order") %>%
     v = mean(t_degc, na.rm=T),
     .groups = "drop") %>%
   collect()
-usethis::use_data(stations_t_degc, overwrite = TRUE)
+usethis::use_data(bottle_temp_lonlat, overwrite = TRUE)
 
 # area_calcofi_extended ----
-h <- stations_t_degc %>%
+h <- bottle_temp_lonlat %>%
   st_as_sf(
     coords = c("lon", "lat"), crs = 4326, remove = T) %>%
   st_union() %>%
@@ -40,4 +40,42 @@ ca <- rnaturalearthhires::states10 %>%
     name == "California")
 area_calcofi_extended <- st_difference(h, ca) # mapview::mapView(h)
 usethis::use_data(area_calcofi_extended, overwrite = TRUE)
+
+
+# bottle_temp_depth ----
+bottle_temp_depth <- tbl(con, "stations_order") %>%
+  left_join(
+    tbl(con, "ctd_casts"),
+    by = c(
+      "LINE" = "rptline",
+      "STA"  = "rptsta")) %>%
+  left_join(
+    tbl(con, "ctd_bottles"),
+    by="cast_count") %>%
+  group_by(cast_count, depth_m = depthm) %>%
+  summarize(
+    v = mean(t_degc, na.rm=T),
+    .groups = "drop") %>%
+  filter(!is.na(v)) %>%
+  group_by(cast_count) %>%
+  mutate(
+    n_bottles = n()) %>%
+  collect() %>%
+  filter(
+    n_bottles >= 70) %>%
+  select(-n_bottles)
+# z <- bottle_temp_depth %>%
+#   group_by(cast_count) %>%
+#   summarize(
+#     n = n()) %>%
+#   arrange(desc(n)) %>%
+#   tibble::rowid_to_column("id")
+#
+# z %>%
+#   group_by(n) %>%
+#   summarize(
+#     nrows = last(id),
+#     .groups = "drop") %>%
+#   arrange(desc(n)) %>% View()
+usethis::use_data(bottle_temp_depth, overwrite = TRUE)
 

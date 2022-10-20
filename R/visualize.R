@@ -1,3 +1,74 @@
+#' Plot interactive depth of an oceanographic variable
+#'
+#' @param df data frame with columns: `cast_count`, `depth_m`, `v`
+#' @param interactive whether to render interactive plot; default: `TRUE`
+#' @param variable variable (character), should be one of `plot_title` from `get_variables()`; default: `"Temperature"`
+#'
+#' @return interactive plot of type `plotly::ggplotly()` or static plot of type `ggplot2::ggplot()`.
+#' @concept visualize
+#' @import dplyr ggplot2 plotly stringr
+#' @export
+#'
+#' @examples
+#' # plot depth with the station data
+#' plot_depth(df = bottle_temp_depth, variable = "Temperature")
+plot_depth <- function(
+    df,
+    variable = "Temperature",
+    interactive = TRUE){
+  # df = bottle_temp_depth; interactive = TRUE; variable = "Temperature"
+
+  # get variable attributes
+  d_var <- get_variables() %>%
+    dplyr::filter(plot_title == !!variable)
+
+  # check for single set of variable attributes and required names in df
+  stopifnot(nrow(d_var) == 1)
+  stopifnot(all(names(df) %in% c("cast_count", "depth_m", "v")))
+
+  # filter for NAs
+  df <- df %>%
+    dplyr::select(cast_count, depth_m, v) %>%
+    dplyr::filter(!is.na(v))
+
+  # get plot parameters from variable
+  clr   <- d_var$plot_color
+  v_lbl <- d_var$plot_title
+  x_lbl <- d_var$plot_label
+  y_lbl <- "Depth (m)"
+
+  # if interactive, setup data frame for highlighting
+  if (interactive){
+    d <- plotly::highlight_key(df, ~cast_count)
+  } else {
+    d <- df
+  }
+
+  # create ggplot of variable with depth
+  g <- ggplot2::ggplot(
+    data = d,
+    ggplot2::aes(
+      x     = v,
+      y     = depth_m,
+      group = cast_count)) +
+    ggplot2::geom_line(size = 0.5, alpha = 0.5) +
+    ggplot2::scale_y_reverse() +
+    ggplot2::labs(
+      x     = x_lbl,
+      y     = y_lbl,
+      title = glue::glue("{v_lbl} with Depth"))
+
+  # if interactive, return plotly, otherwise ggplot
+  if (interactive){
+    p <- plotly::ggplotly(
+      g, tooltip = "cast_count") %>%
+      highlight(on = "plotly_hover", dynamic = T)
+    return(p)
+  } else {
+    return(g)
+  }
+}
+
 #' Plot interactive time series of an oceanographic variable
 #'
 #' @param d data frame with data
@@ -57,55 +128,6 @@ plot_timeseries <- function(
     # dygraphs::dyRangeSelector(fillColor = "#FFFFFF", strokeColor = "#FFFFFF")
 }
 
-#' Map raster
-#'
-#' @param r raster of type `raster::raster()`
-#' @param legend_title title for legend of variable mapped
-#'
-#' @return interactive plot of `leaflet::leaflet()`
-#' @concept visualize
-#' @import dplyr leaflet
-#' @importFrom sf st_bbox
-#' @importFrom raster extent projectExtent values
-#' @export
-#'
-#' @examples
-#' # get variables
-#' (v <- get_variables())
-#'
-#' # get data for the first variable
-#' (d <- get_timeseries(v$table_field[1]))
-#'
-#' # plot time series with the first variable
-#' with(v[1,],
-#'   plot_timeseries(
-#'     # data and columns (from d)
-#'     d, year, t_deg_c_avg, t_deg_c_sd,
-#'     # plot attributes (from v)
-#'     plot_title, plot_label, plot_color))
-map_raster <- function(
-  r, legend_title = "Temperature (ºC)"){ # }, color = "red") {
-
-  # legend_title = v$plot_label[2]
-
-  b <- sf::st_bbox(raster::extent(raster::projectExtent(r, crs = 4326)))
-  r_v <- raster::values(r)
-  pal <- colorNumeric("Spectral", r_v, na.color = NA)
-
-  leaflet() %>%
-    addProviderTiles(
-      providers$Stamen.TonerLite,
-      options = providerTileOptions(noWrap = TRUE)) %>%
-      addRasterImage(
-        r, project = F,
-        colors = pal, opacity=0.7) %>%
-      # TODO: add log/log10 option
-      addLegend(
-        pal = pal, values = r_v,
-        title = legend_title) %>%
-      flyToBounds(b[['xmin']], b[['ymin']], b[['xmax']], b[['ymax']])
-}
-
 #' Table to Contour Map
 #'
 #' Fit generalized additive model to a variable in space using a smoother on
@@ -122,11 +144,11 @@ map_raster <- function(
 #' @export
 #' @concept visualize
 #' @examples
-#' v_ply <- map_contours(stations_t_degc, area_calcofi_extended)
+#' v_ply <- map_contours(bottle_temp_lonlat, area_calcofi_extended)
 #' mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
 map_contours <- function(df, ply, k=60, cw=0.1){
 
-  # df=stations_t_degc; ply=area_calcofi_extended; k=60; cw=0.1
+  # df=bottle_temp_lonlat; ply=area_calcofi_extended; k=60; cw=0.1
 
   # check column names in data frame
   stopifnot(all(c("lon", "lat", "v") %in% names(df)))
@@ -158,8 +180,8 @@ map_contours <- function(df, ply, k=60, cw=0.1){
     rename(geom = x) %>%
     cbind(., sf::st_coordinates(.)) %>%
     dplyr::rename(lon = X, lat = Y) # %>%
-    # dplyr::mutate(
-    #   in_ply = sf::st_intersects(ply, geom, sparse = F)[1,])
+  # dplyr::mutate(
+  #   in_ply = sf::st_intersects(ply, geom, sparse = F)[1,])
   g$in_ply <- sf::st_intersects(ply, g, sparse = F)[1,]
   # table(g$in_ply)
 
@@ -209,4 +231,51 @@ map_contours <- function(df, ply, k=60, cw=0.1){
   b_sf
 }
 
+#' Map raster
+#'
+#' @param r raster of type `raster::raster()`
+#' @param legend_title title for legend of variable mapped
+#'
+#' @return interactive plot of `leaflet::leaflet()`
+#' @concept visualize
+#' @import dplyr leaflet
+#' @importFrom sf st_bbox
+#' @importFrom raster extent projectExtent values
+#' @export
+#'
+#' @examples
+#' # get variables
+#' (v <- get_variables())
+#'
+#' # get data for the first variable
+#' (d <- get_timeseries(v$table_field[1]))
+#'
+#' # plot time series with the first variable
+#' with(v[1,],
+#'   plot_timeseries(
+#'     # data and columns (from d)
+#'     d, year, t_deg_c_avg, t_deg_c_sd,
+#'     # plot attributes (from v)
+#'     plot_title, plot_label, plot_color))
+map_raster <- function(
+  r, legend_title = "Temperature (ºC)"){ # }, color = "red") {
 
+  # legend_title = v$plot_label[2]
+
+  b <- sf::st_bbox(raster::extent(raster::projectExtent(r, crs = 4326)))
+  r_v <- raster::values(r)
+  pal <- colorNumeric("Spectral", r_v, na.color = NA)
+
+  leaflet() %>%
+    addProviderTiles(
+      providers$Stamen.TonerLite,
+      options = providerTileOptions(noWrap = TRUE)) %>%
+      addRasterImage(
+        r, project = F,
+        colors = pal, opacity=0.7) %>%
+      # TODO: add log/log10 option
+      addLegend(
+        pal = pal, values = r_v,
+        title = legend_title) %>%
+      flyToBounds(b[['xmin']], b[['ymin']], b[['xmax']], b[['ymax']])
+}

@@ -37,6 +37,12 @@
     <loc>https://calcofi.github.io/calcofi4r/reference/area_calcofi_extended.html</loc>
   </url>
   <url>
+    <loc>https://calcofi.github.io/calcofi4r/reference/bottle_temp_depth.html</loc>
+  </url>
+  <url>
+    <loc>https://calcofi.github.io/calcofi4r/reference/bottle_temp_lonlat.html</loc>
+  </url>
+  <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/get_cruises.html</loc>
   </url>
   <url>
@@ -62,6 +68,9 @@
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/map_raster.html</loc>
+  </url>
+  <url>
+    <loc>https://calcofi.github.io/calcofi4r/reference/plot_depth.html</loc>
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/plot_timeseries.html</loc>

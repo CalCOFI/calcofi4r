@@ -16,6 +16,24 @@ knitr::opts_chunk$set(
 )
 # devtools::document()
 # devtools::install_local(here::here(), force=T) # install local
+devtools::load_all()
+```
+
+## Map contours of a variable
+
+```{r}
+# show first 6 rows of example data frame with temperature in space as variable
+head(bottle_temp_lonlat)
+
+# show bounding polygon
+# mapview::mapView(area_calcofi_extended)
+
+# get map contours, aka isobands, of variable using generalized additive model (GAM)
+v_ply <- map_contours(
+  df = bottle_temp_lonlat, ply = area_calcofi_extended)
+
+# show contour polygons on map 
+mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
 ```
 
 ## Plot time series of an oceanographic variable
@@ -38,23 +56,13 @@ with(v[1,],
     plot_title, plot_label, plot_color))
 ```
 
-## Map contours of a variable
+## Plot depth of an oceanographic variable
 
 ```{r}
-# show first 6 rows of example data frame with temperature as variable
-head(stations_t_degc)
+head(bottle_temp_depth)
 
-# show bounding polygon
-mapview::mapView(area_calcofi_extended)
-```
-
-```{r}
-# map contours, aka isobands, of variable using generalized additive model (GAM)
-v_ply <- map_contours(
-  df = stations_t_degc, ply = area_calcofi_extended)
-
-# show contour polygons on map 
-mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
+# plot depth with the station data
+plot_depth(df = bottle_temp_depth, variable = "Temperature")
 ```
 
 

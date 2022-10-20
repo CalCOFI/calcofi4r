@@ -6,10 +6,18 @@ CalCOFI API at [api.calcofi.io](https://api.calcofi.io).
 
 ## Install R package
 
+## Map contours of a variable
+
 ``` r
-# install.packages("devtools")
-remotes::install_github("calcofi/calcofi4r")
+# map contours, aka isobands, of variable using generalized additive model (GAM)
+v_ply <- map_contours(
+  df = bottle_temp_lonlat, ply = area_calcofi_extended)
+
+# show contour polygons on map 
+mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
 ```
+
+![](man/figures/map_contours-1.png)<!-- -->
 
 ## Plot time series of an oceanographic variable
 
@@ -18,13 +26,6 @@ library(calcofi4r)
 
 # get variables
 (v <- get_variables())
-#> Rows: 3 Columns: 6
-#> ── Column specification ────────────────────────────────────────────────────────
-#> Delimiter: ","
-#> chr (6): category, table_field, plot_title, plot_label, plot_color, color_pa...
-#> 
-#> ℹ Use `spec()` to retrieve the full column specification for this data.
-#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 #> # A tibble: 3 × 6
 #>   category      table_field          plot_title        plot_la…¹ plot_…² color…³
 #>   <chr>         <chr>                <chr>             <chr>     <chr>   <chr>  
@@ -61,33 +62,34 @@ with(v[1,],
 
 ![](man/figures/plot_timeseries-1.png)<!-- -->
 
-## Map contours of a variable
+## Plot depth of an oceanographic variable
 
 ``` r
-# map contours, aka isobands, of variable using generalized additive model (GAM)
-v_ply <- map_contours(
-  df = stations_t_degc, ply = area_calcofi_extended)
+head(bottle_temp_depth)
+#> # A tibble: 6 × 3
+#> # Groups:   cast_count [1]
+#>   cast_count depth_m     v
+#>        <int>   <dbl> <dbl>
+#> 1      12874       0  15.5
+#> 2      12874       8  14.8
+#> 3      12874      10  14.7
+#> 4      12874      20  14.2
+#> 5      12874      23  14.2
+#> 6      12874      30  14.2
 
-# show contour polygons on map 
-mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
+# plot depth with the station data
+plot_depth(
+  df = bottle_temp_depth, variable = "Temperature",
+  interactive = F)
 ```
 
-![](man/figures/unnamed-chunk-1-1.png)<!-- -->
+![](man/figures/plot_depth-1.png)<!-- -->
 
 ## Map interpolated oceanographic variable for a cruise
 
 ``` r
 # get cruises
 (z <- get_cruises())
-#> Rows: 658 Columns: 8
-#> ── Column specification ────────────────────────────────────────────────────────
-#> Delimiter: ","
-#> chr  (1): cruiseid
-#> dbl  (5): lon_min, lon_max, lat_min, lat_max, n_casts
-#> date (2): date_beg, date_end
-#> 
-#> ℹ Use `spec()` to retrieve the full column specification for this data.
-#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 #> # A tibble: 658 × 8
 #>    cruiseid        date_beg   date_end   lon_min lon_max lat_min lat_max n_casts
 #>    <chr>           <date>     <date>       <dbl>   <dbl>   <dbl>   <dbl>   <dbl>
@@ -105,7 +107,7 @@ mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
 
 # get path of temporary file to store raster
 (r_tif <- tempfile(fileext=".tif"))
-#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpOJrhSM/file11a5673c63706.tif"
+#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpZFLFdm/file144af411eac5a.tif"
 
 # use second variable from previously fetched v
 c(v$table_field[2], v$plot_label[2])
@@ -117,7 +119,7 @@ get_raster(
   cruise_id = "2020-01-05-C-33RL",
   depth_m_min = 0, depth_m_max = 200,
   out_tif = r_tif)
-#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpOJrhSM/file11a5673c63706.tif"
+#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpZFLFdm/file144af411eac5a.tif"
 
 # read raster
 r <- raster::raster(r_tif)

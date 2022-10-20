@@ -19,7 +19,7 @@ Fit generalized additive model to a variable in space using a smoother on
 latitude & longitude. Further clip by bouding polygon.
 }
 \examples{
-v_ply <- map_contours(stations_t_degc, area_calcofi_extended)
+v_ply <- map_contours(bottle_temp_lonlat, area_calcofi_extended)
 mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
 }
 \concept{visualize}

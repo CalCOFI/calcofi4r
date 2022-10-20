@@ -1,3 +1,8 @@
+# calcofi4r 0.5.0
+
+* \+ `plot_depth` and example data `bottle_temp_depth`
+* `stations_t_degc` -> `bottle_temp_lonlat`
+
 # calcofi4r 0.4.1
 
 * rename `tbl_to_contour_ply()` to `map_contours()`

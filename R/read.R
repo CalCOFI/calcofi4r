@@ -13,7 +13,7 @@
 get_variables <- function(){
   req_vars <- req_perform(request("https://api.calcofi.io/variables"))
   stopifnot(!req_vars %>% httr2::resp_is_error())
-  req_vars %>% resp_body_raw() %>% read_csv()
+  req_vars %>% resp_body_raw() %>% read_csv(show_col_types = F)
 }
 
 #' Get cruises from CalCOFI API
@@ -36,7 +36,7 @@ get_cruises <- function(){
   # librarian::shelf(httr2, readr)
   req_vars <- req_perform(request("https://api.calcofi.io/cruises"))
   stopifnot(!req_vars %>% httr2::resp_is_error())
-  req_vars %>% resp_body_raw() %>% read_csv()
+  req_vars %>% resp_body_raw() %>% read_csv(show_col_types = F)
 }
 
 #' Get raster of interpolated values from CalCOFI API

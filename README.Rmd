@@ -21,10 +21,23 @@ knitr::opts_chunk$set(
 
 ## Install R package
 
-```r
+```{r, include = FALSE}
 # install.packages("devtools")
-remotes::install_github("calcofi/calcofi4r")
+# remotes::install_github("calcofi/calcofi4r")
+devtools::load_all()
 ```
+
+## Map contours of a variable
+
+```{r map_contours}
+# map contours, aka isobands, of variable using generalized additive model (GAM)
+v_ply <- map_contours(
+  df = bottle_temp_lonlat, ply = area_calcofi_extended)
+
+# show contour polygons on map 
+mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
+```
+
 
 ## Plot time series of an oceanographic variable
 
@@ -46,15 +59,15 @@ with(v[1,],
     plot_title, plot_label, plot_color))
 ```
 
-## Map contours of a variable
+## Plot depth of an oceanographic variable
 
-```{r}
-# map contours, aka isobands, of variable using generalized additive model (GAM)
-v_ply <- map_contours(
-  df = stations_t_degc, ply = area_calcofi_extended)
+```{r plot_depth}
+head(bottle_temp_depth)
 
-# show contour polygons on map 
-mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
+# plot depth with the station data
+plot_depth(
+  df = bottle_temp_depth, variable = "Temperature",
+  interactive = F)
 ```
 
 ## Map interpolated oceanographic variable for a cruise
