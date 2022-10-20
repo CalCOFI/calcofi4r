@@ -10,6 +10,7 @@ A data frame with 9,865 rows and 3 variables \describe{
 \item{lat}{latitude}
 \item{v}{variable, in this case temperature (º Celsius)}
 }
+}
 \source{
 \url{https://calcofi.org/sampling-info/station-positions/} \url{https://calcofi.org/data/oceanographic-data/bottle-database/}
 }

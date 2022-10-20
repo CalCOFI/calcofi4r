@@ -3,7 +3,7 @@ pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
   calcofi4r: calcofi4r.html
-last_built: 2022-10-20T15:06Z
+last_built: 2022-10-20T15:16Z
 urls:
   reference: https://calcofi.github.io/calcofi4r/reference
   article: https://calcofi.github.io/calcofi4r/articles

@@ -1,12 +1,16 @@
+# calcofi4r 0.4.0
+
+* \+ `tbl_to_contour_ply()` and example data `area_calcofi_extended` `stations_t_degc`
+
 # calcofi4r 0.3.0
 
-* + `get_cruises()` and `get_raster()` for reading from the CalCOFI API.
-* + `map_raster()` and `plot_timeseries()` for visualizing.
-* + "Get started" vignette and README.Rmd -> README.md with example usage
+* \+ `get_cruises()` and `get_raster()` for reading from the CalCOFI API.
+* \+ `map_raster()` and `plot_timeseries()` for visualizing.
+* \+ "Get started" vignette and README.Rmd -> README.md with example usage
 
 # calcofi4r 0.2.0
 
-* + `get_variables()`, `get_timeseries()` for reading from the API at https://api.calcofi.io
+* \+ `get_variables()`, `get_timeseries()` for reading from the API at https://api.calcofi.io
 
 # calcofi4r 0.1.2
 

@@ -29,6 +29,7 @@
 #'   \item{lon}{longitude}
 #'   \item{lat}{latitude}
 #'   \item{v}{variable, in this case temperature (º Celsius)}
+#' }
 #' @source \url{https://calcofi.org/sampling-info/station-positions/} \url{https://calcofi.org/data/oceanographic-data/bottle-database/}
 #' @concept data
 "stations_t_degc"
