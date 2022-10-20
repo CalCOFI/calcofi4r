@@ -126,13 +126,16 @@ map_raster <- function(
 #' mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
 tbl_to_contour_ply <- function(df, ply, k=60, cw=0.1){
 
-  # df = stations_t_degc; ply=area_calcofi_extended; k=60; cw=0.1
+  # df=stations_t_degc; ply=area_calcofi_extended; k=60; cw=0.1
 
   # check column names in data frame
   stopifnot(all(c("lon", "lat", "v") %in% names(df)))
 
   # check geographic projection of input polygon boundary
-  stopifnot(sf::st_crs(ply) == sf::st_crs(4326))
+  if(sf::st_crs(ply) != sf::st_crs(4326)){
+    warning(glue::glue("The input parameter `ply` to function `tbl_to_contour_ply()` is not exactly geographic coordinate ref system (4326), so setting."))
+    sf::st_crs(ply) = 4326
+  }
 
   # filter NAs
   df <- df %>%
