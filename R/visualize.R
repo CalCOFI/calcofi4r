@@ -70,7 +70,15 @@ plot_depth <- function(
   if (interactive){
     p <- plotly::ggplotly(
       g, tooltip = "cast_count") %>%
-      highlight(on = "plotly_hover", dynamic = T)
+      plotly::highlight(
+        on      = "plotly_hover",
+        off     = "plotly_doubleclick",
+        dynamic = T,
+        color   = c(NULL, RColorBrewer::brewer.pal(4, "Set1")))
+
+    # Setting the `off` event (i.e., 'plotly_doubleclick')
+    # to match the `on` event (i.e., 'plotly_hover'). You can
+    # change this default via the `highlight()` function.
     return(p)
   } else {
     return(g)
