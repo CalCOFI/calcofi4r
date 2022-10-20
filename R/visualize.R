@@ -128,10 +128,10 @@ plot_timeseries <- function(
     # dygraphs::dyRangeSelector(fillColor = "#FFFFFF", strokeColor = "#FFFFFF")
 }
 
-#' Table to Contour Map
+#' Map contours from station data using a GAM
 #'
 #' Fit generalized additive model to a variable in space using a smoother on
-#' latitude & longitude. Further clip by bouding polygon.
+#' latitude & longitude. Further clip by bounding polygon.
 #'
 #' @param df data frame containing the fields: `lon` (longitude), `lat`
 #'   (latitude) and `v` (value)
@@ -140,7 +140,7 @@ plot_timeseries <- function(
 #'   default: `60`
 #' @param k cell width in decimal degrees to run interpolation; default: `0.1`
 #'
-#' @return
+#' @return polygon simple features (`sf`) of contour `isoband::isobands()`
 #' @export
 #' @concept visualize
 #' @examples
@@ -231,7 +231,9 @@ map_contours <- function(df, ply, k=60, cw=0.1){
   b_sf
 }
 
-#' Map raster
+#' Map raster interactively
+#'
+#' Map raster of interpolated oceanographic variable for a cruise.
 #'
 #' @param r raster of type `raster::raster()`
 #' @param legend_title title for legend of variable mapped
@@ -244,19 +246,23 @@ map_contours <- function(df, ply, k=60, cw=0.1){
 #' @export
 #'
 #' @examples
-#' # get variables
-#' (v <- get_variables())
+#' (r_tif <- tempfile(fileext=".tif"))
 #'
-#' # get data for the first variable
-#' (d <- get_timeseries(v$table_field[1]))
+#' # use second variable from previously fetched v
+#' c(v$table_field[2], v$plot_label[2])
 #'
-#' # plot time series with the first variable
-#' with(v[1,],
-#'   plot_timeseries(
-#'     # data and columns (from d)
-#'     d, year, t_deg_c_avg, t_deg_c_sd,
-#'     # plot attributes (from v)
-#'     plot_title, plot_label, plot_color))
+#' # fetch interpolated raster from CalCOFI API
+#' get_raster(
+#'   variable = v$table_field[2],
+#'   cruise_id = "2020-01-05-C-33RL",
+#'   depth_m_min = 0, depth_m_max = 200,
+#'   out_tif = r_tif)
+#'
+# read raster
+#' r <- raster::raster(r_tif)
+#'
+#' # plot raster
+#' map_raster(r, v$plot_label[2])
 map_raster <- function(
   r, legend_title = "Temperature (ºC)"){ # }, color = "red") {
 

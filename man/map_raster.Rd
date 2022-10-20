@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualize.R
 \name{map_raster}
 \alias{map_raster}
-\title{Map raster}
+\title{Map raster interactively}
 \usage{
 map_raster(r, legend_title = "Temperature (ºC)")
 }
@@ -15,21 +15,24 @@ map_raster(r, legend_title = "Temperature (ºC)")
 interactive plot of \code{leaflet::leaflet()}
 }
 \description{
-Map raster
+Map raster of interpolated oceanographic variable for a cruise.
 }
 \examples{
-# get variables
-(v <- get_variables())
+(r_tif <- tempfile(fileext=".tif"))
 
-# get data for the first variable
-(d <- get_timeseries(v$table_field[1]))
+# use second variable from previously fetched v
+c(v$table_field[2], v$plot_label[2])
 
-# plot time series with the first variable
-with(v[1,],
-  plot_timeseries(
-    # data and columns (from d)
-    d, year, t_deg_c_avg, t_deg_c_sd,
-    # plot attributes (from v)
-    plot_title, plot_label, plot_color))
+# fetch interpolated raster from CalCOFI API
+get_raster(
+  variable = v$table_field[2],
+  cruise_id = "2020-01-05-C-33RL",
+  depth_m_min = 0, depth_m_max = 200,
+  out_tif = r_tif)
+
+r <- raster::raster(r_tif)
+
+# plot raster
+map_raster(r, v$plot_label[2])
 }
 \concept{visualize}

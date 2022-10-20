@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualize.R
 \name{map_contours}
 \alias{map_contours}
-\title{Table to Contour Map}
+\title{Map contours from station data using a GAM}
 \usage{
 map_contours(df, ply, k = 60, cw = 0.1)
 }
@@ -14,9 +14,12 @@ map_contours(df, ply, k = 60, cw = 0.1)
 
 \item{k}{cell width in decimal degrees to run interpolation; default: \code{0.1}}
 }
+\value{
+polygon simple features (\code{sf}) of contour \code{isoband::isobands()}
+}
 \description{
 Fit generalized additive model to a variable in space using a smoother on
-latitude & longitude. Further clip by bouding polygon.
+latitude & longitude. Further clip by bounding polygon.
 }
 \examples{
 v_ply <- map_contours(bottle_temp_lonlat, area_calcofi_extended)

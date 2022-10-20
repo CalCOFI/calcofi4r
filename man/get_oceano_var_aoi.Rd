@@ -23,6 +23,9 @@ get_oceano_var_aoi(
 
 \item{depth_max}{depth maximum}
 }
+\value{
+data frame of values
+}
 \description{
 Get oceanographic variable for area of interest
 }

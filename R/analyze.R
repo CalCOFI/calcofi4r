@@ -8,7 +8,7 @@
 #'
 #' @concept analyze
 #' @import glue
-#' @return
+#' @return data frame of values
 #' @export
 #' @examples \dontrun{
 #' get_oceano_var_aoi("Bottle O2(ml_L)", cinms_ply, "year", 0, 4000)

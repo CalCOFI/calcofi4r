@@ -41,6 +41,9 @@ where "sd" is the standard deviation and
 "p#" represents the percentile value 0 to 100 within available range of values.
 Default is \code{c("p10", "mean", "p90")}.}
 }
+\value{
+data frame of values
+}
 \description{
 Get timeseries summary from CalCOFI API
 }

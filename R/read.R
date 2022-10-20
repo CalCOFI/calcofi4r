@@ -114,7 +114,7 @@ get_raster <- function(
 #'   "p#" represents the percentile value 0 to 100 within available range of values.
 #'   Default is `c("p10", "mean", "p90")`.
 #' @concept read
-#' @return
+#' @return data frame of values
 #' @export
 #'
 #' @examples
