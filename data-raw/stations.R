@@ -12,7 +12,64 @@ stations <- sf::read_sf(con, "stations") %>%
 usethis::use_data(stations, overwrite = TRUE)
 
 # bottle_temp_lonlat ----
-bottle_temp_lonlat <- tbl(con, "stations_order") %>%
+cc_bottle_temp <- dbGetQuery(
+  con,
+  "SELECT
+     c.longitude AS lon, c.latitude AS lat,
+     g.sta_dpos,
+     AVG(b.t_degc) AS t_degc, COUNT(*) AS n
+   FROM ctd_casts c
+   INNER JOIN effort_grid g
+     ON ST_Intersects(c.geom, g.geom)
+   LEFT JOIN ctd_bottles b
+     ON c.cast_count = b.cast_count
+   GROUP BY c.longitude, c.latitude, g.sta_dpos;") %>%
+  as_tibble()
+
+cc_bottle <- dbGetQuery(
+  con,
+  "SELECT
+     c.longitude AS lon, c.latitude AS lat,
+     c.date, c.quarter,
+     b.depthm AS depth_m,
+     g.sta_dpos,
+     AVG(b.t_degc)   AS t_degc,
+     AVG(b.salinity) AS salinity,
+     AVG(b.o2sat)    AS o2sat,
+     COUNT(*) AS n
+   FROM ctd_casts c
+   INNER JOIN effort_grid g
+     ON ST_Intersects(c.geom, g.geom)
+   LEFT JOIN ctd_bottles b
+     ON c.cast_count = b.cast_count
+   GROUP BY
+     c.longitude, c.latitude, g.sta_dpos,
+     c.date, c.quarter,
+     b.depthm") %>%
+  as_tibble()
+usethis::use_data(cc_bottle, overwrite = TRUE)
+
+shelf(ggplot2, plotly)
+g_depth <- ggplot(cc_bottle, aes(x = depth_m)) +
+  geom_density(alpha = 0.5, fill = "black", color=NA) +
+  scale_x_reverse() +
+  coord_flip()
+ggplotly(g_depth)
+
+g_time <- ggplot(cc_bottle, aes(x = date)) +
+  geom_density(alpha = 0.5, fill = "black", color=NA)
+ggplotly(g_time)
+
+
+cc_bottle %>%
+  filter(n > 1)
+
+cc_bottle_temp %>%
+  st_as_sf(
+    coords = c("lon", "lat"), crs = 3426) %>%
+  mapview()
+
+  tbl(con, "stations_order") %>%
   left_join(
     tbl(con, "ctd_casts"),
     by = c(

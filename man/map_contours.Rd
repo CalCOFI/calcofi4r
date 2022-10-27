@@ -4,7 +4,7 @@
 \alias{map_contours}
 \title{Map contours from station data using a GAM}
 \usage{
-map_contours(df, ply, k = 60, cw = 0.1)
+map_contours(df, ply, gam_k = 60, grid_width = 0.1, n_breaks = 7)
 }
 \arguments{
 \item{df}{data frame containing the fields: \code{lon} (longitude), \code{lat}
@@ -12,7 +12,12 @@ map_contours(df, ply, k = 60, cw = 0.1)
 
 \item{ply}{polygon describing the study area mask}
 
-\item{k}{cell width in decimal degrees to run interpolation; default: \code{0.1}}
+\item{gam_k}{number of knots to use on the spatial smoother \code{s(lon, lat)};
+default: \code{100}}
+
+\item{grid_width}{cell width in decimal degrees to run interpolation; default: \code{0.1}}
+
+\item{n_breaks}{number of breaks in values for creating contours; default: \code{7}}
 }
 \value{
 polygon simple features (\code{sf}) of contour \code{isoband::isobands()}

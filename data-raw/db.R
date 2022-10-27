@@ -4,7 +4,8 @@ if (!require("librarian")){
   library(librarian)
 }
 librarian::shelf(
-  DBI, dbplyr, dplyr, here, RPostgres, sf)
+  DBI, dbplyr, dplyr, glue, here, purrr, readr, stringr, RPostgres, sf, tibble, tidyr)
+options(readr.show_col_types = F)
 
 # database connect ----
 db_pass_txt <- "~/.calcofi_db_pass.txt"

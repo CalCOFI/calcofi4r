@@ -16,7 +16,7 @@ A data frame with 2634 rows and 11 variables
 \item{is_cce}{In the California Coastal Ecosystem (CCE) set of stations}
 \item{is_ccelter}{In the California Coastal Ecosystem (CCE) Long-Term Ecological Research (LTER) set of stations}
 \item{is_sccoos}{In the Southern California Coastal Ocean Observing (SCOOS) set of stations}
-\item{geometry}{Station latitude and longitude as a geographic projection (SIRD 4326)}
+\item{geometry}{Station latitude and longitude as a geographic projection (SRID 4326)}
 }
 }
 \source{

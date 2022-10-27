@@ -1,14 +1,18 @@
 Package: calcofi4r
 Title: CalCOFI R helper functions
-Version: 0.5.1
+Version: 0.5.2
 URL: https://calcofi.github.io/calcofi4r,
      https://github.com/calcofi/calcofi4r
 BugReports: https://github.com/calcofi/calcofi4r/issues
 Authors@R: c(
   person("Ben", "Best", email = "ben@ecoquants.com", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2686-0784")),
-  person("Jai", "Ranganathan", email = "jai.ranganathan@gmail.com", role = c("aut")),
-  person("Cristina", "Dobbelaere", email = "cdobbelaere@ucsb.edu", role = c("aut")),
+  person("Erin", "Satterthwaite", email = "esatterthwaite@ucsd.edu", 
+    role = c("ctb"), comment = c(ORCID = "0000-0003-0177-7770")),
+  person("Jennifer", "Brown", email = "jennifer.brown@noaa.gov", 
+    role = c("ctb")),
+  person("Jai", "Ranganathan", email = "jai.ranganathan@gmail.com", role = c("ctb")),
+  person("Cristina", "Dobbelaere", email = "cdobbelaere@ucsb.edu", role = c("ctb")),
   person("CalCOFI", role = c("cph", "fnd")) )
 Description: The California Cooperative Oceanic Fisheries Investigations (CalCOFI) has been surveying the California Current since 1949. This R package provides helper functions to read, analyze and visualize the data.
 License: MIT + file LICENSE

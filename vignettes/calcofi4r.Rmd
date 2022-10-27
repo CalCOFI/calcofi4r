@@ -19,25 +19,100 @@ knitr::opts_chunk$set(
 # library(calcofi4r) # devtools::load_all()
 ```
 
+## Show Sampling Effort
+
+The CalCOFI grid (`cc_grid`) and centroids (`cc_grid_ctrs`) show the  [CalCOFI Station Positions – CalCOFI](https://calcofi.org/sampling-info/station-positions/) at varying separation distances of station positions (`sta_dpos`) in the CalCOFI coordinate system from nearshore (`5`), to offshore (`10`) to outside the 113 station extended repeated area (`20`).
+
+This allows summarization of effort within each station and defining a study area according to these criteria (e.g., `sta_dpos`).
+
+```{r}
+library(calcofi4r)
+library(dplyr)
+library(mapview)
+library(sf)
+
+mapview(cc_grid, zcol="sta_dpos", layer.name = "sta_dpos") +
+  mapview(cc_grid_ctrs, cex = 1)
+```
+
+```{r}
+d_casts <- cc_bottle %>% 
+  group_by(lon, lat) %>% 
+  summarize(
+    n = n(),
+    .groups = "drop") %>% 
+  st_as_sf(
+    coords = c("lon", "lat"), crs = 4326)
+
+n_ply <- cc_grid %>% 
+  st_join(d_casts) %>% 
+  group_by(sta_key) %>% 
+  summarize(
+    n = sum(n))
+
+n_pts <- cc_grid_ctrs %>% 
+  left_join(
+    n_ply %>% 
+      st_drop_geometry() %>% 
+      select(sta_key, n),
+    by = "sta_key")
+
+mapview(n_ply, zcol="n", layer.name = "n")
+```
+
+```{r}
+mapview(n_pts, cex="n", layer.name = "n")
+```
+
+
 ## Map contours
 
 Map contours of an oceanographic variable from CTD cast bottle data.
 
 ```{r map_contours}
-library(calcofi4r)
-
 # show first 6 rows of example data frame with temperature in space as variable
-head(bottle_temp_lonlat)
+head(cc_bottle)
 
 # show bounding polygon
-# mapview::mapView(area_calcofi_extended)
+# mapView(area_calcofi_extended)
 
 # get map contours, aka isobands, of variable using generalized additive model (GAM)
-v_ply <- map_contours(
-  df = bottle_temp_lonlat, ply = area_calcofi_extended)
 
+v_ply_1 <- map_contours(
+  df = cc_bottle %>%
+    filter(
+      !is.na(t_degc)) %>% 
+    group_by(lon, lat) %>% 
+    summarize(v = mean(t_degc)), 
+  ply = cc_grid_area)
 # show contour polygons on map 
-mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
+mapView(v_ply_1, zcol="v", layer.name="temp(ºC)")
+
+v_ply_2 <- map_contours(
+  df = cc_bottle %>%
+    filter(
+      !is.na(t_degc),
+      sta_dpos %in% c(5, 10)) %>% 
+    group_by(lon, lat) %>% 
+    summarize(v = mean(t_degc)),
+  ply = cc_grid %>% 
+    filter(sta_dpos %in% c(5, 10)) %>% 
+    st_union())
+# show contour polygons on map 
+mapView(v_ply_2, zcol="v", layer.name="temp(ºC)")
+
+v_ply_3 <- map_contours(
+  df = cc_bottle %>%
+    filter(
+      !is.na(t_degc),
+      sta_dpos == 5) %>% 
+    group_by(lon, lat) %>% 
+    summarize(v = mean(t_degc)),
+  ply = cc_grid %>% 
+    filter(sta_dpos == 5) %>% 
+    st_union())
+# show contour polygons on map 
+mapView(v_ply_3, zcol="v", layer.name="temp(ºC)")
 ```
 
 ## Plot time series

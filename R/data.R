@@ -1,12 +1,3 @@
-#' Area of CalCOFI Extended Stations
-#'
-#' Convex hull of extended CalCOFI stations, additionally clipped by land (`rnaturalearthhires::states10`).
-#'
-#' @format A single `sf` spatial feature
-#' @source \url{https://calcofi.org/sampling-info/station-positions/}
-#' @concept data
-"area_calcofi_extended"
-
 #' Bottle data of temperature with depth (m)
 #'
 #' Extended CalCOFI station bottle cast data with temperature (º Celsius) as example data frame
@@ -35,6 +26,58 @@
 #' @concept data
 "bottle_temp_lonlat"
 
+#' Bottle data in space and time
+#'
+#' CTD bottle cast data as example data frame for visualization functions.
+#'
+#' @format A data frame (851,493 × 10 : rows x columns) with variables:
+#' \describe{
+#'   \item{lon}{longitude}
+#'   \item{lat}{latitude}
+#'   \item{date}{date}
+#'   \item{quarter}{quarter}
+#'   \item{depth_m}{depth below the surface in meters}
+#'   \item{sta_dpos}{difference in position, from 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area)}
+#'   \item{t_degc}{temperature (º Celsius)}
+#'   \item{salinity}{salinity (TODO: units)}
+#'   \item{o2sat}{oxygen saturation (TODO: units)}
+#' }
+#' @source \url{https://calcofi.org/data/oceanographic-data/bottle-database/}
+#' @concept data
+"cc_bottle"
+
+#' CalCOFI Grid for Extracting Effort
+#'
+#' A grid for calculating effort by station using Voronoi diagram to fetch nearest station, additionally clipped by land (`rnaturalearthhires::states10`).
+#'
+#' @format A `sf` spatial feature with
+#' \describe{
+#'   \item{sta_key}{station key in the form of "`lin`,`pos`"}
+#'   \item{sta_lin}{alongshore line in CalCOFI coordinate system}
+#'   \item{sta_pos}{offshore position in CalCOFI coordinate system}
+#'   \item{sta_dpos}{difference in position, from 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area)}
+#'   \item{geometry}{station latitude and longitude in decimal degree geographic coordinates (SRID 4326)}
+#' }
+#' @source [Station Positions – CalCOFI](https://calcofi.org/sampling-info/station-positions)
+#' @concept data
+"cc_grid"
+
+#' CalCOFI Grid Centroids for Extracting Effort
+#'
+#' A set of centroids for the grid to calculate effort by station using Voronoi diagram to fetch nearest station, additionally clipped by land (`rnaturalearthhires::states10`).
+#'
+#' @format A `sf` spatial feature with
+#' \describe{
+#'   \item{sta_key}{station key in the form of "`lin`,`pos`"}
+#'   \item{sta_lin}{alongshore line in CalCOFI coordinate system}
+#'   \item{sta_pos}{offshore position in CalCOFI coordinate system}
+#'   \item{sta_dpos}{difference in position, from 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area)}
+#'   \item{geom}{station latitude and longitude in decimal degree geographic coordinates (SRID 4326)}
+#' }
+#' @source \url{https://calcofi.org/sampling-info/station-positions/}
+#' @concept data
+"cc_grid_ctrs"
+
 #' Oceanographic stations
 #'
 #' The geographic locations of every bottle sampling station utilized on a CalCOFI
@@ -51,7 +94,7 @@
 #'   \item{is_cce}{In the California Coastal Ecosystem (CCE) set of stations}
 #'   \item{is_ccelter}{In the California Coastal Ecosystem (CCE) Long-Term Ecological Research (LTER) set of stations}
 #'   \item{is_sccoos}{In the Southern California Coastal Ocean Observing (SCOOS) set of stations}
-#'   \item{geometry}{Station latitude and longitude as a geographic projection (SIRD 4326)}
+#'   \item{geometry}{Station latitude and longitude as a geographic projection (SRID 4326)}
 #' }
 #' @source \url{https://calcofi.org/data/oceanographic-data/bottle-database/}
 #' @concept data

@@ -18,7 +18,7 @@ latitude &amp;amp; longitude. Further clip by bounding polygon."><!-- mathjax --
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">calcofi4r</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.2</span>
       </span>
     </div>
 
@@ -58,7 +58,7 @@ latitude &amp; longitude. Further clip by bounding polygon.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">map_contours</span><span class="op">(</span><span class="va">df</span>, <span class="va">ply</span>, k <span class="op">=</span> <span class="fl">60</span>, cw <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">map_contours</span><span class="op">(</span><span class="va">df</span>, <span class="va">ply</span>, gam_k <span class="op">=</span> <span class="fl">60</span>, grid_width <span class="op">=</span> <span class="fl">0.1</span>, n_breaks <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -72,8 +72,17 @@ latitude &amp; longitude. Further clip by bounding polygon.</p>
 <dd><p>polygon describing the study area mask</p></dd>
 
 
-<dt>k</dt>
+<dt>gam_k</dt>
+<dd><p>number of knots to use on the spatial smoother <code>s(lon, lat)</code>;
+default: <code>100</code></p></dd>
+
+
+<dt>grid_width</dt>
 <dd><p>cell width in decimal degrees to run interpolation; default: <code>0.1</code></p></dd>
+
+
+<dt>n_breaks</dt>
+<dd><p>number of breaks in values for creating contours; default: <code>7</code></p></dd>
 
 </dl></div>
     <div id="value">

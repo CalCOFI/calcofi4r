@@ -1,3 +1,7 @@
+# calcofi4r 0.5.2
+
+* \+ `cc_grid`, `cc_grid_ctrs` showing the CalCOFI station sampling at varying seperation distances of station positions (`sta_pos`) in the CalCOFI coordinate system from nearshore (`5`), to offshore (`10`) to outside the 113 station extended repeated area (`20`), per [Station Positions – CalCOFI](https://calcofi.org/sampling-info/station-positions/)}
+
 # calcofi4r 0.5.1
 
 * handle defaults with `plot_depth()`, streamline headings in article and descriptions in functions

@@ -1,3 +1,168 @@
+#' Map contours from station data using a GAM
+#'
+#' Fit generalized additive model to a variable in space using a smoother on
+#' latitude & longitude. Further clip by bounding polygon.
+#'
+#' @param df data frame containing the fields: `lon` (longitude), `lat`
+#'   (latitude) and `v` (value)
+#' @param ply polygon describing the study area mask
+#' @param gam_k number of knots to use on the spatial smoother `s(lon, lat)`;
+#'   default: `100`
+#' @param grid_width cell width in decimal degrees to run interpolation; default: `0.1`
+#' @param n_breaks number of breaks in values for creating contours; default: `7`
+#'
+#' @return polygon simple features (`sf`) of contour `isoband::isobands()`
+#' @export
+#' @concept visualize
+#' @examples
+#' v_ply <- map_contours(bottle_temp_lonlat, area_calcofi_extended)
+#' mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
+map_contours <- function(df, ply, gam_k=60, grid_width=0.1, n_breaks=7){
+
+  # df=bottle_temp_lonlat; ply=area_calcofi_extended; k=60; cw=0.1
+  # df = cc_bottle_temp %>% select(lon, lat, v = t_degc); ply = cc_grid_area; gam_k=60; grid_width=0.1; n_breaks=5
+
+  # check column names in data frame
+  stopifnot(all(c("lon", "lat", "v") %in% names(df)))
+
+  # check geographic projection of input polygon boundary
+  if(sf::st_crs(ply) != sf::st_crs(4326)){
+    warning(glue::glue("The input parameter `ply` to function `map_contours()` is not exactly geographic coordinate ref system (4326), so setting."))
+    ply <- sf::st_set_crs(ply, 4326)
+  }
+
+  # filter NAs
+  df <- df %>%
+    dplyr::filter(!is.na(v))
+
+  # get points
+  pts <- sf::st_as_sf(
+    df,
+    coords = c("lon", "lat"), crs = 4326, remove = T)
+
+  # fit generalized additive model using a smoother on latitude & longitude
+  f <- mgcv::gam(
+    v ~ s(lon, lat, k = gam_k),
+    data = df, method = "REML")
+
+  # make regularized grid of points
+  g <- sf::st_make_grid(
+    pts, cellsize = c(grid_width, grid_width), what = "centers") %>%
+    sf::st_as_sf() %>%
+    dplyr::rename(geom = x) %>%
+    cbind(., sf::st_coordinates(.)) %>%
+    dplyr::rename(lon = X, lat = Y) # %>%
+  # dplyr::mutate(
+  #   in_ply = sf::st_intersects(ply, geom, sparse = F)[1,])
+  g$in_ply <- sf::st_intersects(ply, g, sparse = F)[1,]
+  # table(g$in_ply)
+
+  # predict values using fitted model
+  g$v <- predict(
+    f, newdata = g, type = "response")
+
+  # matrix from grid for input to isobands()
+  m <- g %>%
+    sf::st_drop_geometry() %>%
+    dplyr::select(-in_ply) %>%
+    tidyr::pivot_wider(
+      names_from = lon, values_from = v) %>%
+    tibble::column_to_rownames("lat") %>%
+    as.matrix()
+
+  # pull values within the polygon for determining breaks
+  v <- g %>%
+    dplyr::filter(in_ply) %>%
+    dplyr::pull(v)
+
+  # determine breaks
+  brks <- scales::extended_breaks(n_breaks)(v)
+  # pad breaks if not inclusive of full range of values
+  db <- diff(brks)[1]
+  if (min(v) < min(brks))
+    brks <- c(brks[1] - db, brks)
+  if (max(v) > max(brks))
+    brks <- c(brks, brks[length(brks)] + db)
+
+  # get isobands
+  b <- isoband::isobands(
+    dimnames(m)[[2]], dimnames(m)[[1]], m,
+    brks[-1], brks[-length(brks)]) # , levels_low, levels_high)
+
+  # convert to sf polygon
+  b_sf <- tibble::tibble(
+    geom = isoband::iso_to_sfg(b),
+    name = names(geom),
+    v_lo = stringr::str_split(name, ':', simplify=T)[,1] %>% as.numeric(),
+    v_hi = stringr::str_split(name, ':', simplify=T)[,2] %>% as.numeric()) %>%
+    dplyr::rowwise() %>%
+    mutate(
+      v = mean(c(v_lo, v_hi))) %>%
+    sf::st_as_sf(crs=4326)
+
+  # clip
+  sf::st_agr(b_sf) = "constant"
+  b_sf <- sf::st_intersection(b_sf, ply)
+  # mapview::mapView(b_sf, zcol = "v")
+
+  b_sf
+}
+
+#' Map raster interactively
+#'
+#' Map raster of interpolated oceanographic variable for a cruise.
+#'
+#' @param r raster of type `raster::raster()`
+#' @param legend_title title for legend of variable mapped
+#'
+#' @return interactive plot of `leaflet::leaflet()`
+#' @concept visualize
+#' @import dplyr leaflet
+#' @importFrom sf st_bbox
+#' @importFrom raster extent projectExtent values
+#' @export
+#'
+#' @examples
+#' (r_tif <- tempfile(fileext=".tif"))
+#'
+#' # use second variable from previously fetched v
+#' c(v$table_field[2], v$plot_label[2])
+#'
+#' # fetch interpolated raster from CalCOFI API
+#' get_raster(
+#'   variable = v$table_field[2],
+#'   cruise_id = "2020-01-05-C-33RL",
+#'   depth_m_min = 0, depth_m_max = 200,
+#'   out_tif = r_tif)
+#'
+# read raster
+#' r <- raster::raster(r_tif)
+#'
+#' # plot raster
+#' map_raster(r, v$plot_label[2])
+map_raster <- function(
+    r, legend_title = "Temperature (ºC)"){ # }, color = "red") {
+
+  # legend_title = v$plot_label[2]
+
+  b <- sf::st_bbox(raster::extent(raster::projectExtent(r, crs = 4326)))
+  r_v <- raster::values(r)
+  pal <- colorNumeric("Spectral", r_v, na.color = NA)
+
+  leaflet() %>%
+    addProviderTiles(
+      providers$Stamen.TonerLite,
+      options = providerTileOptions(noWrap = TRUE)) %>%
+    addRasterImage(
+      r, project = F,
+      colors = pal, opacity=0.7) %>%
+    # TODO: add log/log10 option
+    addLegend(
+      pal = pal, values = r_v,
+      title = legend_title) %>%
+    flyToBounds(b[['xmin']], b[['ymin']], b[['xmax']], b[['ymax']])
+}
+
 #' Plot interactive depth of an oceanographic variable
 #'
 #' The plot initially has descending depth on y-axis and ascending variable
@@ -144,160 +309,3 @@ plot_timeseries <- function(
     # dygraphs::dyRangeSelector(fillColor = "#FFFFFF", strokeColor = "#FFFFFF")
 }
 
-#' Map contours from station data using a GAM
-#'
-#' Fit generalized additive model to a variable in space using a smoother on
-#' latitude & longitude. Further clip by bounding polygon.
-#'
-#' @param df data frame containing the fields: `lon` (longitude), `lat`
-#'   (latitude) and `v` (value)
-#' @param ply polygon describing the study area mask
-#' @param k number of knots to use on the spatial smoother `s(lon, lat)`;
-#'   default: `60`
-#' @param k cell width in decimal degrees to run interpolation; default: `0.1`
-#'
-#' @return polygon simple features (`sf`) of contour `isoband::isobands()`
-#' @export
-#' @concept visualize
-#' @examples
-#' v_ply <- map_contours(bottle_temp_lonlat, area_calcofi_extended)
-#' mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
-map_contours <- function(df, ply, k=60, cw=0.1){
-
-  # df=bottle_temp_lonlat; ply=area_calcofi_extended; k=60; cw=0.1
-
-  # check column names in data frame
-  stopifnot(all(c("lon", "lat", "v") %in% names(df)))
-
-  # check geographic projection of input polygon boundary
-  if(sf::st_crs(ply) != sf::st_crs(4326)){
-    warning(glue::glue("The input parameter `ply` to function `map_contours()` is not exactly geographic coordinate ref system (4326), so setting."))
-    ply <- sf::st_set_crs(ply, 4326)
-  }
-
-  # filter NAs
-  df <- df %>%
-    dplyr::filter(!is.na(v))
-
-  # get points
-  pts <- sf::st_as_sf(
-    df,
-    coords = c("lon", "lat"), crs = 4326, remove = T)
-
-  # fit generalized additive model using a smoother on latitude & longitude
-  f <- mgcv::gam(
-    v ~ s(lon, lat, k = k),
-    data = df, method = "REML")
-
-  # make regularized grid of points
-  g <- sf::st_make_grid(
-    pts, cellsize = c(cw, cw), what = "centers") %>%
-    sf::st_as_sf() %>%
-    rename(geom = x) %>%
-    cbind(., sf::st_coordinates(.)) %>%
-    dplyr::rename(lon = X, lat = Y) # %>%
-  # dplyr::mutate(
-  #   in_ply = sf::st_intersects(ply, geom, sparse = F)[1,])
-  g$in_ply <- sf::st_intersects(ply, g, sparse = F)[1,]
-  # table(g$in_ply)
-
-  # predict values using fitted model
-  g$v <- predict(
-    f, newdata = g, type = "response")
-
-  # matrix from grid for input to isobands()
-  m <- g %>%
-    sf::st_drop_geometry() %>%
-    dplyr::select(-in_ply) %>%
-    tidyr::pivot_wider(
-      names_from = lon, values_from = v) %>%
-    tibble::column_to_rownames("lat") %>%
-    as.matrix()
-
-  # pull values within the polygon for determining breaks
-  v <- g %>%
-    dplyr::filter(in_ply) %>%
-    dplyr::pull(v)
-
-  # determine breaks, pad lower value
-  brks <- scales::extended_breaks(5)(v)
-  brks <- c(brks[1]-diff(brks)[1], brks)
-
-  # get isobands
-  b <- isoband::isobands(
-    dimnames(m)[[2]], dimnames(m)[[1]], m,
-    brks[-1], brks[-length(brks)]) # , levels_low, levels_high)
-
-  # convert to sf polygon
-  b_sf <- tibble::tibble(
-    geom = isoband::iso_to_sfg(b),
-    name = names(geom),
-    v_lo = stringr::str_split(name, ':', simplify=T)[,1] %>% as.numeric(),
-    v_hi = stringr::str_split(name, ':', simplify=T)[,2] %>% as.numeric()) %>%
-    dplyr::rowwise() %>%
-    mutate(
-      v = mean(c(v_lo, v_hi))) %>%
-    sf::st_as_sf(crs=4326)
-
-  # clip land
-  sf::st_agr(b_sf) = "constant"
-  b_sf <- sf::st_intersection(b_sf, ply)
-  # mapview::mapView(b_sf, zcol = "v")
-
-  b_sf
-}
-
-#' Map raster interactively
-#'
-#' Map raster of interpolated oceanographic variable for a cruise.
-#'
-#' @param r raster of type `raster::raster()`
-#' @param legend_title title for legend of variable mapped
-#'
-#' @return interactive plot of `leaflet::leaflet()`
-#' @concept visualize
-#' @import dplyr leaflet
-#' @importFrom sf st_bbox
-#' @importFrom raster extent projectExtent values
-#' @export
-#'
-#' @examples
-#' (r_tif <- tempfile(fileext=".tif"))
-#'
-#' # use second variable from previously fetched v
-#' c(v$table_field[2], v$plot_label[2])
-#'
-#' # fetch interpolated raster from CalCOFI API
-#' get_raster(
-#'   variable = v$table_field[2],
-#'   cruise_id = "2020-01-05-C-33RL",
-#'   depth_m_min = 0, depth_m_max = 200,
-#'   out_tif = r_tif)
-#'
-# read raster
-#' r <- raster::raster(r_tif)
-#'
-#' # plot raster
-#' map_raster(r, v$plot_label[2])
-map_raster <- function(
-  r, legend_title = "Temperature (ºC)"){ # }, color = "red") {
-
-  # legend_title = v$plot_label[2]
-
-  b <- sf::st_bbox(raster::extent(raster::projectExtent(r, crs = 4326)))
-  r_v <- raster::values(r)
-  pal <- colorNumeric("Spectral", r_v, na.color = NA)
-
-  leaflet() %>%
-    addProviderTiles(
-      providers$Stamen.TonerLite,
-      options = providerTileOptions(noWrap = TRUE)) %>%
-      addRasterImage(
-        r, project = F,
-        colors = pal, opacity=0.7) %>%
-      # TODO: add log/log10 option
-      addLegend(
-        pal = pal, values = r_v,
-        title = legend_title) %>%
-      flyToBounds(b[['xmin']], b[['ymin']], b[['xmax']], b[['ymax']])
-}
