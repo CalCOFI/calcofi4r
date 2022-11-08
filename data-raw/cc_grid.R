@@ -235,11 +235,16 @@ u <- V %>%
     pos  = 40)
 V <- st_difference(V, st_geometry(u)) %>%
   bind_rows(u)
+# mapView(V)
 
 V <-  V %>%
   mutate(
     sta_key = glue("{lin},{pos}")) %>%
   relocate(sta_key)
+
+# mapView(V) +
+#   mapView(iea_ca_y, col.regions = "red")
+
 sta_keys <- read_csv(here("data-raw/cc_grid_sta-keys.csv")) %>%
   pull(sta_key)
 # mapView(V)
@@ -286,34 +291,29 @@ s <- st_difference(
 #   mapview(s, color="red", col.regions = "red", lwd=10)
 
 g_key = "93.3,110"; s_id = 5
-cc_grid[cc_grid$sta_key == g_key, "geom"] =
-  st_union(
-    filter(cc_grid, sta_key == g_key) %>% pull(geom),
-    filter(s, id==s_id) %>% pull(geometry))
+st_geometry(cc_grid[cc_grid$sta_key == g_key,]) <- st_union(
+  filter(cc_grid, sta_key == g_key) %>% pull(geom),
+  filter(s, id==s_id) %>% pull(geometry))
 
 g_key = "93.3,90"; s_id = 4
-cc_grid[cc_grid$sta_key == g_key, "geom"] =
-  st_union(
-    filter(cc_grid, sta_key == g_key) %>% pull(geom),
-    filter(s, id==s_id) %>% pull(geometry))
+st_geometry(cc_grid[cc_grid$sta_key == g_key,]) <- st_union(
+  filter(cc_grid, sta_key == g_key) %>% pull(geom),
+  filter(s, id==s_id) %>% pull(geometry))
 
 g_key = "93.3,70"; s_id = 3
-cc_grid[cc_grid$sta_key == g_key, "geom"] =
-  st_union(
-    filter(cc_grid, sta_key == g_key) %>% pull(geom),
-    filter(s, id==s_id) %>% pull(geometry))
+st_geometry(cc_grid[cc_grid$sta_key == g_key,]) <- st_union(
+  filter(cc_grid, sta_key == g_key) %>% pull(geom),
+  filter(s, id==s_id) %>% pull(geometry))
 
 g_key = "93.3,50"; s_id = 1
-cc_grid[cc_grid$sta_key == g_key, "geom"] =
-  st_union(
-    filter(cc_grid, sta_key == g_key) %>% pull(geom),
-    filter(s, id==s_id) %>% pull(geometry))
+st_geometry(cc_grid[cc_grid$sta_key == g_key,]) <- st_union(
+  filter(cc_grid, sta_key == g_key) %>% pull(geom),
+  filter(s, id==s_id) %>% pull(geometry))
 
 g_key = "93.3,30"; s_id = 2
-cc_grid[cc_grid$sta_key == g_key, "geom"] =
-  st_union(
-    filter(cc_grid, sta_key == g_key) %>% pull(geom),
-    filter(s, id==s_id) %>% pull(geometry))
+st_geometry(cc_grid[cc_grid$sta_key == g_key,]) <- st_union(
+  filter(cc_grid, sta_key == g_key) %>% pull(geom),
+  filter(s, id==s_id) %>% pull(geometry))
 
 cc_grid <- cc_grid %>%
   select(sta_key, sta_lin = lin, sta_pos = pos, sta_dpos = dpos)
@@ -322,6 +322,7 @@ cc_grid <- cc_grid %>%
 cc_grid <- cc_grid %>%
   mutate(
     sta_dpos = factor(sta_dpos))
+# mapView(cc_grid)
 
 # write to database
 st_write(
@@ -395,7 +396,6 @@ st_write(
 dbSendQuery(
   con,
   "CREATE INDEX IF NOT EXISTS effort_areas_idx ON effort_areas USING GIST (geom);")
-
 
 usethis::use_data(cc_grid, overwrite = TRUE)
 usethis::use_data(cc_grid_ctrs, overwrite = TRUE)

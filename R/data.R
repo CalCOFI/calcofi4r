@@ -99,6 +99,37 @@
 #' @concept data
 "cc_grid_areas"
 
+
+#' CalCOFI Places
+#'
+#' A set of places for commonly extracting CalCOFI data.
+#'
+#' There are three categories of places \[key\]:
+#'
+#' 1. CalCOFI
+#'    - Core \[cc_core\]
+#'    - Extended \[cc_extended\]
+#'    - Nearshore \[cc_nearshore\]
+#'    - Offshore \[cc_offshore\]
+#' 1. Integrated Ecosystem Assessment
+#'    - California Current \[iea_ca\]
+#' 1. National Marine Sanctuary
+#'    - Cordell Bank \[nms_cb\]
+#'    - Channel Islands \[nms_ci\]
+#'    - Greater Farallones \[nms_gf\]
+#'    - Monterey Bay \[nms_mb\]
+#'    - Olympic Coast \[nms_oc\]
+#'
+#' @format A `sf` spatial feature set with
+#' \describe{
+#'   \item{key}{character key uniquely identifying the record}
+#'   \item{category}{character key}
+#'   \item{name}{name of the place, given the category}
+#'   \item{geom}{polygon geometry in geographic coordinates (SRID 4326)}
+#' }
+#' @concept data
+"cc_places"
+
 #' Oceanographic stations
 #'
 #' The geographic locations of every bottle sampling station utilized on a CalCOFI
