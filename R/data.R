@@ -50,13 +50,13 @@
 #'
 #' A grid for calculating effort by station using Voronoi diagram to fetch nearest station, additionally clipped by land (`rnaturalearthhires::states10`).
 #'
-#' @format A `sf` spatial feature with
+#' @format A `sf` spatial feature set with
 #' \describe{
 #'   \item{sta_key}{station key in the form of "`lin`,`pos`"}
 #'   \item{sta_lin}{alongshore line in CalCOFI coordinate system}
 #'   \item{sta_pos}{offshore position in CalCOFI coordinate system}
 #'   \item{sta_dpos}{difference in position, from 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area)}
-#'   \item{geometry}{station latitude and longitude in decimal degree geographic coordinates (SRID 4326)}
+#'   \item{geom}{station voronoi polygon with latitude and longitude in decimal degree geographic coordinates (SRID 4326)}
 #' }
 #' @source [Station Positions – CalCOFI](https://calcofi.org/sampling-info/station-positions)
 #' @concept data
@@ -66,7 +66,7 @@
 #'
 #' A set of centroids for the grid to calculate effort by station using Voronoi diagram to fetch nearest station, additionally clipped by land (`rnaturalearthhires::states10`).
 #'
-#' @format A `sf` spatial feature with
+#' @format A `sf` spatial feature set with
 #' \describe{
 #'   \item{sta_key}{station key in the form of "`lin`,`pos`"}
 #'   \item{sta_lin}{alongshore line in CalCOFI coordinate system}
@@ -77,6 +77,27 @@
 #' @source \url{https://calcofi.org/sampling-info/station-positions/}
 #' @concept data
 "cc_grid_ctrs"
+
+#' CalCOFI Grid Study Areas
+#'
+#' A set of study areas based on dissolving `cc_grid` for differentiating
+#' various combinations of 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area).
+#' For instance, to extract the study area for:
+#' - only nearshore grid cells, use
+#'   `dplyr::filter(cc_grid_areas, area_dpos="5")`;
+#' - all grid cells, use
+#'   `dplyr::filter(cc_grid_areas, area_dpos="5,10,20")`;
+#' - all commonly sampled stations (113 station extended area), use
+#'   `dplyr::filter(cc_grid_areas, area_dpos="5,10")`.
+#'
+#' @format A `sf` spatial feature set with
+#' \describe{
+#'   \item{area_dpos}{character identifier for combinations of difference in position, from 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area); one of: 5; 10; 20; 5,10; 10,20; 5,10,20}
+#'   \item{geom}{dissolved study area from `cc_grid` with latitude and longitude in decimal degree geographic coordinates (SRID 4326)}
+#' }
+#' @source [Station Positions – CalCOFI](https://calcofi.org/sampling-info/station-positions)
+#' @concept data
+"cc_grid_areas"
 
 #' Oceanographic stations
 #'

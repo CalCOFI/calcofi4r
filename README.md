@@ -115,7 +115,7 @@ Map raster of interpolated oceanographic variable for a cruise.
 
 # get path of temporary file to store raster
 (r_tif <- tempfile(fileext=".tif"))
-#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpI0fPJb/file147f720fa0732.tif"
+#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpZ79zj6/filef06d13d0c62e.tif"
 
 # use second variable from previously fetched v
 c(v$table_field[2], v$plot_label[2])
@@ -127,19 +127,13 @@ get_raster(
   cruise_id = "2020-01-05-C-33RL",
   depth_m_min = 0, depth_m_max = 200,
   out_tif = r_tif)
-#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpI0fPJb/file147f720fa0732.tif"
+#> [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpZ79zj6/filef06d13d0c62e.tif"
 
 # read raster
 r <- raster::raster(r_tif)
 
 # plot raster
 map_raster(r, v$plot_label[2])
-#> Warning in showSRID(uprojargs, format = "PROJ", multiline = "NO", prefer_proj =
-#> prefer_proj): Discarded ellps WGS 84 in Proj4 definition: +proj=merc +a=6378137
-#> +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null
-#> +wktext +no_defs +type=crs
-#> Warning in showSRID(uprojargs, format = "PROJ", multiline = "NO", prefer_proj =
-#> prefer_proj): Discarded datum World Geodetic System 1984 in Proj4 definition
 ```
 
 ![](man/figures/map_raster-1.png)<!-- -->

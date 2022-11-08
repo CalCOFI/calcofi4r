@@ -5,13 +5,13 @@
 \alias{cc_grid}
 \title{CalCOFI Grid for Extracting Effort}
 \format{
-A \code{sf} spatial feature with
+A \code{sf} spatial feature set with
 \describe{
 \item{sta_key}{station key in the form of "\code{lin},\code{pos}"}
 \item{sta_lin}{alongshore line in CalCOFI coordinate system}
 \item{sta_pos}{offshore position in CalCOFI coordinate system}
 \item{sta_dpos}{difference in position, from 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area)}
-\item{geometry}{station latitude and longitude in decimal degree geographic coordinates (SRID 4326)}
+\item{geom}{station voronoi polygon with latitude and longitude in decimal degree geographic coordinates (SRID 4326)}
 }
 }
 \source{

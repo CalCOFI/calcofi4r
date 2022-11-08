@@ -5,7 +5,7 @@
 \alias{cc_grid_ctrs}
 \title{CalCOFI Grid Centroids for Extracting Effort}
 \format{
-A \code{sf} spatial feature with
+A \code{sf} spatial feature set with
 \describe{
 \item{sta_key}{station key in the form of "\code{lin},\code{pos}"}
 \item{sta_lin}{alongshore line in CalCOFI coordinate system}

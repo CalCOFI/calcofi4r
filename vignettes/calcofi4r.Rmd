@@ -12,6 +12,8 @@ editor_options:
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  warning = F,
+  message = F,
   comment = "#>"
 )
 # devtools::document()
@@ -78,41 +80,44 @@ head(cc_bottle)
 
 # get map contours, aka isobands, of variable using generalized additive model (GAM)
 
-v_ply_1 <- map_contours(
+v_ply_all <- map_contours(
   df = cc_bottle %>%
     filter(
       !is.na(t_degc)) %>% 
     group_by(lon, lat) %>% 
     summarize(v = mean(t_degc)), 
-  ply = cc_grid_area)
+  ply = cc_grid_areas %>% 
+    filter(area_dpos == "5,10,20"))
 # show contour polygons on map 
-mapView(v_ply_1, zcol="v", layer.name="temp(ºC)")
+mapView(v_ply_all, zcol="v", layer.name="temp(ºC)")
+```
 
-v_ply_2 <- map_contours(
+```{r}
+v_ply_regular <- map_contours(
   df = cc_bottle %>%
     filter(
       !is.na(t_degc),
       sta_dpos %in% c(5, 10)) %>% 
     group_by(lon, lat) %>% 
     summarize(v = mean(t_degc)),
-  ply = cc_grid %>% 
-    filter(sta_dpos %in% c(5, 10)) %>% 
-    st_union())
+  ply = cc_grid_areas %>% 
+    filter(area_dpos == "5,10"))
 # show contour polygons on map 
-mapView(v_ply_2, zcol="v", layer.name="temp(ºC)")
+mapView(v_ply_regular, zcol="v", layer.name="temp(ºC)")
+```
 
-v_ply_3 <- map_contours(
+```{r}
+v_ply_inshore <- map_contours(
   df = cc_bottle %>%
     filter(
       !is.na(t_degc),
       sta_dpos == 5) %>% 
     group_by(lon, lat) %>% 
     summarize(v = mean(t_degc)),
-  ply = cc_grid %>% 
-    filter(sta_dpos == 5) %>% 
-    st_union())
+  ply = cc_grid_areas %>% 
+    filter(area_dpos == "5"))
 # show contour polygons on map 
-mapView(v_ply_3, zcol="v", layer.name="temp(ºC)")
+mapView(v_ply_inshore, zcol="v", layer.name="temp(ºC)")
 ```
 
 ## Plot time series

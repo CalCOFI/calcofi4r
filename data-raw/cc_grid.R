@@ -262,18 +262,18 @@ slivers <- st_difference(
   mutate(
     area = st_area(x)) %>%
   rowid_to_column("id")
-slivers$area
-mapview(slivers)
+# slivers$area
+# mapview(slivers)
 
-mapview(V %>% st_transform(4326)) +
-  mapview(slivers, color="red", col.regions = "red", lwd=10)
-mapview(slivers)
+# mapview(V %>% st_transform(4326)) +
+#   mapview(slivers, color="red", col.regions = "red", lwd=10)
+# mapview(slivers)
 
 # m <- mapview(st_union(V))
 # mapedit()
 # m <- mapview(st_union(V %>% st_transform(4326)))
 # y <- mapedit::editMap(m)
-write_sf(y$all, "data-raw/cc_grid_box4slivers.geojson")
+# write_sf(y$all, "data-raw/cc_grid_box4slivers.geojson")
 y <- read_sf("data-raw/cc_grid_box4slivers.geojson")
 
 # get slivers
@@ -346,16 +346,57 @@ dbSendQuery(
   con,
   "CREATE INDEX IF NOT EXISTS effort_ctrs_idx ON effort_ctrs USING GIST (geom);")
 
-cc_grid_area <- st_union(cc_grid)
+
+cc_grid <- st_read(con, "effort_grid")
+cc_grid_areas <- rbind(
+  cc_grid %>%
+    filter(sta_dpos == 5) %>%
+    st_union() %>%
+    st_as_sf() %>%
+    mutate(
+      area_dpos = "5"),
+  cc_grid %>%
+    filter(sta_dpos == 10) %>%
+    st_union() %>%
+    st_as_sf() %>%
+    mutate(
+      area_dpos = "10"),
+  cc_grid %>%
+    filter(sta_dpos == 20) %>%
+    st_union() %>%
+    st_as_sf() %>%
+    mutate(
+      area_dpos = "20"),
+  cc_grid %>%
+    filter(sta_dpos %in% c(5,10)) %>%
+    st_union() %>%
+    st_as_sf() %>%
+    mutate(
+      area_dpos = "5,10"),
+  cc_grid %>%
+    filter(sta_dpos %in% c(10,20)) %>%
+    st_union() %>%
+    st_as_sf() %>%
+    mutate(
+      area_dpos = "10,20"),
+  cc_grid %>%
+    st_union() %>%
+    st_as_sf() %>%
+    mutate(
+      area_dpos = "5,10,20")) %>%
+  rename(geom = x) %>%
+  relocate(area_dpos)
+# mapview::mapView(cc_grid_areas, zcol="sta_dpos")
+
 st_write(
-  cc_grid_area, con, "effort_area",
+  cc_grid_areas, con, "effort_areas",
   layer_options = c(
     "OVERWRITE=yes", "LAUNDER=true"))
 dbSendQuery(
   con,
-  "CREATE INDEX IF NOT EXISTS effort_area_idx ON effort_area USING GIST (geom);")
+  "CREATE INDEX IF NOT EXISTS effort_areas_idx ON effort_areas USING GIST (geom);")
 
 
 usethis::use_data(cc_grid, overwrite = TRUE)
 usethis::use_data(cc_grid_ctrs, overwrite = TRUE)
-usethis::use_data(cc_grid_area, overwrite = TRUE)
+usethis::use_data(cc_grid_areas, overwrite = TRUE)

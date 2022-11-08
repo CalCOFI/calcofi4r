@@ -12,6 +12,7 @@ R package of helper functions for reading and visualizing data from the CalCOFI 
 ```{r knitr, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  warning = F,
   comment = "#>",
   fig.path="man/figures/"
 )

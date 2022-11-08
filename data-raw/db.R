@@ -11,6 +11,10 @@ options(readr.show_col_types = F)
 db_pass_txt <- "~/.calcofi_db_pass.txt"
 stopifnot(file.exists(db_pass_txt))
 
+# stop existing db before connecting to tunneled db
+# brew services stop postgresql@14
+# brew services start postgresql@14
+
 con <- DBI::dbConnect(
   RPostgres::Postgres(),
   dbname   = "gis",
