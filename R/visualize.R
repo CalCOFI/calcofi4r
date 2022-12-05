@@ -179,7 +179,9 @@ map_raster <- function(
 #' @return interactive plot of type `plotly::ggplotly()` or static plot of type
 #'   `ggplot2::ggplot()`.
 #' @concept visualize
-#' @import dplyr ggplot2 plotly stringr
+#' @import dplyr ggplot2 stringr
+#' @importFrom plotly ggplotly highlight highlight_key
+#'
 #' @export
 #'
 #' @examples
