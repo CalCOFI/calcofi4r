@@ -1,7 +1,9 @@
-source(here::here("data-raw/db.R"))
 librarian::shelf(
   # janitor, leaflet,
-  mapview)
+  DBI, dplyr, here, mapview)
+devtools::load_all()
+
+con <- cc_db_connect()
 
 rng_lin <- tbl(con, "stations_order") %>%
   filter(STA <= 60) %>%
@@ -344,9 +346,13 @@ cc_grid <- read_sf(con, "effort_grid") %>%
   mutate(
     sta_lin  = as.integer(sta_lin),
     sta_pos  = as.integer(sta_pos),
-    sta_dpos = as.integer(sta_dpos))
+    sta_dpos = as.integer(sta_dpos),
+    zone_key = glue("{sta_shore}-{sta_pattern}"))
 
 # write to database
+dbSendQuery(
+  con,
+  "DROP TABLE effort_grid CASCADE")
 st_write(
   cc_grid, con, "effort_grid",
   layer_options = c(
@@ -373,14 +379,13 @@ cc_grid_zones <- read_sf(con, "effort_grid") %>%
   group_by(
     sta_pattern, sta_shore) %>%
   summarize(
+    zone_key    = unique(zone_key),
     sta_dpos    = unique(sta_dpos),
     sta_lin_min = min(sta_lin),
     sta_lin_max = max(sta_lin),
     sta_pos_min = min(sta_pos),
     sta_pos_max = max(sta_pos),
     .groups = "drop") %>%
-  mutate(
-    zone_key = glue("{sta_pattern}-{sta_shore}")) %>%
   relocate(zone_key)
 # cc_grid_zones
 # mapview::mapView(cc_grid_zones, zcol="zone_key")

@@ -16,9 +16,8 @@ knitr::opts_chunk$set(
   message = F,
   comment = "#>"
 )
-# devtools::document()
-# devtools::install_local(here::here(), force=T) # install local
-# library(calcofi4r) # devtools::load_all()
+# devtools::install_local(here::here(), force=T)
+# devtools::load_all()
 ```
 
 ## Show Effort
@@ -35,7 +34,7 @@ library(dplyr)
 library(mapview)
 library(sf)
 
-mapview(cc_grid, zcol="sta_pattern") +
+mapview(cc_grid, zcol="zone_key") +
   mapview(cc_grid_ctrs, cex = 1)
 ```
 
@@ -45,6 +44,14 @@ mapview(cc_grid, zcol="sta_pattern") +
 mapview(cc_grid, zcol="sta_shore") +
   mapview(cc_grid_ctrs, cex = 1)
 ```
+
+### Grid Zones
+
+```{r}
+mapview(cc_grid_zones, zcol="zone_key") +
+  mapview(cc_grid_ctrs, cex = 1)
+```
+
 
 ### Summarize Temperature from Bottle Data
 
