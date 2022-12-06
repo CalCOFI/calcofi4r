@@ -1,8 +1,7 @@
 Package: calcofi4r
 Title: CalCOFI R helper functions
 Version: 0.6.0
-URL: https://calcofi.github.io/calcofi4r,
-     https://github.com/calcofi/calcofi4r
+URL: https://calcofi.io/calcofi4r
 BugReports: https://github.com/calcofi/calcofi4r/issues
 Authors@R: c(
   person("Ben", "Best", email = "ben@ecoquants.com", 
