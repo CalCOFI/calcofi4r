@@ -1,17 +1,26 @@
 url: https://calcofi.github.io/calcofi4r/
 reference:
 - title: "Read"
+  desc: functions reading data, particularly from the CalCOFI API
   contents:
   - has_concept("read")
 - title: "Analyze"
+  desc: functions for analyzing data
   contents:
   - has_concept("analyze")
 - title: "Visualize"
+  desc: functions for visualizing data
   contents:
   - has_concept("visualize")
 - title: "Data"
+  desc: small lookup and example datasets not requiring API access
   contents:
   - has_concept("data")
-- title: "Other"
+- title: "Database"
+  desc: functions specific to database (Admin only)
   contents:
-  - lacks_concepts(c("read", "analyze", "visualize", "data"))
+  - has_concept("database")
+- title: "Other"
+  desc: check for other functions or datasets not captured by above categories
+  contents:
+  - lacks_concepts(c("read", "analyze", "visualize", "data", "database"))

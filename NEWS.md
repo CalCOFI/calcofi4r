@@ -1,3 +1,7 @@
+# calcofi4r 0.6.0
+
+* Added database connection functions `cc_db_connect()` and `create_index()`.
+
 # calcofi4r 0.5.5
 
 * Fixed nearshore `cc_grid` to include `sta_pos == 60`. Renamed `cc_grid_areas` to `cc_grid_zones` with new categories for `sta_shore` ("nearshore" OR "offshore") and `sta_pattern` ("standard", "extended", "historical") per #4. Updated `cc_places` to have the 6 combinations of `cc_grid_zones`.

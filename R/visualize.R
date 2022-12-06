@@ -14,6 +14,7 @@
 #' @return polygon simple features (`sf`) of contour `isoband::isobands()`
 #' @import dplyr sf
 #' @importFrom glue glue
+#' @importFrom mapview mapView
 #' @importFrom isoband isobands iso_to_sfg
 #' @importFrom mgcv gam
 #' @importFrom scales extended_breaks
