@@ -21,11 +21,13 @@ knitr::opts_chunk$set(
 # library(calcofi4r) # devtools::load_all()
 ```
 
-## Show Sampling Effort
+## Show Effort
 
-The CalCOFI grid (`cc_grid`) and centroids (`cc_grid_ctrs`) show the  [CalCOFI Station Positions – CalCOFI](https://calcofi.org/sampling-info/station-positions/) at varying separation distances of station positions (`sta_dpos`) in the CalCOFI coordinate system from nearshore (`5`), to offshore (`10`) to outside the 113 station extended repeated area (`20`).
+The CalCOFI grid (`cc_grid`) and centroids (`cc_grid_ctrs`) show the  [CalCOFI Station Positions – CalCOFI](https://calcofi.org/sampling-info/station-positions/) at varying separation distances of station positions (`sta_dpos`) in the CalCOFI coordinate system from nearshore (`5`), to offshore (`10`) to outside the 113 extended station pattern to historically visited areas (`20`).
 
 This allows summarization of effort within each station and defining a study area according to these criteria (e.g., `sta_dpos`).
+
+### Grid by Station Pattern
 
 ```{r}
 library(calcofi4r)
@@ -35,62 +37,71 @@ library(sf)
 
 mapview(cc_grid, zcol="sta_pattern") +
   mapview(cc_grid_ctrs, cex = 1)
+```
 
+### Grid by Nearshore vs Offshore
+
+```{r}
 mapview(cc_grid, zcol="sta_shore") +
   mapview(cc_grid_ctrs, cex = 1)
 ```
 
+### Summarize Temperature from Bottle Data
+
 ```{r}
-d_casts <- cc_bottle %>% 
+# show first 6 rows of example data frame with temperature in space as variable
+head(cc_bottle)
+
+# summarize temperature by location and convert to points
+d_t <- cc_bottle %>% 
+  filter(
+    !is.na(t_degc)) %>% 
   group_by(lon, lat) %>% 
   summarize(
     n = n(),
+    v = mean(t_degc),
     .groups = "drop") %>% 
   st_as_sf(
-    coords = c("lon", "lat"), crs = 4326)
+    coords = c("lon", "lat"), remove = F,
+    crs = 4326)
+```
 
+
+### Show Effort by Grid Cell
+
+```{r}
 n_ply <- cc_grid %>% 
-  st_join(d_casts) %>% 
+  st_join(d_t) %>% 
   group_by(sta_key) %>% 
   summarize(
     n = sum(n))
+mapview(n_ply, zcol="n", layer.name = "n")
+```
 
+### Show Effort by Grid Point
+
+```{r}
 n_pts <- cc_grid_ctrs %>% 
   left_join(
     n_ply %>% 
       st_drop_geometry() %>% 
       select(sta_key, n),
     by = "sta_key")
-
-mapview(n_ply, zcol="n", layer.name = "n")
-```
-
-```{r}
 mapview(n_pts, cex="n", layer.name = "n")
 ```
 
-
 ## Map contours
 
-Map contours of an oceanographic variable from CTD cast bottle data.
+Map contours of an oceanographic variable from CTD cast bottle data. The `map_contours()` method uses a bivariate smoothing function on longitude and latitude with a generalized additive model (GAM).
 
-### All Zones, including Historical Station Pattern
+### All Zones
 
 ```{r map_contours}
-# show first 6 rows of example data frame with temperature in space as variable
-head(cc_bottle)
-
-# calculate map contours, aka isobands, of variable using generalized additive model (GAM)
+# calculate map contours
 v_ply_all <- map_contours(
-  df = cc_bottle %>%
-    filter(
-      !is.na(t_degc)) %>% 
-    group_by(lon, lat) %>% 
-    summarize(
-      v = mean(t_degc),
-      .groups = "drop"), 
-  ply = cc_grid_zones) # for all zones, including historical
-# show contour polygons on map 
+  df  = d_t, 
+  ply = cc_grid_zones) # all zones, including historical
+# show map contours
 mapView(v_ply_all, zcol="v", layer.name="Temp.(ºC)")
 ```
 
@@ -98,42 +109,29 @@ mapView(v_ply_all, zcol="v", layer.name="Temp.(ºC)")
 
 ```{r}
 # calculate map contours
-v_ply_extended <- map_contours(
-  df = cc_bottle %>%
-    filter(
-      !is.na(t_degc),
-      sta_dpos %in% c(5, 10)) %>% 
-    group_by(lon, lat) %>% 
-    summarize(
-      v = mean(t_degc),
-      .groups = "drop"),
+v_ply_ext <- map_contours(
+  df  = d_t,
   ply = cc_grid_zones %>% 
-    filter(sta_pattern %in% c("standard", "extended")))
+    filter(
+      sta_pattern %in% c("standard", "extended")))
 # display map contours
-mapView(v_ply_extended, zcol="v", layer.name="temp(ºC)")
+mapView(v_ply_ext, zcol="v", layer.name="Temp.(ºC)")
 ```
 
 ### Standard Nearshore Zone
 
 ```{r}
 # calculate map contours
-v_ply_inshore <- map_contours(
-  df = cc_bottle %>%
-    filter(
-      !is.na(t_degc),
-      sta_dpos == 5) %>% 
-    group_by(lon, lat) %>% 
-    summarize(
-      v = mean(t_degc),
-      .groups = "drop"),
+v_ply_stdnear <- map_contours(
+  df  = d_t,
   ply = cc_grid_zones %>% 
     filter(
       sta_pattern  == "standard",
       sta_shore    == "nearshore"))
-mapView(v_ply_inshore, zcol="v", layer.name="temp(ºC)")
+mapView(v_ply_stdnear, zcol="v", layer.name="Temp.(ºC)")
 ```
 
-## Plot time series
+## Plot Time Series
 
 Plot time series of an oceanographic variable from CTD cast bottle data.
 
@@ -153,7 +151,7 @@ with(v[1,],
     plot_title, plot_label, plot_color))
 ```
 
-## Plot depth
+## Plot Depth
 
 Plot depth of an oceanographic variable from CTD cast bottle data.
 
@@ -165,7 +163,7 @@ plot_depth(df = bottle_temp_depth, variable = "Temperature")
 ```
 
 
-## Map raster
+## Map Raster
 
 Map raster of interpolated oceanographic variable for a cruise.
 

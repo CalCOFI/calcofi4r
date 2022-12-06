@@ -12,7 +12,15 @@
 #' @param n_breaks number of breaks in values for creating contours; default: `7`
 #'
 #' @return polygon simple features (`sf`) of contour `isoband::isobands()`
+#' @import dplyr sf
+#' @importFrom glue glue
+#' @importFrom isoband isobands iso_to_sfg
+#' @importFrom mgcv gam
+#' @importFrom scales extended_breaks
+#' @importFrom tidyr pivot_wider
+#' @importFrom tibble column_to_rownames
 #' @export
+#'
 #' @concept visualize
 #' @examples
 #' v_ply <- map_contours(bottle_temp_lonlat, area_calcofi_extended)
@@ -26,13 +34,13 @@ map_contours <- function(df, ply, gam_k=60, grid_width=0.1, n_breaks=7){
   stopifnot(all(c("lon", "lat", "v") %in% names(df)))
 
   # check geographic projection of input polygon boundary
-  if(is.na(st_crs(ply))){
+  if(is.na(sf::st_crs(ply))){
     warning(glue::glue(
       "The coordinate reference system for input `ply` is not set, so assuming
       geographic (EPSG:4326)."))
     ply <- sf::st_set_crs(ply, 4326)
   }
-  if(!is.na(st_crs(ply)) & st_crs(ply) != st_crs(4326)){
+  if(!is.na(sf::st_crs(ply)) & sf::st_crs(ply) != sf::st_crs(4326)){
     ply <- sf::st_transform(ply, 4326)
   }
 

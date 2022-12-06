@@ -6,6 +6,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CalCOFI R helper functions • calcofi4r</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png">
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
@@ -13,6 +19,7 @@
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="CalCOFI R helper functions">
 <meta property="og:description" content="The California Cooperative Oceanic Fisheries Investigations (CalCOFI) has been surveying the California Current since 1949. This R package provides helper functions to read, analyze and visualize the data.">
+<meta property="og:image" content="https://calcofi.github.io/calcofi4r/logo.svg">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -69,144 +76,24 @@
       </header><div class="row">
   <div class="contents col-md-9">
 <div class="section level1">
-<div class="page-header"><h1 id="calcofi4r">calcofi4r<a class="anchor" aria-label="anchor" href="#calcofi4r"></a>
+<div class="page-header"><h1 id="calcofi4r-">calcofi4r <img src="reference/figures/logo.svg" style="float:right; height:150px"><a class="anchor" aria-label="anchor" href="#calcofi4r-"></a>
 </h1></div>
-<p>R package of helper functions for reading and visualizing data from the CalCOFI API at <a href="https://api.calcofi.io" class="external-link">api.calcofi.io</a>.</p>
+<p>This R package contains functions for reading and visualizing data from the CalCOFI API at <a href="https://api.calcofi.io" class="external-link">api.calcofi.io</a>.</p>
 <div class="section level2">
-<h2 id="install-r-package">Install R package<a class="anchor" aria-label="anchor" href="#install-r-package"></a>
+<h2 id="install">Install<a class="anchor" aria-label="anchor" href="#install"></a>
 </h2>
-</div>
-<div class="section level2">
-<h2 id="map-contours">Map contours<a class="anchor" aria-label="anchor" href="#map-contours"></a>
-</h2>
-<p>Map contours of an oceanographic variable from CTD cast bottle data.</p>
+<p>This package lives on Github, not yet CRAN, so you’ll need to run the following to install or update the package:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># map contours, aka isobands, of variable using generalized additive model (GAM)</span></span>
-<span><span class="va">v_ply</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/map_contours.html">map_contours</a></span><span class="op">(</span></span>
-<span>  df <span class="op">=</span> <span class="va">bottle_temp_lonlat</span>, ply <span class="op">=</span> <span class="va">area_calcofi_extended</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># show contour polygons on map </span></span>
-<span><span class="fu">mapview</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mapview/man/mapView.html" class="external-link">mapView</a></span><span class="op">(</span><span class="va">v_ply</span>, zcol<span class="op">=</span><span class="st">"v"</span>, layer.name<span class="op">=</span><span class="st">"temp(ºC)"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/map_contours-1.png"><!-- --></p>
-</div>
-<div class="section level2">
-<h2 id="plot-time-series">Plot time series<a class="anchor" aria-label="anchor" href="#plot-time-series"></a>
-</h2>
-<p>Plot time series of an oceanographic variable from CTD cast bottle data.</p>
+<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"calcofi/calcofi4r"</span><span class="op">)</span></span></code></pre></div>
+<p>Then to use the functions (and datasets) in the package:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://calcofi.github.io/calcofi4r">calcofi4r</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># get variables</span></span>
-<span><span class="op">(</span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_variables.html">get_variables</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 3 × 6</span></span>
-<span><span class="co">#&gt;   category      table_field          plot_title        plot_la…¹ plot_…² color…³</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;         &lt;chr&gt;                &lt;chr&gt;             &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;  </span></span>
-<span><span class="co">#&gt; 1 Oceanographic ctd_bottles.t_degc   Temperature       Temperat… red     Reds   </span></span>
-<span><span class="co">#&gt; 2 Oceanographic ctd_bottles.salinity Salinity          Salinity… purple  Purples</span></span>
-<span><span class="co">#&gt; 3 Oceanographic ctd_bottles.o2sat    Oxygen Saturation Oxygen p… blue    Blues  </span></span>
-<span><span class="co">#&gt; # … with abbreviated variable names ¹​plot_label, ²​plot_color, ³​color_palette</span></span>
-<span></span>
-<span><span class="co"># fetch time series data for the first variable from CalCOFI API</span></span>
-<span><span class="op">(</span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_timeseries.html">get_timeseries</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">table_field</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 71 × 4</span></span>
-<span><span class="co">#&gt;     year val_avg val_sd n_obs</span></span>
-<span><span class="co">#&gt;    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1  1949    9.12   4.68 28081</span></span>
-<span><span class="co">#&gt;  2  1950    9.12   4.37 38298</span></span>
-<span><span class="co">#&gt;  3  1951    9.19   4.54 40459</span></span>
-<span><span class="co">#&gt;  4  1952   10.4    4.03 31690</span></span>
-<span><span class="co">#&gt;  5  1953   10.6    3.71 29789</span></span>
-<span><span class="co">#&gt;  6  1954   10.8    4.33 18874</span></span>
-<span><span class="co">#&gt;  7  1955   10.1    4.71 23248</span></span>
-<span><span class="co">#&gt;  8  1956   11.2    4.41 14274</span></span>
-<span><span class="co">#&gt;  9  1957   13.0    5.04 19072</span></span>
-<span><span class="co">#&gt; 10  1958   12.1    4.71 24324</span></span>
-<span><span class="co">#&gt; # … with 61 more rows</span></span>
-<span></span>
-<span><span class="co"># plot time series with the first variable</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">v</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>,</span>
-<span>  <span class="fu"><a href="reference/plot_timeseries.html">plot_timeseries</a></span><span class="op">(</span></span>
-<span>    <span class="co"># data and columns (from d)</span></span>
-<span>    <span class="va">d</span>, <span class="va">year</span>, <span class="va">val_avg</span>, <span class="va">val_sd</span>,</span>
-<span>    <span class="co"># plot attributes (from v)</span></span>
-<span>    <span class="va">plot_title</span>, <span class="va">plot_label</span>, <span class="va">plot_color</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/plot_timeseries-1.png"><!-- --></p>
-</div>
-<div class="section level2">
-<h2 id="plot-depth">Plot depth<a class="anchor" aria-label="anchor" href="#plot-depth"></a>
-</h2>
-<p>Plot depth of an oceanographic variable from CTD cast bottle data.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">bottle_temp_depth</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 6 × 3</span></span>
-<span><span class="co">#&gt; # Groups:   cast_count [1]</span></span>
-<span><span class="co">#&gt;   cast_count depth_m     v</span></span>
-<span><span class="co">#&gt;        &lt;int&gt;   &lt;dbl&gt; &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1      12874       0  15.5</span></span>
-<span><span class="co">#&gt; 2      12874       8  14.8</span></span>
-<span><span class="co">#&gt; 3      12874      10  14.7</span></span>
-<span><span class="co">#&gt; 4      12874      20  14.2</span></span>
-<span><span class="co">#&gt; 5      12874      23  14.2</span></span>
-<span><span class="co">#&gt; 6      12874      30  14.2</span></span>
-<span></span>
-<span><span class="co"># plot depth with the station data</span></span>
-<span><span class="fu"><a href="reference/plot_depth.html">plot_depth</a></span><span class="op">(</span></span>
-<span>  df <span class="op">=</span> <span class="va">bottle_temp_depth</span>, variable <span class="op">=</span> <span class="st">"Temperature"</span>,</span>
-<span>  interactive <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/plot_depth-1.png"><!-- --></p>
-</div>
-<div class="section level2">
-<h2 id="map-raster">Map raster<a class="anchor" aria-label="anchor" href="#map-raster"></a>
-</h2>
-<p>Map raster of interpolated oceanographic variable for a cruise.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># get cruises</span></span>
-<span><span class="op">(</span><span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_cruises.html">get_cruises</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 658 × 8</span></span>
-<span><span class="co">#&gt;    cruiseid        date_beg   date_end   lon_min lon_max lat_min lat_max n_casts</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;           &lt;date&gt;     &lt;date&gt;       &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1 2020-01-05-C-3… 2020-01-05 2020-01-26   -126.   -117.    29.9    37.8     104</span></span>
-<span><span class="co">#&gt;  2 2019-11-04-C-3… 2019-11-04 2019-11-18   -124.   -117.    29.8    35.1      75</span></span>
-<span><span class="co">#&gt;  3 2019-07-11-C-3… 2019-07-11 2019-07-26   -124.   -117.    30.2    35.1      70</span></span>
-<span><span class="co">#&gt;  4 2019-04-02-C-3… 2019-04-02 2019-04-17   -124.   -117.    29.9    35.1      67</span></span>
-<span><span class="co">#&gt;  5 2019-02-07-C-3… 2019-02-07 2019-02-12   -124.   -118.    31.1    34.5      29</span></span>
-<span><span class="co">#&gt;  6 2018-10-14-C-3… 2018-10-14 2018-10-29   -124.   -117.    29.8    35.1      74</span></span>
-<span><span class="co">#&gt;  7 2018-06-09-C-3… 2018-06-09 2018-06-24   -124.   -117.    29.8    35.1      72</span></span>
-<span><span class="co">#&gt;  8 2018-04-05-C-3… 2018-04-05 2018-04-26   -126.   -117.    29.8    37.8     103</span></span>
-<span><span class="co">#&gt;  9 2018-02-01-C-3… 2018-02-01 2018-02-10   -124.   -118.    31.1    35.1      45</span></span>
-<span><span class="co">#&gt; 10 2017-11-09-C-3… 2017-11-09 2017-11-24   -124.   -117.    29.8    35.1      74</span></span>
-<span><span class="co">#&gt; # … with 648 more rows</span></span>
-<span></span>
-<span><span class="co"># get path of temporary file to store raster</span></span>
-<span><span class="op">(</span><span class="va">r_tif</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext<span class="op">=</span><span class="st">".tif"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpZ79zj6/filef06d13d0c62e.tif"</span></span>
-<span></span>
-<span><span class="co"># use second variable from previously fetched v</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">table_field</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="va">v</span><span class="op">$</span><span class="va">plot_label</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "ctd_bottles.salinity"                "Salinity (practical salinity scale)"</span></span>
-<span></span>
-<span><span class="co"># fetch interpolated raster from CalCOFI API</span></span>
-<span><span class="fu"><a href="reference/get_raster.html">get_raster</a></span><span class="op">(</span></span>
-<span>  variable <span class="op">=</span> <span class="va">v</span><span class="op">$</span><span class="va">table_field</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
-<span>  cruise_id <span class="op">=</span> <span class="st">"2020-01-05-C-33RL"</span>,</span>
-<span>  depth_m_min <span class="op">=</span> <span class="fl">0</span>, depth_m_max <span class="op">=</span> <span class="fl">200</span>,</span>
-<span>  out_tif <span class="op">=</span> <span class="va">r_tif</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "/var/folders/sl/7s3zmk1129jcrgsn1c4hcs2r0000gn/T//RtmpZ79zj6/filef06d13d0c62e.tif"</span></span>
-<span></span>
-<span><span class="co"># read raster</span></span>
-<span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html" class="external-link">raster</a></span><span class="op">(</span><span class="va">r_tif</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># plot raster</span></span>
-<span><span class="fu"><a href="reference/map_raster.html">map_raster</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">v</span><span class="op">$</span><span class="va">plot_label</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/map_raster-1.png"><!-- --></p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># cleanup by deleting temporary file</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">r_tif</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://calcofi.github.io/calcofi4r">calcofi4r</a></span><span class="op">)</span></span></code></pre></div>
+<p>Please visit the vignette to <a href="./articles/calcofi4r.html">Get started</a> and <a href="reference/index.html">Reference</a> of functions for more.</p>
 </div>
 <div class="section level2">
 <h2 id="code-of-conduct">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a>
 </h2>
-<p>Please note that the <code>calcofi4r</code> project is released with a <a href="https://calcofi.github.io/calcofi4r/CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
+<p>This is an open-source project so your input is greatly welcomed! Please note that the <code>calcofi4r</code> project is released with a <a href="https://calcofi.github.io/calcofi4r/CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
 </div>
 </div>
   </div>
