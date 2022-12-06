@@ -18,7 +18,7 @@ latitude &amp;amp; longitude. Further clip by bounding polygon."><!-- mathjax --
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">calcofi4r</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.5</span>
       </span>
     </div>
 
@@ -97,7 +97,9 @@ default: <code>100</code></p></dd>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">v_ply</span> <span class="op">&lt;-</span> <span class="fu">map_contours</span><span class="op">(</span><span class="va">bottle_temp_lonlat</span>, <span class="va">area_calcofi_extended</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in st_crs(ply):</span> could not find function "st_crs"</span>
 <span class="r-in"><span><span class="fu">mapview</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mapview/man/mapView.html" class="external-link">mapView</a></span><span class="op">(</span><span class="va">v_ply</span>, zcol<span class="op">=</span><span class="st">"v"</span>, layer.name<span class="op">=</span><span class="st">"temp(ºC)"</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'mapView': object 'v_ply' not found</span>
 </code></pre></div>
     </div>
   </div>

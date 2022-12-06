@@ -24,10 +24,12 @@ There are three categories of places [key]:
 \enumerate{
 \item CalCOFI
 \itemize{
-\item Core [cc_core]
-\item Extended [cc_extended]
-\item Nearshore [cc_nearshore]
-\item Offshore [cc_offshore]
+\item Standard Nearshore [cc_extended-nearshore]
+\item Standard Offshore [cc_extended-offshore]
+\item Extended Nearshore [cc_historical-nearshore]
+\item Extended Offshore [cc_historical-offshore]
+\item Historical Nearshore [cc_standard-nearshore]
+\item Historical Offshore [cc_standard-offshore]
 }
 \item Integrated Ecosystem Assessment
 \itemize{

@@ -1,6 +1,10 @@
+# calcofi4r 0.5.5
+
+* Fixed nearshore `cc_grid` to include `sta_pos == 60`. Renamed `cc_grid_areas` to `cc_grid_zones` with new categories for `sta_shore` ("nearshore" OR "offshore") and `sta_pattern` ("standard", "extended", "historical") per #4. Updated `cc_places` to have the 6 combinations of `cc_grid_zones`.
+
 # calcofi4r 0.5.4
 
-* \+ `cc_places` with three categories for places: 1) CalCOFI (Core, Extended, Nearshore, Offshore); 2) Integrated Ecosystem Assessment (California Current); and 3) National Marine Sanctuary (Cordell Bank, Channel Islands, Greater Farallones, Monterey Bay, Olympic Coast). Augmented `cc_grid*` with missing cells to reduce slivers when intersecting.
+* Added `cc_places` with three categories for places: 1) CalCOFI (Core, Extended, Nearshore, Offshore); 2) Integrated Ecosystem Assessment (California Current); and 3) National Marine Sanctuary (Cordell Bank, Channel Islands, Greater Farallones, Monterey Bay, Olympic Coast). Augmented `cc_grid*` with missing cells to reduce slivers when intersecting.
 
 # calcofi4r 0.5.3
 
@@ -8,7 +12,7 @@
 
 # calcofi4r 0.5.2
 
-* \+ `cc_grid`, `cc_grid_ctrs` showing the CalCOFI station sampling at varying seperation distances of station positions (`sta_pos`) in the CalCOFI coordinate system from nearshore (`5`), to offshore (`10`) to outside the 113 station extended repeated area (`20`), per [Station Positions – CalCOFI](https://calcofi.org/sampling-info/station-positions/)}
+* Added `cc_grid`, `cc_grid_ctrs` showing the CalCOFI station sampling at varying seperation distances of station positions (`sta_pos`) in the CalCOFI coordinate system from nearshore (`5`), to offshore (`10`) to outside the 113 station extended repeated area (`20`), per [Station Positions – CalCOFI](https://calcofi.org/sampling-info/station-positions/)}
 
 # calcofi4r 0.5.1
 
@@ -16,7 +20,7 @@
 
 # calcofi4r 0.5.0
 
-* \+ `plot_depth()` and example data `bottle_temp_depth`
+* Added `plot_depth()` and example data `bottle_temp_depth`
 * `stations_t_degc` -> `bottle_temp_lonlat`
 
 # calcofi4r 0.4.1
@@ -25,17 +29,17 @@
 
 # calcofi4r 0.4.0
 
-* \+ `tbl_to_contour_ply()` and example data `area_calcofi_extended` `stations_t_degc`
+* Added `tbl_to_contour_ply()` and example data `area_calcofi_extended` `stations_t_degc`
 
 # calcofi4r 0.3.0
 
-* \+ `get_cruises()` and `get_raster()` for reading from the CalCOFI API.
-* \+ `map_raster()` and `plot_timeseries()` for visualizing.
-* \+ "Get started" vignette and README.Rmd -> README.md with example usage
+* Added `get_cruises()` and `get_raster()` for reading from the CalCOFI API.
+* Added `map_raster()` and `plot_timeseries()` for visualizing.
+* Added "Get started" vignette and README.Rmd -> README.md with example usage
 
 # calcofi4r 0.2.0
 
-* \+ `get_variables()`, `get_timeseries()` for reading from the API at https://api.calcofi.io
+* Added `get_variables()`, `get_timeseries()` for reading from the API at https://api.calcofi.io
 
 # calcofi4r 0.1.2
 
@@ -43,7 +47,7 @@
 
 # calcofi4r 0.1.1
 
-* \+ authors
+* Added authors
 
 # calcofi4r 0.1.0
 

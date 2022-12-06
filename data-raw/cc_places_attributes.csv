@@ -1,8 +1,10 @@
 key,category,name
-cc_core,CalCOFI,Core
-cc_extended,CalCOFI,Extended
-cc_nearshore,CalCOFI,Nearshore
-cc_offshore,CalCOFI,Offshore
+cc_extended-nearshore,CalCOFI,Extended Nearshore
+cc_extended-offshore,CalCOFI,Extended Offshore
+cc_historical-nearshore,CalCOFI,Historical Nearshore
+cc_historical-offshore,CalCOFI,Historical Offshore
+cc_standard-nearshore,CalCOFI,Standard Nearshore
+cc_standard-offshore,CalCOFI,Standard Offshore
 iea_ca,Integrated Ecosystem Assessment,California Current
 nms_cb,National Marine Sanctuary,Cordell Bank
 nms_ci,National Marine Sanctuary,Channel Islands

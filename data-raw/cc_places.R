@@ -1,7 +1,10 @@
+# TODO: setup lookup table with columns: key | name | description
+
 source(here::here("data-raw/db.R"))
 librarian::shelf(
   # janitor, leaflet,
   geojsonsf,
+  glue,
   mapview,
   mregions,
   noaa-onms/onmsR,
@@ -12,29 +15,17 @@ devtools::load_all()
 # load places and intersect with CalCOFI extended area,
 #  noting % overlap
 
-# CalCOFI areas ----
-
-cc_areas <- calcofi4r::cc_grid_areas %>%
+# CalCOFI zones ----
+cc_zones <- calcofi4r::cc_grid_zones %>%
   mutate(
-    key = recode(
-      area_dpos,
-      "5,10"    = "cc_core",
-      "5,10,20" = "cc_extended",
-      "5"       = "cc_nearshore",
-      "10"      = "cc_offshore",
-      .default  = "")) %>%
-  filter(key != "") %>%
+    key = glue("cc_{zone_key}")) %>%
   select(key)
 
-# TODO: setup lookup table with columns: key | name | description
+# prep areas: cc_all, land ----
 
-# prep areas: cc_ext, land ----
-
-# get CalCOFI extended study area
-cc_ext <- calcofi4r::cc_grid_areas %>%
-  filter(area_dpos == "5,10,20") %>%
-  select(geom)
-# mapView(cc_ext)
+# get CalCOFI all zones
+cc_all <- summarize(cc_zones)
+# mapView(cc_all)
 
 # get land
 land <- rnaturalearth::ne_countries(
@@ -46,10 +37,9 @@ land <- rnaturalearth::ne_countries(
 # mapView(land)
 
 # National Marine Sanctuaries ----
-
 sanct <- onmsR::sanctuaries %>%
   select(-spatial) %>%
-  filter(st_intersects(., cc_ext, sparse = FALSE)[,1]) %>%
+  filter(st_intersects(., cc_all, sparse = FALSE)[,1]) %>%
   st_difference(land) %>%
   st_make_valid()  %>%
   mutate(
@@ -63,8 +53,8 @@ sanct <- onmsR::sanctuaries %>%
       .default  = ""))
 # mapView(sanct)
 
-sanct_x <- st_intersection(sanct, cc_ext)
-sanct_y <- st_difference(sanct, cc_ext) %>%
+sanct_x <- st_intersection(sanct, cc_all)
+sanct_y <- st_difference(sanct, cc_all) %>%
   st_cast("POLYGON") %>%
   mutate(
     area_km2 = st_area(geom) %>%
@@ -116,8 +106,8 @@ iea_ca <- mregions::mr_features_get(
   st_make_valid()
 # mapView(iea_ca)
 
-iea_ca_x <- st_intersection(iea_ca, cc_ext)
-iea_ca_y <- st_difference(iea_ca, cc_ext) %>%
+iea_ca_x <- st_intersection(iea_ca, cc_all)
+iea_ca_y <- st_difference(iea_ca, cc_all) %>%
   st_cast("POLYGON") %>%
   mutate(
     area_km2 = st_area(geom) %>%
@@ -130,9 +120,10 @@ iea_ca_y <- st_difference(iea_ca, cc_ext) %>%
 
 # cc_places final ----
 cc_places <- rbind(
-  cc_areas,
+  cc_zones,
   sanct,
-  iea_ca)
+  iea_ca) %>%
+  arrange(key)
 cc_places %>%
   st_drop_geometry() %>%
   write_csv(here("data-raw/cc_places_keys.csv"))

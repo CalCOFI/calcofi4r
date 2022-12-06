@@ -33,7 +33,10 @@ library(dplyr)
 library(mapview)
 library(sf)
 
-mapview(cc_grid, zcol="sta_dpos", layer.name = "sta_dpos") +
+mapview(cc_grid, zcol="sta_pattern") +
+  mapview(cc_grid_ctrs, cex = 1)
+
+mapview(cc_grid, zcol="sta_shore") +
   mapview(cc_grid_ctrs, cex = 1)
 ```
 
@@ -71,52 +74,62 @@ mapview(n_pts, cex="n", layer.name = "n")
 
 Map contours of an oceanographic variable from CTD cast bottle data.
 
+### All Zones, including Historical Station Pattern
+
 ```{r map_contours}
 # show first 6 rows of example data frame with temperature in space as variable
 head(cc_bottle)
 
-# show bounding polygon
-# mapView(area_calcofi_extended)
-
-# get map contours, aka isobands, of variable using generalized additive model (GAM)
-
+# calculate map contours, aka isobands, of variable using generalized additive model (GAM)
 v_ply_all <- map_contours(
   df = cc_bottle %>%
     filter(
       !is.na(t_degc)) %>% 
     group_by(lon, lat) %>% 
-    summarize(v = mean(t_degc)), 
-  ply = cc_grid_areas %>% 
-    filter(area_dpos == "5,10,20"))
+    summarize(
+      v = mean(t_degc),
+      .groups = "drop"), 
+  ply = cc_grid_zones) # for all zones, including historical
 # show contour polygons on map 
-mapView(v_ply_all, zcol="v", layer.name="temp(ºC)")
+mapView(v_ply_all, zcol="v", layer.name="Temp.(ºC)")
 ```
 
+### Standard and Extended Station Pattern Zones
+
 ```{r}
-v_ply_regular <- map_contours(
+# calculate map contours
+v_ply_extended <- map_contours(
   df = cc_bottle %>%
     filter(
       !is.na(t_degc),
       sta_dpos %in% c(5, 10)) %>% 
     group_by(lon, lat) %>% 
-    summarize(v = mean(t_degc)),
-  ply = cc_grid_areas %>% 
-    filter(area_dpos == "5,10"))
-# show contour polygons on map 
-mapView(v_ply_regular, zcol="v", layer.name="temp(ºC)")
+    summarize(
+      v = mean(t_degc),
+      .groups = "drop"),
+  ply = cc_grid_zones %>% 
+    filter(sta_pattern %in% c("standard", "extended")))
+# display map contours
+mapView(v_ply_extended, zcol="v", layer.name="temp(ºC)")
 ```
 
+### Standard Nearshore Zone
+
 ```{r}
+# calculate map contours
 v_ply_inshore <- map_contours(
   df = cc_bottle %>%
     filter(
       !is.na(t_degc),
       sta_dpos == 5) %>% 
     group_by(lon, lat) %>% 
-    summarize(v = mean(t_degc)),
-  ply = cc_grid_areas %>% 
-    filter(area_dpos == "5"))
-# show contour polygons on map 
+    summarize(
+      v = mean(t_degc),
+      .groups = "drop"),
+  ply = cc_grid_zones %>% 
+    filter(
+      sta_pattern  == "standard",
+      sta_shore    == "nearshore"))
 mapView(v_ply_inshore, zcol="v", layer.name="temp(ºC)")
 ```
 

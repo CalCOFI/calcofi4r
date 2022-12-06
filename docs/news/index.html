@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">calcofi4r</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.5</span>
       </span>
     </div>
 
@@ -51,9 +51,12 @@
     </div>
 
     <div class="section level2">
+<h2 class="page-header" data-toc-text="0.5.5" id="calcofi4r-055">calcofi4r 0.5.5<a class="anchor" aria-label="anchor" href="#calcofi4r-055"></a></h2>
+<ul><li>Fixed nearshore <code>cc_grid</code> to include <code>sta_pos == 60</code>. Renamed <code>cc_grid_areas</code> to <code>cc_grid_zones</code> with new categories for <code>sta_shore</code> (“nearshore” OR “offshore”) and <code>sta_pattern</code> (“standard”, “extended”, “historical”) per <a href="https://github.com/calcofi/calcofi4r/issues/4" class="external-link">#4</a>. Updated <code>cc_places</code> to have the 6 combinations of <code>cc_grid_zones</code>.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="page-header" data-toc-text="0.5.4" id="calcofi4r-054">calcofi4r 0.5.4<a class="anchor" aria-label="anchor" href="#calcofi4r-054"></a></h2>
-<ul><li>+ <code>cc_places</code>
-</li>
+<ul><li>Added <code>cc_places</code> with three categories for places: 1) CalCOFI (Core, Extended, Nearshore, Offshore); 2) Integrated Ecosystem Assessment (California Current); and 3) National Marine Sanctuary (Cordell Bank, Channel Islands, Greater Farallones, Monterey Bay, Olympic Coast). Augmented <code>cc_grid*</code> with missing cells to reduce slivers when intersecting.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.5.3" id="calcofi4r-053">calcofi4r 0.5.3<a class="anchor" aria-label="anchor" href="#calcofi4r-053"></a></h2>
@@ -63,7 +66,7 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.5.2" id="calcofi4r-052">calcofi4r 0.5.2<a class="anchor" aria-label="anchor" href="#calcofi4r-052"></a></h2>
-<ul><li>+ <code>cc_grid</code>, <code>cc_grid_ctrs</code> showing the CalCOFI station sampling at varying seperation distances of station positions (<code>sta_pos</code>) in the CalCOFI coordinate system from nearshore (<code>5</code>), to offshore (<code>10</code>) to outside the 113 station extended repeated area (<code>20</code>), per <a href="https://calcofi.org/sampling-info/station-positions/" class="external-link">Station Positions – CalCOFI</a>}</li>
+<ul><li>Added <code>cc_grid</code>, <code>cc_grid_ctrs</code> showing the CalCOFI station sampling at varying seperation distances of station positions (<code>sta_pos</code>) in the CalCOFI coordinate system from nearshore (<code>5</code>), to offshore (<code>10</code>) to outside the 113 station extended repeated area (<code>20</code>), per <a href="https://calcofi.org/sampling-info/station-positions/" class="external-link">Station Positions – CalCOFI</a>}</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.5.1" id="calcofi4r-051">calcofi4r 0.5.1<a class="anchor" aria-label="anchor" href="#calcofi4r-051"></a></h2>
@@ -71,7 +74,7 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.5.0" id="calcofi4r-050">calcofi4r 0.5.0<a class="anchor" aria-label="anchor" href="#calcofi4r-050"></a></h2>
-<ul><li>+ <code><a href="../reference/plot_depth.html">plot_depth()</a></code> and example data <code>bottle_temp_depth</code>
+<ul><li>Added <code><a href="../reference/plot_depth.html">plot_depth()</a></code> and example data <code>bottle_temp_depth</code>
 </li>
 <li>
 <code>stations_t_degc</code> -&gt; <code>bottle_temp_lonlat</code>
@@ -84,18 +87,18 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.4.0" id="calcofi4r-040">calcofi4r 0.4.0<a class="anchor" aria-label="anchor" href="#calcofi4r-040"></a></h2>
-<ul><li>+ <code>tbl_to_contour_ply()</code> and example data <code>area_calcofi_extended</code> <code>stations_t_degc</code>
+<ul><li>Added <code>tbl_to_contour_ply()</code> and example data <code>area_calcofi_extended</code> <code>stations_t_degc</code>
 </li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.3.0" id="calcofi4r-030">calcofi4r 0.3.0<a class="anchor" aria-label="anchor" href="#calcofi4r-030"></a></h2>
-<ul><li>+ <code><a href="../reference/get_cruises.html">get_cruises()</a></code> and <code><a href="../reference/get_raster.html">get_raster()</a></code> for reading from the CalCOFI API.</li>
-<li>+ <code><a href="../reference/map_raster.html">map_raster()</a></code> and <code><a href="../reference/plot_timeseries.html">plot_timeseries()</a></code> for visualizing.</li>
-<li>+ “Get started” vignette and README.Rmd -&gt; README.md with example usage</li>
+<ul><li>Added <code><a href="../reference/get_cruises.html">get_cruises()</a></code> and <code><a href="../reference/get_raster.html">get_raster()</a></code> for reading from the CalCOFI API.</li>
+<li>Added <code><a href="../reference/map_raster.html">map_raster()</a></code> and <code><a href="../reference/plot_timeseries.html">plot_timeseries()</a></code> for visualizing.</li>
+<li>Added “Get started” vignette and README.Rmd -&gt; README.md with example usage</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.2.0" id="calcofi4r-020">calcofi4r 0.2.0<a class="anchor" aria-label="anchor" href="#calcofi4r-020"></a></h2>
-<ul><li>+ <code><a href="../reference/get_variables.html">get_variables()</a></code>, <code><a href="../reference/get_timeseries.html">get_timeseries()</a></code> for reading from the API at <a href="https://api.calcofi.io" class="external-link uri">https://api.calcofi.io</a>
+<ul><li>Added <code><a href="../reference/get_variables.html">get_variables()</a></code>, <code><a href="../reference/get_timeseries.html">get_timeseries()</a></code> for reading from the API at <a href="https://api.calcofi.io" class="external-link uri">https://api.calcofi.io</a>
 </li>
 </ul></div>
     <div class="section level2">
@@ -104,7 +107,7 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.1.1" id="calcofi4r-011">calcofi4r 0.1.1<a class="anchor" aria-label="anchor" href="#calcofi4r-011"></a></h2>
-<ul><li>+ authors</li>
+<ul><li>Added authors</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.1.0" id="calcofi4r-010">calcofi4r 0.1.0<a class="anchor" aria-label="anchor" href="#calcofi4r-010"></a></h2>

@@ -1,3 +1,4 @@
+# bottle_temp_depth ----
 #' Bottle data of temperature with depth (m)
 #'
 #' Extended CalCOFI station bottle cast data with temperature (º Celsius) as example data frame
@@ -12,6 +13,7 @@
 #' @concept data
 "bottle_temp_depth"
 
+# bottle_temp_lonlat ----
 #' Bottle data of temperature in space (latitude, longitude)
 #'
 #' Extended CalCOFI station bottle cast with temperature (º Celsius) as example data frame
@@ -26,6 +28,7 @@
 #' @concept data
 "bottle_temp_lonlat"
 
+# cc_bottle ----
 #' Bottle data in space and time
 #'
 #' CTD bottle cast data as example data frame for visualization functions.
@@ -46,6 +49,7 @@
 #' @concept data
 "cc_bottle"
 
+# cc_grid ----
 #' CalCOFI Grid for Extracting Effort
 #'
 #' A grid for calculating effort by station using Voronoi diagram to fetch nearest station, additionally clipped by land (`rnaturalearthhires::states10`).
@@ -56,12 +60,15 @@
 #'   \item{sta_lin}{alongshore line in CalCOFI coordinate system}
 #'   \item{sta_pos}{offshore position in CalCOFI coordinate system}
 #'   \item{sta_dpos}{difference in position, from 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area)}
+#'   \item{sta_pattern}{the CalCOFI station pattern; one of: "standard", "extended" or "historical"}
+#'   \item{sta_shore}{the position wrt shore; one of: "nearshore" or "offshore"}
 #'   \item{geom}{station voronoi polygon with latitude and longitude in decimal degree geographic coordinates (SRID 4326)}
 #' }
 #' @source [Station Positions – CalCOFI](https://calcofi.org/sampling-info/station-positions)
 #' @concept data
 "cc_grid"
 
+# cc_grid_ctrs ----
 #' CalCOFI Grid Centroids for Extracting Effort
 #'
 #' A set of centroids for the grid to calculate effort by station using Voronoi diagram to fetch nearest station, additionally clipped by land (`rnaturalearthhires::states10`).
@@ -78,28 +85,30 @@
 #' @concept data
 "cc_grid_ctrs"
 
-#' CalCOFI Grid Study Areas
+# cc_grid_zones ----
+#' CalCOFI Grid Zones
 #'
-#' A set of study areas based on dissolving `cc_grid` for differentiating
-#' various combinations of 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area).
-#' For instance, to extract the study area for:
-#' - only nearshore grid cells, use
-#'   `dplyr::filter(cc_grid_areas, area_dpos="5")`;
-#' - all grid cells, use
-#'   `dplyr::filter(cc_grid_areas, area_dpos="5,10,20")`;
-#' - all commonly sampled stations (113 station extended area), use
-#'   `dplyr::filter(cc_grid_areas, area_dpos="5,10")`.
+#' A set of zones based on dissolving `cc_grid` for differentiating position wrt
+#' the shore (`sta_shore`: "nearshore" or "offshore") and station patterns (
+#' `sta_pattern`: "standard", "extended" or "historical").
 #'
-#' @format A `sf` spatial feature set with
+#' @format A `sf` spatial feature set with 6 rows × 9 columns:
 #' \describe{
-#'   \item{area_dpos}{character identifier for combinations of difference in position, from 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area); one of: 5; 10; 20; 5,10; 10,20; 5,10,20}
-#'   \item{geom}{dissolved study area from `cc_grid` with latitude and longitude in decimal degree geographic coordinates (SRID 4326)}
+#'   \item{zone_key}{unique zone key of the form `"{sta_pattern}-{sta_shore}"` }
+#'   \item{sta_pattern}{the CalCOFI station pattern; one of: "standard", "extended" or "historical"}
+#'   \item{sta_shore}{the position wrt shore; one of: "nearshore" or "offshore"}
+#'   \item{sta_dpos}{the difference in position: 5 (nearshore), 10 (offshore) or 20 (historical)}
+#'   \item{sta_lin_min}{the minimum value of dissolved `sta_lin` from `cc_grid`}
+#'   \item{sta_lin_max}{the maximum value of dissolved `sta_lin` from `cc_grid`}
+#'   \item{sta_pos_min}{the minimum value of dissolved `sta_pos` from `cc_grid`}
+#'   \item{sta_pos_max}{the maximum value of dissolved `sta_pos` from `cc_grid`}
+#'   \item{geom}{geometry of dissolved zone from `cc_grid` with latitude and longitude in decimal degree geographic coordinates (EPSG:4326)}
 #' }
 #' @source [Station Positions – CalCOFI](https://calcofi.org/sampling-info/station-positions)
 #' @concept data
-"cc_grid_areas"
+"cc_grid_zones"
 
-
+# cc_places ----
 #' CalCOFI Places
 #'
 #' A set of places for commonly extracting CalCOFI data.
@@ -107,10 +116,12 @@
 #' There are three categories of places \[key\]:
 #'
 #' 1. CalCOFI
-#'    - Core \[cc_core\]
-#'    - Extended \[cc_extended\]
-#'    - Nearshore \[cc_nearshore\]
-#'    - Offshore \[cc_offshore\]
+#'    - Standard Nearshore \[cc_extended-nearshore\]
+#'    - Standard Offshore \[cc_extended-offshore\]
+#'    - Extended Nearshore \[cc_historical-nearshore\]
+#'    - Extended Offshore \[cc_historical-offshore\]
+#'    - Historical Nearshore \[cc_standard-nearshore\]
+#'    - Historical Offshore \[cc_standard-offshore\]
 #' 1. Integrated Ecosystem Assessment
 #'    - California Current \[iea_ca\]
 #' 1. National Marine Sanctuary
@@ -130,6 +141,7 @@
 #' @concept data
 "cc_places"
 
+# stations ----
 #' Oceanographic stations
 #'
 #' The geographic locations of every bottle sampling station utilized on a CalCOFI

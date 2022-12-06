@@ -26,9 +26,14 @@ map_contours <- function(df, ply, gam_k=60, grid_width=0.1, n_breaks=7){
   stopifnot(all(c("lon", "lat", "v") %in% names(df)))
 
   # check geographic projection of input polygon boundary
-  if(sf::st_crs(ply) != sf::st_crs(4326)){
-    warning(glue::glue("The input parameter `ply` to function `map_contours()` is not exactly geographic coordinate ref system (4326), so setting."))
+  if(is.na(st_crs(ply))){
+    warning(glue::glue(
+      "The coordinate reference system for input `ply` is not set, so assuming
+      geographic (EPSG:4326)."))
     ply <- sf::st_set_crs(ply, 4326)
+  }
+  if(!is.na(st_crs(ply)) & st_crs(ply) != st_crs(4326)){
+    ply <- sf::st_transform(ply, 4326)
   }
 
   # filter NAs
@@ -54,7 +59,7 @@ map_contours <- function(df, ply, gam_k=60, grid_width=0.1, n_breaks=7){
     dplyr::rename(lon = X, lat = Y) # %>%
   # dplyr::mutate(
   #   in_ply = sf::st_intersects(ply, geom, sparse = F)[1,])
-  g$in_ply <- sf::st_intersects(ply, g, sparse = F)[1,]
+  g$in_ply <- sf::st_intersects(st_union(ply), g, sparse = F)[1,]
   # table(g$in_ply)
 
   # predict values using fitted model
@@ -100,10 +105,9 @@ map_contours <- function(df, ply, gam_k=60, grid_width=0.1, n_breaks=7){
       v = mean(c(v_lo, v_hi))) %>%
     sf::st_as_sf(crs=4326)
 
-  # clip
+  # crop to ply
   sf::st_agr(b_sf) = "constant"
-  b_sf <- sf::st_intersection(b_sf, ply)
-  # mapview::mapView(b_sf, zcol = "v")
+  b_sf <- sf::st_intersection(b_sf, st_union(ply))
 
   b_sf
 }

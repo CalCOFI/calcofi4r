@@ -11,6 +11,8 @@ A \code{sf} spatial feature set with
 \item{sta_lin}{alongshore line in CalCOFI coordinate system}
 \item{sta_pos}{offshore position in CalCOFI coordinate system}
 \item{sta_dpos}{difference in position, from 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area)}
+\item{sta_pattern}{the CalCOFI station pattern; one of: "standard", "extended" or "historical"}
+\item{sta_shore}{the position wrt shore; one of: "nearshore" or "offshore"}
 \item{geom}{station voronoi polygon with latitude and longitude in decimal degree geographic coordinates (SRID 4326)}
 }
 }
