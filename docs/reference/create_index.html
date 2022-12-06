@@ -60,8 +60,8 @@
 <span>  <span class="va">con</span>,</span>
 <span>  <span class="va">tbl</span>,</span>
 <span>  <span class="va">flds</span>,</span>
-<span>  geom <span class="op">=</span> <span class="cn">F</span>,</span>
-<span>  unique <span class="op">=</span> <span class="cn">F</span>,</span>
+<span>  is_geom <span class="op">=</span> <span class="cn">F</span>,</span>
+<span>  is_unique <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>  show <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>  exec <span class="op">=</span> <span class="cn">T</span></span>
@@ -82,11 +82,11 @@
 <dd><p>character vector of fields in table used for index</p></dd>
 
 
-<dt>geom</dt>
+<dt>is_geom</dt>
 <dd><p>logical (default: FALSE) whether geometry field, so create GIST() index</p></dd>
 
 
-<dt>unique</dt>
+<dt>is_unique</dt>
 <dd><p>logical (default: FALSE) whether to impose a unique constraint, to prevent duplicates; default: FALSE</p></dd>
 
 
@@ -113,8 +113,8 @@
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu"><a href="cc_db_connect.html">cc_db_connect</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">create_index</span><span class="op">(</span><span class="va">con</span>, <span class="st">"ctd_casts"</span>, <span class="st">"geom"</span>, geom<span class="op">=</span><span class="cn">T</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">create_index</span><span class="op">(</span><span class="va">con</span>, <span class="st">"ctd_casts"</span>, <span class="st">"cast_count"</span>, unique<span class="op">=</span><span class="cn">T</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">create_index</span><span class="op">(</span><span class="va">con</span>, <span class="st">"ctd_casts"</span>, <span class="st">"geom"</span>, is_geom<span class="op">=</span><span class="cn">T</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">create_index</span><span class="op">(</span><span class="va">con</span>, <span class="st">"ctd_casts"</span>, <span class="st">"cast_count"</span>, is_unique<span class="op">=</span><span class="cn">T</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>

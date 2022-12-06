@@ -8,8 +8,8 @@ create_index(
   con,
   tbl,
   flds,
-  geom = F,
-  unique = F,
+  is_geom = F,
+  is_unique = F,
   overwrite = F,
   show = F,
   exec = T
@@ -22,9 +22,9 @@ create_index(
 
 \item{flds}{character vector of fields in table used for index}
 
-\item{geom}{logical (default: FALSE) whether geometry field, so create GIST() index}
+\item{is_geom}{logical (default: FALSE) whether geometry field, so create GIST() index}
 
-\item{unique}{logical (default: FALSE) whether to impose a unique constraint, to prevent duplicates; default: FALSE}
+\item{is_unique}{logical (default: FALSE) whether to impose a unique constraint, to prevent duplicates; default: FALSE}
 
 \item{overwrite}{logical (default: FALSE) whether to overwrite existing index}
 
@@ -41,8 +41,8 @@ Create index in database
 \examples{
 \dontrun{
 con <- cc_db_connect()
-create_index(con, "ctd_casts", "geom", geom=T)
-create_index(con, "ctd_casts", "cast_count", unique=T)
+create_index(con, "ctd_casts", "geom", is_geom=T)
+create_index(con, "ctd_casts", "cast_count", is_unique=T)
 }
 }
 \concept{database}
