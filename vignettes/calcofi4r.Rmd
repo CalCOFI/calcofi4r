@@ -26,7 +26,7 @@ The CalCOFI grid (`cc_grid`) and centroids (`cc_grid_ctrs`) show the  [CalCOFI S
 
 This allows summarization of effort within each station and defining a study area according to these criteria (e.g., `sta_dpos`).
 
-### Grid by Station Pattern
+### Grid by Zone
 
 ```{r}
 library(calcofi4r)
@@ -37,21 +37,6 @@ library(sf)
 mapview(cc_grid, zcol="zone_key") +
   mapview(cc_grid_ctrs, cex = 1)
 ```
-
-### Grid by Nearshore vs Offshore
-
-```{r}
-mapview(cc_grid, zcol="sta_shore") +
-  mapview(cc_grid_ctrs, cex = 1)
-```
-
-### Grid Zones
-
-```{r}
-mapview(cc_grid_zones, zcol="zone_key") +
-  mapview(cc_grid_ctrs, cex = 1)
-```
-
 
 ### Summarize Temperature from Bottle Data
 
