@@ -5,6 +5,7 @@
 * Added to `cc_places`: 
   - "NOAA Aquaculture Opportunity Areas"
   - "BOEM Wind Planning Areas"
+  - "National Marine Sanctuaries": "Chumash Proposed Action"
 
 # calcofi4r 0.6.0
 
