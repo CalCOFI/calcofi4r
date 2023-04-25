@@ -20,25 +20,46 @@ cc_places
 A set of places for commonly extracting CalCOFI data.
 }
 \details{
-There are three categories of places [key]:
+Here are the categories and names [key]:
 \enumerate{
-\item CalCOFI
+\item BOEM Wind Planning Areas
 \itemize{
-\item Standard Nearshore [cc_extended-nearshore]
-\item Standard Offshore [cc_extended-offshore]
-\item Extended Nearshore [cc_historical-nearshore]
-\item Extended Offshore [cc_historical-offshore]
-\item Historical Nearshore [cc_standard-nearshore]
-\item Historical Offshore [cc_standard-offshore]
+\item California Call Area - Diablo Canyon [boem-wpa_NI10-03]
+\item California Call Area - Morro Bay [boem-wpa_NI10-01]
+\item Oregon Call Area - Brookings [boem-wpa_NK10-04]
+\item Oregon Call Area - Coos Bay [boem-wpa_NK10-01]
+}
+\item CalCOFI Zones
+\itemize{
+\item Extended Nearshore [cc_nearshore-extended]
+\item Extended Offshore [cc_offshore-extended]
+\item Historical Nearshore [cc_nearshore-historical]
+\item Historical Offshore [cc_offshore-historical]
+\item Standard Nearshore [cc_nearshore-standard]
+\item Standard Offshore [cc_offshore-standard]
 }
 \item Integrated Ecosystem Assessment
 \itemize{
 \item California Current [iea_ca]
 }
-\item National Marine Sanctuary
+\item NOAA Aquaculture Opportunity Areas
 \itemize{
-\item Cordell Bank [nms_cb]
+\item Central North: CN1-A [noaa-aoa_CN1-A]
+\item Central North: CN1-B [noaa-aoa_CN1-B]
+\item North: N1-A [noaa-aoa_N1-A]
+\item North: N1-B [noaa-aoa_N1-B]
+\item North: N1-C [noaa-aoa_N1-C]
+\item North: N2-A [noaa-aoa_N2-A]
+\item North: N2-B [noaa-aoa_N2-B]
+\item North: N2-C [noaa-aoa_N2-C]
+\item North: N2-D [noaa-aoa_N2-D]
+\item North: N2-E [noaa-aoa_N2-E]
+}
+\item National Marine Sanctuaries
+\itemize{
 \item Channel Islands [nms_ci]
+\item Chumash Proposed Action [nms_cp]
+\item Cordell Bank [nms_cb]
 \item Greater Farallones [nms_gf]
 \item Monterey Bay [nms_mb]
 \item Olympic Coast [nms_oc]

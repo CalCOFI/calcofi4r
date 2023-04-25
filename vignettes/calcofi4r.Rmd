@@ -82,46 +82,95 @@ n_pts <- cc_grid_ctrs %>%
 mapview(n_pts, cex="n", layer.name = "n")
 ```
 
-## Map contours
+## Map contours 
 
-Map contours of an oceanographic variable from CTD cast bottle data. The `map_contours()` method uses a bivariate smoothing function on longitude and latitude with a generalized additive model (GAM).
+You can map the contours of input data using the faster, rougher Inverse-Distance Weighting (IDW; `pts_to_rast_idw()`, `rast_to_contours()`) technique or the slower, smoother Generalized Additive Model (GAM; `pts_to_contours_gam()`).
 
 ### All Zones
 
-```{r map_contours}
-# calculate map contours
-v_ply_all <- map_contours(
-  df  = d_t, 
-  ply = cc_grid_zones) # all zones, including historical
-# show map contours
-mapView(v_ply_all, zcol="v", layer.name="Temp.(ºC)")
+```{r pts_to_rast_idw}
+# interpolate points to raster using IDW
+r_k_all <- pts_to_rast_idw(d_t, "v", cc_grid_zones)
+mapView(r_k_all)
+```
+
+```{r}
+# generate contour polygons from raster
+p_k_all <- rast_to_contours(r_k_all, cc_grid_zones)
+mapView(p_k_all, zcol = "z_avg")
 ```
 
 ### Standard and Extended Station Pattern Zones
 
 ```{r}
-# calculate map contours
-v_ply_ext <- map_contours(
-  df  = d_t,
-  ply = cc_grid_zones %>% 
-    filter(
-      sta_pattern %in% c("standard", "extended")))
-# display map contours
-mapView(v_ply_ext, zcol="v", layer.name="Temp.(ºC)")
+aoi_ext <- cc_grid_zones |> 
+  filter(
+    sta_pattern %in% c("standard", "extended"))
+
+# interpolate points to raster using IDW
+r_k_ext <- pts_to_rast_idw(d_t, "v", aoi_ext)
+mapView(r_k_ext, layer.name="Temp.(ºC)")
+```
+
+```{r}
+# generate contour polygons from raster
+p_k_ext <- rast_to_contours(r_k_ext, aoi_ext)
+mapView(p_k_ext, zcol = "z_avg", layer.name="Temp.(ºC)")
 ```
 
 ### Standard Nearshore Zone
 
 ```{r}
-# calculate map contours
-v_ply_stdnear <- map_contours(
-  df  = d_t,
-  ply = cc_grid_zones %>% 
-    filter(
-      sta_pattern  == "standard",
-      sta_shore    == "nearshore"))
-mapView(v_ply_stdnear, zcol="v", layer.name="Temp.(ºC)")
+aoi_stdnr <- cc_grid_zones %>% 
+  filter(
+    sta_pattern  == "standard",
+    sta_shore    == "nearshore")
+
+# interpolate points to raster using IDW
+r_k_stdnr <- pts_to_rast_idw(d_t, "v", aoi_stdnr)
+mapView(r_k_stdnr, layer.name="Temp.(ºC)")
 ```
+
+```{r}
+# generate contour polygons from raster
+p_k_stdnr <- rast_to_contours(r_k_stdnr, aoi_stdnr)
+mapView(p_k_stdnr, zcol = "z_avg", layer.name="Temp.(ºC)")
+```
+
+<!--## Map contours using a Generalized Additive Model (GAM)
+
+Map contours of an oceanographic variable from CTD cast bottle data. The `pts_to_contours_gam()` method uses a bivariate smoothing function on longitude and latitude with a generalized additive model (GAM).
+
+### All Zones
+
+```{r pts_to_contours_gam, eval=F, echo=F}
+# calculate map contours
+p_g_all <- pts_to_contours_gam(d_t, cc_grid_zones)
+
+# show map contours
+mapView(p_g_all, zcol="v", layer.name="Temp.(ºC)")
+```
+
+### Standard and Extended Station Pattern Zones
+
+```{r, eval=F, echo=F}
+# calculate map contours
+p_g_ext <- pts_to_contours_gam(d_t, aoi_ext)
+
+# display map contours
+mapView(p_g_ext, zcol="v", layer.name="Temp.(ºC)")
+```
+
+### Standard Nearshore Zone
+
+```{r, eval=F, echo=F}
+# calculate map contours
+p_g_stdnr <- pts_to_contours_gam(d_t, aoi_stdnr)
+
+# display map contours
+mapView(p_g_stdnr, zcol="v", layer.name="Temp.(ºC)")
+```
+-->
 
 ## Plot Time Series
 
@@ -154,12 +203,12 @@ head(bottle_temp_depth)
 plot_depth(df = bottle_temp_depth, variable = "Temperature")
 ```
 
-
+<!--
 ## Map Raster
 
 Map raster of interpolated oceanographic variable for a cruise.
-
-```{r map_raster}
+-->
+```{r map_raster, eval=F, echo=F}
 # get cruises
 (z <- get_cruises())
 
@@ -176,15 +225,12 @@ get_raster(
   depth_m_min = 0, depth_m_max = 200,
   out_tif = r_tif)
 
+# cleanup by deleting temporary file
+unlink(r_tif)
+
 # read raster
 r <- raster::raster(r_tif)
 
 # plot raster
 map_raster(r, v$plot_label[2])
 ```
-
-```{r cleanup}
-# cleanup by deleting temporary file
-unlink(r_tif)
-```
-

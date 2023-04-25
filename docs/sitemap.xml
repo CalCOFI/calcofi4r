@@ -46,6 +46,9 @@
     <loc>https://calcofi.github.io/calcofi4r/reference/cc_bottle.html</loc>
   </url>
   <url>
+    <loc>https://calcofi.github.io/calcofi4r/reference/cc_db_connect.html</loc>
+  </url>
+  <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/cc_grid.html</loc>
   </url>
   <url>
@@ -59,6 +62,9 @@
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/cc_places.html</loc>
+  </url>
+  <url>
+    <loc>https://calcofi.github.io/calcofi4r/reference/create_index.html</loc>
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/get_cruises.html</loc>
@@ -92,6 +98,18 @@
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/plot_timeseries.html</loc>
+  </url>
+  <url>
+    <loc>https://calcofi.github.io/calcofi4r/reference/pts_to_contours_gam.html</loc>
+  </url>
+  <url>
+    <loc>https://calcofi.github.io/calcofi4r/reference/pts_to_rast_idw.html</loc>
+  </url>
+  <url>
+    <loc>https://calcofi.github.io/calcofi4r/reference/rast_to_contour.html</loc>
+  </url>
+  <url>
+    <loc>https://calcofi.github.io/calcofi4r/reference/rast_to_contours.html</loc>
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/stations.html</loc>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">calcofi4r</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.7.0</span>
       </span>
     </div>
 
@@ -111,12 +111,11 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># get variables</span></span></span>
 <span class="r-in"><span><span class="op">(</span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_variables.html">get_variables</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 6</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   category      table_field          plot_title        plot_la…¹ plot_…² color…³</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Oceanographic ctd_bottles.t_degc   Temperature       Temperat… red     Reds   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Oceanographic ctd_bottles.salinity Salinity          Salinity… purple  Purples</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Oceanographic ctd_bottles.o2sat    Oxygen Saturation Oxygen p… blue    Blues  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with abbreviated variable names ¹​plot_label, ²​plot_color, ³​color_palette</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   category      table_field       plot_title plot_label plot_color color_palette</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Oceanographic ctd_bottles.t_de… Temperatu… Temperatu… red        Reds         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Oceanographic ctd_bottles.sali… Salinity   Salinity … purple     Purples      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Oceanographic ctd_bottles.o2sat Oxygen Sa… Oxygen pe… blue       Blues        </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get data for the first variable</span></span></span>
 <span class="r-in"><span><span class="op">(</span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_timeseries.html">get_timeseries</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">table_field</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -133,7 +132,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>  <span style="text-decoration: underline;">1</span>956   11.2    4.41 <span style="text-decoration: underline;">14</span>274</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>  <span style="text-decoration: underline;">1</span>957   13.0    5.04 <span style="text-decoration: underline;">19</span>072</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>  <span style="text-decoration: underline;">1</span>958   12.1    4.71 <span style="text-decoration: underline;">24</span>324</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 61 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 61 more rows</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># plot time series with the first variable</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">v</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>,</span></span>
@@ -142,7 +141,7 @@
 <span class="r-in"><span>    <span class="va">d</span>, <span class="va">year</span>, <span class="va">t_deg_c_avg</span>, <span class="va">t_deg_c_sd</span>,</span></span>
 <span class="r-in"><span>    <span class="co"># plot attributes (from v)</span></span></span>
 <span class="r-in"><span>    <span class="va">plot_title</span>, <span class="va">plot_label</span>, <span class="va">plot_color</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dplyr::mutate(., `-sd` = {    {        fld_avg    }} - {    {        fld_sd    }}, `+sd` = {    {        fld_avg    }} + {    {        fld_sd    }}):</span> Problem while computing `-sd = t_deg_c_avg - t_deg_c_sd`.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dplyr::mutate(., `-sd` = {    {        fld_avg    }} - {    {        fld_sd    }}, `+sd` = {    {        fld_avg    }} + {    {        fld_sd    }}):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `-sd = t_deg_c_avg - t_deg_c_sd`.</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error:</span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> object 't_deg_c_avg' not found</span>
 </code></pre></div>
@@ -159,7 +158,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

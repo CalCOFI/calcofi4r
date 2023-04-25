@@ -1,6 +1,6 @@
 Package: calcofi4r
 Title: CalCOFI R helper functions
-Version: 0.6.0
+Version: 0.7.0
 URL: https://calcofi.io/calcofi4r
 BugReports: https://github.com/calcofi/calcofi4r/issues
 Authors@R: c(
@@ -17,11 +17,12 @@ Description: The California Cooperative Oceanic Fisheries Investigations (CalCOF
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Depends: 
     R (>= 2.10)
 LazyData: true
 Imports: 
+    classInt,
     dplyr,
     dygraphs,
     ggplot2,
@@ -36,7 +37,9 @@ Imports:
     RPostgres,
     scales,
     sf,
+    stars,
     stringr,
+    terra,
     tibble,
     tidyr
 Suggests: 

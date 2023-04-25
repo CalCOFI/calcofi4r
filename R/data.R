@@ -113,20 +113,37 @@
 #'
 #' A set of places for commonly extracting CalCOFI data.
 #'
-#' There are three categories of places \[key\]:
+#' Here are the categories and names \[key\]:
 #'
-#' 1. CalCOFI
-#'    - Standard Nearshore \[cc_extended-nearshore\]
-#'    - Standard Offshore \[cc_extended-offshore\]
-#'    - Extended Nearshore \[cc_historical-nearshore\]
-#'    - Extended Offshore \[cc_historical-offshore\]
-#'    - Historical Nearshore \[cc_standard-nearshore\]
-#'    - Historical Offshore \[cc_standard-offshore\]
+#' 1. BOEM Wind Planning Areas
+#'    - California Call Area - Diablo Canyon \[boem-wpa_NI10-03\]
+#'    - California Call Area - Morro Bay \[boem-wpa_NI10-01\]
+#'    - Oregon Call Area - Brookings \[boem-wpa_NK10-04\]
+#'    - Oregon Call Area - Coos Bay \[boem-wpa_NK10-01\]
+#' 1. CalCOFI Zones
+#'    - Extended Nearshore \[cc_nearshore-extended\]
+#'    - Extended Offshore \[cc_offshore-extended\]
+#'    - Historical Nearshore \[cc_nearshore-historical\]
+#'    - Historical Offshore \[cc_offshore-historical\]
+#'    - Standard Nearshore \[cc_nearshore-standard\]
+#'    - Standard Offshore \[cc_offshore-standard\]
 #' 1. Integrated Ecosystem Assessment
 #'    - California Current \[iea_ca\]
-#' 1. National Marine Sanctuary
-#'    - Cordell Bank \[nms_cb\]
+#' 1. NOAA Aquaculture Opportunity Areas
+#'    - Central North: CN1-A \[noaa-aoa_CN1-A\]
+#'    - Central North: CN1-B \[noaa-aoa_CN1-B\]
+#'    - North: N1-A \[noaa-aoa_N1-A\]
+#'    - North: N1-B \[noaa-aoa_N1-B\]
+#'    - North: N1-C \[noaa-aoa_N1-C\]
+#'    - North: N2-A \[noaa-aoa_N2-A\]
+#'    - North: N2-B \[noaa-aoa_N2-B\]
+#'    - North: N2-C \[noaa-aoa_N2-C\]
+#'    - North: N2-D \[noaa-aoa_N2-D\]
+#'    - North: N2-E \[noaa-aoa_N2-E\]
+#' 1. National Marine Sanctuaries
 #'    - Channel Islands \[nms_ci\]
+#'    - Chumash Proposed Action \[nms_cp\]
+#'    - Cordell Bank \[nms_cb\]
 #'    - Greater Farallones \[nms_gf\]
 #'    - Monterey Bay \[nms_mb\]
 #'    - Olympic Coast \[nms_oc\]

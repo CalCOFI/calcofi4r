@@ -1,3 +1,11 @@
+# calcofi4r 0.7.0
+
+* Added interpolation functions `pts_to_rast_idw()` and `rast_to_contours()`. Renamed `map_contours()` to `pts_to_contours_gam()` and moved concept from "visualize" to "analyze".
+
+* Added to `cc_places`: 
+  - "NOAA Aquaculture Opportunity Areas"
+  - "BOEM Wind Planning Areas"
+
 # calcofi4r 0.6.0
 
 * Added database connection functions `cc_db_connect()` and `create_index()`.
