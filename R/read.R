@@ -134,9 +134,8 @@ get_timeseries <- function(
   time_step = "year",
   stats = c("p10", "mean", "p90")){
 
-  req <- request("https://api.calcofi.io")
-  resp <- try(req %>%
-    req_url_path_append("timeseries") %>%
+  req <- request("https://api.calcofi.io") |>
+    req_url_path_append("timeseries") |>
     req_url_query(
       variable    = variable,
       aoi_wkt     = aoi_wkt,
@@ -145,8 +144,8 @@ get_timeseries <- function(
       date_beg    = date_beg,
       date_end    = date_end,
       time_step   = time_step,
-      stats       = paste(stats, collapse=",")) %>%
-    req_perform())
+      stats       = paste(stats, collapse=","))
+  resp <- try(req_perform(req))
 
   if ("try-error" %in% class(resp)){
     last_response() %>%

@@ -15,7 +15,8 @@ pts_to_rast_idw(
   minPoints = 1,
   near = FALSE,
   fill = NA,
-  verbose = T
+  out_tif = NULL,
+  verbose = F
 )
 }
 \arguments{
@@ -39,10 +40,12 @@ pts_to_rast_idw(
 
 \item{fill}{argument for \code{terra::interpIDW()}; default = \code{NA}}
 
+\item{out_tif}{output path to write raster tif using \code{terra::writeRaster()}; default = \code{NULL}}
+
 \item{verbose}{show messages of all variables used; default = FALSE}
 }
 \value{
-terra::rast() object
+\code{terra::rast()} object, except if \code{out_tif} is not Null in which case return \code{out_tif}
 }
 \description{
 Interpolate from points to raster using inverse-distance weighting

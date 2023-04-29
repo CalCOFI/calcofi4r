@@ -221,19 +221,21 @@ pts_to_contours_gam <- function(df, ply, gam_k=60, grid_width=0.1, n_breaks=7){
 #' @param minPoints argument for `terra::interpIDW()`; default = `1`
 #' @param near argument for `terra::interpIDW()`; default = `FALSE`
 #' @param fill argument for `terra::interpIDW()`; default = `NA`
+#' @param out_tif output path to write raster tif using `terra::writeRaster()`; default = `NULL`
 #' @param verbose show messages of all variables used; default = FALSE
 #'
-#' @return terra::rast() object
+#' @return `terra::rast()` object
 #' @import dplyr
 #' @importFrom sf st_bbox st_buffer st_drop_geometry
-#' @importFrom terra interpIDW mask rast trim
+#' @importFrom terra interpIDW mask rast trim writeRaster
 #' @importFrom glue glue
 #' @export
 #' @concept analyze
 pts_to_rast_idw <- function(
     pts, fld, aoi,
     radius = 1.5, power = 1.3, smooth = 0.2, maxPoints = Inf, minPoints = 1, near = FALSE, fill= NA,
-    verbose = T){
+    out_tif = NULL,
+    verbose = F){
   # pts = d_t; fld = "v"; aoi = cc_grid_zones
 
   # * check inputs ----
@@ -307,6 +309,10 @@ pts_to_rast_idw <- function(
     terra::trim()
   names(r) <- fld
 
+  # * write raster (if out_tif) ----
+  if (!is.null(out_tif))
+    terra::writeRaster(r, out_tif, overwrite = T)
+
   r
 }
 
@@ -315,7 +321,7 @@ pts_to_rast_idw <- function(
 #' Contour the input raster (using `stars::st_contour`). Use "pretty" breaks
 #' (using `classInt::classIntervals()`). Clip by area of interest.
 #'
-#' @param r input raster
+#' @param r input raster as `terra::rast`
 #' @param aoi area of interest as simple features `sf::sf`
 #' @param n_brks number of breaks
 #'
@@ -330,23 +336,24 @@ rast_to_contours <- function(r, aoi, n_brks = 8){
   # r = r_k_all; aoi = cc_grid_zones; n_brks = 8
 
   brks = classInt::classIntervals(
-    values(r, na.rm=T), n=n_brks,
+    terra::values(r, na.rm=T), n=n_brks,
     style = "pretty")$brks
 
   ply <- stars::st_contour(
     stars::st_as_stars(r), breaks = brks) |>
     sf::st_make_valid() |>
+    sf::st_set_agr("constant") |>
     sf::st_intersection(
       sf::st_union(aoi) |>
         sf::st_make_valid()) |>
     sf::st_make_valid() |>
     dplyr::mutate(
-      avg = (Min + Max) / 2 ) |>
+      z_avg = (Min + Max) / 2 ) |>
     select(
-      z_avg   = avg,
-      z_label = all_of(names(r)),
+      z_avg,
       z_min   = Min,
       z_max   = Max,
+      z_label = 1,
       geom    = geometry)
 
   ply
