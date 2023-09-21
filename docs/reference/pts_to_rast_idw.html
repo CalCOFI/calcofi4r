@@ -22,7 +22,7 @@ area of interest."><meta property="og:image" content="https://calcofi.github.io/
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">calcofi4r</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.7.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.8.0</span>
       </span>
     </div>
 
@@ -77,7 +77,8 @@ area of interest.</p>
 <span>  minPoints <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  near <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  fill <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">T</span></span>
+<span>  out_tif <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">F</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -123,6 +124,10 @@ area of interest.</p>
 <dd><p>argument for <code><a href="https://rdrr.io/pkg/terra/man/interpIDW.html" class="external-link">terra::interpIDW()</a></code>; default = <code>NA</code></p></dd>
 
 
+<dt>out_tif</dt>
+<dd><p>output path to write raster tif using <code><a href="https://rdrr.io/pkg/terra/man/writeRaster.html" class="external-link">terra::writeRaster()</a></code>; default = <code>NULL</code></p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>show messages of all variables used; default = FALSE</p></dd>
 
@@ -131,7 +136,7 @@ area of interest.</p>
     <h2>Value</h2>
     
 
-<p>terra::rast() object</p>
+<p><code><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">terra::rast()</a></code> object</p>
     </div>
 
   </div>

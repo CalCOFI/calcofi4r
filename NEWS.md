@@ -1,3 +1,9 @@
+# calcofi4r 0.8.0
+
+* Removed non-ASCII characters to allow install of package on Windows.
+
+* Used `stars::st_as_stars()` to use `terra::rast()` SpatRaster with `mapview::mapView()` (vs retired `raster::raster()`).
+
 # calcofi4r 0.7.0
 
 * Added interpolation functions `pts_to_rast_idw()` and `rast_to_contours()`. Renamed `map_contours()` to `pts_to_contours_gam()` and moved concept from "visualize" to "analyze".

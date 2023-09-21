@@ -7,7 +7,7 @@
 rast_to_contours(r, aoi, n_brks = 8)
 }
 \arguments{
-\item{r}{input raster}
+\item{r}{input raster as \code{terra::rast}}
 
 \item{aoi}{area of interest as simple features \code{sf::sf}}
 

@@ -31,7 +31,7 @@
 #' # plot raster
 #' map_raster(r, v$plot_label[2])
 map_raster <- function(
-    r, legend_title = "Temperature (ºC)"){ # }, color = "red") {
+    r, legend_title = "Temperature (C)"){ # }, color = "red") {
 
   # legend_title = v$plot_label[2]
 
@@ -149,7 +149,7 @@ plot_depth <- function(
 #' @param fld_date unquoted name of field containing the date, e.g. `year`
 #' @param fld_sd unquoted name of field containing the standard deviation, e.g. `sd`
 #' @param title quoted title, Default is `"Temperature"`.
-#' @param y_label quoted label for y-axis. Default is `"Temperature (ºC)"`.
+#' @param y_label quoted label for y-axis. Default is `"Temperature (C)"`.
 #' @param color quoted color. Should be one of `grDevices::colors()`. Default is `"red"`.
 #'
 #' @return interactive plot of `dygraphs::dygraph()`
@@ -173,7 +173,7 @@ plot_depth <- function(
 #'     plot_title, plot_label, plot_color))
 plot_timeseries <- function(
     d, fld_date, fld_avg, fld_sd,
-    title = "Temperature", y_label = "Temperature (ºC)", color = "red") {
+    title = "Temperature", y_label = "Temperature (C)", color = "red") {
   select <- dplyr::select
 
   x_label <- select(d, {{ fld_date }}) %>% names() %>% stringr::str_to_sentence()

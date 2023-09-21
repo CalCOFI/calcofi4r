@@ -1,13 +1,13 @@
 # bottle_temp_depth ----
 #' Bottle data of temperature with depth (m)
 #'
-#' Extended CalCOFI station bottle cast data with temperature (º Celsius) as example data frame
+#' Extended CalCOFI station bottle cast data with temperature (Celsius) as example data frame
 #' for visualization functions. Data were filtered to casts with a minimum of 50 depth readings.
 #'
 #' @format A data frame with 1,077 rows and 3 variables \describe{
 #'   \item{cast_count}{unique identifier for bottle cast}
 #'   \item{depth_m}{depth below the surface in meters}
-#'   \item{v}{variable, in this case temperature (º Celsius)}
+#'   \item{v}{variable, in this case temperature (Celsius)}
 #' }
 #' @source \url{https://calcofi.org/sampling-info/station-positions/} \url{https://calcofi.org/data/oceanographic-data/bottle-database/}
 #' @concept data
@@ -16,13 +16,13 @@
 # bottle_temp_lonlat ----
 #' Bottle data of temperature in space (latitude, longitude)
 #'
-#' Extended CalCOFI station bottle cast with temperature (º Celsius) as example data frame
+#' Extended CalCOFI station bottle cast with temperature (Celsius) as example data frame
 #' for visualization functions.
 #'
 #' @format A data frame with 9,865 rows and 3 variables \describe{
 #'   \item{lon}{longitude}
 #'   \item{lat}{latitude}
-#'   \item{v}{variable, in this case temperature (º Celsius)}
+#'   \item{v}{variable, in this case temperature (Celsius)}
 #' }
 #' @source \url{https://calcofi.org/sampling-info/station-positions/} \url{https://calcofi.org/data/oceanographic-data/bottle-database/}
 #' @concept data
@@ -33,7 +33,7 @@
 #'
 #' CTD bottle cast data as example data frame for visualization functions.
 #'
-#' @format A data frame (851,493 × 10 : rows x columns) with variables:
+#' @format A data frame (851,493: rows x columns) with variables:
 #' \describe{
 #'   \item{lon}{longitude}
 #'   \item{lat}{latitude}
@@ -41,7 +41,7 @@
 #'   \item{quarter}{quarter}
 #'   \item{depth_m}{depth below the surface in meters}
 #'   \item{sta_dpos}{difference in position, from 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area)}
-#'   \item{t_degc}{temperature (º Celsius)}
+#'   \item{t_degc}{temperature (Celsius)}
 #'   \item{salinity}{salinity (TODO: units)}
 #'   \item{o2sat}{oxygen saturation (TODO: units)}
 #' }
@@ -64,7 +64,7 @@
 #'   \item{sta_shore}{the position wrt shore; one of: "nearshore" or "offshore"}
 #'   \item{geom}{station voronoi polygon with latitude and longitude in decimal degree geographic coordinates (SRID 4326)}
 #' }
-#' @source [Station Positions – CalCOFI](https://calcofi.org/sampling-info/station-positions)
+#' @source [Station Positions - CalCOFI](https://calcofi.org/sampling-info/station-positions)
 #' @concept data
 "cc_grid"
 
@@ -92,7 +92,7 @@
 #' the shore (`sta_shore`: "nearshore" or "offshore") and station patterns (
 #' `sta_pattern`: "standard", "extended" or "historical").
 #'
-#' @format A `sf` spatial feature set with 6 rows × 9 columns:
+#' @format A `sf` spatial feature set with 6 rows x 9 columns:
 #' \describe{
 #'   \item{zone_key}{unique zone key of the form `"{sta_pattern}-{sta_shore}"` }
 #'   \item{sta_pattern}{the CalCOFI station pattern; one of: "standard", "extended" or "historical"}
@@ -104,7 +104,7 @@
 #'   \item{sta_pos_max}{the maximum value of dissolved `sta_pos` from `cc_grid`}
 #'   \item{geom}{geometry of dissolved zone from `cc_grid` with latitude and longitude in decimal degree geographic coordinates (EPSG:4326)}
 #' }
-#' @source [Station Positions – CalCOFI](https://calcofi.org/sampling-info/station-positions)
+#' @source [Station Positions - CalCOFI](https://calcofi.org/sampling-info/station-positions)
 #' @concept data
 "cc_grid_zones"
 

@@ -97,7 +97,7 @@ sanct <- rbind(
 
 # * NEW: working geoserver MarineRegions.org polygon ----
 #   - search: [Marine Regions](https://marineregions.org/gazetteer.php?p=search)
-#   - find:   [Marine Regions · United States Exclusive Economic Zone (EEZ)](https://marineregions.org/gazetteer.php?p=details&id=8456)
+#   - find:   [Marine Regions - United States Exclusive Economic Zone (EEZ)](https://marineregions.org/gazetteer.php?p=details&id=8456)
 mr_id <- 8456
 us_eez <- read_sf(glue(
   "https://geo.vliz.be/geoserver/MarineRegions/wfs?service=WFS&version=1.0.0&request=GetFeature&typeNames=eez&cql_filter=mrgid={mr_id}&outputFormat=application/json"))

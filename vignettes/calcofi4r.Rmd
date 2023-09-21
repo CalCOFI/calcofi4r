@@ -33,6 +33,7 @@ library(calcofi4r)
 library(dplyr)
 library(mapview)
 library(sf)
+library(stars)
 
 mapview(cc_grid, zcol="zone_key") +
   mapview(cc_grid_ctrs, cex = 1)
@@ -91,7 +92,7 @@ You can map the contours of input data using the faster, rougher Inverse-Distanc
 ```{r pts_to_rast_idw}
 # interpolate points to raster using IDW
 r_k_all <- pts_to_rast_idw(d_t, "v", cc_grid_zones)
-mapView(r_k_all)
+mapView(st_as_stars(r_k_all))
 ```
 
 ```{r}
@@ -109,7 +110,7 @@ aoi_ext <- cc_grid_zones |>
 
 # interpolate points to raster using IDW
 r_k_ext <- pts_to_rast_idw(d_t, "v", aoi_ext)
-mapView(r_k_ext, layer.name="Temp.(ºC)")
+mapView(st_as_stars(r_k_ext), layer.name="Temp.(ºC)")
 ```
 
 ```{r}
@@ -128,7 +129,7 @@ aoi_stdnr <- cc_grid_zones %>%
 
 # interpolate points to raster using IDW
 r_k_stdnr <- pts_to_rast_idw(d_t, "v", aoi_stdnr)
-mapView(r_k_stdnr, layer.name="Temp.(ºC)")
+mapView(st_as_stars(r_k_stdnr), layer.name="Temp.(ºC)")
 ```
 
 ```{r}
@@ -181,7 +182,7 @@ Plot time series of an oceanographic variable from CTD cast bottle data.
 (v <- get_variables())
 
 # fetch time series data for the first variable from CalCOFI API
-(d <- get_timeseries(v$table_field[1]))
+(d <- get_timeseries("ctd_bottles.t_degc"))
 
 # plot time series with the first variable
 with(v[1,],

@@ -106,7 +106,7 @@ get_oceano_var_aoi <- function(
 #' @concept analyze
 #' @examples
 #' v_ply <- pts_to_contours_gam(bottle_temp_lonlat, area_calcofi_extended)
-#' mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
+#' mapview::mapView(v_ply, zcol="v", layer.name="temp(C)")
 pts_to_contours_gam <- function(df, ply, gam_k=60, grid_width=0.1, n_breaks=7){
 
   # df=bottle_temp_lonlat; ply=area_calcofi_extended; k=60; cw=0.1

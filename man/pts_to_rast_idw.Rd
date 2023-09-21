@@ -45,7 +45,7 @@ pts_to_rast_idw(
 \item{verbose}{show messages of all variables used; default = FALSE}
 }
 \value{
-\code{terra::rast()} object, except if \code{out_tif} is not Null in which case return \code{out_tif}
+\code{terra::rast()} object
 }
 \description{
 Interpolate from points to raster using inverse-distance weighting

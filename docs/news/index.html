@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">calcofi4r</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.7.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.8.0</span>
       </span>
     </div>
 
@@ -50,6 +50,11 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.8.0" id="calcofi4r-080">calcofi4r 0.8.0<a class="anchor" aria-label="anchor" href="#calcofi4r-080"></a></h2>
+<ul><li><p>Removed non-ASCII characters to allow install of package on Windows.</p></li>
+<li><p>Used <code><a href="https://r-spatial.github.io/stars/reference/st_as_stars.html" class="external-link">stars::st_as_stars()</a></code> to use <code><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">terra::rast()</a></code> SpatRaster with <code><a href="https://rdrr.io/pkg/mapview/man/mapView.html" class="external-link">mapview::mapView()</a></code> (vs retired <code><a href="https://rdrr.io/pkg/raster/man/raster.html" class="external-link">raster::raster()</a></code>).</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.7.0" id="calcofi4r-070">calcofi4r 0.7.0<a class="anchor" aria-label="anchor" href="#calcofi4r-070"></a></h2>
 <ul><li><p>Added interpolation functions <code><a href="../reference/pts_to_rast_idw.html">pts_to_rast_idw()</a></code> and <code><a href="../reference/rast_to_contours.html">rast_to_contours()</a></code>. Renamed <code>map_contours()</code> to <code><a href="../reference/pts_to_contours_gam.html">pts_to_contours_gam()</a></code> and moved concept from “visualize” to “analyze”.</p></li>

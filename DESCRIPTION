@@ -1,6 +1,6 @@
 Package: calcofi4r
 Title: CalCOFI R helper functions
-Version: 0.7.0
+Version: 0.8.0
 URL: https://calcofi.io/calcofi4r
 BugReports: https://github.com/calcofi/calcofi4r/issues
 Authors@R: c(
