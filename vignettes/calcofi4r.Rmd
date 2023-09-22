@@ -110,13 +110,13 @@ aoi_ext <- cc_grid_zones |>
 
 # interpolate points to raster using IDW
 r_k_ext <- pts_to_rast_idw(d_t, "v", aoi_ext)
-mapView(st_as_stars(r_k_ext), layer.name="Temp.(ºC)")
+mapView(st_as_stars(r_k_ext), layer.name="Temp.(C)")
 ```
 
 ```{r}
 # generate contour polygons from raster
 p_k_ext <- rast_to_contours(r_k_ext, aoi_ext)
-mapView(p_k_ext, zcol = "z_avg", layer.name="Temp.(ºC)")
+mapView(p_k_ext, zcol = "z_avg", layer.name="Temp.(C)")
 ```
 
 ### Standard Nearshore Zone
@@ -129,13 +129,13 @@ aoi_stdnr <- cc_grid_zones %>%
 
 # interpolate points to raster using IDW
 r_k_stdnr <- pts_to_rast_idw(d_t, "v", aoi_stdnr)
-mapView(st_as_stars(r_k_stdnr), layer.name="Temp.(ºC)")
+mapView(st_as_stars(r_k_stdnr), layer.name="Temp.(C)")
 ```
 
 ```{r}
 # generate contour polygons from raster
 p_k_stdnr <- rast_to_contours(r_k_stdnr, aoi_stdnr)
-mapView(p_k_stdnr, zcol = "z_avg", layer.name="Temp.(ºC)")
+mapView(p_k_stdnr, zcol = "z_avg", layer.name="Temp.(C)")
 ```
 
 <!--## Map contours using a Generalized Additive Model (GAM)
@@ -149,7 +149,7 @@ Map contours of an oceanographic variable from CTD cast bottle data. The `pts_to
 p_g_all <- pts_to_contours_gam(d_t, cc_grid_zones)
 
 # show map contours
-mapView(p_g_all, zcol="v", layer.name="Temp.(ºC)")
+mapView(p_g_all, zcol="v", layer.name="Temp.(C)")
 ```
 
 ### Standard and Extended Station Pattern Zones
@@ -159,7 +159,7 @@ mapView(p_g_all, zcol="v", layer.name="Temp.(ºC)")
 p_g_ext <- pts_to_contours_gam(d_t, aoi_ext)
 
 # display map contours
-mapView(p_g_ext, zcol="v", layer.name="Temp.(ºC)")
+mapView(p_g_ext, zcol="v", layer.name="Temp.(C)")
 ```
 
 ### Standard Nearshore Zone
@@ -169,7 +169,7 @@ mapView(p_g_ext, zcol="v", layer.name="Temp.(ºC)")
 p_g_stdnr <- pts_to_contours_gam(d_t, aoi_stdnr)
 
 # display map contours
-mapView(p_g_stdnr, zcol="v", layer.name="Temp.(ºC)")
+mapView(p_g_stdnr, zcol="v", layer.name="Temp.(C)")
 ```
 -->
 

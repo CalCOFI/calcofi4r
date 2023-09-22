@@ -34,9 +34,6 @@
     <loc>https://calcofi.github.io/calcofi4r/news/index.html</loc>
   </url>
   <url>
-    <loc>https://calcofi.github.io/calcofi4r/reference/area_calcofi_extended.html</loc>
-  </url>
-  <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/bottle_temp_depth.html</loc>
   </url>
   <url>
@@ -50,9 +47,6 @@
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/cc_grid.html</loc>
-  </url>
-  <url>
-    <loc>https://calcofi.github.io/calcofi4r/reference/cc_grid_areas.html</loc>
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/cc_grid_ctrs.html</loc>
@@ -85,12 +79,6 @@
     <loc>https://calcofi.github.io/calcofi4r/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://calcofi.github.io/calcofi4r/reference/map_contour.html</loc>
-  </url>
-  <url>
-    <loc>https://calcofi.github.io/calcofi4r/reference/map_contours.html</loc>
-  </url>
-  <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/map_raster.html</loc>
   </url>
   <url>
@@ -106,18 +94,9 @@
     <loc>https://calcofi.github.io/calcofi4r/reference/pts_to_rast_idw.html</loc>
   </url>
   <url>
-    <loc>https://calcofi.github.io/calcofi4r/reference/rast_to_contour.html</loc>
-  </url>
-  <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/rast_to_contours.html</loc>
   </url>
   <url>
     <loc>https://calcofi.github.io/calcofi4r/reference/stations.html</loc>
-  </url>
-  <url>
-    <loc>https://calcofi.github.io/calcofi4r/reference/stations_t_degc.html</loc>
-  </url>
-  <url>
-    <loc>https://calcofi.github.io/calcofi4r/reference/tbl_to_contour_ply.html</loc>
   </url>
 </urlset>
