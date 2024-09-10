@@ -5,7 +5,7 @@
 \alias{cc_bottle}
 \title{Bottle data in space and time}
 \format{
-A data frame (851,493 × 10 : rows x columns) with variables:
+A data frame (851,493: rows x columns) with variables:
 \describe{
 \item{lon}{longitude}
 \item{lat}{latitude}
@@ -13,7 +13,7 @@ A data frame (851,493 × 10 : rows x columns) with variables:
 \item{quarter}{quarter}
 \item{depth_m}{depth below the surface in meters}
 \item{sta_dpos}{difference in position, from 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area)}
-\item{t_degc}{temperature (º Celsius)}
+\item{t_degc}{temperature (Celsius)}
 \item{salinity}{salinity (TODO: units)}
 \item{o2sat}{oxygen saturation (TODO: units)}
 }

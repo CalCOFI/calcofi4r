@@ -8,7 +8,7 @@
 A data frame with 9,865 rows and 3 variables \describe{
 \item{lon}{longitude}
 \item{lat}{latitude}
-\item{v}{variable, in this case temperature (º Celsius)}
+\item{v}{variable, in this case temperature (Celsius)}
 }
 }
 \source{
@@ -18,7 +18,7 @@ A data frame with 9,865 rows and 3 variables \describe{
 bottle_temp_lonlat
 }
 \description{
-Extended CalCOFI station bottle cast with temperature (º Celsius) as example data frame
+Extended CalCOFI station bottle cast with temperature (Celsius) as example data frame
 for visualization functions.
 }
 \concept{data}

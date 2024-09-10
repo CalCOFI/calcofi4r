@@ -5,7 +5,7 @@
 \alias{cc_grid_zones}
 \title{CalCOFI Grid Zones}
 \format{
-A \code{sf} spatial feature set with 6 rows × 9 columns:
+A \code{sf} spatial feature set with 6 rows x 9 columns:
 \describe{
 \item{zone_key}{unique zone key of the form \code{"{sta_pattern}-{sta_shore}"} }
 \item{sta_pattern}{the CalCOFI station pattern; one of: "standard", "extended" or "historical"}
@@ -19,7 +19,7 @@ A \code{sf} spatial feature set with 6 rows × 9 columns:
 }
 }
 \source{
-\href{https://calcofi.org/sampling-info/station-positions}{Station Positions – CalCOFI}
+\href{https://calcofi.org/sampling-info/station-positions}{Station Positions - CalCOFI}
 }
 \usage{
 cc_grid_zones

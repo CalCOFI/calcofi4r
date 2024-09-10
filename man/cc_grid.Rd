@@ -17,7 +17,7 @@ A \code{sf} spatial feature set with
 }
 }
 \source{
-\href{https://calcofi.org/sampling-info/station-positions}{Station Positions – CalCOFI}
+\href{https://calcofi.org/sampling-info/station-positions}{Station Positions - CalCOFI}
 }
 \usage{
 cc_grid

@@ -8,7 +8,7 @@
 A data frame with 1,077 rows and 3 variables \describe{
 \item{cast_count}{unique identifier for bottle cast}
 \item{depth_m}{depth below the surface in meters}
-\item{v}{variable, in this case temperature (º Celsius)}
+\item{v}{variable, in this case temperature (Celsius)}
 }
 }
 \source{
@@ -18,7 +18,7 @@ A data frame with 1,077 rows and 3 variables \describe{
 bottle_temp_depth
 }
 \description{
-Extended CalCOFI station bottle cast data with temperature (º Celsius) as example data frame
+Extended CalCOFI station bottle cast data with temperature (Celsius) as example data frame
 for visualization functions. Data were filtered to casts with a minimum of 50 depth readings.
 }
 \concept{data}

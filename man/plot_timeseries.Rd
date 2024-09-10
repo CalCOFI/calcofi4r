@@ -10,7 +10,7 @@ plot_timeseries(
   fld_avg,
   fld_sd,
   title = "Temperature",
-  y_label = "Temperature (ºC)",
+  y_label = "Temperature (C)",
   color = "red"
 )
 }
@@ -25,7 +25,7 @@ plot_timeseries(
 
 \item{title}{quoted title, Default is \code{"Temperature"}.}
 
-\item{y_label}{quoted label for y-axis. Default is \code{"Temperature (ºC)"}.}
+\item{y_label}{quoted label for y-axis. Default is \code{"Temperature (C)"}.}
 
 \item{color}{quoted color. Should be one of \code{grDevices::colors()}. Default is \code{"red"}.}
 }

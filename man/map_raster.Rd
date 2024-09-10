@@ -4,7 +4,7 @@
 \alias{map_raster}
 \title{Map raster interactively}
 \usage{
-map_raster(r, legend_title = "Temperature (ºC)")
+map_raster(r, legend_title = "Temperature (C)")
 }
 \arguments{
 \item{r}{raster of type \code{raster::raster()}}

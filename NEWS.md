@@ -1,3 +1,7 @@
+# calcofi4r 0.8.1
+
+* Added `cc_db_catalog()` to list tables and columns in the database with descriptions (possibly formatted in markdown) by reading from new CalCOFI API endpoints: [api.calcofi.io/db_tables](https://api.calcofi.io/db_tables), [api.calcofi.io/db_columns](https://api.calcofi.io/db_columns).
+
 # calcofi4r 0.8.0
 
 * Removed non-ASCII characters to allow install of package on Windows.

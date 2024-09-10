@@ -28,6 +28,6 @@ latitude & longitude. Further clip by bounding polygon.
 }
 \examples{
 v_ply <- pts_to_contours_gam(bottle_temp_lonlat, area_calcofi_extended)
-mapview::mapView(v_ply, zcol="v", layer.name="temp(ºC)")
+mapview::mapView(v_ply, zcol="v", layer.name="temp(C)")
 }
 \concept{analyze}
