@@ -44,6 +44,8 @@ Imports:
     terra,
     tibble,
     tidyr
+Remotes:
+    ropensci/rnaturalearthhires
 Suggests: 
     knitr,
     rmarkdown
