@@ -30,6 +30,7 @@ Imports:
     isoband,
     leaflet,
     mapview,
+    markdown,
     mgcv,
     plotly,
     raster,
