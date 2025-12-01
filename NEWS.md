@@ -1,3 +1,9 @@
+# calcofi4r 0.9.0
+
+* Migrated [functions.R](https://github.com/CalCOFI/int-app/blob/0e6cc9bcb236be4073ee21533b59cb74ef496ef3/app/functions.R) from [CalCOFI Integrated Assessment Shiny App](https://app.calcofi.io/int/) that utilizes a local or remote duckdb of CalCOFI data (rather than an API).
+
+* TODO: add `@concept` to functions (to move out of **Other** heading in [Reference](../reference/)) and build vignette (like [Get started](articles/calcofi4r.html)) demonstrating use of these new functions.
+
 # calcofi4r 0.8.1
 
 * Added `cc_db_catalog()` to list tables and columns in the database with descriptions (possibly formatted in markdown) by reading from new CalCOFI API endpoints: [api.calcofi.io/db_tables](https://api.calcofi.io/db_tables), [api.calcofi.io/db_columns](https://api.calcofi.io/db_columns).
