@@ -1,6 +1,6 @@
 Package: calcofi4r
 Title: CalCOFI R helper functions
-Version: 0.9.0
+Version: 1.1.0
 URL: https://calcofi.io/calcofi4r
 BugReports: https://github.com/calcofi/calcofi4r/issues
 Authors@R: c(
@@ -21,21 +21,27 @@ RoxygenNote: 7.3.3
 Depends: 
     R (>= 2.10)
 LazyData: true
-Imports: 
+Imports:
     classInt,
+    DBI,
     dbplyr,
     dplyr,
+    duckdb,
     dygraphs,
     ggplot2,
+    glue,
     httr2,
     isoband,
+    jsonlite,
     leaflet,
+    lifecycle,
     mapview,
     markdown,
     mgcv,
     plotly,
     raster,
     readr,
+    rlang,
     rnaturalearth,
     rnaturalearthhires,
     RPostgres,

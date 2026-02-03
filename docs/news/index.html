@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">calcofi4r</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.9.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -50,6 +50,27 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.1.0" id="calcofi4r-110">calcofi4r 1.1.0<a class="anchor" aria-label="anchor" href="#calcofi4r-110"></a></h2>
+<ul><li>Highlights DuckDB as the primary data access method<br></li>
+<li>Quick Start Section - Shows <code><a href="../reference/cc_get_db.html">cc_get_db()</a></code> as the main entry point</li>
+<li>Convenience Functions - Documents the new read functions:
+<ul><li>
+<code><a href="../reference/cc_read_larvae.html">cc_read_larvae()</a></code><br></li>
+<li><code><a href="../reference/cc_read_bottle.html">cc_read_bottle()</a></code></li>
+<li><code><a href="../reference/cc_read_cast.html">cc_read_cast()</a></code></li>
+<li>With filter examples using dplyr syntax</li>
+</ul></li>
+<li>Version Control Section - Shows how to:
+<ul><li>List versions with <code><a href="../reference/cc_list_versions.html">cc_list_versions()</a></code>
+</li>
+<li>Connect to specific versions</li>
+<li>View release info and notes</li>
+</ul></li>
+<li>Custom Queries Section - Documents <code><a href="../reference/cc_query.html">cc_query()</a></code> and <code><a href="../reference/cc_describe_table.html">cc_describe_table()</a></code>
+</li>
+<li>API Functions - Kept the existing API functions as a secondary option</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.9.0" id="calcofi4r-090">calcofi4r 0.9.0<a class="anchor" aria-label="anchor" href="#calcofi4r-090"></a></h2>
 <ul><li><p>Migrated <a href="https://github.com/CalCOFI/int-app/blob/0e6cc9bcb236be4073ee21533b59cb74ef496ef3/app/functions.R" class="external-link">functions.R</a> from <a href="https://app.calcofi.io/int/" class="external-link">CalCOFI Integrated Assessment Shiny App</a> that utilizes a local or remote duckdb of CalCOFI data (rather than an API).</p></li>

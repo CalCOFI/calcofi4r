@@ -1,3 +1,19 @@
+# calcofi4r 1.1.0
+
+* Highlights DuckDB as the primary data access method                                                                                                                                 
+* Quick Start Section - Shows `cc_get_db()` as the main entry point
+* Convenience Functions - Documents the new read functions:                                                                                                                                                  
+  - `cc_read_larvae()`                                                                                                                                                                                        
+  - `cc_read_bottle()`
+  - `cc_read_cast()`
+  - With filter examples using dplyr syntax
+* Version Control Section - Shows how to:
+  - List versions with `cc_list_versions()`
+  - Connect to specific versions
+  - View release info and notes
+* Custom Queries Section - Documents `cc_query()` and `cc_describe_table()`
+* API Functions - Kept the existing API functions as a secondary option
+
 # calcofi4r 0.9.0
 
 * Migrated [functions.R](https://github.com/CalCOFI/int-app/blob/0e6cc9bcb236be4073ee21533b59cb74ef496ef3/app/functions.R) from [CalCOFI Integrated Assessment Shiny App](https://app.calcofi.io/int/) that utilizes a local or remote duckdb of CalCOFI data (rather than an API).

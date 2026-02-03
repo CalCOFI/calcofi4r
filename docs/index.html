@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">calcofi4r</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.9.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -77,17 +77,155 @@
 <div class="section level1">
 <div class="page-header"><h1 id="calcofi4r-">calcofi4r <img src="reference/figures/logo.svg" style="float:right; height:150px"><a class="anchor" aria-label="anchor" href="#calcofi4r-"></a>
 </h1></div>
-<p>This R package contains functions for reading and visualizing data from the CalCOFI API at <a href="https://api.calcofi.io" class="external-link">api.calcofi.io</a>.</p>
+<p>R package for accessing and visualizing CalCOFI data. Connect directly to the CalCOFI database via DuckDB or use the CalCOFI API.</p>
 <div class="section level2">
 <h2 id="install">Install<a class="anchor" aria-label="anchor" href="#install"></a>
 </h2>
 <p>This package lives on Github, not yet CRAN, so you’ll need to run the following to install or update the package:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"calcofi/calcofi4r"</span><span class="op">)</span></span></code></pre></div>
-<p>Then to use the functions (and datasets) in the package:</p>
+<p>Then load the package:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://calcofi.io/calcofi4r" class="external-link">calcofi4r</a></span><span class="op">)</span></span></code></pre></div>
-<p>Please visit the vignette to <a href="./articles/calcofi4r.html">Get started</a> and <a href="reference/index.html">Reference</a> of functions for more.</p>
+</div>
+<div class="section level2">
+<h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+</h2>
+<div class="section level3">
+<h3 id="connect-to-calcofi-database">Connect to CalCOFI Database<a class="anchor" aria-label="anchor" href="#connect-to-calcofi-database"></a>
+</h3>
+<p>Access the CalCOFI integrated database directly via DuckDB:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># connect to latest frozen release</span></span>
+<span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_get_db.html">cc_get_db</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># list available tables</span></span>
+<span><span class="fu"><a href="reference/cc_list_tables.html">cc_list_tables</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># query with SQL</span></span>
+<span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="st">"SELECT COUNT(*) FROM larva"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="read-data-with-convenience-functions">Read Data with Convenience Functions<a class="anchor" aria-label="anchor" href="#read-data-with-convenience-functions"></a>
+</h3>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># read larvae data</span></span>
+<span><span class="va">larvae</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_larvae.html">cc_read_larvae</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># read bottle samples</span></span>
+<span><span class="va">bottles</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_bottle.html">cc_read_bottle</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># read cast data</span></span>
+<span><span class="va">casts</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_cast.html">cc_read_cast</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># filter while reading (uses dplyr syntax)</span></span>
+<span><span class="va">engraulis</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_larvae.html">cc_read_larvae</a></span><span class="op">(</span><span class="va">species_id</span> <span class="op">==</span> <span class="fl">123</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="version-control">Version Control<a class="anchor" aria-label="anchor" href="#version-control"></a>
+</h3>
+<p>Access specific database versions for reproducibility:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># list available versions</span></span>
+<span><span class="fu"><a href="reference/cc_list_versions.html">cc_list_versions</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    version   is_latest</span></span>
+<span><span class="co">#&gt; 1 v2026.03       TRUE</span></span>
+<span><span class="co">#&gt; 2 v2026.02      FALSE</span></span>
+<span></span>
+<span><span class="co"># connect to specific version</span></span>
+<span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_get_db.html">cc_get_db</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"v2026.02"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># get release information</span></span>
+<span><span class="fu"><a href="reference/cc_db_info.html">cc_db_info</a></span><span class="op">(</span><span class="st">"v2026.02"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># view release notes</span></span>
+<span><span class="fu"><a href="reference/cc_release_notes.html">cc_release_notes</a></span><span class="op">(</span><span class="st">"v2026.02"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="execute-custom-queries">Execute Custom Queries<a class="anchor" aria-label="anchor" href="#execute-custom-queries"></a>
+</h3>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># run SQL queries</span></span>
+<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_query.html">cc_query</a></span><span class="op">(</span><span class="st">"</span></span>
+<span><span class="st">  SELECT species_id, COUNT(*) as n</span></span>
+<span><span class="st">  FROM larva</span></span>
+<span><span class="st">  GROUP BY species_id</span></span>
+<span><span class="st">  ORDER BY n DESC</span></span>
+<span><span class="st">  LIMIT 10"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># describe table schema</span></span>
+<span><span class="fu"><a href="reference/cc_describe_table.html">cc_describe_table</a></span><span class="op">(</span><span class="st">"larva"</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="calcofi-api-functions">CalCOFI API Functions<a class="anchor" aria-label="anchor" href="#calcofi-api-functions"></a>
+</h2>
+<p>The package also provides functions for the CalCOFI API at <a href="https://api.calcofi.io" class="external-link">api.calcofi.io</a>:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># get available variables</span></span>
+<span><span class="fu"><a href="reference/get_variables.html">get_variables</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># get cruise information</span></span>
+<span><span class="fu"><a href="reference/get_cruises.html">get_cruises</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># get interpolated raster</span></span>
+<span><span class="fu"><a href="reference/get_raster.html">get_raster</a></span><span class="op">(</span></span>
+<span>  variable  <span class="op">=</span> <span class="st">"ctdcast_bottle.t_deg_c"</span>,</span>
+<span>  cruise_id <span class="op">=</span> <span class="st">"2020-01-05-C-33RL"</span>,</span>
+<span>  out_tif   <span class="op">=</span> <span class="st">"temperature.tif"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># get time series summary</span></span>
+<span><span class="fu"><a href="reference/get_timeseries.html">get_timeseries</a></span><span class="op">(</span></span>
+<span>  variable    <span class="op">=</span> <span class="st">"ctdcast_bottle.t_deg_c"</span>,</span>
+<span>  aoi_wkt     <span class="op">=</span> <span class="st">"POLYGON((-121 33, -119 33, -119 35, -121 35, -121 33))"</span>,</span>
+<span>  depth_m_min <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  depth_m_max <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  time_step   <span class="op">=</span> <span class="st">"year"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="package-data">Package Data<a class="anchor" aria-label="anchor" href="#package-data"></a>
+</h2>
+<p>The package includes small lookup and example datasets:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># CalCOFI sampling grid</span></span>
+<span><span class="va">cc_grid</span></span>
+<span><span class="va">cc_grid_ctrs</span></span>
+<span><span class="va">cc_grid_zones</span></span>
+<span></span>
+<span><span class="co"># example bottle data</span></span>
+<span><span class="va">cc_bottle</span></span>
+<span></span>
+<span><span class="co"># station locations</span></span>
+<span><span class="va">stations</span></span>
+<span></span>
+<span><span class="co"># geographic places</span></span>
+<span><span class="va">cc_places</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
+<ul>
+<li><a href="https://calcofi.io/calcofi4r/articles/calcofi4r.html" class="external-link">Get Started Vignette</a></li>
+<li><a href="https://calcofi.io/calcofi4r/reference/" class="external-link">Function Reference</a></li>
+<li><a href="https://calcofi.io/workflows/README_PLAN.html" class="external-link">CalCOFI Data Workflow Plan</a></li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="data-architecture">Data Architecture<a class="anchor" aria-label="anchor" href="#data-architecture"></a>
+</h2>
+<p>CalCOFI data is stored in frozen DuckLake releases:</p>
+<pre><code>gs://calcofi-db/ducklake/releases/
+├── v2026.02/
+│   ├── catalog.json
+│   ├── RELEASE_NOTES.md
+│   └── parquet/
+│       ├── bottle.parquet
+│       ├── cast.parquet
+│       ├── larva.parquet
+│       └── ...
+├── v2026.03/
+└── latest.txt → v2026.03</code></pre>
+<p>Data is accessed directly via DuckDB’s httpfs extension - no download required for queries.</p>
 </div>
 <div class="section level2">
 <h2 id="code-of-conduct">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a>

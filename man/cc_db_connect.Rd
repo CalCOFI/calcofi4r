@@ -2,7 +2,7 @@
 % Please edit documentation in R/database.R
 \name{cc_db_connect}
 \alias{cc_db_connect}
-\title{Connect to the CalCOFI PostgreSQL database (Admin only)}
+\title{Connect to the CalCOFI PostgreSQL database (Admin only) - DEPRECATED}
 \usage{
 cc_db_connect(path_pw = "~/.calcofi_db_pass.txt")
 }
@@ -14,6 +14,11 @@ password; default: \code{"~/.calcofi_db_pass.txt"}}
 a \code{DBI::dbConnect()} object
 }
 \description{
+\lifecycle{deprecated}
+
+This function is deprecated. Please use \code{\link{cc_get_db}} instead for
+connecting to the new DuckDB-based database.
+
 Note that you must either be running this from the CalCOFI server or have a
 \href{https://github.com/calcofi/server#ssh-tunnel-connection-to-postgis-db}{tunnelled SSH connection}
 with a user account on the server and the password in a file located at

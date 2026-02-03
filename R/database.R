@@ -1,4 +1,323 @@
-#' Connect to the CalCOFI PostgreSQL database (Admin only)
+# ─── frozen ducklake access (new) ─────────────────────────────────────────────
+
+#' Connect to CalCOFI Database
+#'
+#' Connects to a frozen CalCOFI DuckLake release. Downloads and caches the
+#' database locally for fast subsequent access.
+#'
+#' The frozen releases contain clean, stable data without provenance columns,
+#' suitable for analysis and visualization. Use \code{cc_list_versions()} to
+#' see available releases.
+#'
+#' @param version Version string (e.g., "v2026.02") or "latest" (default)
+#' @param local_cache Use local cache if available (default: TRUE)
+#' @param cache_dir Directory for local cache. Default uses
+#'   \code{rappdirs::user_cache_dir("calcofi4r")} if rappdirs is installed,
+#'   otherwise a temp directory.
+#' @param refresh Force re-download even if cached (default: FALSE)
+#'
+#' @return DuckDB connection object
+#' @export
+#' @concept database
+#'
+#' @details
+#' The connection points to Parquet files from the frozen release, which are
+#' registered as views in DuckDB. This allows querying the data without
+#' downloading the entire database.
+#'
+#' Data is stored at \code{gs://calcofi-db/ducklake/releases/{version}/}.
+#'
+#' @examples
+#' \dontrun{
+#' # connect to latest release
+#' con <- cc_get_db()
+#' DBI::dbListTables(con)
+#'
+#' # connect to specific version
+#' con <- cc_get_db(version = "v2026.02")
+#'
+#' # query data
+#' DBI::dbGetQuery(con, "SELECT COUNT(*) FROM larvae")
+#' }
+#' @importFrom glue glue
+cc_get_db <- function(
+    version     = "latest",
+    local_cache = TRUE,
+    cache_dir   = NULL,
+    refresh     = FALSE) {
+
+  if (!requireNamespace("duckdb", quietly = TRUE)) {
+    stop("Package 'duckdb' is required. Install with: install.packages('duckdb')")
+  }
+
+  # resolve cache directory
+  if (is.null(cache_dir)) {
+    if (requireNamespace("rappdirs", quietly = TRUE)) {
+      cache_dir <- rappdirs::user_cache_dir("calcofi4r")
+    } else {
+      cache_dir <- file.path(tempdir(), "calcofi4r_cache")
+    }
+  }
+
+  if (!dir.exists(cache_dir)) {
+    dir.create(cache_dir, recursive = TRUE)
+  }
+
+  # resolve "latest" to actual version
+  if (version == "latest") {
+    # get latest version from GCS
+    latest_file <- tryCatch({
+      .cc_download_gcs_file(
+        "gs://calcofi-db/ducklake/releases/latest.txt",
+        file.path(cache_dir, "latest.txt"),
+        overwrite = TRUE)
+      readLines(file.path(cache_dir, "latest.txt"))[1]
+    }, error = function(e) {
+      # fallback: try to find from directory listing
+      message("Could not determine latest version, using v2026.02 as default")
+      "v2026.02"
+    })
+    version <- latest_file
+  }
+
+  # validate version format
+  if (!grepl("^v\\d{4}\\.\\d{2}", version)) {
+    stop("Version must be in format vYYYY.MM (e.g., 'v2026.02')")
+  }
+
+  # create DuckDB connection
+  db_path <- if (local_cache) {
+    file.path(cache_dir, glue::glue("calcofi_{version}.duckdb"))
+  } else {
+    ":memory:"
+  }
+
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = db_path)
+
+  # check if already initialized
+  tables <- DBI::dbListTables(con)
+  if (length(tables) > 0 && !refresh) {
+    message(glue::glue("Using cached database: {version}"))
+    return(con)
+  }
+
+  # get catalog for this version
+  gcs_base     <- glue::glue("gs://calcofi-db/ducklake/releases/{version}")
+  catalog_path <- file.path(cache_dir, glue::glue("catalog_{version}.json"))
+
+  tryCatch({
+    .cc_download_gcs_file(
+      glue::glue("{gcs_base}/catalog.json"),
+      catalog_path,
+      overwrite = refresh)
+  }, error = function(e) {
+    stop(glue::glue("Could not find release {version}. Use cc_list_versions() to see available releases."))
+  })
+
+  catalog <- jsonlite::fromJSON(catalog_path)
+
+  # create views for each table pointing to parquet files
+  message(glue::glue("Loading {nrow(catalog$tables)} tables from {version}..."))
+
+  for (i in seq_len(nrow(catalog$tables))) {
+    tbl_name <- catalog$tables$name[i]
+
+    # use httpfs to read directly from GCS (public bucket)
+    parquet_url <- glue::glue(
+      "https://storage.googleapis.com/calcofi-db/ducklake/releases/{version}/parquet/{tbl_name}.parquet")
+
+    tryCatch({
+      DBI::dbExecute(con, glue::glue(
+        "CREATE OR REPLACE VIEW {tbl_name} AS SELECT * FROM read_parquet('{parquet_url}')"))
+    }, error = function(e) {
+      warning(glue::glue("Failed to load table {tbl_name}: {e$message}"))
+    })
+  }
+
+  message(glue::glue("Connected to CalCOFI database {version}"))
+  return(con)
+}
+
+#' List available CalCOFI database versions
+#'
+#' Lists all available frozen CalCOFI database releases.
+#'
+#' @return Tibble with columns: version, release_date, tables, total_rows, size_mb, is_latest
+#'
+#' @export
+#' @concept database
+#'
+#' @examples
+#' \dontrun{
+#' cc_list_versions()
+#' }
+#' @importFrom tibble tibble
+cc_list_versions <- function() {
+  # try to list from GCS
+  tryCatch({
+    # use gcloud CLI to list release directories
+    cmd    <- 'gcloud storage ls "gs://calcofi-db/ducklake/releases/" 2>/dev/null'
+    result <- system(cmd, intern = TRUE)
+
+    if (length(result) == 0) {
+      return(tibble::tibble(
+        version      = character(),
+        release_date = as.POSIXct(character()),
+        is_latest    = logical()))
+    }
+
+    # extract version names
+    versions <- gsub("gs://calcofi-db/ducklake/releases/", "", result)
+    versions <- gsub("/$", "", versions)
+    versions <- versions[grepl("^v\\d{4}\\.\\d{2}", versions)]
+
+    # get latest
+    latest <- tryCatch({
+      latest_file <- tempfile()
+      .cc_download_gcs_file("gs://calcofi-db/ducklake/releases/latest.txt", latest_file)
+      readLines(latest_file)[1]
+    }, error = function(e) NA_character_)
+
+    tibble::tibble(
+      version   = versions,
+      is_latest = versions == latest) |>
+      dplyr::arrange(dplyr::desc(version))
+
+  }, error = function(e) {
+    message("Could not list versions. Check gcloud CLI is installed and authenticated.")
+    tibble::tibble(
+      version   = character(),
+      is_latest = logical())
+  })
+}
+
+#' Get CalCOFI database information
+#'
+#' Returns metadata about a specific database release including
+#' table schemas and statistics.
+#'
+#' @param version Version string or "latest" (default)
+#'
+#' @return List with release metadata, table info, and schema
+#'
+#' @export
+#' @concept database
+#'
+#' @examples
+#' \dontrun{
+#' cc_db_info()
+#' cc_db_info("v2026.02")
+#' }
+#' @importFrom glue glue
+cc_db_info <- function(version = "latest") {
+  # resolve latest
+  if (version == "latest") {
+    versions <- cc_list_versions()
+    if (nrow(versions) > 0) {
+      version <- versions$version[versions$is_latest][1]
+      if (is.na(version)) version <- versions$version[1]
+    } else {
+      version <- "v2026.02"
+    }
+  }
+
+  # get catalog
+  cache_dir    <- file.path(tempdir(), "calcofi4r_cache")
+  dir.create(cache_dir, showWarnings = FALSE)
+  catalog_path <- file.path(cache_dir, glue::glue("catalog_{version}.json"))
+
+  tryCatch({
+    .cc_download_gcs_file(
+      glue::glue("gs://calcofi-db/ducklake/releases/{version}/catalog.json"),
+      catalog_path,
+      overwrite = TRUE)
+  }, error = function(e) {
+    stop(glue::glue("Could not find release {version}"))
+  })
+
+  catalog <- jsonlite::fromJSON(catalog_path)
+
+  list(
+    version      = catalog$version,
+    release_date = catalog$release_date,
+    total_rows   = catalog$total_rows,
+    tables       = tibble::as_tibble(catalog$tables),
+    gcs_path     = glue::glue("gs://calcofi-db/ducklake/releases/{version}"))
+}
+
+#' View CalCOFI database release notes
+#'
+#' Displays the release notes for a specific database version.
+#'
+#' @param version Version string or "latest" (default)
+#'
+#' @return Character string with release notes
+#'
+#' @export
+#' @concept database
+#'
+#' @examples
+#' \dontrun{
+#' cc_release_notes("v2026.02")
+#' }
+#' @importFrom glue glue
+cc_release_notes <- function(version = "latest") {
+  # resolve latest
+  if (version == "latest") {
+    versions <- cc_list_versions()
+    if (nrow(versions) > 0) {
+      version <- versions$version[versions$is_latest][1]
+      if (is.na(version)) version <- versions$version[1]
+    } else {
+      version <- "v2026.02"
+    }
+  }
+
+  # get release notes
+  cache_dir  <- file.path(tempdir(), "calcofi4r_cache")
+  dir.create(cache_dir, showWarnings = FALSE)
+  notes_path <- file.path(cache_dir, glue::glue("RELEASE_NOTES_{version}.md"))
+
+  tryCatch({
+    .cc_download_gcs_file(
+      glue::glue("gs://calcofi-db/ducklake/releases/{version}/RELEASE_NOTES.md"),
+      notes_path,
+      overwrite = TRUE)
+    paste(readLines(notes_path), collapse = "\n")
+  }, error = function(e) {
+    glue::glue("No release notes available for {version}")
+  })
+}
+
+# helper function to download from GCS
+.cc_download_gcs_file <- function(gcs_path, local_path, overwrite = FALSE) {
+  if (file.exists(local_path) && !overwrite) {
+    return(local_path)
+  }
+
+  dir.create(dirname(local_path), recursive = TRUE, showWarnings = FALSE)
+
+  # use gcloud CLI
+
+  cmd <- glue::glue('gcloud storage cp "{gcs_path}" "{local_path}" 2>/dev/null')
+  result <- system(cmd, intern = TRUE, ignore.stderr = TRUE)
+
+  if (!file.exists(local_path)) {
+    stop(glue::glue("Failed to download: {gcs_path}"))
+  }
+
+  local_path
+}
+
+# ─── postgresql connection (deprecated) ───────────────────────────────────────
+
+#' Connect to the CalCOFI PostgreSQL database (Admin only) - DEPRECATED
+#'
+#' @description
+#' \lifecycle{deprecated}
+#'
+#' This function is deprecated. Please use \code{\link{cc_get_db}} instead for
+#' connecting to the new DuckDB-based database.
 #'
 #' Note that you must either be running this from the CalCOFI server or have a
 #' [tunnelled SSH
@@ -21,6 +340,17 @@
 #' DBI::dbListTables(con)
 #' }
 cc_db_connect <- function(path_pw = "~/.calcofi_db_pass.txt"){
+
+  # deprecation warning
+  if (requireNamespace("lifecycle", quietly = TRUE)) {
+    lifecycle::deprecate_warn(
+      "1.0.0",
+      "cc_db_connect()",
+      "cc_get_db()",
+      details = "PostgreSQL is being phased out. Use cc_get_db() for DuckDB access.")
+  } else {
+    warning("cc_db_connect() is deprecated. Use cc_get_db() instead for DuckDB access.")
+  }
 
   is_server <- Sys.info()[["sysname"]] == "Linux"
   host <- ifelse(

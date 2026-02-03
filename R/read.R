@@ -157,3 +157,211 @@ get_timeseries <- function(
     resp_body_raw() %>%
     read_csv(show_col_types = F)
 }
+
+# ─── duckdb convenience functions ─────────────────────────────────────────────
+
+#' Read CalCOFI larvae data
+#'
+#' Convenience function to read larval fish data from the CalCOFI database.
+#'
+#' @param version Database version (default: "latest")
+#' @param collect If TRUE, collect results into memory. If FALSE, return
+#'   lazy dbplyr table (default: TRUE)
+#' @param ... Additional filter expressions passed to \code{dplyr::filter()}
+#'
+#' @return Tibble of larvae data (if collect=TRUE) or lazy table
+#'
+#' @export
+#' @concept read
+#'
+#' @examples
+#' \dontrun{
+#' # get all larvae data
+#' larvae <- cc_read_larvae()
+#'
+#' # get specific species
+#' engraulis <- cc_read_larvae(species_id == 123)
+#' }
+#' @importFrom dplyr tbl filter collect
+cc_read_larvae <- function(version = "latest", collect = TRUE, ...) {
+  con   <- cc_get_db(version = version)
+  table <- dplyr::tbl(con, "larva")
+
+  # apply filters if provided
+  dots <- rlang::enquos(...)
+  if (length(dots) > 0) {
+    table <- dplyr::filter(table, !!!dots)
+  }
+
+  if (collect) {
+    dplyr::collect(table)
+  } else {
+    table
+  }
+}
+
+#' Read CalCOFI bottle data
+#'
+#' Convenience function to read bottle sample data from the CalCOFI database.
+#'
+#' @param version Database version (default: "latest")
+#' @param collect If TRUE, collect results into memory. If FALSE, return
+#'   lazy dbplyr table (default: TRUE)
+#' @param ... Additional filter expressions passed to \code{dplyr::filter()}
+#'
+#' @return Tibble of bottle data (if collect=TRUE) or lazy table
+#'
+#' @export
+#' @concept read
+#'
+#' @examples
+#' \dontrun{
+#' # get all bottle data
+#' bottles <- cc_read_bottle()
+#'
+#' # filter by depth
+#' shallow <- cc_read_bottle(depth_m < 100)
+#' }
+#' @importFrom dplyr tbl filter collect
+cc_read_bottle <- function(version = "latest", collect = TRUE, ...) {
+  con   <- cc_get_db(version = version)
+  table <- dplyr::tbl(con, "bottle")
+
+  # apply filters if provided
+  dots <- rlang::enquos(...)
+  if (length(dots) > 0) {
+    table <- dplyr::filter(table, !!!dots)
+  }
+
+  if (collect) {
+    dplyr::collect(table)
+  } else {
+    table
+  }
+}
+
+#' Read CalCOFI cast data
+#'
+#' Convenience function to read CTD cast data from the CalCOFI database.
+#'
+#' @param version Database version (default: "latest")
+#' @param collect If TRUE, collect results into memory. If FALSE, return
+#'   lazy dbplyr table (default: TRUE)
+#' @param ... Additional filter expressions passed to \code{dplyr::filter()}
+#'
+#' @return Tibble of cast data (if collect=TRUE) or lazy table
+#'
+#' @export
+#' @concept read
+#'
+#' @examples
+#' \dontrun{
+#' casts <- cc_read_cast()
+#' }
+#' @importFrom dplyr tbl filter collect
+cc_read_cast <- function(version = "latest", collect = TRUE, ...) {
+  con   <- cc_get_db(version = version)
+  table <- dplyr::tbl(con, "cast")
+
+  # apply filters if provided
+  dots <- rlang::enquos(...)
+  if (length(dots) > 0) {
+    table <- dplyr::filter(table, !!!dots)
+  }
+
+  if (collect) {
+    dplyr::collect(table)
+  } else {
+    table
+  }
+}
+
+#' Execute SQL query on CalCOFI database
+#'
+#' Convenience function to execute arbitrary SQL queries against
+#' a frozen CalCOFI database release.
+#'
+#' @param sql SQL query string
+#' @param version Database version (default: "latest")
+#'
+#' @return Tibble with query results
+#'
+#' @export
+#' @concept read
+#'
+#' @examples
+#' \dontrun{
+#' results <- cc_query("SELECT * FROM larva LIMIT 10")
+#' results <- cc_query("SELECT species_id, COUNT(*) as n FROM larva GROUP BY species_id")
+#' }
+#' @importFrom DBI dbGetQuery
+#' @importFrom tibble as_tibble
+cc_query <- function(sql, version = "latest") {
+  con    <- cc_get_db(version = version)
+  result <- DBI::dbGetQuery(con, sql)
+  tibble::as_tibble(result)
+}
+
+#' List tables in CalCOFI database
+#'
+#' Lists all available tables in a CalCOFI database release.
+#'
+#' @param version Database version (default: "latest")
+#'
+#' @return Character vector of table names
+#'
+#' @export
+#' @concept read
+#'
+#' @examples
+#' \dontrun{
+#' cc_list_tables()
+#' }
+#' @importFrom DBI dbListTables
+cc_list_tables <- function(version = "latest") {
+  con <- cc_get_db(version = version)
+  DBI::dbListTables(con)
+}
+
+#' Describe a CalCOFI database table
+#'
+#' Returns schema information for a table including column names,
+#' types, and descriptions (if available).
+#'
+#' @param table Table name
+#' @param version Database version (default: "latest")
+#'
+#' @return Tibble with column metadata (column_name, data_type, is_nullable)
+#'
+#' @export
+#' @concept read
+#'
+#' @examples
+#' \dontrun{
+#' cc_describe_table("larva")
+#' cc_describe_table("cruise")
+#' }
+#' @importFrom DBI dbGetQuery
+#' @importFrom tibble as_tibble
+#' @importFrom glue glue
+cc_describe_table <- function(table, version = "latest") {
+  con <- cc_get_db(version = version)
+
+  # check table exists
+  tables <- DBI::dbListTables(con)
+  if (!table %in% tables) {
+    stop(glue::glue("Table '{table}' not found. Use cc_list_tables() to see available tables."))
+  }
+
+  # get column info from information_schema
+  result <- DBI::dbGetQuery(con, glue::glue("
+    SELECT
+      column_name,
+      data_type,
+      is_nullable
+    FROM information_schema.columns
+    WHERE table_name = '{table}'
+    ORDER BY ordinal_position"))
+
+  tibble::as_tibble(result)
+}
