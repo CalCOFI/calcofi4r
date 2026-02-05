@@ -47,3 +47,4 @@ map_env(env_hex, env_scale, "Mean", "Temperature (°C)")
 
 \code{\link{get_env}} for data retrieval
 }
+\concept{visualize}

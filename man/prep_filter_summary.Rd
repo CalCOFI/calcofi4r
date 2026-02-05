@@ -49,3 +49,4 @@ prep_filter_summary(
 \seealso{
 \code{\link{modal_data}} for the modal dialog that captures these filters
 }
+\concept{analyze}

@@ -45,3 +45,4 @@ env_hex <- prep_env_hex(df_env, res_range = 3:5, env_stat = "mean")
 
 \code{\link{get_env}} for data retrieval
 }
+\concept{analyze}

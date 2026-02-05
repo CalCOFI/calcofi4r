@@ -44,3 +44,4 @@ env_ts <- prep_ts_env(df_env, ts_res = "year")
 
 \code{\link{plot_ts}} for visualization
 }
+\concept{analyze}

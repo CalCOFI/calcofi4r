@@ -92,6 +92,7 @@ get_taxon_children <- function(taxonID, con, authority = "worms") {
 #' @importFrom dplyr tbl mutate filter left_join between
 #' @importFrom lubridate quarter
 #'
+#' @concept read
 #' @export
 get_sp <- function(sp_name, qtr, date_range, ck_children = T) {
   if (debug)
@@ -239,6 +240,7 @@ get_sp <- function(sp_name, qtr, date_range, ck_children = T) {
 #'
 #' @importFrom dplyr sql join_by tbl left_join rename filter mutate select starts_with between
 #'
+#' @concept read
 #' @export
 get_env <- function(env_var, qtr, date_range, min_depth, max_depth) {
   if (debug) message("get_env: env_var = ", env_var, ", qtr = ", paste(qtr, collapse = ","),
@@ -322,6 +324,7 @@ get_env <- function(env_var, qtr, date_range, min_depth, max_depth) {
 #' @importFrom purrr map reduce
 #' @importFrom glue glue
 #'
+#' @concept analyze
 #' @export
 prep_sp_hex <- function(df_sp, res_range) {
   if (debug) message("prep_sp_hex: aggregating species data for resolutions ", paste(res_range, collapse = ","))
@@ -419,6 +422,7 @@ prep_sp_hex <- function(df_sp, res_range) {
 #' @importFrom purrr map reduce
 #' @importFrom glue glue
 #'
+#' @concept analyze
 #' @export
 prep_env_hex <- function(df_env, res_range, env_stat) {
   if (debug) message("prep_env_hex: aggregating env data for resolutions ", paste(res_range, collapse = ","),
@@ -524,6 +528,7 @@ prep_env_hex <- function(df_env, res_range, env_stat) {
 #'
 #' @importFrom dplyr mutate group_by summarize collect filter bind_rows
 #'
+#' @concept analyze
 #' @export
 prep_ts_sp <- function(df_sp, ts_res) {
 
@@ -593,6 +598,7 @@ prep_ts_sp <- function(df_sp, ts_res) {
 #'
 #' @importFrom dplyr mutate group_by summarize collect filter bind_rows n
 #'
+#' @concept analyze
 #' @export
 prep_ts_env <- function(df_env, ts_res) {
 
@@ -658,6 +664,7 @@ prep_ts_env <- function(df_env, ts_res) {
 #' @importFrom dplyr select collect mutate group_by slice_min ungroup
 #' @importFrom fuzzyjoin difference_inner_join
 #'
+#' @concept analyze
 #' @export
 prep_splot <- function(df_sp, df_env, env_stat, method = "nearest_time",
                        max_hours_diff = 72, max_meters_diff = 1000) {
@@ -761,6 +768,7 @@ prep_splot <- function(df_sp, df_env, env_stat, method = "nearest_time",
 #'
 #' @seealso \code{\link{modal_data}} for the modal dialog that captures these filters
 #'
+#' @concept analyze
 #' @export
 prep_filter_summary <- function(sel_name, sel_env_var, sel_qtr, sel_date_range,
                                 sel_depth_range, drawn_polygon, selected_grid_zones) {
@@ -854,6 +862,7 @@ prep_summary_stats <- function(df_sp, df_env) {
 #'
 #' @importFrom mapgl maplibre add_fill_layer add_legend add_scale_control
 #'
+#' @concept visualize
 #' @export
 map_sp <- function(sp_hex_list, sp_scale_list, is_dark = T) {
   if (debug) {
@@ -926,6 +935,7 @@ map_sp <- function(sp_hex_list, sp_scale_list, is_dark = T) {
 #'
 #' @importFrom mapgl maplibre add_fill_layer add_legend
 #'
+#' @concept visualize
 #' @export
 map_env <- function(env_hex_list, env_scale_list, env_stat_label, env_var_label, is_dark = T) {
   if (debug) {
@@ -997,6 +1007,7 @@ map_env <- function(env_hex_list, env_scale_list, env_stat_label, env_var_label,
 #' @importFrom highcharter highchart hc_chart hc_exporting hc_xAxis hc_yAxis_multiples hc_tooltip hc_rangeSelector hc_plotOptions hc_legend hc_add_series datetime_to_timestamp
 #' @importFrom dplyr mutate bind_rows arrange distinct filter
 #'
+#' @concept visualize
 #' @export
 plot_ts <- function(sp_ts, env_ts, ts_res, sel_env_var) {
   # add a 'panel' and consistent 'name' column to each dataset
@@ -1192,6 +1203,7 @@ plot_ts <- function(sp_ts, env_ts, ts_res, sel_env_var) {
 #' @importFrom bslib navset_tab nav_panel
 #' @importFrom mapgl maplibreOutput
 #'
+#' @concept visualize
 #' @export
 modal_data <- function() {
   modalDialog(
@@ -1299,6 +1311,7 @@ modal_data <- function() {
 #' @importFrom shiny modalDialog numericInput modalButton tagList
 #' @importFrom mapgl maplibreOutput
 #'
+#' @concept visualize
 #' @export
 modal_depth_profile <- function(map_sp) {
   modalDialog(
@@ -1345,6 +1358,7 @@ modal_depth_profile <- function(map_sp) {
 #'
 #' @importFrom shiny div h4 p
 #'
+#' @concept visualize
 #' @export
 ui_placeholder <- function(title, message) {
   div(
@@ -1474,6 +1488,7 @@ expr_time_env <- function(ts_res) {
 #' @importFrom sf st_sf st_sfc st_linestring st_centroid st_coordinates st_transform st_buffer st_wrap_dateline
 #' @importFrom units set_units
 #'
+#' @concept analyze
 #' @export
 buffer_transect <- function(coords, buffer_dist = 5000) {
   # create initial segment

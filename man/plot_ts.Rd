@@ -41,3 +41,4 @@ plot_ts(sp_ts, env_ts, ts_res = "year", sel_env_var = "t_deg_c")
 
 \code{\link{prep_ts_env}} for environmental time series data
 }
+\concept{visualize}

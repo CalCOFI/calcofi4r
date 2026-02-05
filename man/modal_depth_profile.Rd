@@ -33,3 +33,4 @@ observeEvent(input$create_profile, {
 \seealso{
 \code{\link{buffer_transect}} for transect buffer generation
 }
+\concept{visualize}

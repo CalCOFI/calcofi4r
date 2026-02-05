@@ -1,3 +1,7 @@
+# calcofi4r 1.1.1
+
+* Added `cc_read_sf()` to read spatial tables in DuckDB connection as sf objects.
+
 # calcofi4r 1.1.0
 
 * Highlights DuckDB as the primary data access method                                                                                                                                 

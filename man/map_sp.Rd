@@ -37,3 +37,4 @@ map_sp(sp_hex, sp_scale)
 
 \code{\link{get_sp}} for data retrieval
 }
+\concept{visualize}

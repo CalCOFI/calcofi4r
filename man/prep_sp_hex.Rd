@@ -42,3 +42,4 @@ sp_hex <- prep_sp_hex(df_sp, res_range = 3:5)
 
 \code{\link{get_sp}} for data retrieval
 }
+\concept{analyze}

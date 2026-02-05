@@ -27,3 +27,4 @@ output$map_placeholder <- renderUI({
 }
 
 }
+\concept{visualize}

@@ -46,3 +46,4 @@ sp_ts <- prep_ts_sp(df_sp, ts_res = "year")
 
 \code{\link{plot_ts}} for visualization
 }
+\concept{analyze}

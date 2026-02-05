@@ -309,6 +309,82 @@ cc_release_notes <- function(version = "latest") {
   local_path
 }
 
+# ─── spatial helpers ──────────────────────────────────────────────────────────
+
+#' Read Spatial Table from DuckDB as sf Object
+#'
+#' Reads a DuckDB table containing geometry columns into an sf object.
+#' Handles the `ST_AsWKB()` conversion required by DuckDB Spatial automatically.
+#'
+#' @param con DuckDB connection
+#' @param table_name Name of the table to read
+#' @param geom_col Name of the geometry column (default: "geom"). If NULL,
+#'   auto-detects the first GEOMETRY column.
+#' @param crs Coordinate reference system to set (default: 4326 for WGS84).
+#'   DuckDB Spatial does not store CRS metadata, so this must be specified.
+#'
+#' @return An sf object with geometry column
+#' @export
+#' @concept database
+#'
+#' @examples
+#' \dontrun{
+#' con <- cc_get_db()
+#'
+#' # read site points
+#' sites_sf <- cc_read_sf(con, "site")
+#'
+#' # read with specific geometry column
+#' grid_sf <- cc_read_sf(con, "grid", geom_col = "geom_ctr")
+#'
+#' # read with different CRS
+#' sites_sf <- cc_read_sf(con, "site", crs = 4326)
+#' }
+#' @importFrom DBI dbGetQuery dbListFields
+#' @importFrom glue glue
+#' @importFrom sf read_sf st_set_crs
+cc_read_sf <- function(
+    con,
+    table_name,
+    geom_col = NULL,
+    crs      = 4326) {
+
+  flds <- DBI::dbListFields(con, table_name)
+
+  # auto-detect geometry column if not specified
+  if (is.null(geom_col)) {
+    col_types <- DBI::dbGetQuery(con, glue::glue(
+      "SELECT column_name, data_type FROM information_schema.columns
+       WHERE table_name = '{table_name}' AND data_type = 'GEOMETRY'"))
+
+    if (nrow(col_types) == 0) {
+      stop(glue::glue("No GEOMETRY column found in table '{table_name}'"))
+    }
+
+    geom_col <- col_types$column_name[1]
+    if (nrow(col_types) > 1) {
+      message(glue::glue(
+        "Multiple geometry columns found: {paste(col_types$column_name, collapse = ', ')}. ",
+        "Using '{geom_col}'. Specify geom_col to choose a different one."))
+    }
+  }
+
+  # build query: select non-geom columns as-is, convert geom with ST_AsWKB
+  other_cols <- setdiff(flds, geom_col)
+  select_clause <- paste(c(
+    other_cols,
+    glue::glue("ST_AsWKB({geom_col}) as {geom_col}")),
+    collapse = ", ")
+
+  query <- glue::glue("SELECT {select_clause} FROM {table_name}")
+
+  # read into sf
+  result <- sf::read_sf(con, query = query, geometry_column = geom_col) |>
+    sf::st_set_crs(crs)
+
+  result
+}
+
 # ─── postgresql connection (deprecated) ───────────────────────────────────────
 
 #' Connect to the CalCOFI PostgreSQL database (Admin only) - DEPRECATED

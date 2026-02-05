@@ -36,3 +36,4 @@ observeEvent(input$show_filters, {
 \seealso{
 \code{\link{prep_filter_summary}} for filter summary generation
 }
+\concept{visualize}

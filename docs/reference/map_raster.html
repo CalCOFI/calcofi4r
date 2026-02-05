@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">calcofi4r</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.1</span>
       </span>
     </div>
 
@@ -79,7 +79,7 @@
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="op">(</span><span class="va">r_tif</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext<span class="op">=</span><span class="st">".tif"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/var/folders/xj/0t97bxlx4ng6s_zbmkkcfzg40000gn/T//Rtmp7WdQQi/filee6d562f5302f.tif"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/var/folders/xj/0t97bxlx4ng6s_zbmkkcfzg40000gn/T//RtmpUCobjK/file151357f9063c.tif"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># use second variable from previously fetched v</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">table_field</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="va">v</span><span class="op">$</span><span class="va">plot_label</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span></span>
@@ -96,7 +96,7 @@
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Expecting type "application/json" or suffix "json".</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html" class="external-link">raster</a></span><span class="op">(</span><span class="va">r_tif</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>/var/folders/xj/0t97bxlx4ng6s_zbmkkcfzg40000gn/T//Rtmp7WdQQi/filee6d562f5302f.tif: No such file or directory (GDAL error 4)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>/var/folders/xj/0t97bxlx4ng6s_zbmkkcfzg40000gn/T//RtmpUCobjK/file151357f9063c.tif: No such file or directory (GDAL error 4)</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in .rasterObjectFromFile(x, band = band, objecttype = "RasterLayer",     ...):</span> Cannot create a RasterLayer object from this file. (file does not exist)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># plot raster</span></span></span>

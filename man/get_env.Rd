@@ -59,3 +59,4 @@ df_env |> collect()
 
 \code{\link{prep_ts_env}} for temporal aggregation
 }
+\concept{read}

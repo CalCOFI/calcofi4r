@@ -51,3 +51,4 @@ df_splot <- prep_splot(df_sp, df_env, env_stat = "mean")
 
 \code{\link{get_env}} for environmental data retrieval
 }
+\concept{analyze}

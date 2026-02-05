@@ -54,3 +54,4 @@ df_sp |> collect()
 
 \code{\link{prep_ts_sp}} for temporal aggregation
 }
+\concept{read}

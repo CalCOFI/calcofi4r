@@ -43,3 +43,4 @@ plot(result$buffer)
 
 \code{\link{modal_depth_profile}} for UI implementation
 }
+\concept{analyze}
