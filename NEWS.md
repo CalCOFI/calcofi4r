@@ -1,3 +1,7 @@
+# calcofi4r 1.1.2
+
+* Added database functions to make views, starting with `casts_extra`: `cc_make_view()`, `cc_list_view_templates()`
+
 # calcofi4r 1.1.1
 
 * Added `cc_read_sf()` to read spatial tables in DuckDB connection as sf objects.

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">calcofi4r</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.2</span>
       </span>
     </div>
 
@@ -82,9 +82,17 @@
         </td>
         <td><p>Get cruises from CalCOFI API</p></td>
       </tr><tr><td>
+          <p><code><a href="get_env.html">get_env()</a></code> </p>
+        </td>
+        <td><p>Retrieve Environmental Data from Database</p></td>
+      </tr><tr><td>
           <p><code><a href="get_raster.html">get_raster()</a></code> </p>
         </td>
         <td><p>Get raster of interpolated values from CalCOFI API</p></td>
+      </tr><tr><td>
+          <p><code><a href="get_sp.html">get_sp()</a></code> </p>
+        </td>
+        <td><p>Retrieve Species Larval Abundance Data from Database</p></td>
       </tr><tr><td>
           <p><code><a href="get_timeseries.html">get_timeseries()</a></code> </p>
         </td>
@@ -98,9 +106,37 @@
           <p class="section-desc"></p><p>functions for analyzing data</p>
         </th>
       </tr></tbody><tbody><tr><td>
+          <p><code><a href="buffer_transect.html">buffer_transect()</a></code> </p>
+        </td>
+        <td><p>Create Buffer Around Line Segment with Dateline Handling</p></td>
+      </tr><tr><td>
           <p><code><a href="get_oceano_var_aoi.html">get_oceano_var_aoi()</a></code> </p>
         </td>
         <td><p>Get oceanographic variable for area of interest</p></td>
+      </tr><tr><td>
+          <p><code><a href="prep_env_hex.html">prep_env_hex()</a></code> </p>
+        </td>
+        <td><p>Aggregate Environmental Data into H3 Hexagons</p></td>
+      </tr><tr><td>
+          <p><code><a href="prep_filter_summary.html">prep_filter_summary()</a></code> </p>
+        </td>
+        <td><p>Build Filter Summary for Display</p></td>
+      </tr><tr><td>
+          <p><code><a href="prep_sp_hex.html">prep_sp_hex()</a></code> </p>
+        </td>
+        <td><p>Aggregate Species Data into H3 Hexagons</p></td>
+      </tr><tr><td>
+          <p><code><a href="prep_splot.html">prep_splot()</a></code> </p>
+        </td>
+        <td><p>Prepare Data for Species-Environment Scatterplot</p></td>
+      </tr><tr><td>
+          <p><code><a href="prep_ts_env.html">prep_ts_env()</a></code> </p>
+        </td>
+        <td><p>Build Environmental Time Series Data</p></td>
+      </tr><tr><td>
+          <p><code><a href="prep_ts_sp.html">prep_ts_sp()</a></code> </p>
+        </td>
+        <td><p>Build Species Time Series Data</p></td>
       </tr><tr><td>
           <p><code><a href="pts_to_contours_gam.html">pts_to_contours_gam()</a></code> </p>
         </td>
@@ -118,9 +154,25 @@
           <p class="section-desc"></p><p>functions for visualizing data</p>
         </th>
       </tr></tbody><tbody><tr><td>
+          <p><code><a href="map_env.html">map_env()</a></code> </p>
+        </td>
+        <td><p>Create Interactive Environmental Map with Hexagonal Binning</p></td>
+      </tr><tr><td>
           <p><code><a href="map_raster.html">map_raster()</a></code> </p>
         </td>
         <td><p>Map raster interactively</p></td>
+      </tr><tr><td>
+          <p><code><a href="map_sp.html">map_sp()</a></code> </p>
+        </td>
+        <td><p>Create Interactive Species Distribution Map with Hexagonal Binning</p></td>
+      </tr><tr><td>
+          <p><code><a href="modal_data.html">modal_data()</a></code> </p>
+        </td>
+        <td><p>Data Selection Modal Dialog</p></td>
+      </tr><tr><td>
+          <p><code><a href="modal_depth_profile.html">modal_depth_profile()</a></code> </p>
+        </td>
+        <td><p>Depth Profile Modal Dialog</p></td>
       </tr><tr><td>
           <p><code><a href="plot_depth.html">plot_depth()</a></code> </p>
         </td>
@@ -129,6 +181,14 @@
           <p><code><a href="plot_timeseries.html">plot_timeseries()</a></code> </p>
         </td>
         <td><p>Plot interactive time series of an oceanographic variable</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_ts.html">plot_ts()</a></code> </p>
+        </td>
+        <td><p>Create Dual-Panel Time Series Plot</p></td>
+      </tr><tr><td>
+          <p><code><a href="ui_placeholder.html">ui_placeholder()</a></code> </p>
+        </td>
+        <td><p>Create Placeholder Message UI</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h2 id="data">Data <a href="#data" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p><p>small lookup and example datasets not requiring API access</p>
@@ -190,6 +250,14 @@
         </td>
         <td><p>List available CalCOFI database versions</p></td>
       </tr><tr><td>
+          <p><code><a href="cc_list_view_templates.html">cc_list_view_templates()</a></code> </p>
+        </td>
+        <td><p>List Available View Templates</p></td>
+      </tr><tr><td>
+          <p><code><a href="cc_make_view.html">cc_make_view()</a></code> </p>
+        </td>
+        <td><p>Create a Derived VIEW in the Database</p></td>
+      </tr><tr><td>
           <p><code><a href="cc_read_sf.html">cc_read_sf()</a></code> </p>
         </td>
         <td><p>Read Spatial Table from DuckDB as sf Object</p></td>
@@ -206,69 +274,9 @@
           <p class="section-desc"></p><p>check for other functions or datasets not captured by above categories</p>
         </th>
       </tr></tbody><tbody><tr><td>
-          <p><code><a href="buffer_transect.html">buffer_transect()</a></code> </p>
-        </td>
-        <td><p>Create Buffer Around Line Segment with Dateline Handling</p></td>
-      </tr><tr><td>
-          <p><code><a href="get_env.html">get_env()</a></code> </p>
-        </td>
-        <td><p>Retrieve Environmental Data from Database</p></td>
-      </tr><tr><td>
-          <p><code><a href="get_sp.html">get_sp()</a></code> </p>
-        </td>
-        <td><p>Retrieve Species Larval Abundance Data from Database</p></td>
-      </tr><tr><td>
           <p><code><a href="get_taxon_children.html">get_taxon_children()</a></code> </p>
         </td>
         <td><p>Retrieve Taxon Children from Database</p></td>
-      </tr><tr><td>
-          <p><code><a href="map_env.html">map_env()</a></code> </p>
-        </td>
-        <td><p>Create Interactive Environmental Map with Hexagonal Binning</p></td>
-      </tr><tr><td>
-          <p><code><a href="map_sp.html">map_sp()</a></code> </p>
-        </td>
-        <td><p>Create Interactive Species Distribution Map with Hexagonal Binning</p></td>
-      </tr><tr><td>
-          <p><code><a href="modal_data.html">modal_data()</a></code> </p>
-        </td>
-        <td><p>Data Selection Modal Dialog</p></td>
-      </tr><tr><td>
-          <p><code><a href="modal_depth_profile.html">modal_depth_profile()</a></code> </p>
-        </td>
-        <td><p>Depth Profile Modal Dialog</p></td>
-      </tr><tr><td>
-          <p><code><a href="plot_ts.html">plot_ts()</a></code> </p>
-        </td>
-        <td><p>Create Dual-Panel Time Series Plot</p></td>
-      </tr><tr><td>
-          <p><code><a href="prep_env_hex.html">prep_env_hex()</a></code> </p>
-        </td>
-        <td><p>Aggregate Environmental Data into H3 Hexagons</p></td>
-      </tr><tr><td>
-          <p><code><a href="prep_filter_summary.html">prep_filter_summary()</a></code> </p>
-        </td>
-        <td><p>Build Filter Summary for Display</p></td>
-      </tr><tr><td>
-          <p><code><a href="prep_sp_hex.html">prep_sp_hex()</a></code> </p>
-        </td>
-        <td><p>Aggregate Species Data into H3 Hexagons</p></td>
-      </tr><tr><td>
-          <p><code><a href="prep_splot.html">prep_splot()</a></code> </p>
-        </td>
-        <td><p>Prepare Data for Species-Environment Scatterplot</p></td>
-      </tr><tr><td>
-          <p><code><a href="prep_ts_env.html">prep_ts_env()</a></code> </p>
-        </td>
-        <td><p>Build Environmental Time Series Data</p></td>
-      </tr><tr><td>
-          <p><code><a href="prep_ts_sp.html">prep_ts_sp()</a></code> </p>
-        </td>
-        <td><p>Build Species Time Series Data</p></td>
-      </tr><tr><td>
-          <p><code><a href="ui_placeholder.html">ui_placeholder()</a></code> </p>
-        </td>
-        <td><p>Create Placeholder Message UI</p></td>
       </tr></tbody></table></div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

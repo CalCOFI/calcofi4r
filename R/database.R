@@ -385,6 +385,113 @@ cc_read_sf <- function(
   result
 }
 
+# ─── derived views ─────────────────────────────────────────────────────────────
+
+# internal: prebaked view templates
+.view_templates <- list(
+  casts_extra = list(
+    base_table = "casts",
+    view_name  = "casts_extra",
+    columns    = c(
+      year        = "EXTRACT(YEAR FROM datetime_utc)::SMALLINT",
+      month       = "EXTRACT(MONTH FROM datetime_utc)::SMALLINT",
+      quarter     = "EXTRACT(QUARTER FROM datetime_utc)::SMALLINT",
+      julian_day  = "EXTRACT(DOY FROM datetime_utc)::SMALLINT",
+      julian_date = "(datetime_utc::DATE - DATE '1899-12-30')",
+      lat_deg     = "FLOOR(ABS(lat_dec))::SMALLINT",
+      lat_min     = "(ABS(lat_dec) - FLOOR(ABS(lat_dec))) * 60",
+      lat_hem     = "CASE WHEN lat_dec >= 0 THEN 'N' ELSE 'S' END",
+      lon_deg     = "FLOOR(ABS(lon_dec))::SMALLINT",
+      lon_min     = "(ABS(lon_dec) - FLOOR(ABS(lon_dec))) * 60",
+      lon_hem     = "CASE WHEN lon_dec >= 0 THEN 'E' ELSE 'W' END",
+      cruise      = "STRFTIME(datetime_utc, '%Y%m')",
+      db_sta_key  = "REPLACE(REPLACE(sta_key, '.', ''), ' ', '')")))
+
+#' Create a Derived VIEW in the Database
+#'
+#' Creates a SQL VIEW with derived columns on top of base tables.
+#' Supports prebaked templates (e.g., "casts_extra") or custom
+#' column definitions specified as named SQL expressions.
+#'
+#' @param con DBI connection to DuckDB
+#' @param template Character. Name of a prebaked view template.
+#'   Available: "casts_extra". If provided, view_name and
+#'   column_definitions are taken from the template (but can be
+#'   overridden).
+#' @param view_name Character. Name for the VIEW. Defaults to the
+#'   template name if using a template.
+#' @param base_table Character. Base table name. Required if no
+#'   template is provided.
+#' @param column_definitions Named character vector. Names are new
+#'   column names, values are DuckDB SQL expressions. Appended as
+#'   `expression AS column_name` to `SELECT *, ...`.
+#' @return A lazy dbplyr table reference to the created VIEW.
+#' @export
+#' @concept database
+#' @importFrom DBI dbExecute
+#' @importFrom dplyr tbl
+#' @importFrom glue glue
+cc_make_view <- function(
+    con,
+    template           = NULL,
+    view_name          = template,
+    base_table         = NULL,
+    column_definitions = NULL) {
+
+  # resolve template
+  if (!is.null(template)) {
+    if (!template %in% names(.view_templates))
+      stop(glue::glue(
+        "Unknown template '{template}'. Available: ",
+        "{paste(names(.view_templates), collapse = ', ')}"))
+
+    tmpl <- .view_templates[[template]]
+
+    if (is.null(base_table))
+      base_table <- tmpl$base_table
+    if (is.null(view_name))
+      view_name <- tmpl$view_name
+    if (is.null(column_definitions))
+      column_definitions <- tmpl$columns
+  }
+
+  stopifnot(
+    !is.null(view_name),
+    !is.null(base_table),
+    !is.null(column_definitions),
+    length(column_definitions) > 0)
+
+  # build derived column expressions
+  derived_cols <- paste(
+    column_definitions, "AS", names(column_definitions),
+    collapse = ",\n    ")
+
+  sql <- glue::glue("
+    CREATE OR REPLACE VIEW {view_name} AS
+    SELECT *,
+    {derived_cols}
+    FROM {base_table}")
+
+  DBI::dbExecute(con, sql)
+  message(glue::glue(
+    "Created VIEW '{view_name}' on '{base_table}' with ",
+    "{length(column_definitions)} derived columns"))
+
+  dplyr::tbl(con, view_name)
+}
+
+#' List Available View Templates
+#'
+#' Returns the names of prebaked view templates that can be used
+#' with \code{\link{cc_make_view}}.
+#'
+#' @return Character vector of template names
+#' @export
+#' @concept database
+cc_list_view_templates <- function() {
+  names(.view_templates)
+}
+
 # ─── postgresql connection (deprecated) ───────────────────────────────────────
 
 #' Connect to the CalCOFI PostgreSQL database (Admin only) - DEPRECATED
