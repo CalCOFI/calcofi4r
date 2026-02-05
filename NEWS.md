@@ -1,3 +1,7 @@
+# calcofi4r 1.1.3
+
+* Fixed database functions: `cc_get_db()`, `cc_list_versions()`
+
 # calcofi4r 1.1.2
 
 * Added database functions to make views, starting with `casts_extra`: `cc_make_view()`, `cc_list_view_templates()`

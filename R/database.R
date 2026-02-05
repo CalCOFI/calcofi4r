@@ -140,7 +140,8 @@ cc_get_db <- function(
 
 #' List available CalCOFI database versions
 #'
-#' Lists all available frozen CalCOFI database releases.
+#' Lists all available frozen CalCOFI database releases by reading
+#' the versions manifest from the public GCS bucket.
 #'
 #' @return Tibble with columns: version, release_date, tables, total_rows, size_mb, is_latest
 #'
@@ -153,41 +154,70 @@ cc_get_db <- function(
 #' }
 #' @importFrom tibble tibble
 cc_list_versions <- function() {
-  # try to list from GCS
+  # download versions manifest from public bucket
   tryCatch({
-    # use gcloud CLI to list release directories
-    cmd    <- 'gcloud storage ls "gs://calcofi-db/ducklake/releases/" 2>/dev/null'
-    result <- system(cmd, intern = TRUE)
+    versions_url <- "https://storage.googleapis.com/calcofi-db/ducklake/releases/versions.json"
+    versions_file <- tempfile(fileext = ".json")
 
-    if (length(result) == 0) {
-      return(tibble::tibble(
-        version      = character(),
-        release_date = as.POSIXct(character()),
-        is_latest    = logical()))
-    }
+    utils::download.file(
+      url      = versions_url,
+      destfile = versions_file,
+      mode     = "wb",
+      quiet    = TRUE)
 
-    # extract version names
-    versions <- gsub("gs://calcofi-db/ducklake/releases/", "", result)
-    versions <- gsub("/$", "", versions)
-    versions <- versions[grepl("^v\\d{4}\\.\\d{2}", versions)]
+    versions_data <- jsonlite::fromJSON(versions_file)
 
     # get latest
     latest <- tryCatch({
+      latest_url <- "https://storage.googleapis.com/calcofi-db/ducklake/releases/latest.txt"
       latest_file <- tempfile()
-      .cc_download_gcs_file("gs://calcofi-db/ducklake/releases/latest.txt", latest_file)
-      readLines(latest_file)[1]
-    }, error = function(e) NA_character_)
+      utils::download.file(latest_url, latest_file, quiet = TRUE)
+      trimws(readLines(latest_file, warn = FALSE)[1])
+    }, error = function(e) {
+      # fallback: use first version as latest
+      if (length(versions_data$versions) > 0)
+        versions_data$versions[[1]]$version
+      else
+        NA_character_
+    })
 
-    tibble::tibble(
-      version   = versions,
-      is_latest = versions == latest) |>
-      dplyr::arrange(dplyr::desc(version))
+    # build tibble from versions list
+    # jsonlite parses single-element arrays as data frames, multi-element as lists
+    if (is.data.frame(versions_data$versions)) {
+      # single version case - already a data frame
+      result <- tibble::as_tibble(versions_data$versions) |>
+        dplyr::mutate(is_latest = version == latest)
+    } else if (length(versions_data$versions) > 0) {
+      # multiple versions case - list of lists
+      result <- tibble::tibble(
+        version      = sapply(versions_data$versions, `[[`, "version"),
+        release_date = sapply(versions_data$versions, `[[`, "release_date"),
+        tables       = as.integer(sapply(versions_data$versions, `[[`, "tables")),
+        total_rows   = as.integer(sapply(versions_data$versions, `[[`, "total_rows")),
+        size_mb      = as.numeric(sapply(versions_data$versions, `[[`, "size_mb")),
+        is_latest    = sapply(versions_data$versions, `[[`, "version") == latest)
+    } else {
+      result <- tibble::tibble(
+        version      = character(),
+        release_date = character(),
+        tables       = integer(),
+        total_rows   = integer(),
+        size_mb      = numeric(),
+        is_latest    = logical())
+    }
+    result |> dplyr::arrange(dplyr::desc(version))
 
   }, error = function(e) {
-    message("Could not list versions. Check gcloud CLI is installed and authenticated.")
+    # fallback: return known version if manifest unavailable
+    message(glue::glue("Could not fetch versions manifest: {e$message}"))
+    message("Using fallback version list.")
     tibble::tibble(
-      version   = character(),
-      is_latest = logical())
+      version      = "v2026.02",
+      release_date = "2026-02-05",
+      tables       = 17L,
+      total_rows   = 13410422L,
+      size_mb      = 80.9,
+      is_latest    = TRUE)
   })
 }
 
@@ -289,7 +319,7 @@ cc_release_notes <- function(version = "latest") {
   })
 }
 
-# helper function to download from GCS
+# helper function to download from GCS (uses public HTTPS URLs, no gcloud needed)
 .cc_download_gcs_file <- function(gcs_path, local_path, overwrite = FALSE) {
   if (file.exists(local_path) && !overwrite) {
     return(local_path)
@@ -297,10 +327,23 @@ cc_release_notes <- function(version = "latest") {
 
   dir.create(dirname(local_path), recursive = TRUE, showWarnings = FALSE)
 
-  # use gcloud CLI
 
-  cmd <- glue::glue('gcloud storage cp "{gcs_path}" "{local_path}" 2>/dev/null')
-  result <- system(cmd, intern = TRUE, ignore.stderr = TRUE)
+  # convert gs:// to https:// URL for public bucket access
+  https_url <- gsub(
+    "^gs://([^/]+)/(.*)$",
+    "https://storage.googleapis.com/\\1/\\2",
+    gcs_path)
+
+  # download using base R (works without extra dependencies)
+  tryCatch({
+    utils::download.file(
+      url      = https_url,
+      destfile = local_path,
+      mode     = "wb",
+      quiet    = TRUE)
+  }, error = function(e) {
+    stop(glue::glue("Failed to download {gcs_path}: {e$message}"))
+  })
 
   if (!file.exists(local_path)) {
     stop(glue::glue("Failed to download: {gcs_path}"))
