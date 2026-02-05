@@ -27,12 +27,25 @@ get_oceano_var_aoi(
 data frame of values
 }
 \description{
-Get oceanographic variable for area of interest
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated because it relies on legacy data structures
+(\code{var_lookup}) that are not compatible with the new DuckDB database.
+Query bottle measurement data directly with \code{\link[=cc_get_db]{cc_get_db()}} and
+\code{\link[=cc_read_measurements]{cc_read_measurements()}}, then use sf for spatial filtering.
 }
 \examples{
 \dontrun{
-get_oceano_var_aoi("Bottle O2(ml_L)", cinms_ply, "year", 0, 4000)
+# deprecated - use DuckDB queries instead:
+con <- cc_get_db()
+d <- DBI::dbGetQuery(con, "
+  SELECT c.lon_dec, c.lat_dec, c.datetime_utc, b.depth_m,
+         bm.measurement_value, bm.measurement_type
+  FROM bottle_measurement bm
+  JOIN bottle b ON bm.bottle_id = b.bottle_id
+  JOIN casts c ON b.cast_id = c.cast_id
+  WHERE bm.measurement_type = 'oxygen'")
+# then filter spatially with sf::st_filter(d_sf, aoi)
 }
-
 }
 \concept{analyze}

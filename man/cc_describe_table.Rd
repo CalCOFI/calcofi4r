@@ -20,8 +20,9 @@ types, and descriptions (if available).
 }
 \examples{
 \dontrun{
-cc_describe_table("larva")
-cc_describe_table("cruise")
+cc_describe_table("ichthyo")
+cc_describe_table("species")
+cc_describe_table("casts")
 }
 }
 \concept{read}

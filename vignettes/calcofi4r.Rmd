@@ -5,233 +5,333 @@ vignette: >
   %\VignetteIndexEntry{calcofi4r}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  warning = F,
-  message = F,
-  comment = "#>"
-)
-# devtools::install_local(here::here(), force=T)
-# devtools::load_all()
+  warning  = FALSE,
+  message  = FALSE,
+  comment  = "#>")
 ```
 
-## Show Effort
+## Introduction
 
-The CalCOFI grid (`cc_grid`) and centroids (`cc_grid_ctrs`) show the  [CalCOFI Station Positions – CalCOFI](https://calcofi.org/sampling-info/station-positions/) at varying separation distances of station positions (`sta_dpos`) in the CalCOFI coordinate system from nearshore (`5`), to offshore (`10`) to outside the 113 extended station pattern to historically visited areas (`20`).
+The `calcofi4r` package provides access to the CalCOFI (California Cooperative Oceanic Fisheries Investigations) database, which contains over 75 years of oceanographic and biological data from the California Current ecosystem.
 
-This allows summarization of effort within each station and defining a study area according to these criteria (e.g., `sta_dpos`).
+The database is organized into a tidy relational structure stored as Parquet files on Google Cloud Storage. This allows fast queries without downloading the entire database.
 
-### Grid by Zone
+## Connect to the Database
 
-```{r}
+```{r connect}
 library(calcofi4r)
 library(dplyr)
-library(mapview)
+library(DBI)
 library(sf)
-library(stars)
+library(mapview)
 
-mapview(cc_grid, zcol="zone_key") +
-  mapview(cc_grid_ctrs, cex = 1)
+# connect to the latest CalCOFI database release
+con <- cc_get_db()
+
+# list available tables
+dbListTables(con)
 ```
 
-### Summarize Temperature from Bottle Data
+## Convenience Functions
 
-```{r}
-# show first 6 rows of example data frame with temperature in space as variable
-head(cc_bottle)
+The package provides convenience functions for common operations:
 
-# summarize temperature by location and convert to points
-d_t <- cc_bottle %>% 
-  filter(
-    !is.na(t_degc)) %>% 
-  group_by(lon, lat) %>% 
+```{r convenience}
+# list available versions
+cc_list_versions()
+
+# list tables
+cc_list_tables()
+
+# describe a table
+cc_describe_table("ichthyo")
+
+# list measurement types
+cc_list_measurement_types() |> head(10)
+```
+
+### Read Data Directly
+
+Convenience functions return tibbles with optional filtering:
+
+```{r read-convenience}
+# read species data
+species <- cc_read_species()
+head(species)
+
+# read ichthyo data (first 100 rows for demo)
+ichthyo_sample <- cc_read_ichthyo() |> head(100)
+head(ichthyo_sample)
+
+# read with filtering (lazy query)
+anchovy <- cc_read_ichthyo(species_id == 19, collect = FALSE)
+anchovy |> head(5) |> collect()
+```
+
+## Database Schema
+
+The CalCOFI database contains data from two main programs:
+
+**Ichthyoplankton Survey** (since 1949):
+
+- `cruise` - cruise metadata (691 cruises)
+- `ship` - research vessels (48 ships)
+- `site` - sampling locations (61K sites)
+- `tow` - net tow events (76K tows)
+- `net` - net samples (77K nets)
+- `ichthyo` - fish larvae counts (831K records)
+- `species` - species taxonomy (1,144 species)
+- `taxon` - taxonomic hierarchy
+- `grid` - CalCOFI station grid (218 cells)
+- `segment` - line segments between stations
+
+**Bottle Database** (since 1949):
+
+- `casts` - CTD/bottle cast events (36K casts)
+- `bottle` - water sample bottles (895K bottles)
+- `bottle_measurement` - oceanographic measurements (11M records)
+- `measurement_type` - measurement definitions (47 types)
+- `cast_condition` - cast quality flags
+
+```{r schema}
+# show row counts for each table
+tables <- dbListTables(con)
+tibble(
+  table = tables,
+  rows  = sapply(tables, function(t) {
+    dbGetQuery(con, sprintf("SELECT COUNT(*) as n FROM %s", t))$n
+  })) |>
+  arrange(desc(rows))
+```
+
+## Query Bottle Data
+
+The bottle data contains oceanographic measurements from CTD casts. Measurements are stored in a normalized "long" format in `bottle_measurement`.
+
+```{r bottle-temp}
+# get temperature measurements with location and depth
+d_temp <- dbGetQuery(con, "
+  SELECT
+    c.lon_dec as lon,
+    c.lat_dec as lat,
+    c.datetime_utc,
+    b.depth_m,
+    bm.measurement_value as temperature
+  FROM bottle_measurement bm
+  JOIN bottle b ON bm.bottle_id = b.bottle_id
+  JOIN casts c ON b.cast_id = c.cast_id
+  WHERE bm.measurement_type = 'temperature'
+    AND bm.measurement_value IS NOT NULL
+    AND b.depth_m <= 10
+  LIMIT 100000")
+
+head(d_temp)
+nrow(d_temp)
+```
+
+### Summarize by Location
+
+```{r temp-summary}
+# summarize surface temperature by location
+d_t <- d_temp |>
+  group_by(lon, lat) |>
   summarize(
-    n = n(),
-    v = mean(t_degc),
-    .groups = "drop") %>% 
-  st_as_sf(
-    coords = c("lon", "lat"), remove = F,
-    crs = 4326)
+    n     = n(),
+    t_avg = mean(temperature, na.rm = TRUE),
+    .groups = "drop") |>
+  filter(!is.na(lon), !is.na(lat)) |>
+  st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE)
+
+head(d_t)
 ```
 
+## CalCOFI Grid
 
-### Show Effort by Grid Cell
+The CalCOFI sampling grid defines standard station positions. The package includes pre-loaded grid data:
 
-```{r}
-n_ply <- cc_grid %>% 
-  st_join(d_t) %>% 
-  group_by(sta_key) %>% 
-  summarize(
-    n = sum(n))
-mapview(n_ply, zcol="n", layer.name = "n")
+- `cc_grid` - station polygons
+- `cc_grid_ctrs` - station centroids
+- `cc_grid_zones` - aggregated zones by station pattern
+
+```{r grid}
+# show the CalCOFI grid colored by zone
+mapview(cc_grid, zcol = "zone_key", layer.name = "Zone") +
+  mapview(cc_grid_ctrs, cex = 1, col.regions = "black", legend = FALSE)
 ```
 
-### Show Effort by Grid Point
+### Grid from Database
 
-```{r}
-n_pts <- cc_grid_ctrs %>% 
+The grid is also available in the database with additional attributes:
+
+```{r grid-db}
+# query grid from database (includes geometry)
+grid_db <- dbGetQuery(con, "SELECT * EXCLUDE(geom, geom_ctr) FROM grid")
+head(grid_db)
+```
+
+## Show Effort by Grid Cell
+
+Join temperature observations to the CalCOFI grid to show sampling effort:
+
+```{r effort-grid}
+# count observations per grid cell
+n_grid <- cc_grid |>
+  st_join(d_t) |>
+  group_by(sta_key) |>
+  summarize(n = sum(n, na.rm = TRUE))
+
+mapview(n_grid, zcol = "n", layer.name = "Observations")
+```
+
+### Show Effort by Station Point
+
+```{r effort-points}
+# join counts to centroids
+n_pts <- cc_grid_ctrs |>
   left_join(
-    n_ply %>% 
-      st_drop_geometry() %>% 
-      select(sta_key, n),
+    n_grid |> st_drop_geometry() |> select(sta_key, n),
     by = "sta_key")
-mapview(n_pts, cex="n", layer.name = "n")
+
+mapview(n_pts, cex = "n", layer.name = "Observations")
 ```
 
-## Map contours 
+## Map Contours
 
-You can map the contours of input data using the faster, rougher Inverse-Distance Weighting (IDW; `pts_to_rast_idw()`, `rast_to_contours()`) technique or the slower, smoother Generalized Additive Model (GAM; `pts_to_contours_gam()`).
+Interpolate temperature data to create contour maps using Inverse Distance Weighting (IDW).
 
 ### All Zones
 
-```{r pts_to_rast_idw}
+```{r contour-all}
 # interpolate points to raster using IDW
-r_k_all <- pts_to_rast_idw(d_t, "v", cc_grid_zones)
-mapView(st_as_stars(r_k_all))
+r_all <- pts_to_rast_idw(d_t, "t_avg", cc_grid_zones)
+
+# generate contour polygons
+p_all <- rast_to_contours(r_all, cc_grid_zones)
+mapview(p_all, zcol = "z_avg", layer.name = "Temp (C)")
 ```
 
-```{r}
-# generate contour polygons from raster
-p_k_all <- rast_to_contours(r_k_all, cc_grid_zones)
-mapView(p_k_all, zcol = "z_avg")
+### Standard and Extended Pattern
+
+```{r contour-ext}
+# filter to standard + extended zones
+aoi_ext <- cc_grid_zones |>
+  filter(sta_pattern %in% c("standard", "extended"))
+
+# interpolate and contour
+r_ext <- pts_to_rast_idw(d_t, "t_avg", aoi_ext)
+p_ext <- rast_to_contours(r_ext, aoi_ext)
+mapview(p_ext, zcol = "z_avg", layer.name = "Temp (C)")
 ```
 
-### Standard and Extended Station Pattern Zones
+## Query Ichthyoplankton Data
 
-```{r}
-aoi_ext <- cc_grid_zones |> 
-  filter(
-    sta_pattern %in% c("standard", "extended"))
+The ichthyoplankton survey counts fish larvae by species across sampling sites.
 
-# interpolate points to raster using IDW
-r_k_ext <- pts_to_rast_idw(d_t, "v", aoi_ext)
-mapView(st_as_stars(r_k_ext), layer.name="Temp.(C)")
+```{r ichthyo}
+# get top 10 species by total count
+top_species <- dbGetQuery(con, "
+  SELECT
+    s.scientific_name,
+    s.common_name,
+    SUM(i.tally) as total_count,
+    COUNT(DISTINCT n.tow_id) as n_tows
+  FROM ichthyo i
+  JOIN species s ON i.species_id = s.species_id
+  JOIN net n ON i.net_id = n.net_id
+  GROUP BY s.scientific_name, s.common_name
+  ORDER BY total_count DESC
+  LIMIT 10")
+
+top_species
 ```
 
-```{r}
-# generate contour polygons from raster
-p_k_ext <- rast_to_contours(r_k_ext, aoi_ext)
-mapView(p_k_ext, zcol = "z_avg", layer.name="Temp.(C)")
+### Species Distribution
+
+Map the distribution of a common species:
+
+```{r species-map}
+# get Northern Anchovy observations with locations
+anchovy <- dbGetQuery(con, "
+  SELECT
+    si.latitude as lat,
+    si.longitude as lon,
+    SUM(i.tally) as count
+  FROM ichthyo i
+  JOIN species sp ON i.species_id = sp.species_id
+  JOIN net n ON i.net_id = n.net_id
+  JOIN tow t ON n.tow_id = t.tow_id
+  JOIN site si ON t.site_id = si.site_id
+  WHERE sp.scientific_name = 'Engraulis mordax'
+  GROUP BY si.latitude, si.longitude") |>
+  filter(!is.na(lon), !is.na(lat)) |>
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+mapview(anchovy, cex = "count", layer.name = "Anchovy count")
 ```
 
-### Standard Nearshore Zone
+## Cruise Timeline
 
-```{r}
-aoi_stdnr <- cc_grid_zones %>% 
-  filter(
-    sta_pattern  == "standard",
-    sta_shore    == "nearshore")
+View the temporal coverage of CalCOFI cruises:
 
-# interpolate points to raster using IDW
-r_k_stdnr <- pts_to_rast_idw(d_t, "v", aoi_stdnr)
-mapView(st_as_stars(r_k_stdnr), layer.name="Temp.(C)")
+```{r cruises}
+# get cruise timeline (date_ym is YYYYMM format)
+cruises <- dbGetQuery(con, "
+  SELECT
+    cruise_key,
+    CAST(SUBSTRING(CAST(date_ym AS VARCHAR), 1, 4) AS INTEGER) as year,
+    CAST(SUBSTRING(CAST(date_ym AS VARCHAR), 5, 2) AS INTEGER) as month,
+    ship_key
+  FROM cruise
+  WHERE date_ym IS NOT NULL
+  ORDER BY date_ym")
+
+# count cruises by year
+cruises |>
+  count(year) |>
+  filter(!is.na(year)) |>
+  ggplot2::ggplot(ggplot2::aes(year, n)) +
+  ggplot2::geom_col(fill = "steelblue") +
+  ggplot2::labs(
+    title = "CalCOFI Cruises by Year",
+    x = "Year", y = "Number of Cruises") +
+  ggplot2::theme_minimal()
 ```
 
-```{r}
-# generate contour polygons from raster
-p_k_stdnr <- rast_to_contours(r_k_stdnr, aoi_stdnr)
-mapView(p_k_stdnr, zcol = "z_avg", layer.name="Temp.(C)")
+## Available Measurement Types
+
+The bottle database includes many oceanographic variables:
+
+```{r measurements}
+# list all measurement types
+dbGetQuery(con, "
+  SELECT measurement_type, description, units
+  FROM measurement_type
+  ORDER BY measurement_type") |>
+  head(20)
 ```
 
-<!--## Map contours using a Generalized Additive Model (GAM)
+## Disconnect
 
-Map contours of an oceanographic variable from CTD cast bottle data. The `pts_to_contours_gam()` method uses a bivariate smoothing function on longitude and latitude with a generalized additive model (GAM).
+Always close the database connection when finished:
 
-### All Zones
-
-```{r pts_to_contours_gam, eval=F, echo=F}
-# calculate map contours
-p_g_all <- pts_to_contours_gam(d_t, cc_grid_zones)
-
-# show map contours
-mapView(p_g_all, zcol="v", layer.name="Temp.(C)")
+```{r disconnect}
+dbDisconnect(con)
 ```
 
-### Standard and Extended Station Pattern Zones
+## Package Data Objects
 
-```{r, eval=F, echo=F}
-# calculate map contours
-p_g_ext <- pts_to_contours_gam(d_t, aoi_ext)
+The package also includes pre-loaded spatial data objects for convenience:
 
-# display map contours
-mapView(p_g_ext, zcol="v", layer.name="Temp.(C)")
-```
+- `cc_grid` - CalCOFI station grid polygons (sf)
+- `cc_grid_ctrs` - Station centroids (sf)
+- `cc_grid_zones` - Aggregated zone polygons (sf)
+- `cc_bottle` - Sample bottle data for examples (tibble)
 
-### Standard Nearshore Zone
-
-```{r, eval=F, echo=F}
-# calculate map contours
-p_g_stdnr <- pts_to_contours_gam(d_t, aoi_stdnr)
-
-# display map contours
-mapView(p_g_stdnr, zcol="v", layer.name="Temp.(C)")
-```
--->
-
-## Plot Time Series
-
-Plot time series of an oceanographic variable from CTD cast bottle data.
-
-```{r plot_timeseries}
-# get variables
-(v <- get_variables())
-
-# fetch time series data for the first variable from CalCOFI API
-(d <- get_timeseries("ctd_bottles.t_degc"))
-
-# plot time series with the first variable
-with(v[1,],
-  plot_timeseries(
-    # data and columns (from d)
-    d, year, val_avg, val_sd,
-    # plot attributes (from v)
-    plot_title, plot_label, plot_color))
-```
-
-## Plot Depth
-
-Plot depth of an oceanographic variable from CTD cast bottle data.
-
-```{r plot_depth}
-head(bottle_temp_depth)
-
-# plot depth with the station data
-plot_depth(df = bottle_temp_depth, variable = "Temperature")
-```
-
-<!--
-## Map Raster
-
-Map raster of interpolated oceanographic variable for a cruise.
--->
-```{r map_raster, eval=F, echo=F}
-# get cruises
-(z <- get_cruises())
-
-# get path of temporary file to store raster
-(r_tif <- tempfile(fileext=".tif"))
-
-# use second variable from previously fetched v
-c(v$table_field[2], v$plot_label[2])
-
-# fetch interpolated raster from CalCOFI API
-get_raster(
-  variable = v$table_field[2],
-  cruise_id = "2020-01-05-C-33RL",
-  depth_m_min = 0, depth_m_max = 200,
-  out_tif = r_tif)
-
-# cleanup by deleting temporary file
-unlink(r_tif)
-
-# read raster
-r <- raster::raster(r_tif)
-
-# plot raster
-map_raster(r, v$plot_label[2])
-```
+These can be used without connecting to the database for quick spatial operations.

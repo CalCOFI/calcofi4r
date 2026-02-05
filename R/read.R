@@ -1,5 +1,13 @@
 #' Get variables from CalCOFI API
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' This function is deprecated because the CalCOFI API is being phased out
+#' in favor of direct DuckDB database access. Use [cc_list_measurement_types()]
+#' to see available oceanographic measurement types, or query the database
+#' directly with [cc_get_db()].
+#'
 #' @return data frame with columns:
 #' - `category`: category, e.g. "Oceanographic"
 #' - `table_field`: unique identifier of the variable given by the form of table.field
@@ -9,14 +17,30 @@
 #' @import httr2 readr
 #' @concept read
 #' @examples
-#' get_variables()
+#' \dontrun{
+#' # deprecated - use instead:
+#' cc_list_measurement_types()
+#' }
 get_variables <- function(){
+  lifecycle::deprecate_warn(
+    "1.1.0",
+    "get_variables()",
+    "cc_list_measurement_types()",
+    details = "The CalCOFI API is being phased out. Use DuckDB access via cc_get_db() instead.")
+
   req_vars <- req_perform(request("https://api.calcofi.io/variables"))
   stopifnot(!req_vars %>% httr2::resp_is_error())
   req_vars %>% resp_body_raw() %>% read_csv(show_col_types = F)
 }
 
 #' Get cruises from CalCOFI API
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' This function is deprecated because the CalCOFI API is being phased out
+#' in favor of direct DuckDB database access. Use [cc_read_cruise()] to
+#' read cruise data, or query the database directly with [cc_get_db()].
 #'
 #' @return data frame with columns:
 #' - `cruise_id`: unique identifier for cruise
@@ -31,15 +55,31 @@ get_variables <- function(){
 #' @import httr2 readr
 #' @concept read
 #' @examples
-#' get_cruises()
+#' \dontrun{
+#' # deprecated - use instead:
+#' cc_read_cruise()
+#' }
 get_cruises <- function(){
-  # librarian::shelf(httr2, readr)
+  lifecycle::deprecate_warn(
+    "1.1.0",
+    "get_cruises()",
+    "cc_read_cruise()",
+    details = "The CalCOFI API is being phased out. Use DuckDB access via cc_get_db() instead.")
+
   req_vars <- req_perform(request("https://api.calcofi.io/cruises"))
   stopifnot(!req_vars %>% httr2::resp_is_error())
   req_vars %>% resp_body_raw() %>% read_csv(show_col_types = F)
 }
 
 #' Get raster of interpolated values from CalCOFI API
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' This function is deprecated because the CalCOFI API is being phased out
+#' in favor of direct DuckDB database access. Query bottle measurement data
+#' with [cc_read_measurements()] and [cc_read_casts()], then use
+#' [pts_to_rast_idw()] for spatial interpolation.
 #'
 #' @param variable Variable to fetch from the CalCOFI API. One of `table_field` values from `get_variables()`.
 #'   Default is `"ctdcast_bottle.t_deg_c"`.
@@ -55,22 +95,28 @@ get_cruises <- function(){
 #' @export
 #'
 #' @examples
-#' out_tif <- tempfile(fileext=".tif")
-#' get_raster(
-#'   variable = "ctdcast_bottle.t_deg_c",
-#'   cruise_id = "1949-03-01-C-3d1CR",
-#'   depth_m_min = 0, depth_m_max = 200,
-#'   out_tif = out_tif)
-#' r <- raster::raster(out_tif)
-#' raster::plot(r)
-#' unlink(out_tif)
+#' \dontrun{
+#' # deprecated - use DuckDB queries + pts_to_rast_idw() instead:
+#' con <- cc_get_db()
+#' d <- DBI::dbGetQuery(con, "
+#'   SELECT c.lon_dec, c.lat_dec, bm.measurement_value
+#'   FROM bottle_measurement bm
+#'   JOIN bottle b ON bm.bottle_id = b.bottle_id
+#'   JOIN casts c ON b.cast_id = c.cast_id
+#'   WHERE bm.measurement_type = 'temperature'")
+#' }
 get_raster <- function(
   variable = "ctdcast_bottle.t_deg_c",
   cruise_id = "1949-03-01-C-31CR",
   depth_m_min = NULL, depth_m_max = NULL,
   out_tif){
 
-  # variable = "ctdcast_bottle.t_deg_c"; cruise_id = "1949-03-01-C-31CR"; depth_m_min = 0; depth_m_max = 200
+  lifecycle::deprecate_warn(
+    "1.1.0",
+    "get_raster()",
+    details = c(
+      "The CalCOFI API is being phased out.",
+      "i" = "Query data with cc_get_db() and use pts_to_rast_idw() for interpolation."))
 
   req <- request("https://api.calcofi.io")
   resp <- try(req %>%
@@ -96,6 +142,13 @@ get_raster <- function(
 
 #' Get timeseries summary from CalCOFI API
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' This function is deprecated because the CalCOFI API is being phased out
+#' in favor of direct DuckDB database access. Query bottle measurement data
+#' with [cc_get_db()] and aggregate using dplyr for time series analysis.
+#'
 #' @param variable Variable to fetch from the CalCOFI API. One of `table_field` values from `get_variables()`.
 #'   Default is `"ctdcast_bottle.t_deg_c"`.
 #' @param aoi_wkt Area of interest (AOI), spatially described as
@@ -118,14 +171,18 @@ get_raster <- function(
 #' @export
 #'
 #' @examples
-#' get_timeseries(
-#'   variable = "ctdcast_bottle.t_deg_c",
-#'   aoi_wkt = "POLYGON ((-120.6421 33.36241, -118.9071 33.36241, -118.9071 34.20707, -120.6421 34.20707, -120.6421 33.36241))",
-#'   depth_m_min = 0, depth_m_max = 200,
-#'   date_beg = "2000-01-01", date_end = "2020-01-01",
-#'   time_step = "year",
-#'   stats = c("p10", "mean", "p90"))
-#'
+#' \dontrun{
+#' # deprecated - use DuckDB queries instead:
+#' con <- cc_get_db()
+#' d <- DBI::dbGetQuery(con, "
+#'   SELECT EXTRACT(YEAR FROM c.datetime_utc) AS year,
+#'          AVG(bm.measurement_value) AS avg_temp
+#'   FROM bottle_measurement bm
+#'   JOIN bottle b ON bm.bottle_id = b.bottle_id
+#'   JOIN casts c ON b.cast_id = c.cast_id
+#'   WHERE bm.measurement_type = 'temperature'
+#'   GROUP BY year ORDER BY year")
+#' }
 get_timeseries <- function(
   variable = "ctdcast_bottle.t_deg_c",
   aoi_wkt = NULL,
@@ -133,6 +190,13 @@ get_timeseries <- function(
   date_beg = NULL, date_end = NULL,
   time_step = "year",
   stats = c("p10", "mean", "p90")){
+
+  lifecycle::deprecate_warn(
+    "1.1.0",
+    "get_timeseries()",
+    details = c(
+      "The CalCOFI API is being phased out.",
+      "i" = "Query data with cc_get_db() and aggregate with dplyr for time series."))
 
   req <- request("https://api.calcofi.io") |>
     req_url_path_append("timeseries") |>
@@ -160,32 +224,33 @@ get_timeseries <- function(
 
 # ─── duckdb convenience functions ─────────────────────────────────────────────
 
-#' Read CalCOFI larvae data
+#' Read CalCOFI ichthyoplankton (larvae) data
 #'
-#' Convenience function to read larval fish data from the CalCOFI database.
+#' Convenience function to read ichthyoplankton (fish larvae) data from the
+#' CalCOFI database. The data is stored in the `ichthyo` table.
 #'
 #' @param version Database version (default: "latest")
 #' @param collect If TRUE, collect results into memory. If FALSE, return
 #'   lazy dbplyr table (default: TRUE)
 #' @param ... Additional filter expressions passed to \code{dplyr::filter()}
 #'
-#' @return Tibble of larvae data (if collect=TRUE) or lazy table
+#' @return Tibble of ichthyo data (if collect=TRUE) or lazy table
 #'
 #' @export
 #' @concept read
 #'
 #' @examples
 #' \dontrun{
-#' # get all larvae data
-#' larvae <- cc_read_larvae()
+#' # get first 100 ichthyo records
+#' ichthyo <- cc_read_ichthyo() |> head(100)
 #'
-#' # get specific species
-#' engraulis <- cc_read_larvae(species_id == 123)
+#' # get specific species (lazy query)
+#' anchovy <- cc_read_ichthyo(species_id == 19, collect = FALSE)
 #' }
 #' @importFrom dplyr tbl filter collect
-cc_read_larvae <- function(version = "latest", collect = TRUE, ...) {
+cc_read_ichthyo <- function(..., version = "latest", collect = TRUE) {
   con   <- cc_get_db(version = version)
-  table <- dplyr::tbl(con, "larva")
+  table <- dplyr::tbl(con, "ichthyo")
 
   # apply filters if provided
   dots <- rlang::enquos(...)
@@ -199,6 +264,10 @@ cc_read_larvae <- function(version = "latest", collect = TRUE, ...) {
     table
   }
 }
+
+#' @rdname cc_read_ichthyo
+#' @export
+cc_read_larvae <- cc_read_ichthyo
 
 #' Read CalCOFI bottle data
 #'
@@ -223,7 +292,7 @@ cc_read_larvae <- function(version = "latest", collect = TRUE, ...) {
 #' shallow <- cc_read_bottle(depth_m < 100)
 #' }
 #' @importFrom dplyr tbl filter collect
-cc_read_bottle <- function(version = "latest", collect = TRUE, ...) {
+cc_read_bottle <- function(..., version = "latest", collect = TRUE) {
   con   <- cc_get_db(version = version)
   table <- dplyr::tbl(con, "bottle")
 
@@ -242,26 +311,28 @@ cc_read_bottle <- function(version = "latest", collect = TRUE, ...) {
 
 #' Read CalCOFI cast data
 #'
-#' Convenience function to read CTD cast data from the CalCOFI database.
+#' Convenience function to read CTD/bottle cast data from the CalCOFI database.
+#' The data is stored in the `casts` table.
 #'
 #' @param version Database version (default: "latest")
 #' @param collect If TRUE, collect results into memory. If FALSE, return
 #'   lazy dbplyr table (default: TRUE)
 #' @param ... Additional filter expressions passed to \code{dplyr::filter()}
 #'
-#' @return Tibble of cast data (if collect=TRUE) or lazy table
+#' @return Tibble of casts data (if collect=TRUE) or lazy table
 #'
 #' @export
 #' @concept read
 #'
 #' @examples
 #' \dontrun{
-#' casts <- cc_read_cast()
+#' # get first 100 casts
+#' casts <- cc_read_casts() |> head(100)
 #' }
 #' @importFrom dplyr tbl filter collect
-cc_read_cast <- function(version = "latest", collect = TRUE, ...) {
+cc_read_casts <- function(..., version = "latest", collect = TRUE) {
   con   <- cc_get_db(version = version)
-  table <- dplyr::tbl(con, "cast")
+  table <- dplyr::tbl(con, "casts")
 
   # apply filters if provided
   dots <- rlang::enquos(...)
@@ -275,6 +346,10 @@ cc_read_cast <- function(version = "latest", collect = TRUE, ...) {
     table
   }
 }
+
+#' @rdname cc_read_casts
+#' @export
+cc_read_cast <- cc_read_casts
 
 #' Execute SQL query on CalCOFI database
 #'
@@ -291,8 +366,8 @@ cc_read_cast <- function(version = "latest", collect = TRUE, ...) {
 #'
 #' @examples
 #' \dontrun{
-#' results <- cc_query("SELECT * FROM larva LIMIT 10")
-#' results <- cc_query("SELECT species_id, COUNT(*) as n FROM larva GROUP BY species_id")
+#' results <- cc_query("SELECT * FROM ichthyo LIMIT 10")
+#' results <- cc_query("SELECT species_id, COUNT(*) as n FROM ichthyo GROUP BY species_id")
 #' }
 #' @importFrom DBI dbGetQuery
 #' @importFrom tibble as_tibble
@@ -338,8 +413,9 @@ cc_list_tables <- function(version = "latest") {
 #'
 #' @examples
 #' \dontrun{
-#' cc_describe_table("larva")
-#' cc_describe_table("cruise")
+#' cc_describe_table("ichthyo")
+#' cc_describe_table("species")
+#' cc_describe_table("casts")
 #' }
 #' @importFrom DBI dbGetQuery
 #' @importFrom tibble as_tibble
@@ -364,4 +440,199 @@ cc_describe_table <- function(table, version = "latest") {
     ORDER BY ordinal_position"))
 
   tibble::as_tibble(result)
+}
+
+#' Read CalCOFI species data
+#'
+#' Convenience function to read species taxonomy data from the CalCOFI database.
+#'
+#' @param version Database version (default: "latest")
+#' @param collect If TRUE, collect results into memory. If FALSE, return
+#'   lazy dbplyr table (default: TRUE)
+#' @param ... Additional filter expressions passed to \code{dplyr::filter()}
+#'
+#' @return Tibble of species data (if collect=TRUE) or lazy table
+#'
+#' @export
+#' @concept read
+#'
+#' @examples
+#' \dontrun{
+#' species <- cc_read_species()
+#' }
+#' @importFrom dplyr tbl filter collect
+cc_read_species <- function(..., version = "latest", collect = TRUE) {
+  con   <- cc_get_db(version = version)
+  table <- dplyr::tbl(con, "species")
+
+  dots <- rlang::enquos(...)
+  if (length(dots) > 0) {
+    table <- dplyr::filter(table, !!!dots)
+  }
+
+  if (collect) dplyr::collect(table) else table
+}
+
+#' Read CalCOFI cruise data
+#'
+#' Convenience function to read cruise metadata from the CalCOFI database.
+#'
+#' @param version Database version (default: "latest")
+#' @param collect If TRUE, collect results into memory. If FALSE, return
+#'   lazy dbplyr table (default: TRUE)
+#' @param ... Additional filter expressions passed to \code{dplyr::filter()}
+#'
+#' @return Tibble of cruise data (if collect=TRUE) or lazy table
+#'
+#' @export
+#' @concept read
+#'
+#' @examples
+#' \dontrun{
+#' cruises <- cc_read_cruise()
+#' }
+#' @importFrom dplyr tbl filter collect
+cc_read_cruise <- function(..., version = "latest", collect = TRUE) {
+  con   <- cc_get_db(version = version)
+  table <- dplyr::tbl(con, "cruise")
+
+  dots <- rlang::enquos(...)
+  if (length(dots) > 0) {
+    table <- dplyr::filter(table, !!!dots)
+  }
+
+  if (collect) dplyr::collect(table) else table
+}
+
+#' Read CalCOFI bottle measurements
+#'
+#' Convenience function to read oceanographic measurements from the CalCOFI
+#' bottle database. Returns data in long format from `bottle_measurement` table.
+#'
+#' @param measurement_types Character vector of measurement types to include.
+#'   Default is NULL (all types). Use \code{cc_list_measurement_types()} to
+#'   see available types.
+#' @param version Database version (default: "latest")
+#' @param collect If TRUE, collect results into memory. If FALSE, return
+#'   lazy dbplyr table (default: TRUE)
+#' @param ... Additional filter expressions passed to \code{dplyr::filter()}
+#'
+#' @return Tibble of measurement data (if collect=TRUE) or lazy table
+#'
+#' @export
+#' @concept read
+#'
+#' @examples
+#' \dontrun{
+#' # get temperature and salinity measurements
+#' temp_sal <- cc_read_measurements(c("temperature", "salinity"))
+#' }
+#' @importFrom dplyr tbl filter collect
+cc_read_measurements <- function(
+    ...,
+    measurement_types = NULL,
+    version = "latest",
+    collect = TRUE) {
+  con   <- cc_get_db(version = version)
+  table <- dplyr::tbl(con, "bottle_measurement")
+
+  # filter by measurement type if specified
+  if (!is.null(measurement_types)) {
+    table <- dplyr::filter(table, measurement_type %in% measurement_types)
+  }
+
+  dots <- rlang::enquos(...)
+  if (length(dots) > 0) {
+    table <- dplyr::filter(table, !!!dots)
+  }
+
+  if (collect) dplyr::collect(table) else table
+}
+
+#' List available measurement types
+#'
+#' Returns all available measurement types in the CalCOFI bottle database.
+#'
+#' @param version Database version (default: "latest")
+#'
+#' @return Tibble with measurement_type, description, and units
+#'
+#' @export
+#' @concept read
+#'
+#' @examples
+#' \dontrun{
+#' cc_list_measurement_types()
+#' }
+#' @importFrom DBI dbGetQuery
+#' @importFrom tibble as_tibble
+cc_list_measurement_types <- function(version = "latest") {
+  con <- cc_get_db(version = version)
+  result <- DBI::dbGetQuery(con,
+    "SELECT measurement_type, description, units
+     FROM measurement_type
+     ORDER BY measurement_type")
+  tibble::as_tibble(result)
+}
+
+#' Read CalCOFI tow data
+#'
+#' Convenience function to read net tow data from the CalCOFI database.
+#'
+#' @param version Database version (default: "latest")
+#' @param collect If TRUE, collect results into memory. If FALSE, return
+#'   lazy dbplyr table (default: TRUE)
+#' @param ... Additional filter expressions passed to \code{dplyr::filter()}
+#'
+#' @return Tibble of tow data (if collect=TRUE) or lazy table
+#'
+#' @export
+#' @concept read
+#'
+#' @examples
+#' \dontrun{
+#' tows <- cc_read_tow()
+#' }
+#' @importFrom dplyr tbl filter collect
+cc_read_tow <- function(..., version = "latest", collect = TRUE) {
+  con   <- cc_get_db(version = version)
+  table <- dplyr::tbl(con, "tow")
+
+  dots <- rlang::enquos(...)
+  if (length(dots) > 0) {
+    table <- dplyr::filter(table, !!!dots)
+  }
+
+  if (collect) dplyr::collect(table) else table
+}
+
+#' Read CalCOFI site data
+#'
+#' Convenience function to read sampling site data from the CalCOFI database.
+#'
+#' @param version Database version (default: "latest")
+#' @param collect If TRUE, collect results into memory. If FALSE, return
+#'   lazy dbplyr table (default: TRUE)
+#' @param ... Additional filter expressions passed to \code{dplyr::filter()}
+#'
+#' @return Tibble of site data (if collect=TRUE) or lazy table
+#'
+#' @export
+#' @concept read
+#'
+#' @examples
+#' \dontrun{
+#' sites <- cc_read_site()
+#' }
+#' @importFrom dplyr tbl filter collect
+cc_read_site <- function(..., version = "latest", collect = TRUE) {
+  con   <- cc_get_db(version = version)
+  table <- dplyr::tbl(con, "site")
+
+  dots <- rlang::enquos(...)
+  if (length(dots) > 0) {
+    table <- dplyr::filter(table, !!!dots)
+  }
+
+  if (collect) dplyr::collect(table) else table
 }

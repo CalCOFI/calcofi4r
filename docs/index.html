@@ -101,25 +101,35 @@
 <span></span>
 <span><span class="co"># list available tables</span></span>
 <span><span class="fu"><a href="reference/cc_list_tables.html">cc_list_tables</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "bottle"             "bottle_measurement" "cast_condition"</span></span>
+<span><span class="co">#&gt; [4] "casts"              "cruise"             "grid"</span></span>
+<span><span class="co">#&gt; [7] "ichthyo"            "lookup"             "measurement_type"</span></span>
+<span><span class="co">#&gt; ...</span></span>
 <span></span>
 <span><span class="co"># query with SQL</span></span>
-<span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="st">"SELECT COUNT(*) FROM larva"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="st">"SELECT COUNT(*) FROM ichthyo"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="read-data-with-convenience-functions">Read Data with Convenience Functions<a class="anchor" aria-label="anchor" href="#read-data-with-convenience-functions"></a>
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># read larvae data</span></span>
-<span><span class="va">larvae</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_larvae.html">cc_read_larvae</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># read ichthyoplankton (larvae) data</span></span>
+<span><span class="va">ichthyo</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_ichthyo.html">cc_read_ichthyo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># read bottle samples</span></span>
 <span><span class="va">bottles</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_bottle.html">cc_read_bottle</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># read cast data</span></span>
-<span><span class="va">casts</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_cast.html">cc_read_cast</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">casts</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_casts.html">cc_read_casts</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># filter while reading (uses dplyr syntax)</span></span>
-<span><span class="va">engraulis</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_larvae.html">cc_read_larvae</a></span><span class="op">(</span><span class="va">species_id</span> <span class="op">==</span> <span class="fl">123</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># read species taxonomy</span></span>
+<span><span class="va">species</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_species.html">cc_read_species</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># get measurement types</span></span>
+<span><span class="fu"><a href="reference/cc_list_measurement_types.html">cc_list_measurement_types</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># filter while reading (uses dplyr syntax, returns lazy table)</span></span>
+<span><span class="va">anchovy</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_ichthyo.html">cc_read_ichthyo</a></span><span class="op">(</span><span class="va">species_id</span> <span class="op">==</span> <span class="fl">19</span>, collect <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="version-control">Version Control<a class="anchor" aria-label="anchor" href="#version-control"></a>
@@ -128,9 +138,8 @@
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># list available versions</span></span>
 <span><span class="fu"><a href="reference/cc_list_versions.html">cc_list_versions</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    version   is_latest</span></span>
-<span><span class="co">#&gt; 1 v2026.03       TRUE</span></span>
-<span><span class="co">#&gt; 2 v2026.02      FALSE</span></span>
+<span><span class="co">#&gt;    version release_date tables total_rows size_mb is_latest</span></span>
+<span><span class="co">#&gt; 1 v2026.02   2026-02-05     17   13410422    80.9      TRUE</span></span>
 <span></span>
 <span><span class="co"># connect to specific version</span></span>
 <span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_get_db.html">cc_get_db</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"v2026.02"</span><span class="op">)</span></span>
@@ -148,13 +157,14 @@
 <code class="sourceCode R"><span><span class="co"># run SQL queries</span></span>
 <span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_query.html">cc_query</a></span><span class="op">(</span><span class="st">"</span></span>
 <span><span class="st">  SELECT species_id, COUNT(*) as n</span></span>
-<span><span class="st">  FROM larva</span></span>
+<span><span class="st">  FROM ichthyo</span></span>
 <span><span class="st">  GROUP BY species_id</span></span>
 <span><span class="st">  ORDER BY n DESC</span></span>
 <span><span class="st">  LIMIT 10"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># describe table schema</span></span>
-<span><span class="fu"><a href="reference/cc_describe_table.html">cc_describe_table</a></span><span class="op">(</span><span class="st">"larva"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/cc_describe_table.html">cc_describe_table</a></span><span class="op">(</span><span class="st">"ichthyo"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/cc_describe_table.html">cc_describe_table</a></span><span class="op">(</span><span class="st">"casts"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -213,18 +223,19 @@
 <div class="section level2">
 <h2 id="data-architecture">Data Architecture<a class="anchor" aria-label="anchor" href="#data-architecture"></a>
 </h2>
-<p>CalCOFI data is stored in frozen DuckLake releases:</p>
+<p>CalCOFI data is stored in frozen DuckLake releases on Google Cloud Storage:</p>
 <pre><code>gs://calcofi-db/ducklake/releases/
 ├── v2026.02/
 │   ├── catalog.json
 │   ├── RELEASE_NOTES.md
 │   └── parquet/
 │       ├── bottle.parquet
-│       ├── cast.parquet
-│       ├── larva.parquet
+│       ├── casts.parquet
+│       ├── ichthyo.parquet
+│       ├── species.parquet
 │       └── ...
-├── v2026.03/
-└── latest.txt → v2026.03</code></pre>
+├── versions.json
+└── latest.txt → v2026.02</code></pre>
 <p>Data is accessed directly via DuckDB’s httpfs extension - no download required for queries.</p>
 </div>
 <div class="section level2">

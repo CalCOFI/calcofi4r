@@ -4,15 +4,15 @@
 \alias{cc_read_bottle}
 \title{Read CalCOFI bottle data}
 \usage{
-cc_read_bottle(version = "latest", collect = TRUE, ...)
+cc_read_bottle(..., version = "latest", collect = TRUE)
 }
 \arguments{
+\item{...}{Additional filter expressions passed to \code{dplyr::filter()}}
+
 \item{version}{Database version (default: "latest")}
 
 \item{collect}{If TRUE, collect results into memory. If FALSE, return
 lazy dbplyr table (default: TRUE)}
-
-\item{...}{Additional filter expressions passed to \code{dplyr::filter()}}
 }
 \value{
 Tibble of bottle data (if collect=TRUE) or lazy table

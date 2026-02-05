@@ -13,6 +13,7 @@
 <url><loc>https://calcofi.github.io/calcofi4r/reference/bottle_temp_depth.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/bottle_temp_lonlat.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/buffer_transect.html</loc></url>
+<url><loc>https://calcofi.github.io/calcofi4r/reference/calcofi4r-package.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/cc_bottle.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/cc_db_catalog.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/cc_db_connect.html</loc></url>
@@ -22,6 +23,7 @@
 <url><loc>https://calcofi.github.io/calcofi4r/reference/cc_grid.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/cc_grid_ctrs.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/cc_grid_zones.html</loc></url>
+<url><loc>https://calcofi.github.io/calcofi4r/reference/cc_list_measurement_types.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/cc_list_tables.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/cc_list_versions.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/cc_list_view_templates.html</loc></url>
@@ -29,9 +31,14 @@
 <url><loc>https://calcofi.github.io/calcofi4r/reference/cc_places.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/cc_query.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/cc_read_bottle.html</loc></url>
-<url><loc>https://calcofi.github.io/calcofi4r/reference/cc_read_cast.html</loc></url>
-<url><loc>https://calcofi.github.io/calcofi4r/reference/cc_read_larvae.html</loc></url>
+<url><loc>https://calcofi.github.io/calcofi4r/reference/cc_read_casts.html</loc></url>
+<url><loc>https://calcofi.github.io/calcofi4r/reference/cc_read_cruise.html</loc></url>
+<url><loc>https://calcofi.github.io/calcofi4r/reference/cc_read_ichthyo.html</loc></url>
+<url><loc>https://calcofi.github.io/calcofi4r/reference/cc_read_measurements.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/cc_read_sf.html</loc></url>
+<url><loc>https://calcofi.github.io/calcofi4r/reference/cc_read_site.html</loc></url>
+<url><loc>https://calcofi.github.io/calcofi4r/reference/cc_read_species.html</loc></url>
+<url><loc>https://calcofi.github.io/calcofi4r/reference/cc_read_tow.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/cc_release_notes.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/create_index.html</loc></url>
 <url><loc>https://calcofi.github.io/calcofi4r/reference/expr_time_env.html</loc></url>

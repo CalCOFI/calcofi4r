@@ -92,7 +92,17 @@ cc_get_db <- function(
     ":memory:"
   }
 
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = db_path)
+  # try to connect, with fallback to read-only if locked
+  con <- tryCatch({
+    DBI::dbConnect(duckdb::duckdb(), dbdir = db_path)
+  }, error = function(e) {
+    if (grepl("lock", e$message, ignore.case = TRUE)) {
+      message("Database locked, opening in read-only mode")
+      DBI::dbConnect(duckdb::duckdb(), dbdir = db_path, read_only = TRUE)
+    } else {
+      stop(e)
+    }
+  })
 
   # check if already initialized
   tables <- DBI::dbListTables(con)
@@ -599,8 +609,15 @@ cc_db_connect <- function(path_pw = "~/.calcofi_db_pass.txt"){
 
 #' Show CalCOFI database catalog as interactive table
 #'
-#' Read the tables and columns from the following [CalCOFI API](https://api.calcofi.io)
-#' and display as an interactive table (as `DT::datatable()`):
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' This function is deprecated because it relies on the CalCOFI API which is
+#' being phased out. Use [cc_list_tables()] to list available tables and
+#' [cc_describe_table()] to get column information for a specific table.
+#'
+#' Previously read the tables and columns from the [CalCOFI API](https://api.calcofi.io)
+#' and displayed as an interactive table:
 #' - [api.calcofi.io/db_tables](https://api.calcofi.io/db_tables)
 #' - [api.calcofi.io/db_columns](https://api.calcofi.io/db_columns)
 #'
@@ -618,11 +635,19 @@ cc_db_connect <- function(path_pw = "~/.calcofi_db_pass.txt"){
 #' @concept database
 #'
 #' @examples
-#' # full catalog
-#' cc_db_catalog()
-#' # only certain tables
-#' cc_db_catalog(tables = c("larvae_counts","nets","tows","stations","cruises"))
+#' \dontrun{
+#' # deprecated - use instead:
+#' cc_list_tables()
+#' cc_describe_table("ichthyo")
+#' }
 cc_db_catalog <- function(tables = NULL){
+
+  lifecycle::deprecate_warn(
+    "1.1.0",
+    "cc_db_catalog()",
+    details = c(
+      "The CalCOFI API is being phased out.",
+      "i" = "Use cc_list_tables() and cc_describe_table() for schema information."))
 
   d_tbls <- readr::read_csv(
     "https://api.calcofi.io/db_tables", show_col_types = F)

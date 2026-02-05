@@ -13,17 +13,24 @@ cc_db_catalog(tables = NULL)
 DT::datatable() of tables and columns
 }
 \description{
-Read the tables and columns from the following \href{https://api.calcofi.io}{CalCOFI API}
-and display as an interactive table (as \code{DT::datatable()}):
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated because it relies on the CalCOFI API which is
+being phased out. Use \code{\link[=cc_list_tables]{cc_list_tables()}} to list available tables and
+\code{\link[=cc_describe_table]{cc_describe_table()}} to get column information for a specific table.
+
+Previously read the tables and columns from the \href{https://api.calcofi.io}{CalCOFI API}
+and displayed as an interactive table:
 \itemize{
 \item \href{https://api.calcofi.io/db_tables}{api.calcofi.io/db_tables}
 \item \href{https://api.calcofi.io/db_columns}{api.calcofi.io/db_columns}
 }
 }
 \examples{
-# full catalog
-cc_db_catalog()
-# only certain tables
-cc_db_catalog(tables = c("larvae_counts","nets","tows","stations","cruises"))
+\dontrun{
+# deprecated - use instead:
+cc_list_tables()
+cc_describe_table("ichthyo")
+}
 }
 \concept{database}

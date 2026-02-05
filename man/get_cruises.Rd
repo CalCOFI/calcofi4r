@@ -20,9 +20,16 @@ data frame with columns:
 }
 }
 \description{
-Get cruises from CalCOFI API
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated because the CalCOFI API is being phased out
+in favor of direct DuckDB database access. Use \code{\link[=cc_read_cruise]{cc_read_cruise()}} to
+read cruise data, or query the database directly with \code{\link[=cc_get_db]{cc_get_db()}}.
 }
 \examples{
-get_cruises()
+\dontrun{
+# deprecated - use instead:
+cc_read_cruise()
+}
 }
 \concept{read}

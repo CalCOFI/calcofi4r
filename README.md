@@ -22,31 +22,42 @@ library(calcofi4r)
 ### Connect to CalCOFI Database
 
 Access the CalCOFI integrated database directly via DuckDB:
+
 ```r
 # connect to latest frozen release
 con <- cc_get_db()
 
 # list available tables
 cc_list_tables()
+#> [1] "bottle"             "bottle_measurement" "cast_condition"
+#> [4] "casts"              "cruise"             "grid"
+#> [7] "ichthyo"            "lookup"             "measurement_type"
+#> ...
 
 # query with SQL
-DBI::dbGetQuery(con, "SELECT COUNT(*) FROM larva")
+DBI::dbGetQuery(con, "SELECT COUNT(*) FROM ichthyo")
 ```
 
 ### Read Data with Convenience Functions
 
 ```r
-# read larvae data
-larvae <- cc_read_larvae()
+# read ichthyoplankton (larvae) data
+ichthyo <- cc_read_ichthyo()
 
 # read bottle samples
 bottles <- cc_read_bottle()
 
 # read cast data
-casts <- cc_read_cast()
+casts <- cc_read_casts()
 
-# filter while reading (uses dplyr syntax)
-engraulis <- cc_read_larvae(species_id == 123)
+# read species taxonomy
+species <- cc_read_species()
+
+# get measurement types
+cc_list_measurement_types()
+
+# filter while reading (uses dplyr syntax, returns lazy table)
+anchovy <- cc_read_ichthyo(species_id == 19, collect = FALSE)
 ```
 
 ### Version Control
@@ -56,9 +67,8 @@ Access specific database versions for reproducibility:
 ```r
 # list available versions
 cc_list_versions()
-#>    version   is_latest
-#> 1 v2026.03       TRUE
-#> 2 v2026.02      FALSE
+#>    version release_date tables total_rows size_mb is_latest
+#> 1 v2026.02   2026-02-05     17   13410422    80.9      TRUE
 
 # connect to specific version
 con <- cc_get_db(version = "v2026.02")
@@ -76,13 +86,14 @@ cc_release_notes("v2026.02")
 # run SQL queries
 results <- cc_query("
   SELECT species_id, COUNT(*) as n
-  FROM larva
+  FROM ichthyo
   GROUP BY species_id
   ORDER BY n DESC
   LIMIT 10")
 
 # describe table schema
-cc_describe_table("larva")
+cc_describe_table("ichthyo")
+cc_describe_table("casts")
 ```
 
 ## CalCOFI API Functions
@@ -139,7 +150,7 @@ cc_places
 
 ## Data Architecture
 
-CalCOFI data is stored in frozen DuckLake releases:
+CalCOFI data is stored in frozen DuckLake releases on Google Cloud Storage:
 
 ```
 gs://calcofi-db/ducklake/releases/
@@ -148,11 +159,12 @@ gs://calcofi-db/ducklake/releases/
 │   ├── RELEASE_NOTES.md
 │   └── parquet/
 │       ├── bottle.parquet
-│       ├── cast.parquet
-│       ├── larva.parquet
+│       ├── casts.parquet
+│       ├── ichthyo.parquet
+│       ├── species.parquet
 │       └── ...
-├── v2026.03/
-└── latest.txt → v2026.03
+├── versions.json
+└── latest.txt → v2026.02
 ```
 
 Data is accessed directly via DuckDB's httpfs extension - no download required for queries.

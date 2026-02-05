@@ -1,6 +1,8 @@
 # calcofi4r 1.1.3
 
 * Fixed database functions: `cc_get_db()`, `cc_list_versions()`
+* Updated vignette "Get started" to using the online DuckDB and latest functions. 
+* Added deprecation warnings to old functions that made API calls to Postgres database in favor of new direct data querying abilities with the online DuckDB.
 
 # calcofi4r 1.1.2
 

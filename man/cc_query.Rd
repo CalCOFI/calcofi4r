@@ -20,8 +20,8 @@ a frozen CalCOFI database release.
 }
 \examples{
 \dontrun{
-results <- cc_query("SELECT * FROM larva LIMIT 10")
-results <- cc_query("SELECT species_id, COUNT(*) as n FROM larva GROUP BY species_id")
+results <- cc_query("SELECT * FROM ichthyo LIMIT 10")
+results <- cc_query("SELECT species_id, COUNT(*) as n FROM ichthyo GROUP BY species_id")
 }
 }
 \concept{read}

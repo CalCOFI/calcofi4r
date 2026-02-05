@@ -45,16 +45,24 @@ Default is \code{c("p10", "mean", "p90")}.}
 data frame of values
 }
 \description{
-Get timeseries summary from CalCOFI API
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated because the CalCOFI API is being phased out
+in favor of direct DuckDB database access. Query bottle measurement data
+with \code{\link[=cc_get_db]{cc_get_db()}} and aggregate using dplyr for time series analysis.
 }
 \examples{
-get_timeseries(
-  variable = "ctdcast_bottle.t_deg_c",
-  aoi_wkt = "POLYGON ((-120.6421 33.36241, -118.9071 33.36241, -118.9071 34.20707, -120.6421 34.20707, -120.6421 33.36241))",
-  depth_m_min = 0, depth_m_max = 200,
-  date_beg = "2000-01-01", date_end = "2020-01-01",
-  time_step = "year",
-  stats = c("p10", "mean", "p90"))
-
+\dontrun{
+# deprecated - use DuckDB queries instead:
+con <- cc_get_db()
+d <- DBI::dbGetQuery(con, "
+  SELECT EXTRACT(YEAR FROM c.datetime_utc) AS year,
+         AVG(bm.measurement_value) AS avg_temp
+  FROM bottle_measurement bm
+  JOIN bottle b ON bm.bottle_id = b.bottle_id
+  JOIN casts c ON b.cast_id = c.cast_id
+  WHERE bm.measurement_type = 'temperature'
+  GROUP BY year ORDER BY year")
+}
 }
 \concept{read}

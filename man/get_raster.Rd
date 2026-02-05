@@ -29,17 +29,23 @@ Default is the first cruise "1949-03-01-C-31CR".}
 path to output raster in GeoTIFF format (*.tif)
 }
 \description{
-Get raster of interpolated values from CalCOFI API
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated because the CalCOFI API is being phased out
+in favor of direct DuckDB database access. Query bottle measurement data
+with \code{\link[=cc_read_measurements]{cc_read_measurements()}} and \code{\link[=cc_read_casts]{cc_read_casts()}}, then use
+\code{\link[=pts_to_rast_idw]{pts_to_rast_idw()}} for spatial interpolation.
 }
 \examples{
-out_tif <- tempfile(fileext=".tif")
-get_raster(
-  variable = "ctdcast_bottle.t_deg_c",
-  cruise_id = "1949-03-01-C-3d1CR",
-  depth_m_min = 0, depth_m_max = 200,
-  out_tif = out_tif)
-r <- raster::raster(out_tif)
-raster::plot(r)
-unlink(out_tif)
+\dontrun{
+# deprecated - use DuckDB queries + pts_to_rast_idw() instead:
+con <- cc_get_db()
+d <- DBI::dbGetQuery(con, "
+  SELECT c.lon_dec, c.lat_dec, bm.measurement_value
+  FROM bottle_measurement bm
+  JOIN bottle b ON bm.bottle_id = b.bottle_id
+  JOIN casts c ON b.cast_id = c.cast_id
+  WHERE bm.measurement_type = 'temperature'")
+}
 }
 \concept{read}

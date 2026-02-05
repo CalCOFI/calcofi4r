@@ -1,5 +1,13 @@
 #' Get oceanographic variable for area of interest
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' This function is deprecated because it relies on legacy data structures
+#' (`var_lookup`) that are not compatible with the new DuckDB database.
+#' Query bottle measurement data directly with [cc_get_db()] and
+#' [cc_read_measurements()], then use sf for spatial filtering.
+#'
 #' @param var variable of interest (TODO: see keys)
 #' @param aoi area of interest
 #' @param date_step eg month, quarter, year
@@ -10,18 +18,30 @@
 #' @importFrom glue glue
 #' @return data frame of values
 #' @export
-#' @examples \dontrun{
-#' get_oceano_var_aoi("Bottle O2(ml_L)", cinms_ply, "year", 0, 4000)
+#' @examples
+#' \dontrun{
+#' # deprecated - use DuckDB queries instead:
+#' con <- cc_get_db()
+#' d <- DBI::dbGetQuery(con, "
+#'   SELECT c.lon_dec, c.lat_dec, c.datetime_utc, b.depth_m,
+#'          bm.measurement_value, bm.measurement_type
+#'   FROM bottle_measurement bm
+#'   JOIN bottle b ON bm.bottle_id = b.bottle_id
+#'   JOIN casts c ON b.cast_id = c.cast_id
+#'   WHERE bm.measurement_type = 'oxygen'")
+#' # then filter spatially with sf::st_filter(d_sf, aoi)
 #' }
-#'
 get_oceano_var_aoi <- function(
     var, aoi,
     date_step = c("year", "day", "week", "month", "quarter", "decade"),
     depth_min = 0, depth_max = 10){
 
-  # test values
-  # var = "Bottle O2(ml_L)"; aoi = cinms_ply; date_step = "year"; depth_min = 0; depth_max = 4000
-  # var = "Salnty"; aoi = cinms_ply; date_step = "year"; depth_min = 0; depth_max = 1000
+  lifecycle::deprecate_warn(
+    "1.1.0",
+    "get_oceano_var_aoi()",
+    details = c(
+      "This function relies on legacy var_lookup data structure.",
+      "i" = "Query data with cc_get_db() and cc_read_measurements(), filter spatially with sf."))
 
   d <- eval(parse(text = glue::glue("var_lookup$`{var}`$data_source_name"))) %>%
     as.name() %>% eval()
