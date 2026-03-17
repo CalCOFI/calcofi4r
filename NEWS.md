@@ -1,3 +1,9 @@
+# calcofi4r 1.1.4
+
+* Enable reading of partitioned parquet files, eg table `ctd_measurement` (15 GB) 
+  partitioned by `cruise_key`, in online DuckDB for improved performance and 
+  scalability.
+
 # calcofi4r 1.1.3
 
 * Fixed database functions: `cc_get_db()`, `cc_list_versions()`
