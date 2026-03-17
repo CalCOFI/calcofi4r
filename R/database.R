@@ -82,7 +82,7 @@ cc_get_db <- function(
 
   # validate version format
   if (!grepl("^v\\d{4}\\.\\d{2}", version)) {
-    stop("Version must be in format vYYYY.MM (e.g., 'v2026.02')")
+    stop("Version must be in format vYYYY.MM or vYYYY.MM.DD (e.g., 'v2026.03.14')")
   }
 
   # create DuckDB connection
@@ -129,16 +129,29 @@ cc_get_db <- function(
   # create views for each table pointing to parquet files
   message(glue::glue("Loading {nrow(catalog$tables)} tables from {version}..."))
 
-  for (i in seq_len(nrow(catalog$tables))) {
-    tbl_name <- catalog$tables$name[i]
+  # check which tables are hive-partitioned
+  has_partitioned <- "partitioned" %in% names(catalog$tables)
 
-    # use httpfs to read directly from GCS (public bucket)
-    parquet_url <- glue::glue(
-      "https://storage.googleapis.com/calcofi-db/ducklake/releases/{version}/parquet/{tbl_name}.parquet")
+  for (i in seq_len(nrow(catalog$tables))) {
+    tbl_name     <- catalog$tables$name[i]
+    is_partitioned <- has_partitioned && isTRUE(catalog$tables$partitioned[i])
+
+    gcs_parquet_base <- glue::glue(
+      "https://storage.googleapis.com/calcofi-db/ducklake/releases/{version}/parquet")
+
+    if (is_partitioned) {
+      # hive-partitioned: read glob of all partition files
+      parquet_url <- glue::glue("{gcs_parquet_base}/{tbl_name}/**/*.parquet")
+      read_expr   <- glue::glue(
+        "read_parquet('{parquet_url}', hive_partitioning = true)")
+    } else {
+      parquet_url <- glue::glue("{gcs_parquet_base}/{tbl_name}.parquet")
+      read_expr   <- glue::glue("read_parquet('{parquet_url}')")
+    }
 
     tryCatch({
       DBI::dbExecute(con, glue::glue(
-        "CREATE OR REPLACE VIEW {tbl_name} AS SELECT * FROM read_parquet('{parquet_url}')"))
+        "CREATE OR REPLACE VIEW {tbl_name} AS SELECT * FROM {read_expr}"))
     }, error = function(e) {
       warning(glue::glue("Failed to load table {tbl_name}: {e$message}"))
     })
@@ -360,6 +373,103 @@ cc_release_notes <- function(version = "latest") {
   }
 
   local_path
+}
+
+# ─── dm with relationships ────────────────────────────────────────────────────
+
+#' Get CalCOFI Database as dm Object with Relationships
+#'
+#' Returns a \code{dm} object with primary keys and foreign keys applied from
+#' the \code{relationships.json} sidecar file included in frozen releases.
+#' This enables schema visualization via \code{dm::dm_draw()} and relationship-
+#' aware operations.
+#'
+#' @param version Version string (e.g., "v2026.02") or "latest" (default)
+#' @param con Optional existing DuckDB connection. If NULL (default),
+#'   calls \code{cc_get_db(version)} to create one.
+#'
+#' @return A \code{dm} object with PKs and FKs applied
+#' @export
+#' @concept database
+#'
+#' @examples
+#' \dontrun{
+#' dm <- cc_get_dm()
+#' dm::dm_draw(dm, rankdir = "LR", view_type = "all")
+#'
+#' # use existing connection
+#' con <- cc_get_db()
+#' dm <- cc_get_dm(con = con)
+#' }
+#' @importFrom glue glue
+cc_get_dm <- function(version = "latest", con = NULL) {
+  if (!requireNamespace("dm", quietly = TRUE)) {
+    stop("Package 'dm' is required. Install with: install.packages('dm')")
+  }
+
+  # get or create connection
+  if (is.null(con)) {
+    con <- cc_get_db(version)
+  }
+
+  # resolve version for GCS URL
+  if (version == "latest") {
+    cache_dir <- file.path(tempdir(), "calcofi4r_cache")
+    dir.create(cache_dir, showWarnings = FALSE)
+    version <- tryCatch({
+      .cc_download_gcs_file(
+        "gs://calcofi-db/ducklake/releases/latest.txt",
+        file.path(cache_dir, "latest_dm.txt"),
+        overwrite = TRUE)
+      readLines(file.path(cache_dir, "latest_dm.txt"))[1]
+    }, error = function(e) "v2026.02")
+  }
+
+  # build dm from connection (no learned keys)
+  d <- dm::dm_from_con(con, learn_keys = FALSE)
+
+  # download and apply relationships.json
+  rels_url <- glue::glue(
+    "gs://calcofi-db/ducklake/releases/{version}/relationships.json")
+  rels_local <- file.path(tempdir(), glue::glue("relationships_{version}.json"))
+
+  tryCatch({
+    .cc_download_gcs_file(rels_url, rels_local, overwrite = TRUE)
+    d <- .apply_relationships(d, rels_local)
+    message(glue::glue("Applied relationships from {version}"))
+  }, error = function(e) {
+    message(glue::glue(
+      "No relationships.json found for {version}, returning dm without keys"))
+  })
+
+  d
+}
+
+# internal helper: apply PKs/FKs from relationships.json to a dm object
+.apply_relationships <- function(dm, rels_path) {
+  rels <- jsonlite::fromJSON(rels_path, simplifyVector = FALSE)
+  dm_tables <- dm::dm_get_tables(dm) |> names()
+
+  # apply primary keys
+  for (tbl in names(rels$primary_keys)) {
+    if (tbl %in% dm_tables) {
+      col <- rels$primary_keys[[tbl]]
+      dm <- tryCatch(
+        dm::dm_add_pk(dm, !!tbl, !!col),
+        error = function(e) dm)
+    }
+  }
+
+  # apply foreign keys
+  for (fk in rels$foreign_keys) {
+    if (fk$table %in% dm_tables && fk$ref_table %in% dm_tables) {
+      dm <- tryCatch(
+        dm::dm_add_fk(dm, !!fk$table, !!fk$column, !!fk$ref_table, !!fk$ref_column),
+        error = function(e) dm)
+    }
+  }
+
+  dm
 }
 
 # ─── spatial helpers ──────────────────────────────────────────────────────────
