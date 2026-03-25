@@ -248,18 +248,18 @@ V <- st_difference(V, st_geometry(u)) %>%
 
 V <-  V %>%
   mutate(
-    sta_key = glue("{lin},{pos}")) %>%
-  relocate(sta_key)
+    site_key = glue("{lin},{pos}")) %>%
+  relocate(site_key)
 
 # mapView(V) +
 #   mapView(iea_ca_y, col.regions = "red")
 
-sta_keys <- read_csv(here("data-raw/cc_grid_sta-keys.csv")) %>%
-  pull(sta_key)
+site_keys <- read_csv(here("data-raw/cc_grid_sta-keys.csv")) %>%
+  pull(site_key)
 # TODO: rm 60,45 from cc_grid_sta-keys.csv in SF Bay?
 # mapView(V)
 V <- V %>%
-  filter(sta_key %in% sta_keys)
+  filter(site_key %in% site_keys)
 # mapView(V)
 
 cc_grid <- st_difference(
@@ -301,32 +301,32 @@ s <- st_difference(
 #   mapview(s, color="red", col.regions = "red", lwd=10)
 
 g_key = "93.3,110"; s_id = 5
-st_geometry(cc_grid[cc_grid$sta_key == g_key,]) <- st_union(
-  filter(cc_grid, sta_key == g_key) %>% pull(geom),
+st_geometry(cc_grid[cc_grid$site_key == g_key,]) <- st_union(
+  filter(cc_grid, site_key == g_key) %>% pull(geom),
   filter(s, id==s_id) %>% pull(geometry))
 
 g_key = "93.3,90"; s_id = 4
-st_geometry(cc_grid[cc_grid$sta_key == g_key,]) <- st_union(
-  filter(cc_grid, sta_key == g_key) %>% pull(geom),
+st_geometry(cc_grid[cc_grid$site_key == g_key,]) <- st_union(
+  filter(cc_grid, site_key == g_key) %>% pull(geom),
   filter(s, id==s_id) %>% pull(geometry))
 
 g_key = "93.3,70"; s_id = 3
-st_geometry(cc_grid[cc_grid$sta_key == g_key,]) <- st_union(
-  filter(cc_grid, sta_key == g_key) %>% pull(geom),
+st_geometry(cc_grid[cc_grid$site_key == g_key,]) <- st_union(
+  filter(cc_grid, site_key == g_key) %>% pull(geom),
   filter(s, id==s_id) %>% pull(geometry))
 
 g_key = "93.3,50"; s_id = 1
-st_geometry(cc_grid[cc_grid$sta_key == g_key,]) <- st_union(
-  filter(cc_grid, sta_key == g_key) %>% pull(geom),
+st_geometry(cc_grid[cc_grid$site_key == g_key,]) <- st_union(
+  filter(cc_grid, site_key == g_key) %>% pull(geom),
   filter(s, id==s_id) %>% pull(geometry))
 
 g_key = "93.3,30"; s_id = 2
-st_geometry(cc_grid[cc_grid$sta_key == g_key,]) <- st_union(
-  filter(cc_grid, sta_key == g_key) %>% pull(geom),
+st_geometry(cc_grid[cc_grid$site_key == g_key,]) <- st_union(
+  filter(cc_grid, site_key == g_key) %>% pull(geom),
   filter(s, id==s_id) %>% pull(geometry))
 
 cc_grid <- cc_grid %>%
-  select(sta_key, sta_lin = lin, sta_pos = pos, sta_dpos = dpos) %>%
+  select(site_key, sta_lin = lin, sta_pos = pos, sta_dpos = dpos) %>%
   as_tibble() %>% st_as_sf()
 
 # add categories for https://github.com/CalCOFI/calcofi4r/issues/4

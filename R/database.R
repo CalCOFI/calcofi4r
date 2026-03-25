@@ -588,7 +588,7 @@ cc_read_sf <- function(
       lon_min     = "(ABS(lon_dec) - FLOOR(ABS(lon_dec))) * 60",
       lon_hem     = "CASE WHEN lon_dec >= 0 THEN 'E' ELSE 'W' END",
       cruise      = "STRFTIME(datetime_utc, '%Y%m')",
-      db_sta_key  = "REPLACE(REPLACE(sta_key, '.', ''), ' ', '')")))
+      db_sta_key  = "REPLACE(REPLACE(site_key, '.', ''), ' ', '')")))
 
 #' Create a Derived VIEW in the Database
 #'

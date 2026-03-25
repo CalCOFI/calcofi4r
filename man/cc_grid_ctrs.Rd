@@ -7,7 +7,7 @@
 \format{
 A \code{sf} spatial feature set with
 \describe{
-\item{sta_key}{station key in the form of "\code{lin},\code{pos}"}
+\item{site_key}{site key in the form of "\code{lin},\code{pos}"}
 \item{sta_lin}{alongshore line in CalCOFI coordinate system}
 \item{sta_pos}{offshore position in CalCOFI coordinate system}
 \item{sta_dpos}{difference in position, from 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area)}
