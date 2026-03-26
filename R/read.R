@@ -21,12 +21,13 @@
 #' # deprecated - use instead:
 #' cc_list_measurement_types()
 #' }
-get_variables <- function(){
+get_variables <- function() {
   lifecycle::deprecate_warn(
     "1.1.0",
     "get_variables()",
     "cc_list_measurement_types()",
-    details = "The CalCOFI API is being phased out. Use DuckDB access via cc_get_db() instead.")
+    details = "The CalCOFI API is being phased out. Use DuckDB access via cc_get_db() instead."
+  )
 
   req_vars <- req_perform(request("https://api.calcofi.io/variables"))
   stopifnot(!req_vars %>% httr2::resp_is_error())
@@ -59,12 +60,13 @@ get_variables <- function(){
 #' # deprecated - use instead:
 #' cc_read_cruise()
 #' }
-get_cruises <- function(){
+get_cruises <- function() {
   lifecycle::deprecate_warn(
     "1.1.0",
     "get_cruises()",
     "cc_read_cruise()",
-    details = "The CalCOFI API is being phased out. Use DuckDB access via cc_get_db() instead.")
+    details = "The CalCOFI API is being phased out. Use DuckDB access via cc_get_db() instead."
+  )
 
   req_vars <- req_perform(request("https://api.calcofi.io/cruises"))
   stopifnot(!req_vars %>% httr2::resp_is_error())
@@ -108,27 +110,33 @@ get_cruises <- function(){
 get_raster <- function(
   variable = "ctdcast_bottle.t_deg_c",
   cruise_id = "1949-03-01-C-31CR",
-  depth_m_min = NULL, depth_m_max = NULL,
-  out_tif){
-
+  depth_m_min = NULL,
+  depth_m_max = NULL,
+  out_tif
+) {
   lifecycle::deprecate_warn(
     "1.1.0",
     "get_raster()",
     details = c(
       "The CalCOFI API is being phased out.",
-      "i" = "Query data with cc_get_db() and use pts_to_rast_idw() for interpolation."))
+      "i" = "Query data with cc_get_db() and use pts_to_rast_idw() for interpolation."
+    )
+  )
 
   req <- request("https://api.calcofi.io")
-  resp <- try(req %>%
-    req_url_path_append("raster") %>%
-    req_url_query(
-      variable    = variable,
-      cruise_id   = cruise_id,
-      depth_m_min = depth_m_min,
-      depth_m_max = depth_m_max) %>%
-    req_perform())
+  resp <- try(
+    req %>%
+      req_url_path_append("raster") %>%
+      req_url_query(
+        variable = variable,
+        cruise_id = cruise_id,
+        depth_m_min = depth_m_min,
+        depth_m_max = depth_m_max
+      ) %>%
+      req_perform()
+  )
 
-  if ("try-error" %in% class(resp)){
+  if ("try-error" %in% class(resp)) {
     last_response() %>%
       resp_body_json() %>%
       .$message %>%
@@ -186,32 +194,37 @@ get_raster <- function(
 get_timeseries <- function(
   variable = "ctdcast_bottle.t_deg_c",
   aoi_wkt = NULL,
-  depth_m_min = NULL, depth_m_max = NULL,
-  date_beg = NULL, date_end = NULL,
+  depth_m_min = NULL,
+  depth_m_max = NULL,
+  date_beg = NULL,
+  date_end = NULL,
   time_step = "year",
-  stats = c("p10", "mean", "p90")){
-
+  stats = c("p10", "mean", "p90")
+) {
   lifecycle::deprecate_warn(
     "1.1.0",
     "get_timeseries()",
     details = c(
       "The CalCOFI API is being phased out.",
-      "i" = "Query data with cc_get_db() and aggregate with dplyr for time series."))
+      "i" = "Query data with cc_get_db() and aggregate with dplyr for time series."
+    )
+  )
 
   req <- request("https://api.calcofi.io") |>
     req_url_path_append("timeseries") |>
     req_url_query(
-      variable    = variable,
-      aoi_wkt     = aoi_wkt,
+      variable = variable,
+      aoi_wkt = aoi_wkt,
       depth_m_min = depth_m_min,
       depth_m_max = depth_m_max,
-      date_beg    = date_beg,
-      date_end    = date_end,
-      time_step   = time_step,
-      stats       = paste(stats, collapse=","))
+      date_beg = date_beg,
+      date_end = date_end,
+      time_step = time_step,
+      stats = paste(stats, collapse = ",")
+    )
   resp <- try(req_perform(req))
 
-  if ("try-error" %in% class(resp)){
+  if ("try-error" %in% class(resp)) {
     last_response() %>%
       resp_body_json() %>%
       .$message %>%
@@ -249,7 +262,7 @@ get_timeseries <- function(
 #' }
 #' @importFrom dplyr tbl filter collect
 cc_read_ichthyo <- function(..., version = "latest", collect = TRUE) {
-  con   <- cc_get_db(version = version)
+  con <- cc_get_db(version = version)
   table <- dplyr::tbl(con, "ichthyo")
 
   # apply filters if provided
@@ -293,7 +306,7 @@ cc_read_larvae <- cc_read_ichthyo
 #' }
 #' @importFrom dplyr tbl filter collect
 cc_read_bottle <- function(..., version = "latest", collect = TRUE) {
-  con   <- cc_get_db(version = version)
+  con <- cc_get_db(version = version)
   table <- dplyr::tbl(con, "bottle")
 
   # apply filters if provided
@@ -331,7 +344,7 @@ cc_read_bottle <- function(..., version = "latest", collect = TRUE) {
 #' }
 #' @importFrom dplyr tbl filter collect
 cc_read_casts <- function(..., version = "latest", collect = TRUE) {
-  con   <- cc_get_db(version = version)
+  con <- cc_get_db(version = version)
   table <- dplyr::tbl(con, "casts")
 
   # apply filters if provided
@@ -372,7 +385,7 @@ cc_read_cast <- cc_read_casts
 #' @importFrom DBI dbGetQuery
 #' @importFrom tibble as_tibble
 cc_query <- function(sql, version = "latest") {
-  con    <- cc_get_db(version = version)
+  con <- cc_get_db(version = version)
   result <- DBI::dbGetQuery(con, sql)
   tibble::as_tibble(result)
 }
@@ -426,18 +439,25 @@ cc_describe_table <- function(table, version = "latest") {
   # check table exists
   tables <- DBI::dbListTables(con)
   if (!table %in% tables) {
-    stop(glue::glue("Table '{table}' not found. Use cc_list_tables() to see available tables."))
+    stop(glue::glue(
+      "Table '{table}' not found. Use cc_list_tables() to see available tables."
+    ))
   }
 
   # get column info from information_schema
-  result <- DBI::dbGetQuery(con, glue::glue("
+  result <- DBI::dbGetQuery(
+    con,
+    glue::glue(
+      "
     SELECT
       column_name,
       data_type,
       is_nullable
     FROM information_schema.columns
     WHERE table_name = '{table}'
-    ORDER BY ordinal_position"))
+    ORDER BY ordinal_position"
+    )
+  )
 
   tibble::as_tibble(result)
 }
@@ -462,7 +482,7 @@ cc_describe_table <- function(table, version = "latest") {
 #' }
 #' @importFrom dplyr tbl filter collect
 cc_read_species <- function(..., version = "latest", collect = TRUE) {
-  con   <- cc_get_db(version = version)
+  con <- cc_get_db(version = version)
   table <- dplyr::tbl(con, "species")
 
   dots <- rlang::enquos(...)
@@ -493,7 +513,7 @@ cc_read_species <- function(..., version = "latest", collect = TRUE) {
 #' }
 #' @importFrom dplyr tbl filter collect
 cc_read_cruise <- function(..., version = "latest", collect = TRUE) {
-  con   <- cc_get_db(version = version)
+  con <- cc_get_db(version = version)
   table <- dplyr::tbl(con, "cruise")
 
   dots <- rlang::enquos(...)
@@ -529,11 +549,12 @@ cc_read_cruise <- function(..., version = "latest", collect = TRUE) {
 #' }
 #' @importFrom dplyr tbl filter collect
 cc_read_measurements <- function(
-    ...,
-    measurement_types = NULL,
-    version = "latest",
-    collect = TRUE) {
-  con   <- cc_get_db(version = version)
+  ...,
+  measurement_types = NULL,
+  version = "latest",
+  collect = TRUE
+) {
+  con <- cc_get_db(version = version)
   table <- dplyr::tbl(con, "bottle_measurement")
 
   # filter by measurement type if specified
@@ -568,10 +589,12 @@ cc_read_measurements <- function(
 #' @importFrom tibble as_tibble
 cc_list_measurement_types <- function(version = "latest") {
   con <- cc_get_db(version = version)
-  result <- DBI::dbGetQuery(con,
+  result <- DBI::dbGetQuery(
+    con,
     "SELECT measurement_type, description, units
      FROM measurement_type
-     ORDER BY measurement_type")
+     ORDER BY measurement_type"
+  )
   tibble::as_tibble(result)
 }
 
@@ -595,7 +618,7 @@ cc_list_measurement_types <- function(version = "latest") {
 #' }
 #' @importFrom dplyr tbl filter collect
 cc_read_tow <- function(..., version = "latest", collect = TRUE) {
-  con   <- cc_get_db(version = version)
+  con <- cc_get_db(version = version)
   table <- dplyr::tbl(con, "tow")
 
   dots <- rlang::enquos(...)
@@ -626,7 +649,7 @@ cc_read_tow <- function(..., version = "latest", collect = TRUE) {
 #' }
 #' @importFrom dplyr tbl filter collect
 cc_read_site <- function(..., version = "latest", collect = TRUE) {
-  con   <- cc_get_db(version = version)
+  con <- cc_get_db(version = version)
   table <- dplyr::tbl(con, "site")
 
   dots <- rlang::enquos(...)

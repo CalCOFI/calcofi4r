@@ -54,7 +54,8 @@ Imports:
     tidyr
 Remotes:
     ropensci/rnaturalearthhires
-Suggests: 
+Suggests:
+    DiagrammeR,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
