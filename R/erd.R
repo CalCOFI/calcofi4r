@@ -33,7 +33,11 @@ updateMermaid <- function(version = "") {
 #'   Applied after `tables`.
 #' @param rels_path Path to a `relationships.json` file for primary key and
 #'   foreign key definitions. If NULL (default), the diagram shows table
-#'   structures without relationship lines.
+#'   structures without relationship lines. Ignored when `rels` is provided.
+#' @param rels A list with `primary_keys` (named list: table → column) and
+#'   `foreign_keys` (list of lists with `table`, `column`, `ref_table`,
+#'   `ref_column`). Alternative to `rels_path` for passing relationships
+#'   inline. Takes precedence over `rels_path`.
 #' @param colors Named list mapping color names or hex codes to character
 #'   vectors of table names. Emitted as Mermaid `classDef`/`class`
 #'   directives with a darker auto-generated stroke.
@@ -83,6 +87,7 @@ cc_erd <- function(
   tables    = NULL,
   exclude   = NULL,
   rels_path = NULL,
+  rels      = NULL,
   colors    = NULL,
   layout    = "elk",
   view_type = "all"
@@ -122,11 +127,13 @@ cc_erd <- function(
   # load relationships ----
   pks <- list()
   fks <- list()
-  if (!is.null(rels_path) && file.exists(rels_path)) {
+  if (!is.null(rels)) {
+    # accept pre-parsed list directly (takes precedence over rels_path)
+    if (!is.null(rels$primary_keys)) pks <- rels$primary_keys
+    if (!is.null(rels$foreign_keys)) fks <- rels$foreign_keys
+  } else if (!is.null(rels_path) && file.exists(rels_path)) {
     rels <- jsonlite::fromJSON(rels_path, simplifyVector = FALSE)
-    if (!is.null(rels$primary_keys)) {
-      pks <- rels$primary_keys
-    }
+    if (!is.null(rels$primary_keys)) pks <- rels$primary_keys
     if (!is.null(rels$foreign_keys)) fks <- rels$foreign_keys
   }
 
@@ -277,13 +284,11 @@ plot.cc_erd <- function(x, ...) {
 
 #' @exportS3Method knitr::knit_print
 knit_print.cc_erd <- function(x, ...) {
-  if (!requireNamespace("DiagrammeR", quietly = TRUE))
-    stop(
-      "Package 'DiagrammeR' is required for rendering. ",
-      "Install with: install.packages('DiagrammeR')")
-
-  widget <- DiagrammeR::mermaid(unclass(x))
-  knitr::knit_print(widget, ...)
+  # output raw mermaid code block for Quarto native rendering
+  # (respects mermaid-format: png and lightbox settings in _quarto.yml)
+  knitr::asis_output(
+    paste0("\n\n```mermaid\n", unclass(x), "\n```\n\n")
+  )
 }
 
 

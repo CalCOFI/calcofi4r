@@ -1,3 +1,12 @@
+# calcofi4r 1.1.5
+
+* `cc_erd()` gains a `rels` parameter to accept pre-parsed relationship lists
+  inline (as alternative to `rels_path`), matching the `calcofi4db` 
+  `build_relationships_json()` list format.
+* `knit_print.cc_erd()` now outputs raw mermaid code blocks for Quarto native
+  rendering (respects `mermaid-format: png` and lightbox settings in 
+  `_quarto.yml`) instead of rendering via DiagrammeR widget.
+
 # calcofi4r 1.1.4
 
 * Enable reading of partitioned parquet files, eg table `ctd_measurement` (15 GB) 
