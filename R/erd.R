@@ -48,7 +48,7 @@ updateMermaid <- function(version = "") {
 #'
 #' @return An object of class `"cc_erd"` (inherits `"character"`).
 #'   Printing outputs the Mermaid code; in Quarto/RMarkdown it auto-renders
-#'   as a diagram if the **DiagrammeR** package is installed.
+#'   as a Mermaid diagram (respects `mermaid-format` in `_quarto.yml`).
 #'
 #' @export
 #' @concept database
@@ -76,6 +76,13 @@ updateMermaid <- function(version = "") {
 #'     lightsalmon = c("dic_sample", "dic_measurement",
 #'                      "dic_measurement_summary"),
 #'     white       = c("dataset")))
+#'
+#' # inline relationships (alternative to rels_path)
+#' cc_erd(con, rels = list(
+#'   primary_keys = list(cruise = "cruise_key", ship = "ship_key"),
+#'   foreign_keys = list(
+#'     list(table = "cruise", column = "ship_key",
+#'          ref_table = "ship", ref_column = "ship_key"))))
 #'
 #' # compact: show only key columns
 #' cc_erd(con, rels_path = "relationships.json", view_type = "keys_only")

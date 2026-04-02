@@ -9,8 +9,9 @@ cc_erd(
   tables = NULL,
   exclude = NULL,
   rels_path = NULL,
+  rels = NULL,
   colors = NULL,
-  layout = "dagre",
+  layout = "elk",
   view_type = "all"
 )
 }
@@ -25,14 +26,19 @@ Applied after \code{tables}.}
 
 \item{rels_path}{Path to a \code{relationships.json} file for primary key and
 foreign key definitions. If NULL (default), the diagram shows table
-structures without relationship lines.}
+structures without relationship lines. Ignored when \code{rels} is provided.}
+
+\item{rels}{A list with \code{primary_keys} (named list: table → column) and
+\code{foreign_keys} (list of lists with \code{table}, \code{column}, \code{ref_table},
+\code{ref_column}). Alternative to \code{rels_path} for passing relationships
+inline. Takes precedence over \code{rels_path}.}
 
 \item{colors}{Named list mapping color names or hex codes to character
 vectors of table names. Emitted as Mermaid \code{classDef}/\code{class}
 directives with a darker auto-generated stroke.
 Example: \code{list(lightblue = c("cruise", "ship"))}.}
 
-\item{layout}{Layout engine: \code{"dagre"} (default) or \code{"elk"}.}
+\item{layout}{Layout engine: \code{"elk"} (default) or \code{"dagre"}.}
 
 \item{view_type}{What columns to show: \code{"all"} (default), \code{"keys_only"}
 (PK/FK columns only), or \code{"title_only"} (table names, no columns).}
@@ -40,7 +46,7 @@ Example: \code{list(lightblue = c("cruise", "ship"))}.}
 \value{
 An object of class \code{"cc_erd"} (inherits \code{"character"}).
 Printing outputs the Mermaid code; in Quarto/RMarkdown it auto-renders
-as a diagram if the \strong{DiagrammeR} package is installed.
+as a Mermaid diagram (respects \code{mermaid-format} in \verb{_quarto.yml}).
 }
 \description{
 Generates a \href{https://mermaid.js.org/syntax/entityRelationshipDiagram.html}{Mermaid}
@@ -72,6 +78,13 @@ cc_erd(con,
     lightsalmon = c("dic_sample", "dic_measurement",
                      "dic_measurement_summary"),
     white       = c("dataset")))
+
+# inline relationships (alternative to rels_path)
+cc_erd(con, rels = list(
+  primary_keys = list(cruise = "cruise_key", ship = "ship_key"),
+  foreign_keys = list(
+    list(table = "cruise", column = "ship_key",
+         ref_table = "ship", ref_column = "ship_key"))))
 
 # compact: show only key columns
 cc_erd(con, rels_path = "relationships.json", view_type = "keys_only")
