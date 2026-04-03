@@ -1,3 +1,9 @@
+# calcofi4r 1.1.6
+
+*New `cc_tbl()` unified table accessor*
+
+- **`cc_tbl()`** New function providing unified access to any CalCOFI database table. Returns lazy `dplyr::tbl()` for non-spatial tables, `sf` object for spatial tables (via DuckDB `EXCLUDE` + `ST_AsWKB`), and pivoted-wide `sf` for `_spatial` table (requires `layer` argument). Optional `geom_col` selects alternate geometry columns (e.g., `geom_ctr` for grid centroids).
+
 # calcofi4r 1.1.5
 
 * `cc_erd()` gains a `rels` parameter to accept pre-parsed relationship lists

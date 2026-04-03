@@ -34,6 +34,7 @@ library(mapview)
 
 # connect to the latest CalCOFI database release
 con <- cc_get_db()
+q <- dbExecute(con, "INSTALL spatial; LOAD spatial;")
 
 # list available tables
 dbListTables(con)

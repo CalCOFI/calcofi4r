@@ -568,6 +568,121 @@ cc_read_sf <- function(
   result
 }
 
+#' Access a CalCOFI Database Table
+#'
+#' Unified interface for reading any table from the CalCOFI database.
+#' Returns a lazy `dplyr::tbl()` reference for non-spatial tables, or
+#' an `sf` object for tables with geometry columns.
+#'
+#' For the `_spatial` table, automatically pivots attributes from
+#' `_spatial_attr` wide and returns an sf object filtered to the
+#' requested layer.
+#'
+#' @param con DuckDB connection (from [cc_get_db()])
+#' @param table_name Name of the table
+#' @param layer Required when `table_name = "_spatial"`. Character string
+#'   specifying which spatial layer to return.
+#' @param geom_col Name of the geometry column for spatial tables
+#'   (default: "geom"). Use this to select alternate geometry columns,
+#'   e.g. `"geom_ctr"` for grid centroids.
+#' @param crs CRS to assign to the returned sf object (default: 4326)
+#'
+#' @return For non-spatial tables: a lazy `dplyr::tbl()` reference.
+#'   For spatial tables: an `sf` object with geometry.
+#' @export
+#' @concept database
+#'
+#' @examples
+#' \dontrun{
+#' con <- cc_get_db()
+#'
+#' # non-spatial: returns lazy dbplyr reference
+#' cc_tbl(con, "ichthyo")
+#'
+#' # spatial: returns sf with default geom column
+#' cc_tbl(con, "grid")
+#'
+#' # spatial: select alternate geometry
+#' cc_tbl(con, "grid", geom_col = "geom_ctr")
+#'
+#' # _spatial: returns sf with pivoted attributes for a layer
+#' cc_tbl(con, "_spatial", layer = "CA Counties")
+#' }
+#' @importFrom DBI dbGetQuery
+#' @importFrom glue glue
+#' @importFrom sf read_sf st_set_crs
+cc_tbl <- function(
+    con,
+    table_name,
+    layer    = NULL,
+    geom_col = "geom",
+    crs      = 4326) {
+
+  # detect geometry columns
+  geom_cols <- DBI::dbGetQuery(con, glue::glue(
+    "SELECT column_name FROM information_schema.columns
+     WHERE table_name = '{table_name}'
+       AND data_type LIKE 'GEOMETRY%'"))$column_name
+
+  # non-spatial: return lazy tbl
+  if (length(geom_cols) == 0) {
+    return(dplyr::tbl(con, table_name))
+  }
+
+  # _spatial table: require layer, pivot attributes wide
+
+  if (table_name == "_spatial") {
+    if (is.null(layer)) {
+      stop("layer argument is required for the _spatial table")
+    }
+
+    # read geometry for the requested layer
+    all_geom <- paste(geom_cols, collapse = ", ")
+    exclude_clause <- paste(geom_cols, collapse = ", ")
+    query <- glue::glue(
+      "SELECT * EXCLUDE({exclude_clause}),
+              ST_AsWKB({geom_col}) AS {geom_col}
+       FROM {table_name}
+       WHERE layer = '{layer}'")
+    sf_data <- sf::read_sf(
+      con, query = query,
+      geometry_column = geom_col) |>
+      sf::st_set_crs(crs)
+
+    # read and pivot attributes
+    attrs <- DBI::dbGetQuery(con, glue::glue(
+      "SELECT id, fld,
+              COALESCE(
+                CAST(val_dbl AS VARCHAR),
+                CAST(val_int AS VARCHAR),
+                val_chr,
+                CAST(val_date AS VARCHAR),
+                CAST(val_lgl AS VARCHAR)
+              ) AS val
+       FROM _spatial_attr
+       WHERE layer = '{layer}'"))
+
+    if (nrow(attrs) > 0) {
+      attrs_wide <- tidyr::pivot_wider(
+        attrs, names_from = fld, values_from = val)
+      sf_data <- dplyr::left_join(sf_data, attrs_wide, by = "id")
+    }
+
+    return(sf_data)
+  }
+
+  # regular spatial table: return sf via EXCLUDE + ST_AsWKB
+  exclude_clause <- paste(geom_cols, collapse = ", ")
+  query <- glue::glue(
+    "SELECT * EXCLUDE({exclude_clause}),
+            ST_AsWKB({geom_col}) AS {geom_col}
+     FROM {table_name}")
+  sf::read_sf(
+    con, query = query,
+    geometry_column = geom_col) |>
+    sf::st_set_crs(crs)
+}
+
 # ─── derived views ─────────────────────────────────────────────────────────────
 
 # internal: prebaked view templates
