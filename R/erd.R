@@ -291,11 +291,34 @@ plot.cc_erd <- function(x, ...) {
 
 #' @exportS3Method knitr::knit_print
 knit_print.cc_erd <- function(x, ...) {
-  # output raw mermaid code block for Quarto native rendering
-  # (respects mermaid-format: png and lightbox settings in _quarto.yml)
+  mmdc <- Sys.which("mmdc")
+
+  if (nzchar(mmdc)) {
+    # save PNG in knitr's figure directory so it's accessible from HTML output
+    png_file <- knitr::fig_path(".png")
+    mmd_file <- sub("[.]png$", ".mmd", png_file)
+    dir.create(dirname(png_file), recursive = TRUE, showWarnings = FALSE)
+    writeLines(unclass(x), mmd_file)
+
+    # render via mermaid-cli (2x scale for retina)
+    ret <- system2(mmdc, c(
+      "-i", mmd_file, "-o", png_file,
+      "-b", "transparent", "-s", "2"),
+      stdout = FALSE, stderr = FALSE)
+
+    if (ret == 0 && file.exists(png_file))
+      return(knitr::include_graphics(png_file, dpi = NA))
+  }
+
+  # fallback: DiagrammeR htmlwidget (renders but no PNG/lightbox)
+  if (requireNamespace("DiagrammeR", quietly = TRUE)) {
+    widget <- DiagrammeR::mermaid(unclass(x))
+    return(knitr::knit_print(widget, ...))
+  }
+
+  # last resort: raw mermaid code block (may show as text)
   knitr::asis_output(
-    paste0("\n\n```mermaid\n", unclass(x), "\n```\n\n")
-  )
+    paste0("\n\n```mermaid\n", unclass(x), "\n```\n\n"))
 }
 
 
