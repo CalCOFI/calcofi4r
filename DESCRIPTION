@@ -42,6 +42,7 @@ Imports:
     leaflet,
     lifecycle,
     lubridate,
+    mapgl,
     mapview,
     markdown,
     mgcv,
@@ -58,11 +59,13 @@ Imports:
     scales,
     sf,
     shiny,
+    shinyWidgets,
     stars,
     stringr,
     terra,
     tibble,
     tidyr,
+    units,
     xts
 Remotes:
     ropensci/rnaturalearthhires
