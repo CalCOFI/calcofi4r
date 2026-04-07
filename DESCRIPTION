@@ -29,6 +29,7 @@ Imports:
     DT,
     duckdb,
     dygraphs,
+    fuzzyjoin,
     ggplot2,
     glue,
     httr2,
