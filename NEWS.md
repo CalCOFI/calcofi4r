@@ -1,3 +1,10 @@
+# calcofi4r 1.1.7
+
+*ERD diagrams render as PNG in Quarto via mermaid-cli*
+
+- **`knit_print.cc_erd()`** now renders Mermaid diagrams to PNG via `mmdc` (mermaid-cli) at 2x scale with transparent background, saving to `knitr::fig_path()` for proper Quarto HTML output. Lightbox applies automatically via `_quarto.yml` settings.
+- **Fallback chain**: `mmdc` → `DiagrammeR::mermaid()` htmlwidget → raw mermaid code block.
+
 # calcofi4r 1.1.6
 
 *New `cc_tbl()` unified table accessor*
