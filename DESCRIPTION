@@ -1,6 +1,6 @@
 Package: calcofi4r
 Title: CalCOFI R helper functions
-Version: 1.1.7
+Version: 1.1.8
 URL: https://calcofi.io/calcofi4r
 BugReports: https://github.com/calcofi/calcofi4r/issues
 Authors@R: c(
@@ -29,7 +29,7 @@ Imports:
     dm,
     dplyr,
     DT,
-    duckdb,
+    duckdb (>= 1.5.1),
     dygraphs,
     fuzzyjoin,
     ggplot2,

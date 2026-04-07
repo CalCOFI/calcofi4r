@@ -1,3 +1,9 @@
+# calcofi4r 1.1.8
+
+*Require DuckDB >= 1.5.1 for native GEOMETRY*
+
+- **Requires `duckdb >= 1.5.1`** Added minimum version constraint to ensure the native built-in GEOMETRY type is available for spatial queries.
+
 # calcofi4r 1.1.7
 
 *ERD diagrams render as PNG in Quarto via mermaid-cli*
