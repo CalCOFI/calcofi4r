@@ -1,3 +1,9 @@
+# calcofi4r 1.1.9
+
+*Native GEOMETRY storage in cc_get_db()*
+
+- **`storage_compatibility_version = 'latest'`** `cc_get_db()` now uses a named DuckDB driver with `autoload_known_extensions` and latest storage format, matching calcofi4db's `get_duckdb_con()` pattern. Ensures native GEOMETRY type is used for spatial queries.
+
 # calcofi4r 1.1.8
 
 *Require DuckDB >= 1.5.1 for native GEOMETRY*

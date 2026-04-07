@@ -92,13 +92,21 @@ cc_get_db <- function(
     ":memory:"
   }
 
+  # native GEOMETRY requires latest storage format (DuckDB >= 1.5)
+  db_config <- list(
+    autoload_known_extensions     = "true",
+    storage_compatibility_version = "latest")
+
   # try to connect, with fallback to read-only if locked
   con <- tryCatch({
-    DBI::dbConnect(duckdb::duckdb(), dbdir = db_path)
+    drv <- duckdb::duckdb(dbdir = db_path, config = db_config)
+    DBI::dbConnect(drv)
   }, error = function(e) {
     if (grepl("lock", e$message, ignore.case = TRUE)) {
       message("Database locked, opening in read-only mode")
-      DBI::dbConnect(duckdb::duckdb(), dbdir = db_path, read_only = TRUE)
+      drv <- duckdb::duckdb(
+        dbdir = db_path, read_only = TRUE, config = db_config)
+      DBI::dbConnect(drv)
     } else {
       stop(e)
     }
