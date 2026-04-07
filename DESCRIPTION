@@ -71,6 +71,7 @@ Remotes:
     ropensci/rnaturalearthhires
 Suggests:
     DiagrammeR,
+    DiagrammeRsvg,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
