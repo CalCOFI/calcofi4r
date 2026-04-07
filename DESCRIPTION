@@ -26,6 +26,7 @@ Imports:
     DBI,
     dbplyr,
     dplyr,
+    DT,
     duckdb,
     dygraphs,
     ggplot2,
