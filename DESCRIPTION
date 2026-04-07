@@ -22,9 +22,11 @@ Depends:
     R (>= 2.10)
 LazyData: true
 Imports:
+    bslib,
     classInt,
     DBI,
     dbplyr,
+    dm,
     dplyr,
     DT,
     duckdb,
@@ -32,16 +34,22 @@ Imports:
     fuzzyjoin,
     ggplot2,
     glue,
+    highcharter,
+    htmltools,
     httr2,
     isoband,
     jsonlite,
     leaflet,
     lifecycle,
+    lubridate,
     mapview,
     markdown,
     mgcv,
     plotly,
+    purrr,
+    rappdirs,
     raster,
+    RColorBrewer,
     readr,
     rlang,
     rnaturalearth,
@@ -49,11 +57,13 @@ Imports:
     RPostgres,
     scales,
     sf,
+    shiny,
     stars,
     stringr,
     terra,
     tibble,
-    tidyr
+    tidyr,
+    xts
 Remotes:
     ropensci/rnaturalearthhires
 Suggests:
