@@ -8,7 +8,9 @@ cc_get_db(
   version = "latest",
   local_cache = TRUE,
   cache_dir = NULL,
-  refresh = FALSE
+  refresh = FALSE,
+  local_data = FALSE,
+  tables = NULL
 )
 }
 \arguments{
@@ -21,6 +23,13 @@ cc_get_db(
 otherwise a temp directory.}
 
 \item{refresh}{Force re-download even if cached (default: FALSE)}
+
+\item{local_data}{Download parquet files locally and create tables instead
+of remote views (default: FALSE). Useful for apps that need fast local
+queries without network overhead.}
+
+\item{tables}{Character vector of table names to include. NULL (default)
+includes all tables. Use to exclude large tables like CTD data.}
 }
 \value{
 DuckDB connection object
@@ -34,23 +43,30 @@ The frozen releases contain clean, stable data without provenance columns,
 suitable for analysis and visualization. Use \code{cc_list_versions()} to
 see available releases.
 
-The connection points to Parquet files from the frozen release, which are
-registered as views in DuckDB. This allows querying the data without
-downloading the entire database.
+When \code{local_data = FALSE} (default), the connection points to Parquet
+files from the frozen release registered as views in DuckDB. This allows
+querying without downloading the entire database.
+
+When \code{local_data = TRUE}, parquet files are downloaded to
+\code{cache_dir/parquet/{version}/} and loaded as local tables for faster
+queries. Files are only downloaded if missing or if \code{refresh = TRUE}.
 
 Data is stored at \code{gs://calcofi-db/ducklake/releases/{version}/}.
 }
 \examples{
 \dontrun{
-# connect to latest release
+# connect to latest release (remote views)
 con <- cc_get_db()
 DBI::dbListTables(con)
 
-# connect to specific version
-con <- cc_get_db(version = "v2026.02")
+# connect with local data (downloads parquets)
+con <- cc_get_db(local_data = TRUE, cache_dir = "data")
 
-# query data
-DBI::dbGetQuery(con, "SELECT COUNT(*) FROM larvae")
+# exclude CTD tables
+con <- cc_get_db(
+  local_data = TRUE,
+  tables     = setdiff(cc_db_info()$tables$name,
+    c("ctd_cast", "ctd_measurement", "ctd_summary")))
 }
 }
 \concept{database}

@@ -1,3 +1,10 @@
+# calcofi4r 1.1.10
+
+*Local data download and table filtering in cc_get_db()*
+
+- **`local_data` parameter** `cc_get_db(local_data = TRUE)` now downloads parquet files to a local cache directory and creates `TABLE`s instead of remote `VIEW`s. Files are only downloaded if missing or if `refresh = TRUE`, making repeated calls idempotent.
+- **`tables` parameter** `cc_get_db(tables = c("species", "ichthyo", ...))` filters which tables to load from the catalog. Useful for excluding large tables like CTD data when building app-specific databases.
+
 # calcofi4r 1.1.9
 
 *Native GEOMETRY storage in cc_get_db()*

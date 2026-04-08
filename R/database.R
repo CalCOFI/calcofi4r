@@ -15,36 +15,50 @@
 #'   \code{rappdirs::user_cache_dir("calcofi4r")} if rappdirs is installed,
 #'   otherwise a temp directory.
 #' @param refresh Force re-download even if cached (default: FALSE)
+#' @param local_data Download parquet files locally and create tables instead
+#'   of remote views (default: FALSE). Useful for apps that need fast local
+#'   queries without network overhead.
+#' @param tables Character vector of table names to include. NULL (default)
+#'   includes all tables. Use to exclude large tables like CTD data.
 #'
 #' @return DuckDB connection object
 #' @export
 #' @concept database
 #'
 #' @details
-#' The connection points to Parquet files from the frozen release, which are
-#' registered as views in DuckDB. This allows querying the data without
-#' downloading the entire database.
+#' When \code{local_data = FALSE} (default), the connection points to Parquet
+#' files from the frozen release registered as views in DuckDB. This allows
+#' querying without downloading the entire database.
+#'
+#' When \code{local_data = TRUE}, parquet files are downloaded to
+#' \code{cache_dir/parquet/{version}/} and loaded as local tables for faster
+#' queries. Files are only downloaded if missing or if \code{refresh = TRUE}.
 #'
 #' Data is stored at \code{gs://calcofi-db/ducklake/releases/{version}/}.
 #'
 #' @examples
 #' \dontrun{
-#' # connect to latest release
+#' # connect to latest release (remote views)
 #' con <- cc_get_db()
 #' DBI::dbListTables(con)
 #'
-#' # connect to specific version
-#' con <- cc_get_db(version = "v2026.02")
+#' # connect with local data (downloads parquets)
+#' con <- cc_get_db(local_data = TRUE, cache_dir = "data")
 #'
-#' # query data
-#' DBI::dbGetQuery(con, "SELECT COUNT(*) FROM larvae")
+#' # exclude CTD tables
+#' con <- cc_get_db(
+#'   local_data = TRUE,
+#'   tables     = setdiff(cc_db_info()$tables$name,
+#'     c("ctd_cast", "ctd_measurement", "ctd_summary")))
 #' }
 #' @importFrom glue glue
 cc_get_db <- function(
     version     = "latest",
     local_cache = TRUE,
     cache_dir   = NULL,
-    refresh     = FALSE) {
+    refresh     = FALSE,
+    local_data  = FALSE,
+    tables      = NULL) {
 
   if (!requireNamespace("duckdb", quietly = TRUE)) {
     stop("Package 'duckdb' is required. Install with: install.packages('duckdb')")
@@ -137,42 +151,93 @@ cc_get_db <- function(
   }
 
   # check if already initialized
-  tables <- DBI::dbListTables(con)
-  if (length(tables) > 0 && !refresh) {
+  existing_tables <- DBI::dbListTables(con)
+  if (length(existing_tables) > 0 && !refresh) {
     message(glue::glue("Using cached database: {version}"))
     return(con)
   }
 
-  # create views for each table pointing to parquet files
-  message(glue::glue("Loading {nrow(catalog$tables)} tables from {version}..."))
+  # filter catalog to requested tables
+  tbl_catalog <- catalog$tables
+  if (!is.null(tables)) {
+    tbl_catalog <- tbl_catalog[tbl_catalog$name %in% tables, ]
+  }
+
+  message(glue::glue(
+    "Loading {nrow(tbl_catalog)} tables from {version}",
+    if (local_data) " (local data)" else " (remote views)",
+    "..."))
 
   gcs_https_base <- glue::glue(
     "https://storage.googleapis.com/calcofi-db/ducklake/releases/{version}/parquet")
   gcs_s3_base <- glue::glue(
     "s3://calcofi-db/ducklake/releases/{version}/parquet")
 
-  for (i in seq_len(nrow(catalog$tables))) {
-    tbl_name       <- catalog$tables$name[i]
-    is_partitioned <- has_partitioned &&
-      isTRUE(catalog$tables$partitioned[i])
+  # local parquet download directory
+  if (local_data) {
+    parquet_dir <- file.path(cache_dir, "parquet", version)
+    dir.create(parquet_dir, recursive = TRUE, showWarnings = FALSE)
+  }
 
-    if (is_partitioned) {
-      # hive-partitioned: use S3 protocol for glob support
+  for (i in seq_len(nrow(tbl_catalog))) {
+    tbl_name       <- tbl_catalog$name[i]
+    is_partitioned <- has_partitioned &&
+      isTRUE(tbl_catalog$partitioned[i])
+
+    if (local_data && !is_partitioned) {
+      # download parquet locally and create table
+      local_pq <- file.path(parquet_dir, paste0(tbl_name, ".parquet"))
+      if (!file.exists(local_pq) || refresh) {
+        message(glue::glue("  downloading {tbl_name}.parquet..."))
+        .cc_download_gcs_file(
+          glue::glue("gs://calcofi-db/ducklake/releases/{version}/parquet/{tbl_name}.parquet"),
+          local_pq,
+          overwrite = refresh)
+      }
+      tryCatch({
+        DBI::dbExecute(con, glue::glue(
+          "CREATE OR REPLACE TABLE \"{tbl_name}\" AS ",
+          "SELECT * FROM read_parquet('{local_pq}')"))
+      }, error = function(e) {
+        warning(glue::glue("Failed to load table {tbl_name}: {e$message}"))
+      })
+
+    } else if (local_data && is_partitioned) {
+      # partitioned tables: use remote S3 glob (downloading partition
+      # directories is complex; keep as remote view for now)
       parquet_url <- glue::glue("{gcs_s3_base}/{tbl_name}/**/*.parquet")
       read_expr   <- glue::glue(
         "read_parquet('{parquet_url}', hive_partitioning = true)")
+      tryCatch({
+        DBI::dbExecute(con, glue::glue(
+          "CREATE OR REPLACE VIEW \"{tbl_name}\" AS SELECT * FROM {read_expr}"))
+      }, error = function(e) {
+        warning(glue::glue("Failed to load table {tbl_name}: {e$message}"))
+      })
+
+    } else if (is_partitioned) {
+      # remote view for partitioned table
+      parquet_url <- glue::glue("{gcs_s3_base}/{tbl_name}/**/*.parquet")
+      read_expr   <- glue::glue(
+        "read_parquet('{parquet_url}', hive_partitioning = true)")
+      tryCatch({
+        DBI::dbExecute(con, glue::glue(
+          "CREATE OR REPLACE VIEW \"{tbl_name}\" AS SELECT * FROM {read_expr}"))
+      }, error = function(e) {
+        warning(glue::glue("Failed to load table {tbl_name}: {e$message}"))
+      })
+
     } else {
-      # single file: plain HTTPS works fine
+      # remote view for single-file table
       parquet_url <- glue::glue("{gcs_https_base}/{tbl_name}.parquet")
       read_expr   <- glue::glue("read_parquet('{parquet_url}')")
+      tryCatch({
+        DBI::dbExecute(con, glue::glue(
+          "CREATE OR REPLACE VIEW \"{tbl_name}\" AS SELECT * FROM {read_expr}"))
+      }, error = function(e) {
+        warning(glue::glue("Failed to load table {tbl_name}: {e$message}"))
+      })
     }
-
-    tryCatch({
-      DBI::dbExecute(con, glue::glue(
-        "CREATE OR REPLACE VIEW {tbl_name} AS SELECT * FROM {read_expr}"))
-    }, error = function(e) {
-      warning(glue::glue("Failed to load table {tbl_name}: {e$message}"))
-    })
   }
 
   message(glue::glue("Connected to CalCOFI database {version}"))
