@@ -1,5 +1,6 @@
 url: https://calcofi.github.io/calcofi4r/
-google_analytics: "G-0HVK8TDMCF"
+template:
+  google_analytics: "G-0HVK8TDMCF"
 reference:
 - title: "Read"
   desc: functions reading data, particularly from the CalCOFI API
