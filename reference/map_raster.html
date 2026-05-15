@@ -34,6 +34,16 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Articles
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/bio-env-matching.html">Matching biology to environment: query 75 years of ocean data, anywhere</a>
+    </li>
+  </ul></li>
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
@@ -85,7 +95,7 @@
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="op">(</span><span class="va">r_tif</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext<span class="op">=</span><span class="st">".tif"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/tmp/RtmpMNFSCJ/file1e5460b683a7.tif"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/tmp/RtmpNYIJP8/file1e6d6136b550.tif"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># use second variable from previously fetched v</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">table_field</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="va">v</span><span class="op">$</span><span class="va">plot_label</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span></span>
@@ -105,7 +115,7 @@
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Expecting type "application/json" or suffix "json".</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html" class="external-link">raster</a></span><span class="op">(</span><span class="va">r_tif</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>GDAL Error 4: /tmp/RtmpMNFSCJ/file1e5460b683a7.tif: No such file or directory</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>GDAL Error 4: /tmp/RtmpNYIJP8/file1e6d6136b550.tif: No such file or directory</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in .rasterObjectFromFile(x, band = band, objecttype = "RasterLayer",     ...):</span> Cannot create a RasterLayer object from this file. (file does not exist)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># plot raster</span></span></span>
