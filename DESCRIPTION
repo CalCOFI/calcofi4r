@@ -73,5 +73,10 @@ Suggests:
     DiagrammeR,
     DiagrammeRsvg,
     knitr,
-    rmarkdown
+    patchwork,
+    rmarkdown,
+    rnaturalearthdata
 VignetteBuilder: knitr
+Config/Needs/website:
+    patchwork,
+    rnaturalearthdata
