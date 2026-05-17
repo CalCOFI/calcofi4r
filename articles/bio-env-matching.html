@@ -144,10 +144,13 @@ columns and row groups your query actually touches, and it runs the
 <td><code>duckdb &lt; q.sql</code></td>
 </tr>
 <tr class="even">
-<td><strong>a web browser</strong></td>
 <td>
-<a href="https://shell.duckdb.org" class="external-link">shell.duckdb.org</a> —
-DuckDB-WASM, paste the same SQL, no install</td>
+<strong>a web browser</strong>, no install</td>
+<td>
+<a href="https://calcofi.io/docs/match/" class="external-link"><strong>CalCOFI
+Match</strong></a> — point-and-click form for the three wrappers +
+custom SQL, runs DuckDB-WASM client-side. Or <a href="https://shell.duckdb.org" class="external-link">shell.duckdb.org</a> for free-form
+SQL.</td>
 </tr>
 </tbody>
 </table>
@@ -417,7 +420,7 @@ contract:</p>
 <span><span class="co">#&gt;   ..$ max_time_hr: num 72</span></span>
 <span><span class="co">#&gt;   ..$ join_method: chr "nearest_time"</span></span>
 <span><span class="co">#&gt;  $ source_urls    : chr [1:8] "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/bottle_measurement.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/bottle.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/casts.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/ichthyo.parquet" ...</span></span>
-<span><span class="co">#&gt;  $ generated_at   : chr "2026-05-15 13:51:15 UTC"</span></span>
+<span><span class="co">#&gt;  $ generated_at   : chr "2026-05-17 23:46:59 UTC"</span></span>
 <span><span class="co">#&gt;  $ n_rows         : int 310</span></span></code></pre></div>
 <p><code>meta$release_version</code> pins which release the result came
 from (v2026.05.14 here). <code>meta$source_urls</code> is the full list
@@ -469,10 +472,14 @@ anywhere, get identical rows.</p>
 <p><strong>DuckDB CLI</strong></p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="ex">duckdb</span> <span class="at">-c</span> <span class="st">"INSTALL httpfs; LOAD httpfs; INSTALL spatial; LOAD spatial;</span></span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="va">$(</span><span class="fu">cat</span> sardine_match.sql<span class="va">)</span><span class="st">"</span></span></code></pre></div>
-<p><strong>A web browser, no install</strong> — paste the same SQL into
-<a href="https://shell.duckdb.org" class="external-link">shell.duckdb.org</a>. It runs in
-DuckDB-WASM, in JavaScript, against the same public GCS bucket. Try it
-on a phone if you like.</p>
+<p><strong>A web browser, no install</strong> — open <a href="https://calcofi.io/docs/match/" class="external-link"><strong>CalCOFI
+Match</strong></a>, pick a tab (by name / by taxon / zoo biomass /
+custom / SQL shell), fill the form, hit <strong>Run</strong>. The page
+loads <a href="https://duckdb.org/docs/api/wasm/overview.html" class="external-link">DuckDB-WASM</a> in
+a worker thread, runs the <em>exact same</em> generated SQL (it imports
+a JavaScript port of <code>calcofi4r/R/match.R</code>), and renders the
+rows — all client-side. For arbitrary ad-hoc SQL with no UI at all, <a href="https://shell.duckdb.org" class="external-link">shell.duckdb.org</a> is DuckDB’s
+official WASM shell. Try either on a phone if you like.</p>
 </div>
 <div class="section level2">
 <h2 id="version-pinning-for-archival-reproducibility">Version pinning for archival reproducibility<a class="anchor" aria-label="anchor" href="#version-pinning-for-archival-reproducibility"></a>
