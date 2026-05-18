@@ -42,7 +42,7 @@ the *same engine* on:
 | **R**, on your laptop | this vignette |
 | **Python**, on a notebook server | `import duckdb; con.sql(open('q.sql').read()).df()` |
 | **shell**, on the command line | `duckdb < q.sql` |
-| **a web browser**, no install | [**CalCOFI Match**](https://calcofi.io/docs/match/) — point-and-click form for the three wrappers + custom SQL, runs DuckDB-WASM client-side. Or [shell.duckdb.org](https://shell.duckdb.org) for free-form SQL. |
+| **a web browser**, no install | [**CalCOFI Query**](https://calcofi.io/query/) — left-side accordion of point-and-click forms (the three bio↔env wrappers + custom SQL + a free-form SQL shell + simple browse / spatial / temporal / per-dataset queries), all running DuckDB-WASM client-side. Or [shell.duckdb.org](https://shell.duckdb.org) for free-form SQL without CalCOFI context. |
 
 Below we ask one cross-domain question — *how did Pacific sardine larvae
 experience the 2014–2016 marine heatwave?* — answer it with a single
@@ -245,7 +245,7 @@ duckdb -c "INSTALL httpfs; LOAD httpfs; INSTALL spatial; LOAD spatial;
 $(cat sardine_match.sql)"
 ```
 
-**A web browser, no install** — open [**CalCOFI Match**](https://calcofi.io/docs/match/),
+**A web browser, no install** — open [**CalCOFI Query**](https://calcofi.io/query/),
 pick a tab (by name / by taxon / zoo biomass / custom / SQL shell), fill the
 form, hit **Run**. The page loads
 [DuckDB-WASM](https://duckdb.org/docs/api/wasm/overview.html) in a worker
