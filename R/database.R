@@ -927,108 +927,128 @@ cc_db_connect <- function(path_pw = "~/.calcofi_db_pass.txt"){
 
 #' Show CalCOFI database catalog as interactive table
 #'
-#' @description
-#' `r lifecycle::badge("deprecated")`
+#' Renders an interactive `DT::datatable()` of every table and column in a
+#' CalCOFI database release, with descriptions and units sourced from the
+#' release `metadata.json` sidecar at
+#' `gs://calcofi-db/ducklake/releases/{version}/metadata.json`. Column data
+#' types come from DuckDB `information_schema.columns`.
 #'
-#' This function is deprecated because it relies on the CalCOFI API which is
-#' being phased out. Use [cc_list_tables()] to list available tables and
-#' [cc_describe_table()] to get column information for a specific table.
+#' @param tables Optional character vector of table names to filter to.
+#'   Default: \code{NULL} (show all).
+#' @param version Database version. Default: \code{"latest"}.
 #'
-#' Previously read the tables and columns from the [CalCOFI API](https://api.calcofi.io)
-#' and displayed as an interactive table:
-#' - [api.calcofi.io/db_tables](https://api.calcofi.io/db_tables)
-#' - [api.calcofi.io/db_columns](https://api.calcofi.io/db_columns)
-#'
-#' @param tables optional character vector of table names to filter; default: `NULL`
-#'
-#' @return DT::datatable() of tables and columns
+#' @return A `DT::datatable()` of tables and columns.
 #' @importFrom DT datatable
 #' @importFrom htmltools div em span strong HTML
 #' @importFrom markdown mark
 #' @importFrom purrr pmap_chr
-#' @importFrom readr read_csv
-#' @importFrom dplyr left_join filter select
+#' @importFrom dplyr left_join filter select mutate arrange
+#' @importFrom tibble tibble
+#' @importFrom DBI dbGetQuery dbListTables
 #' @importFrom glue glue
 #' @export
 #' @concept database
 #'
 #' @examples
 #' \dontrun{
-#' # deprecated - use instead:
-#' cc_list_tables()
-#' cc_describe_table("ichthyo")
+#' cc_db_catalog()
+#' cc_db_catalog(tables = c("bottle", "ichthyo"))
+#' cc_db_catalog(version = "v2026.05.14")
 #' }
-cc_db_catalog <- function(tables = NULL){
+cc_db_catalog <- function(tables = NULL, version = "latest"){
 
-  lifecycle::deprecate_warn(
-    "1.1.0",
-    "cc_db_catalog()",
-    details = c(
-      "The CalCOFI API is being phased out.",
-      "i" = "Use cc_list_tables() and cc_describe_table() for schema information."))
+  con <- cc_get_db(version = version)
+  all_tbls <- DBI::dbListTables(con)
+  if (!is.null(tables)) {
+    missing_tbls <- setdiff(tables, all_tbls)
+    if (length(missing_tbls) > 0)
+      warning(glue::glue(
+        "cc_db_catalog: requested tables not in release: ",
+        "{paste(missing_tbls, collapse = ', ')}"))
+    all_tbls <- intersect(all_tbls, tables)
+  }
 
-  d_tbls <- readr::read_csv(
-    "https://api.calcofi.io/db_tables", show_col_types = F)
-  d_cols <- readr::read_csv(
-    "https://api.calcofi.io/db_columns", show_col_types = F)
+  # information_schema → column types
+  schema <- DBI::dbGetQuery(con, glue::glue("
+    SELECT table_name AS \"table\", column_name AS \"column\",
+           data_type AS column_type
+    FROM information_schema.columns
+    WHERE table_name IN ({paste(sprintf(\"'%s'\", all_tbls), collapse = ',')})
+    ORDER BY table_name, ordinal_position"))
 
-  d <- d_tbls |>
-    dplyr::left_join(
-      d_cols,
-      by = c("schema","table_type","table"))
+  # metadata.json sidecar → descriptions + units
+  meta <- tryCatch(
+    .cc_release_metadata(version = version),
+    error = function(e) {
+      warning(glue::glue(
+        "cc_db_catalog: metadata.json not available for {version}; ",
+        "descriptions and units will be blank ({conditionMessage(e)})"))
+      NULL
+    })
 
-  if (!is.null(tables))
-    d <- d |>
-      dplyr::filter(table %in% tables)
+  if (!is.null(meta)) {
+    tbl_desc <- tibble::tibble(
+      table              = names(meta$tables),
+      table_description  = vapply(meta$tables, function(x) x$description_md %||% NA_character_, character(1)))
+    col_desc <- tibble::tibble(
+      key                = names(meta$columns),
+      table              = sub("\\..*$", "", key),
+      column             = sub("^[^.]+\\.", "", key),
+      column_description = vapply(meta$columns, function(x) x$description_md %||% NA_character_, character(1)),
+      units              = vapply(meta$columns, function(x) x$units          %||% NA_character_, character(1)))
+    col_desc <- col_desc[, c("table", "column", "column_description", "units")]
+  } else {
+    tbl_desc <- tibble::tibble(table = character(), table_description = character())
+    col_desc <- tibble::tibble(table = character(), column = character(),
+                               column_description = character(), units = character())
+  }
+
+  d <- schema |>
+    dplyr::left_join(tbl_desc, by = "table") |>
+    dplyr::left_join(col_desc, by = c("table", "column"))
 
   d |>
-    mutate(
+    dplyr::mutate(
       Table = purrr::pmap_chr(
-        list(table_type, table, table_description),
-        function(table_type, table, table_description, ...){
-          ifelse(
-            is.na(table_description),
-            htmltools::div(
-              htmltools::span(style = "font-weight: 400;", htmltools::em(table_type), ":"), htmltools::strong(table)) |>
-              as.character(),
-            htmltools::div(
-              htmltools::span(style = "font-weight: 400;", htmltools::em(table_type), ":"), htmltools::strong(table),
+        list(table, table_description),
+        function(table, table_description, ...){
+          if (is.na(table_description) || table_description == "") {
+            as.character(htmltools::div(htmltools::strong(table)))
+          } else {
+            as.character(htmltools::div(
+              htmltools::strong(table),
               htmltools::div(
                 style = "font-size: 0.75rem; font-weight: 400;",
-                htmltools::HTML(markdown::mark(table_description)))) |>
-              as.character() ) } ),
+                htmltools::HTML(markdown::mark(table_description)))))
+          }
+        }),
       Column = purrr::pmap_chr(
-        list(column, column_type, column_description),
-        function(column, column_type, column_description, ...){
-          ifelse(
-            is.na(column_description),
-            htmltools::div(
-              htmltools::strong(column), htmltools::span(style = "font-weight: 400;", "(", htmltools::em(column_type), ")")) |>
-              as.character(),
-            htmltools::div(
-              htmltools::strong(column), htmltools::span(style = "font-weight: 400;", "(", htmltools::em(column_type), ")"),
+        list(column, column_type, column_description, units),
+        function(column, column_type, column_description, units, ...){
+          type_span <- htmltools::span(
+            style = "font-weight: 400;", "(", htmltools::em(column_type),
+            if (!is.na(units) && units != "") paste0("; ", units) else NULL, ")")
+          if (is.na(column_description) || column_description == "") {
+            as.character(htmltools::div(htmltools::strong(column), type_span))
+          } else {
+            as.character(htmltools::div(
+              htmltools::strong(column), type_span,
               htmltools::div(
                 style = "font-size: 0.75rem; font-weight: 400;",
-                htmltools::HTML(markdown::mark(column_description)))) |>
-              as.character() ) } ) ) |>
-    dplyr::select(Table, Column) |>
+                htmltools::HTML(markdown::mark(column_description)))))
+          }
+        })) |>
+    dplyr::select(table, column, Table, Column) |>
     DT::datatable(
-      # extensions = c("RowGroup", "Buttons"),
       extensions = c("RowGroup"),
       options = list(
-        # dom      = "Blfrtip",
-        # buttons = c("copy", "csv", "excel", "pdf", "print"),
-        dom      = "lfrtip",
+        dom        = "lfrtip",
         pageLength = 10,
         lengthMenu = c(10, 100, 1000),
-        rowGroup = list(
-          dataSrc = c(0, 1) ),
-        columnDefs = list(
-          list(
-            visible = F,
-            targets = c(0,1) ) ) ),
-      escape   = F,
-      rownames = F)
+        rowGroup   = list(dataSrc = c(0, 1)),
+        columnDefs = list(list(visible = FALSE, targets = c(0, 1)))),
+      escape   = FALSE,
+      rownames = FALSE)
 }
 
 

@@ -4,33 +4,29 @@
 \alias{cc_db_catalog}
 \title{Show CalCOFI database catalog as interactive table}
 \usage{
-cc_db_catalog(tables = NULL)
+cc_db_catalog(tables = NULL, version = "latest")
 }
 \arguments{
-\item{tables}{optional character vector of table names to filter; default: \code{NULL}}
+\item{tables}{Optional character vector of table names to filter to.
+Default: \code{NULL} (show all).}
+
+\item{version}{Database version. Default: \code{"latest"}.}
 }
 \value{
-DT::datatable() of tables and columns
+A \code{DT::datatable()} of tables and columns.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
-
-This function is deprecated because it relies on the CalCOFI API which is
-being phased out. Use \code{\link[=cc_list_tables]{cc_list_tables()}} to list available tables and
-\code{\link[=cc_describe_table]{cc_describe_table()}} to get column information for a specific table.
-
-Previously read the tables and columns from the \href{https://api.calcofi.io}{CalCOFI API}
-and displayed as an interactive table:
-\itemize{
-\item \href{https://api.calcofi.io/db_tables}{api.calcofi.io/db_tables}
-\item \href{https://api.calcofi.io/db_columns}{api.calcofi.io/db_columns}
-}
+Renders an interactive \code{DT::datatable()} of every table and column in a
+CalCOFI database release, with descriptions and units sourced from the
+release \code{metadata.json} sidecar at
+\verb{gs://calcofi-db/ducklake/releases/\{version\}/metadata.json}. Column data
+types come from DuckDB \code{information_schema.columns}.
 }
 \examples{
 \dontrun{
-# deprecated - use instead:
-cc_list_tables()
-cc_describe_table("ichthyo")
+cc_db_catalog()
+cc_db_catalog(tables = c("bottle", "ichthyo"))
+cc_db_catalog(version = "v2026.05.14")
 }
 }
 \concept{database}

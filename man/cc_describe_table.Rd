@@ -7,22 +7,29 @@
 cc_describe_table(table, version = "latest")
 }
 \arguments{
-\item{table}{Table name}
+\item{table}{Table name.}
 
-\item{version}{Database version (default: "latest")}
+\item{version}{Database version (default: \code{"latest"}).}
 }
 \value{
-Tibble with column metadata (column_name, data_type, is_nullable)
+Tibble with one row per column:
+\code{column_name}, \code{data_type}, \code{is_nullable},
+\code{name_long}, \code{units}, \code{description_md}.
+The table description is in \code{attr(<result>, "description_md")}.
 }
 \description{
-Returns schema information for a table including column names,
-types, and descriptions (if available).
+Returns schema information for a table by joining DuckDB
+\code{information_schema.columns} with the release \code{metadata.json} sidecar.
+Adds \code{name_long}, \code{units}, and \code{description_md} per column when available.
+The table-level description is attached as the \code{description_md}
+attribute on the result.
 }
 \examples{
 \dontrun{
 cc_describe_table("ichthyo")
 cc_describe_table("species")
 cc_describe_table("casts")
+attr(cc_describe_table("bottle"), "description_md")
 }
 }
 \concept{read}
