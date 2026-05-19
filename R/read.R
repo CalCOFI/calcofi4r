@@ -413,13 +413,19 @@ cc_list_tables <- function(version = "latest") {
 
 #' Describe a CalCOFI database table
 #'
-#' Returns schema information for a table including column names,
-#' types, and descriptions (if available).
+#' Returns schema information for a table by joining DuckDB
+#' `information_schema.columns` with the release `metadata.json` sidecar.
+#' Adds `name_long`, `units`, and `description_md` per column when available.
+#' The table-level description is attached as the \code{description_md}
+#' attribute on the result.
 #'
-#' @param table Table name
-#' @param version Database version (default: "latest")
+#' @param table Table name.
+#' @param version Database version (default: \code{"latest"}).
 #'
-#' @return Tibble with column metadata (column_name, data_type, is_nullable)
+#' @return Tibble with one row per column:
+#'   \code{column_name}, \code{data_type}, \code{is_nullable},
+#'   \code{name_long}, \code{units}, \code{description_md}.
+#'   The table description is in \code{attr(<result>, "description_md")}.
 #'
 #' @export
 #' @concept read
@@ -429,9 +435,11 @@ cc_list_tables <- function(version = "latest") {
 #' cc_describe_table("ichthyo")
 #' cc_describe_table("species")
 #' cc_describe_table("casts")
+#' attr(cc_describe_table("bottle"), "description_md")
 #' }
 #' @importFrom DBI dbGetQuery
-#' @importFrom tibble as_tibble
+#' @importFrom tibble as_tibble tibble
+#' @importFrom dplyr left_join
 #' @importFrom glue glue
 cc_describe_table <- function(table, version = "latest") {
   con <- cc_get_db(version = version)
@@ -444,8 +452,8 @@ cc_describe_table <- function(table, version = "latest") {
     ))
   }
 
-  # get column info from information_schema
-  result <- DBI::dbGetQuery(
+  # column info from information_schema
+  schema <- DBI::dbGetQuery(
     con,
     glue::glue(
       "
@@ -457,10 +465,61 @@ cc_describe_table <- function(table, version = "latest") {
     WHERE table_name = '{table}'
     ORDER BY ordinal_position"
     )
-  )
+  ) |> tibble::as_tibble()
 
-  tibble::as_tibble(result)
+  # join descriptions/units from release metadata.json sidecar
+  meta <- tryCatch(
+    .cc_release_metadata(version = version),
+    error = function(e) NULL)
+
+  if (!is.null(meta)) {
+    cols_meta <- tibble::tibble(
+      column_name    = vapply(names(meta$columns), function(k) sub("^[^.]+\\.", "", k), character(1)),
+      tbl            = vapply(names(meta$columns), function(k) sub("\\..*$", "", k),    character(1)),
+      name_long      = vapply(meta$columns, function(x) x$name_long      %||% NA_character_, character(1)),
+      units          = vapply(meta$columns, function(x) x$units          %||% NA_character_, character(1)),
+      description_md = vapply(meta$columns, function(x) x$description_md %||% NA_character_, character(1)))
+    cols_meta <- cols_meta[cols_meta$tbl == table, c("column_name", "name_long", "units", "description_md")]
+    result <- dplyr::left_join(schema, cols_meta, by = "column_name")
+    tbl_desc <- meta$tables[[table]]$description_md %||% NA_character_
+  } else {
+    result <- schema
+    result$name_long      <- NA_character_
+    result$units          <- NA_character_
+    result$description_md <- NA_character_
+    tbl_desc <- NA_character_
+  }
+
+  attr(result, "description_md") <- tbl_desc
+  result
 }
+
+# internal: fetch the release metadata.json sidecar, cached in tempdir
+#' @importFrom glue glue
+#' @importFrom jsonlite fromJSON
+.cc_release_metadata <- function(version = "latest") {
+  if (version == "latest") {
+    versions <- cc_list_versions()
+    if (nrow(versions) > 0) {
+      version <- versions$version[versions$is_latest][1]
+      if (is.na(version)) version <- versions$version[1]
+    }
+  }
+  cache_dir <- file.path(tempdir(), "calcofi4r_cache")
+  dir.create(cache_dir, showWarnings = FALSE)
+  meta_path <- file.path(cache_dir, glue::glue("metadata_{version}.json"))
+
+  if (!file.exists(meta_path)) {
+    .cc_download_gcs_file(
+      glue::glue("gs://calcofi-db/ducklake/releases/{version}/metadata.json"),
+      meta_path,
+      overwrite = TRUE)
+  }
+  jsonlite::fromJSON(meta_path, simplifyVector = FALSE)
+}
+
+# internal: null-coalescing operator (avoid importing from rlang)
+`%||%` <- function(x, y) if (is.null(x) || length(x) == 0L) y else x
 
 #' Read CalCOFI species data
 #'
