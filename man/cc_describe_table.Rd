@@ -24,6 +24,11 @@ Adds \code{name_long}, \code{units}, and \code{description_md} per column when a
 The table-level description is attached as the \code{description_md}
 attribute on the result.
 }
+\details{
+For a point-and-click view of the same metadata (ERD, sortable
+tables/columns, measurement-type registry), see the
+\href{https://calcofi.io/schema/}{CalCOFI Schema explorer}.
+}
 \examples{
 \dontrun{
 cc_describe_table("ichthyo")
@@ -31,5 +36,11 @@ cc_describe_table("species")
 cc_describe_table("casts")
 attr(cc_describe_table("bottle"), "description_md")
 }
+}
+\seealso{
+\code{\link[=cc_db_catalog]{cc_db_catalog()}} for a DT::datatable() of every table and
+column in a release.
+\href{https://calcofi.io/schema/}{CalCOFI Schema explorer} for a
+web view of the same metadata.
 }
 \concept{read}

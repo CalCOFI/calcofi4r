@@ -419,6 +419,10 @@ cc_list_tables <- function(version = "latest") {
 #' The table-level description is attached as the \code{description_md}
 #' attribute on the result.
 #'
+#' For a point-and-click view of the same metadata (ERD, sortable
+#' tables/columns, measurement-type registry), see the
+#' [CalCOFI Schema explorer](https://calcofi.io/schema/).
+#'
 #' @param table Table name.
 #' @param version Database version (default: \code{"latest"}).
 #'
@@ -426,6 +430,11 @@ cc_list_tables <- function(version = "latest") {
 #'   \code{column_name}, \code{data_type}, \code{is_nullable},
 #'   \code{name_long}, \code{units}, \code{description_md}.
 #'   The table description is in \code{attr(<result>, "description_md")}.
+#'
+#' @seealso [cc_db_catalog()] for a DT::datatable() of every table and
+#'   column in a release.
+#'   [CalCOFI Schema explorer](https://calcofi.io/schema/) for a
+#'   web view of the same metadata.
 #'
 #' @export
 #' @concept read

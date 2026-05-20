@@ -22,11 +22,21 @@ release \code{metadata.json} sidecar at
 \verb{gs://calcofi-db/ducklake/releases/\{version\}/metadata.json}. Column data
 types come from DuckDB \code{information_schema.columns}.
 }
+\details{
+For a richer point-and-click view with ERD diagram, dataset
+provenance, and the canonical measurement-type registry, see the
+\href{https://calcofi.io/schema/}{CalCOFI Schema explorer}.
+}
 \examples{
 \dontrun{
 cc_db_catalog()
 cc_db_catalog(tables = c("bottle", "ichthyo"))
 cc_db_catalog(version = "v2026.05.14")
 }
+}
+\seealso{
+\code{\link[=cc_describe_table]{cc_describe_table()}} for per-table schema as a tibble.
+\href{https://calcofi.io/schema/}{CalCOFI Schema explorer} for the
+web-based browser with ERD and measurement-type registry.
 }
 \concept{database}
