@@ -1,19 +1,21 @@
 
 # calcofi4r <img src="man/figures/logo.svg" style="float:right; height:150px">
 
-R package for accessing and visualizing CalCOFI data. Connect directly to the CalCOFI database via DuckDB or use the CalCOFI API.
+R package for accessing and visualizing CalCOFI data. Connect directly
+to the CalCOFI database via DuckDB or use the CalCOFI API.
 
 ## Install
 
-This package lives on Github, not yet CRAN, so you'll need to run the following to install or update the package:
+This package lives on Github, not yet CRAN, so you’ll need to run the
+following to install or update the package:
 
-```r
+``` r
 remotes::install_github("calcofi/calcofi4r")
 ```
 
 Then load the package:
 
-```r
+``` r
 library(calcofi4r)
 ```
 
@@ -23,7 +25,7 @@ library(calcofi4r)
 
 Access the CalCOFI integrated database directly via DuckDB:
 
-```r
+``` r
 # connect to latest frozen release
 con <- cc_get_db()
 
@@ -40,7 +42,7 @@ DBI::dbGetQuery(con, "SELECT COUNT(*) FROM ichthyo")
 
 ### Read Data with Convenience Functions
 
-```r
+``` r
 # read ichthyoplankton (larvae) data
 ichthyo <- cc_read_ichthyo()
 
@@ -64,25 +66,25 @@ anchovy <- cc_read_ichthyo(species_id == 19, collect = FALSE)
 
 Access specific database versions for reproducibility:
 
-```r
+``` r
 # list available versions
 cc_list_versions()
-#>    version release_date tables total_rows size_mb is_latest
-#> 1 v2026.02   2026-02-05     17   13410422    80.9      TRUE
+#>     version release_date tables  total_rows size_mb is_latest
+#> 1 v2026.05.19   2026-05-19     28  133022102  5503.6      TRUE
 
 # connect to specific version
-con <- cc_get_db(version = "v2026.02")
+con <- cc_get_db(version = "v2026.05.19")
 
 # get release information
-cc_db_info("v2026.02")
+cc_db_info("v2026.05.19")
 
 # view release notes
-cc_release_notes("v2026.02")
+cc_release_notes("v2026.05.19")
 ```
 
 ### Execute Custom Queries
 
-```r
+``` r
 # run SQL queries
 results <- cc_query("
   SELECT species_id, COUNT(*) as n
@@ -91,16 +93,17 @@ results <- cc_query("
   ORDER BY n DESC
   LIMIT 10")
 
-# describe table schema
+# describe table schema (descriptions + units from metadata.json sidecar)
 cc_describe_table("ichthyo")
 cc_describe_table("casts")
 ```
 
 ## CalCOFI API Functions
 
-The package also provides functions for the CalCOFI API at [api.calcofi.io](https://api.calcofi.io):
+The package also provides functions for the CalCOFI API at
+[api.calcofi.io](https://api.calcofi.io):
 
-```r
+``` r
 # get available variables
 get_variables()
 
@@ -126,7 +129,7 @@ get_timeseries(
 
 The package includes small lookup and example datasets:
 
-```r
+``` r
 # CalCOFI sampling grid
 cc_grid
 cc_grid_ctrs
@@ -144,36 +147,45 @@ cc_places
 
 ## Documentation
 
-- [Get Started Vignette](https://calcofi.io/calcofi4r/articles/calcofi4r.html)
+- [Get Started
+  Vignette](https://calcofi.io/calcofi4r/articles/calcofi4r.html)
 - [Function Reference](https://calcofi.io/calcofi4r/reference/)
-- [CalCOFI Data Workflow Plan](https://calcofi.io/workflows/README_PLAN.html)
+- [CalCOFI Data Workflow
+  Plan](https://calcofi.io/workflows/README_PLAN.html)
 
 ## Data Architecture
 
-CalCOFI data is stored in frozen DuckLake releases on Google Cloud Storage:
+CalCOFI data is stored in frozen DuckLake releases on Google Cloud
+Storage:
 
-```
-gs://calcofi-db/ducklake/releases/
-├── v2026.02/
-│   ├── catalog.json
-│   ├── RELEASE_NOTES.md
-│   └── parquet/
-│       ├── bottle.parquet
-│       ├── casts.parquet
-│       ├── ichthyo.parquet
-│       ├── species.parquet
-│       └── ...
-├── versions.json
-└── latest.txt → v2026.02
-```
+    gs://calcofi-db/ducklake/releases/
+    ├── v2026.05.19/
+    │   ├── catalog.json         # table list, row counts, total_size
+    │   ├── relationships.json   # primary + foreign keys
+    │   ├── metadata.json        # table/column descriptions, units, datasets, measurement types
+    │   ├── RELEASE_NOTES.md
+    │   └── parquet/
+    │       ├── bottle.parquet
+    │       ├── casts.parquet
+    │       ├── ichthyo.parquet
+    │       ├── species.parquet
+    │       └── ...
+    ├── versions.json
+    └── latest.txt → v2026.05.19
 
-Data is accessed directly via DuckDB's httpfs extension - no download required for queries.
+Data is accessed directly via DuckDB’s httpfs extension — no download
+required for queries.
 
 ## See also
 
-- [**CalCOFI Schema**](https://calcofi.io/schema/) — per-release ERD, tables, columns (units + descriptions), datasets, and measurement-type registry. The same `metadata.json` sidecar that powers `cc_describe_table()` and `cc_db_catalog()`.
-- [**CalCOFI Query**](https://calcofi.io/query/) — browser-only DuckDB-WASM playground against the public release Parquet.
-- [**CalCOFI Docs**](https://calcofi.io/docs/) — data access, helpers, portals, API.
+- [**CalCOFI Schema**](https://calcofi.io/schema/) — per-release ERD,
+  tables, columns (units + descriptions), datasets, and measurement-type
+  registry. The same `metadata.json` sidecar that powers
+  `cc_describe_table()` and `cc_db_catalog()`.
+- [**CalCOFI Query**](https://calcofi.io/query/) — browser-only
+  DuckDB-WASM playground against the public release Parquet.
+- [**CalCOFI Docs**](https://calcofi.io/docs/) — data access, helpers,
+  portals, API.
 
 ## Code of Conduct
 
