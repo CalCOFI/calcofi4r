@@ -40,7 +40,9 @@ updateMermaid <- function(version = "") {
 #'   inline. Takes precedence over `rels_path`.
 #' @param colors Named list mapping color names or hex codes to character
 #'   vectors of table names. Emitted as Mermaid `classDef`/`class`
-#'   directives with a darker auto-generated stroke.
+#'   directives that color the entity outline (`stroke`) rather than the
+#'   fill, so multi-row entities stay legible. Build this programmatically
+#'   from table → dataset metadata with [cc_erd_color_map()].
 #'   Example: `list(lightblue = c("cruise", "ship"))`.
 #' @param layout Layout engine: `"elk"` (default) or `"dagre"`.
 #' @param view_type What columns to show: `"all"` (default), `"keys_only"`
@@ -234,14 +236,16 @@ cc_erd <- function(
   }
 
   # classDef + class at bottom (required for ER diagrams) ----
+  # color the entity outline (stroke) instead of the fill: a colored fill
+  # tints alternating column rows and reads as busy, whereas a thicker
+  # colored border cleanly signals dataset membership.
   if (!is.null(colors)) {
     for (color_name in names(colors)) {
       hex    <- .erd_color_to_hex(color_name)
-      stroke <- .erd_darken(hex)
       cls    <- gsub("[^a-zA-Z0-9]", "_", color_name)
       lines  <- c(lines, paste0(
         '    classDef ', cls,
-        ' fill:', hex, ',stroke:', stroke))
+        ' stroke:', hex, ',stroke-width:3px'))
       tbls_in_group <- intersect(colors[[color_name]], tables)
       if (length(tbls_in_group) > 0)
         lines <- c(lines, paste0(
@@ -256,6 +260,84 @@ cc_erd <- function(
     class  = c("cc_erd", "character"),
     tables = tables
   )
+}
+
+
+#' Build an ERD color map from table → dataset metadata
+#'
+#' Produces the `colors` argument [cc_erd()] expects (a named list mapping
+#' each color to the tables it applies to) from authoritative table → dataset
+#' membership, so ERD coloring is derived from metadata rather than a
+#' hard-coded grouping. Tables owned by a single dataset take that dataset's
+#' color; tables shared across datasets (or owned by more than one) take the
+#' `neutral` color; per-table `overrides` always win.
+#'
+#' @param table_dataset Named list (or named character vector) keyed by table
+#'   name. Each value is one `provider_dataset` identifier, or a character
+#'   vector of them for shared tables.
+#' @param dataset_colors Named list (or named character vector) keyed by
+#'   `provider_dataset`, with a color name or hex code per dataset.
+#' @param overrides Optional named list keyed by table name with a color name
+#'   or hex code. Highest priority; use for common/shared tables.
+#' @param neutral Color for shared/multi-dataset/unknown tables
+#'   (default `"#d0d0d0"`).
+#'
+#' @return A named list mapping color (hex) → character vector of table names,
+#'   suitable for `cc_erd(colors = ...)`.
+#' @export
+#' @concept database
+#'
+#' @examples
+#' \dontrun{
+#' color_map <- cc_erd_color_map(
+#'   table_dataset  = list(
+#'     casts            = "calcofi_bottle",
+#'     ctd_thin         = "calcofi_ctd-cast",
+#'     measurement_type = c("calcofi_bottle", "calcofi_ctd-cast", "calcofi_dic")),
+#'   dataset_colors = list(
+#'     calcofi_bottle   = "#cfe3f7",
+#'     `calcofi_ctd-cast` = "#e6d7f2",
+#'     calcofi_dic      = "#ffd9c2"),
+#'   overrides = list(measurement_type = "#e0e0e0"))
+#' cc_erd(con, colors = color_map)
+#' }
+cc_erd_color_map <- function(
+  table_dataset,
+  dataset_colors,
+  overrides = NULL,
+  neutral   = "#d0d0d0"
+) {
+  stopifnot(
+    !is.null(table_dataset),
+    !is.null(dataset_colors)
+  )
+  overrides <- overrides %||% list()
+
+  # resolve one color per table (override-only tables are colored too)
+  all_tbls  <- unique(c(names(table_dataset), names(overrides)))
+  tbl_color <- character(0)
+  for (tbl in all_tbls) {
+    ds <- table_dataset[[tbl]]
+    ds <- ds[!is.na(ds) & nzchar(ds)]
+
+    if (!is.null(overrides[[tbl]])) {
+      col <- .erd_color_to_hex(overrides[[tbl]])
+    } else if (length(ds) == 1 && !is.null(dataset_colors[[ds]])) {
+      col <- .erd_color_to_hex(dataset_colors[[ds]])
+    } else {
+      # shared (>1 dataset), unknown dataset, or no membership → neutral
+      col <- .erd_color_to_hex(neutral)
+    }
+    tbl_color[tbl] <- col
+  }
+
+  # invert to color → tables
+  out <- list()
+  for (tbl in names(tbl_color)) {
+    col <- tbl_color[[tbl]]
+    out[[col]] <- c(out[[col]], tbl)
+  }
+  out
 }
 
 

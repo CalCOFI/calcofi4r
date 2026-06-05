@@ -35,7 +35,9 @@ inline. Takes precedence over \code{rels_path}.}
 
 \item{colors}{Named list mapping color names or hex codes to character
 vectors of table names. Emitted as Mermaid \code{classDef}/\code{class}
-directives with a darker auto-generated stroke.
+directives that color the entity outline (\code{stroke}) rather than the
+fill, so multi-row entities stay legible. Build this programmatically
+from table → dataset metadata with \code{\link[=cc_erd_color_map]{cc_erd_color_map()}}.
 Example: \code{list(lightblue = c("cruise", "ship"))}.}
 
 \item{layout}{Layout engine: \code{"elk"} (default) or \code{"dagre"}.}

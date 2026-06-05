@@ -1,3 +1,10 @@
+# calcofi4r 1.3.0
+
+*Dataset-driven ERD coloring (stroke-based)*
+
+- **`cc_erd()` stroke-only coloring** Entity `classDef`s now color the table outline (`stroke`) instead of the fill, so multi-row entities read cleanly. The `colors` argument is unchanged.
+- **`cc_erd_color_map()`** New exported helper that builds the `colors` list for `cc_erd()` from authoritative table → dataset metadata: single-owner tables take their dataset color, shared/multi-dataset tables take a neutral color, and per-table `overrides` win. Drives the dataset-source coloring on the schema site (calcofi.io/schema).
+
 # calcofi4r 1.1.10
 
 *Local data download and table filtering in cc_get_db()*
