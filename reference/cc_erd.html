@@ -27,7 +27,7 @@ casts, and segment are included in the diagram."><meta property="og:image" conte
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">calcofi4r</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.0</span>
       </span>
     </div>
 
@@ -135,7 +135,9 @@ inline. Takes precedence over <code>rels_path</code>.</p></dd>
 <dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
 <dd><p>Named list mapping color names or hex codes to character
 vectors of table names. Emitted as Mermaid <code>classDef</code>/<code>class</code>
-directives with a darker auto-generated stroke.
+directives that color the entity outline (<code>stroke</code>) rather than the
+fill, so multi-row entities stay legible. Build this programmatically
+from table → dataset metadata with <code><a href="cc_erd_color_map.html">cc_erd_color_map()</a></code>.
 Example: <code>list(lightblue = c("cruise", "ship"))</code>.</p></dd>
 
 
