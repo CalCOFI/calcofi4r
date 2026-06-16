@@ -1,5 +1,6 @@
-url: https://calcofi.github.io/calcofi4r/
+url: https://calcofi.io/calcofi4r
 template:
+  bootstrap: 5
   includes:
     in_header: |
       <!-- Google tag (gtag.js) -->
