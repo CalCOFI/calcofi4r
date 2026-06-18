@@ -249,7 +249,7 @@ str(meta)
 #>   ..$ max_time_hr: num 72
 #>   ..$ join_method: chr "nearest_time"
 #>  $ source_urls    : chr [1:8] "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/bottle_measurement.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/bottle.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/casts.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/ichthyo.parquet" ...
-#>  $ generated_at   : chr "2026-06-16 11:04:32 UTC"
+#>  $ generated_at   : chr "2026-06-18 17:41:14 UTC"
 #>  $ n_rows         : int 310
 ```
 
