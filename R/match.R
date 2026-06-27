@@ -141,9 +141,9 @@ ORDER BY bio_id",
   filt <- c(
     glue::glue("bm.measurement_type = '{env_var}'"),
     "bm.measurement_value IS NOT NULL",
-    "c.datetime_utc IS NOT NULL",
-    "c.lon_dec IS NOT NULL",
-    "c.lat_dec IS NOT NULL")
+    "c.datetime_start_utc IS NOT NULL",
+    "c.longitude IS NOT NULL",
+    "c.latitude IS NOT NULL")
 
   if (!is.null(depth_m_min))
     filt <- c(filt, glue::glue("b.depth_m >= {depth_m_min}"))
@@ -152,17 +152,17 @@ ORDER BY bio_id",
   # pad the env date window by the match tolerance so boundary pairs survive
   if (!is.null(date_min))
     filt <- c(filt, glue::glue(
-      "c.datetime_utc >= TIMESTAMP '{date_min}' - INTERVAL '{pad_hours} hours'"))
+      "c.datetime_start_utc >= TIMESTAMP '{date_min}' - INTERVAL '{pad_hours} hours'"))
   if (!is.null(date_max))
     filt <- c(filt, glue::glue(
-      "c.datetime_utc <= TIMESTAMP '{date_max}' + INTERVAL '{pad_hours} hours'"))
+      "c.datetime_start_utc <= TIMESTAMP '{date_max}' + INTERVAL '{pad_hours} hours'"))
 
   glue::glue(
     "  SELECT
     bm.bottle_measurement_id AS env_id,
-    c.datetime_utc           AS env_datetime,
-    c.lon_dec                AS env_lon,
-    c.lat_dec                AS env_lat,
+    c.datetime_start_utc           AS env_datetime,
+    c.longitude                AS env_lon,
+    c.latitude                AS env_lat,
     bm.measurement_value     AS env_value,
     b.depth_m                AS env_depth_m,
     bm.measurement_type      AS measurement_type
@@ -187,7 +187,7 @@ ORDER BY bio_id",
   filt <- c(
     "i.tally IS NOT NULL",
     "i.measurement_type IS NULL",   # NULL measurement_type == count (tally) rows
-    "t.time_start IS NOT NULL",
+    "t.datetime_start_utc IS NOT NULL",
     "s.longitude IS NOT NULL",
     "s.latitude IS NOT NULL")
   if (!is.null(species_where))
@@ -197,19 +197,19 @@ ORDER BY bio_id",
       "i.life_stage IN ({vals})",
       vals = paste0("'", gsub("'", "''", life_stage), "'", collapse = ", ")))
   if (!is.null(date_min))
-    filt <- c(filt, glue::glue("t.time_start >= TIMESTAMP '{date_min}'"))
+    filt <- c(filt, glue::glue("t.datetime_start_utc >= TIMESTAMP '{date_min}'"))
   if (!is.null(date_max))
-    filt <- c(filt, glue::glue("t.time_start <= TIMESTAMP '{date_max}'"))
+    filt <- c(filt, glue::glue("t.datetime_start_utc <= TIMESTAMP '{date_max}'"))
 
   prefix <- if (is.null(taxon_cte)) "" else paste0(taxon_cte, "\n  ")
 
   glue::glue(
     "  {prefix}SELECT
     i.ichthyo_uuid::VARCHAR AS bio_id,
-    t.time_start            AS bio_datetime,
+    t.datetime_start_utc            AS bio_datetime,
     s.longitude             AS bio_lon,
     s.latitude              AS bio_lat,
-    n.std_haul_factor * i.tally / nullif(n.prop_sorted, 0) AS bio_value,
+    n.standard_haul_factor * i.tally / nullif(n.prop_sorted, 0) AS bio_value,
     sp.scientific_name,
     sp.common_name,
     sp.worms_id,
@@ -577,18 +577,18 @@ cc_match_zooplankton_biomass <- function(
 
   filt <- c(
     glue::glue("n.{biomass_type} IS NOT NULL"),
-    "t.time_start IS NOT NULL",
+    "t.datetime_start_utc IS NOT NULL",
     "s.longitude IS NOT NULL",
     "s.latitude IS NOT NULL")
   if (!is.null(date_min))
-    filt <- c(filt, glue::glue("t.time_start >= TIMESTAMP '{date_min}'"))
+    filt <- c(filt, glue::glue("t.datetime_start_utc >= TIMESTAMP '{date_min}'"))
   if (!is.null(date_max))
-    filt <- c(filt, glue::glue("t.time_start <= TIMESTAMP '{date_max}'"))
+    filt <- c(filt, glue::glue("t.datetime_start_utc <= TIMESTAMP '{date_max}'"))
 
   bio_sql <- glue::glue(
     "  SELECT
     n.net_uuid::VARCHAR AS bio_id,
-    t.time_start        AS bio_datetime,
+    t.datetime_start_utc        AS bio_datetime,
     s.longitude         AS bio_lon,
     s.latitude          AS bio_lat,
     n.{biomass_type}    AS bio_value,
