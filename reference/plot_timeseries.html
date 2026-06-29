@@ -104,32 +104,14 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># get variables</span></span></span>
 <span class="r-in"><span><span class="op">(</span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_variables.html">get_variables</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 6</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   category      table_field       plot_title plot_label plot_color color_palette</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Oceanographic ctd_bottles.sali… Salinity   Salinity … purple     Purples      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Oceanographic ctd_bottles.o2sat Oxygen Sa… Oxygen pe… blue       Blues        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Oceanographic ctd_bottles.t_de… Temperatu… Temperatu… red        Reds         </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in req_perform(request("https://api.calcofi.io/variables")):</span> HTTP 502 Bad Gateway.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get data for the first variable</span></span></span>
 <span class="r-in"><span><span class="op">(</span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_timeseries.html">get_timeseries</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">table_field</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`get_timeseries()` was deprecated in calcofi4r 1.1.0.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> The CalCOFI API is being phased out.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Query data with cc_get_db() and aggregate with dplyr for time series.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 71 × 4</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     year val_avg val_sd n_obs</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>  <span style="text-decoration: underline;">1</span>949    33.8  0.550 <span style="text-decoration: underline;">28</span>081</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>  <span style="text-decoration: underline;">1</span>950    33.9  0.515 <span style="text-decoration: underline;">38</span>298</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>  <span style="text-decoration: underline;">1</span>951    34.0  0.512 <span style="text-decoration: underline;">40</span>459</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>  <span style="text-decoration: underline;">1</span>952    33.8  0.469 <span style="text-decoration: underline;">31</span>690</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>  <span style="text-decoration: underline;">1</span>953    33.9  0.438 <span style="text-decoration: underline;">29</span>789</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>  <span style="text-decoration: underline;">1</span>954    33.9  0.469 <span style="text-decoration: underline;">18</span>874</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>  <span style="text-decoration: underline;">1</span>955    34.0  0.475 <span style="text-decoration: underline;">23</span>248</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>  <span style="text-decoration: underline;">1</span>956    34.1  0.536 <span style="text-decoration: underline;">14</span>274</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>  <span style="text-decoration: underline;">1</span>957    34.2  0.552 <span style="text-decoration: underline;">19</span>072</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>  <span style="text-decoration: underline;">1</span>958    33.9  0.420 <span style="text-decoration: underline;">24</span>324</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 61 more rows</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'v' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># plot time series with the first variable</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">v</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>,</span></span>
@@ -138,9 +120,7 @@
 <span class="r-in"><span>    <span class="va">d</span>, <span class="va">year</span>, <span class="va">t_deg_c_avg</span>, <span class="va">t_deg_c_sd</span>,</span></span>
 <span class="r-in"><span>    <span class="co"># plot attributes (from v)</span></span></span>
 <span class="r-in"><span>    <span class="va">plot_title</span>, <span class="va">plot_label</span>, <span class="va">plot_color</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dplyr::mutate(., `-sd` = {    {        fld_avg    }} - {    {        fld_sd    }}, `+sd` = {    {        fld_avg    }} + {    {        fld_sd    }}):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `-sd = t_deg_c_avg - t_deg_c_sd`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> object 't_deg_c_avg' not found</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'v' not found</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
