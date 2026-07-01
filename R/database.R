@@ -935,7 +935,7 @@ cc_db_connect <- function(path_pw = "~/.calcofi_db_pass.txt"){
 #'
 #' For a richer point-and-click view with ERD diagram, dataset
 #' provenance, and the canonical measurement-type registry, see the
-#' [CalCOFI Schema explorer](https://calcofi.io/schema/).
+#' [CalCOFI Schema explorer](https://calcofi.io/db-schema/).
 #'
 #' @param tables Optional character vector of table names to filter to.
 #'   Default: \code{NULL} (show all).
@@ -944,7 +944,7 @@ cc_db_connect <- function(path_pw = "~/.calcofi_db_pass.txt"){
 #' @return A `DT::datatable()` of tables and columns.
 #'
 #' @seealso [cc_describe_table()] for per-table schema as a tibble.
-#'   [CalCOFI Schema explorer](https://calcofi.io/schema/) for the
+#'   [CalCOFI Schema explorer](https://calcofi.io/db-schema/) for the
 #'   web-based browser with ERD and measurement-type registry.
 #' @importFrom DT datatable
 #' @importFrom htmltools div em span strong HTML

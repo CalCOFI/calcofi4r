@@ -8,14 +8,14 @@
 # They supersede the retired Postgres Plumber API endpoints `zooplankton_biomass`,
 # `itis_ichthyodata` and `ichthyodata`, which relied on pre-built `uunet2ctd*`
 # match tables that are not part of the DuckDB/GCS releases. The matching SQL is
-# modeled on the proven on-the-fly matcher in `int-app` (`prep_splot()`).
+# modeled on the proven on-the-fly matcher in `db-viz-hex` (`prep_splot()`).
 #
 # The emitted SQL reads directly from public GCS Parquet URLs
 # (`read_parquet('https://storage.googleapis.com/calcofi-db/.../{table}.parquet')`),
 # so it is fully portable: `return_sql = TRUE` hands back the exact, interpolated
 # query, which anyone can re-run in DuckDB (R, Python, or the CLI) and get
 # identical rows. That reproducibility hook is the single source of truth for the
-# `int-app` download bundle.
+# `db-viz-hex` download bundle.
 
 # internal: resolve "latest" to a concrete release version (e.g. "v2026.05.14")
 .cc_resolve_version <- function(version = "latest") {
@@ -380,7 +380,7 @@ cc_match_bio_env <- function(
 #' \dontrun{
 #' # Pacific sardine larvae vs. temperature, Q1 2018, relaxed matching
 #' # (note: CTD-bottle env data ends 2021-05, so Q1 2018 is used as the
-#' #  recurring worked example across calcofi4r, int-app and the docs book)
+#' #  recurring worked example across calcofi4r, db-viz-hex and the docs book)
 #' d <- cc_match_ichthyo_by_name(
 #'   "Sardinops sagax",
 #'   env_var        = "temperature",

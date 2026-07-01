@@ -421,7 +421,7 @@ cc_list_tables <- function(version = "latest") {
 #'
 #' For a point-and-click view of the same metadata (ERD, sortable
 #' tables/columns, measurement-type registry), see the
-#' [CalCOFI Schema explorer](https://calcofi.io/schema/).
+#' [CalCOFI Schema explorer](https://calcofi.io/db-schema/).
 #'
 #' @param table Table name.
 #' @param version Database version (default: \code{"latest"}).
@@ -433,7 +433,7 @@ cc_list_tables <- function(version = "latest") {
 #'
 #' @seealso [cc_db_catalog()] for a DT::datatable() of every table and
 #'   column in a release.
-#'   [CalCOFI Schema explorer](https://calcofi.io/schema/) for a
+#'   [CalCOFI Schema explorer](https://calcofi.io/db-schema/) for a
 #'   web view of the same metadata.
 #'
 #' @export
