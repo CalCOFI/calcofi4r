@@ -262,20 +262,9 @@ get_timeseries <- function(
 #' }
 #' @importFrom dplyr tbl filter collect
 cc_read_ichthyo <- function(..., version = "latest", collect = TRUE) {
-  con <- cc_get_db(version = version)
-  table <- dplyr::tbl(con, "ichthyo")
-
-  # apply filters if provided
-  dots <- rlang::enquos(...)
-  if (length(dots) > 0) {
-    table <- dplyr::filter(table, !!!dots)
-  }
-
-  if (collect) {
-    dplyr::collect(table)
-  } else {
-    table
-  }
+  .cc_reader_retired("cc_read_ichthyo", "cc_read_obs(realm='bio', datasets='swfsc_ichthyo')")
+  cc_read_obs(..., realm = "bio", datasets = "swfsc_ichthyo",
+              version = version, collect = collect)
 }
 
 #' @rdname cc_read_ichthyo
@@ -304,22 +293,23 @@ cc_read_larvae <- cc_read_ichthyo
 #' # filter by depth
 #' shallow <- cc_read_bottle(depth_m < 100)
 #' }
+# one-time deprecation notice for the per-dataset readers now retired in favor of
+# the consolidated core surface (obs / sample). The per-dataset tables no longer
+# exist in the release; these delegate to cc_read_obs()/cc_read_sample() and
+# RETURN THE CORE SCHEMA (filters in ... must reference core columns).
+.cc_reader_retired <- function(old, new) {
+  rlang::warn(
+    glue::glue("`{old}()` is retired: the per-dataset tables were consolidated ",
+               "into `obs`/`sample`. Delegating to `{new}` — note the returned ",
+               "columns are now the core schema. Update filters accordingly."),
+    .frequency = "once", .frequency_id = paste0("cc_reader_retired_", old))
+}
+
 #' @importFrom dplyr tbl filter collect
 cc_read_bottle <- function(..., version = "latest", collect = TRUE) {
-  con <- cc_get_db(version = version)
-  table <- dplyr::tbl(con, "bottle")
-
-  # apply filters if provided
-  dots <- rlang::enquos(...)
-  if (length(dots) > 0) {
-    table <- dplyr::filter(table, !!!dots)
-  }
-
-  if (collect) {
-    dplyr::collect(table)
-  } else {
-    table
-  }
+  .cc_reader_retired("cc_read_bottle", "cc_read_sample(datasets='calcofi_bottle', sample_types='bottle')")
+  cc_read_sample(..., datasets = "calcofi_bottle", sample_types = "bottle",
+                 version = version, collect = collect)
 }
 
 #' Read CalCOFI cast data
@@ -344,20 +334,9 @@ cc_read_bottle <- function(..., version = "latest", collect = TRUE) {
 #' }
 #' @importFrom dplyr tbl filter collect
 cc_read_casts <- function(..., version = "latest", collect = TRUE) {
-  con <- cc_get_db(version = version)
-  table <- dplyr::tbl(con, "casts")
-
-  # apply filters if provided
-  dots <- rlang::enquos(...)
-  if (length(dots) > 0) {
-    table <- dplyr::filter(table, !!!dots)
-  }
-
-  if (collect) {
-    dplyr::collect(table)
-  } else {
-    table
-  }
+  .cc_reader_retired("cc_read_casts", "cc_read_sample(datasets='calcofi_bottle', sample_types='cast')")
+  cc_read_sample(..., datasets = "calcofi_bottle", sample_types = "cast",
+                 version = version, collect = collect)
 }
 
 #' @rdname cc_read_casts
@@ -622,20 +601,9 @@ cc_read_measurements <- function(
   version = "latest",
   collect = TRUE
 ) {
-  con <- cc_get_db(version = version)
-  table <- dplyr::tbl(con, "bottle_measurement")
-
-  # filter by measurement type if specified
-  if (!is.null(measurement_types)) {
-    table <- dplyr::filter(table, measurement_type %in% measurement_types)
-  }
-
-  dots <- rlang::enquos(...)
-  if (length(dots) > 0) {
-    table <- dplyr::filter(table, !!!dots)
-  }
-
-  if (collect) dplyr::collect(table) else table
+  .cc_reader_retired("cc_read_measurements", "cc_read_obs(realm='env')")
+  cc_read_obs(..., realm = "env", measurement_types = measurement_types,
+              version = version, collect = collect)
 }
 
 #' List available measurement types
@@ -686,15 +654,9 @@ cc_list_measurement_types <- function(version = "latest") {
 #' }
 #' @importFrom dplyr tbl filter collect
 cc_read_tow <- function(..., version = "latest", collect = TRUE) {
-  con <- cc_get_db(version = version)
-  table <- dplyr::tbl(con, "tow")
-
-  dots <- rlang::enquos(...)
-  if (length(dots) > 0) {
-    table <- dplyr::filter(table, !!!dots)
-  }
-
-  if (collect) dplyr::collect(table) else table
+  .cc_reader_retired("cc_read_tow", "cc_read_sample(datasets='swfsc_ichthyo', sample_types='tow')")
+  cc_read_sample(..., datasets = "swfsc_ichthyo", sample_types = "tow",
+                 version = version, collect = collect)
 }
 
 #' Read CalCOFI site data
@@ -717,13 +679,7 @@ cc_read_tow <- function(..., version = "latest", collect = TRUE) {
 #' }
 #' @importFrom dplyr tbl filter collect
 cc_read_site <- function(..., version = "latest", collect = TRUE) {
-  con <- cc_get_db(version = version)
-  table <- dplyr::tbl(con, "site")
-
-  dots <- rlang::enquos(...)
-  if (length(dots) > 0) {
-    table <- dplyr::filter(table, !!!dots)
-  }
-
-  if (collect) dplyr::collect(table) else table
+  .cc_reader_retired("cc_read_site", "cc_read_sample(datasets='swfsc_ichthyo', sample_types='site')")
+  cc_read_sample(..., datasets = "swfsc_ichthyo", sample_types = "site",
+                 version = version, collect = collect)
 }
