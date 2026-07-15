@@ -24,8 +24,9 @@ cc_match_zooplankton_biomass(
 \arguments{
 \item{env_var}{Environmental \code{measurement_type} (default: \code{"temperature"}).}
 
-\item{biomass_type}{Which net biomass column to use: \code{"totalplankton"}
-(default) or \code{"smallplankton"}.}
+\item{biomass_type}{Which net biomass to use: \code{"totalplankton"}
+(default; = \code{sample_measurement} type \code{total_plankton_biomass}) or
+\code{"smallplankton"} (= \code{small_plankton_biomass}).}
 
 \item{date_min, date_max}{Optional date bounds on the tow start time.}
 
@@ -44,9 +45,10 @@ environmental observations.}
 See \code{\link[=cc_match_bio_env]{cc_match_bio_env()}}. \code{bio_value} is the selected biomass column.
 }
 \description{
-Relates net-tow zooplankton displacement-volume biomass (\code{net.totalplankton}
-or \code{net.smallplankton}) to CTD-bottle environmental measurements. Supersedes
-the retired \verb{/zooplankton_biomass} endpoint.
+Relates net-tow zooplankton displacement-volume biomass (the
+\code{total_plankton_biomass} / \code{small_plankton_biomass} measurement types in
+\code{sample_measurement}) to environmental measurements. Supersedes the retired
+\verb{/zooplankton_biomass} endpoint.
 }
 \examples{
 \dontrun{

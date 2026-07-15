@@ -27,8 +27,8 @@ cc_match_ichthyo_by_name(
 \item{scientific_name}{Character vector of scientific names to match against
 \code{species.scientific_name}.}
 
-\item{env_var}{Environmental \code{measurement_type} from the \code{bottle_measurement}
-table (default: \code{"temperature"}). See \code{\link[=cc_list_measurement_types]{cc_list_measurement_types()}}.}
+\item{env_var}{Environmental \code{measurement_type} from the \code{obs} table
+(\code{realm = 'env'}; default: \code{"temperature"}). See \code{\link[=cc_list_measurement_types]{cc_list_measurement_types()}}.}
 
 \item{exact_match}{If \code{TRUE} (default) match names exactly; if \code{FALSE} match
 case-insensitively as substrings (\verb{ILIKE '\%name\%'}).}

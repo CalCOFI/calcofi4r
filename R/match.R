@@ -139,36 +139,38 @@ ORDER BY bio_id",
   base <- .cc_parquet_base(version)
 
   filt <- c(
-    glue::glue("bm.measurement_type = '{env_var}'"),
-    "bm.measurement_value IS NOT NULL",
-    "c.datetime_start_utc IS NOT NULL",
-    "c.longitude IS NOT NULL",
-    "c.latitude IS NOT NULL")
+    "realm = 'env'",
+    glue::glue("measurement_type = '{env_var}'"),
+    "measurement_value IS NOT NULL",
+    "datetime IS NOT NULL",
+    "longitude IS NOT NULL",
+    "latitude IS NOT NULL")
 
   if (!is.null(depth_m_min))
-    filt <- c(filt, glue::glue("b.depth_m >= {depth_m_min}"))
+    filt <- c(filt, glue::glue("depth_min_m >= {depth_m_min}"))
   if (!is.null(depth_m_max))
-    filt <- c(filt, glue::glue("b.depth_m <= {depth_m_max}"))
+    filt <- c(filt, glue::glue("depth_min_m <= {depth_m_max}"))
   # pad the env date window by the match tolerance so boundary pairs survive
   if (!is.null(date_min))
     filt <- c(filt, glue::glue(
-      "c.datetime_start_utc >= TIMESTAMP '{date_min}' - INTERVAL '{pad_hours} hours'"))
+      "datetime >= TIMESTAMP '{date_min}' - INTERVAL '{pad_hours} hours'"))
   if (!is.null(date_max))
     filt <- c(filt, glue::glue(
-      "c.datetime_start_utc <= TIMESTAMP '{date_max}' + INTERVAL '{pad_hours} hours'"))
+      "datetime <= TIMESTAMP '{date_max}' + INTERVAL '{pad_hours} hours'"))
 
+  # env observations now live in the consolidated `obs` table (realm = 'env').
+  # Read the single-file `obs.parquet` (not the Hive-partitioned obs/ tree):
+  # plain HTTPS / DuckDB-WASM cannot glob a directory over GCS.
   glue::glue(
     "  SELECT
-    bm.bottle_measurement_id AS env_id,
-    c.datetime_start_utc           AS env_datetime,
-    c.longitude                AS env_lon,
-    c.latitude                AS env_lat,
-    bm.measurement_value     AS env_value,
-    b.depth_m                AS env_depth_m,
-    bm.measurement_type      AS measurement_type
-  FROM read_parquet('{base}/bottle_measurement.parquet') bm
-  JOIN read_parquet('{base}/bottle.parquet') b ON bm.bottle_id = b.bottle_id
-  JOIN read_parquet('{base}/casts.parquet')  c ON b.cast_id    = c.cast_id
+    obs_id AS env_id,
+    datetime AS env_datetime,
+    longitude AS env_lon,
+    latitude AS env_lat,
+    measurement_value AS env_value,
+    depth_min_m AS env_depth_m,
+    measurement_type AS measurement_type
+  FROM read_parquet('{base}/obs.parquet')
   WHERE {filt_sql}",
     filt_sql = paste(filt, collapse = "\n    AND "))
 }
@@ -185,41 +187,49 @@ ORDER BY bio_id",
   base <- .cc_parquet_base(version)
 
   filt <- c(
-    "i.tally IS NOT NULL",
-    "i.measurement_type IS NULL",   # NULL measurement_type == count (tally) rows
-    "t.datetime_start_utc IS NOT NULL",
-    "s.longitude IS NOT NULL",
-    "s.latitude IS NOT NULL")
+    "o.realm = 'bio'",
+    "o.dataset_key = 'swfsc_ichthyo'",
+    "o.measurement_type = 'abundance'",
+    "o.measurement_value IS NOT NULL",
+    "o.datetime IS NOT NULL",
+    "o.longitude IS NOT NULL",
+    "o.latitude IS NOT NULL")
   if (!is.null(species_where))
     filt <- c(filt, species_where)
   if (!is.null(life_stage))
     filt <- c(filt, glue::glue(
-      "i.life_stage IN ({vals})",
+      "o.life_stage IN ({vals})",
       vals = paste0("'", gsub("'", "''", life_stage), "'", collapse = ", ")))
   if (!is.null(date_min))
-    filt <- c(filt, glue::glue("t.datetime_start_utc >= TIMESTAMP '{date_min}'"))
+    filt <- c(filt, glue::glue("o.datetime >= TIMESTAMP '{date_min}'"))
   if (!is.null(date_max))
-    filt <- c(filt, glue::glue("t.datetime_start_utc <= TIMESTAMP '{date_max}'"))
+    filt <- c(filt, glue::glue("o.datetime <= TIMESTAMP '{date_max}'"))
 
   prefix <- if (is.null(taxon_cte)) "" else paste0(taxon_cte, "\n  ")
 
+  # ichthyoplankton abundance now lives in the consolidated `obs` table
+  # (realm = 'bio', dataset_key = 'swfsc_ichthyo', measurement_type = 'abundance');
+  # net effort (haul factor, sorted proportion) comes from `sample_measurement`,
+  # keyed by sample_key. `bio_value` remains the standardized tally
+  # (std_haul_factor * count / prop_sorted), as consumed by the vignette + engine.
+  # Read the single-file `obs.parquet` (not the Hive-partitioned obs/ tree):
+  # plain HTTPS / DuckDB-WASM cannot glob a directory over GCS.
   glue::glue(
     "  {prefix}SELECT
-    i.ichthyo_uuid::VARCHAR AS bio_id,
-    t.datetime_start_utc            AS bio_datetime,
-    s.longitude             AS bio_lon,
-    s.latitude              AS bio_lat,
-    n.standard_haul_factor * i.tally / nullif(n.prop_sorted, 0) AS bio_value,
+    o.obs_id::VARCHAR AS bio_id,
+    o.datetime AS bio_datetime,
+    o.longitude AS bio_lon,
+    o.latitude AS bio_lat,
+    o.measurement_value * shf.measurement_value / nullif(ps.measurement_value, 0) AS bio_value,
+    o.measurement_value AS tally,
+    CAST(o.taxon_id AS INTEGER) AS species_id,
     sp.scientific_name,
-    sp.common_name,
     sp.worms_id,
-    i.life_stage,
-    i.tally
-  FROM read_parquet('{base}/ichthyo.parquet') i
-  JOIN read_parquet('{base}/species.parquet') sp ON i.species_id = sp.species_id
-  JOIN read_parquet('{base}/net.parquet')     n  ON i.net_uuid   = n.net_uuid
-  JOIN read_parquet('{base}/tow.parquet')     t  ON n.tow_uuid   = t.tow_uuid
-  JOIN read_parquet('{base}/site.parquet')    s  ON t.site_uuid  = s.site_uuid
+    o.life_stage
+  FROM read_parquet('{base}/obs.parquet') o
+  JOIN read_parquet('{base}/species.parquet') sp ON CAST(o.taxon_id AS INTEGER) = sp.species_id
+  LEFT JOIN read_parquet('{base}/sample_measurement.parquet') shf ON shf.sample_key = o.sample_key AND shf.measurement_type = 'std_haul_factor'
+  LEFT JOIN read_parquet('{base}/sample_measurement.parquet') ps ON ps.sample_key = o.sample_key AND ps.measurement_type = 'prop_sorted'
   WHERE {filt_sql}",
     filt_sql = paste(filt, collapse = "\n    AND "))
 }
@@ -355,8 +365,8 @@ cc_match_bio_env <- function(
 #'
 #' @param scientific_name Character vector of scientific names to match against
 #'   `species.scientific_name`.
-#' @param env_var Environmental `measurement_type` from the `bottle_measurement`
-#'   table (default: `"temperature"`). See [cc_list_measurement_types()].
+#' @param env_var Environmental `measurement_type` from the `obs` table
+#'   (`realm = 'env'`; default: `"temperature"`). See [cc_list_measurement_types()].
 #' @param exact_match If `TRUE` (default) match names exactly; if `FALSE` match
 #'   case-insensitively as substrings (`ILIKE '%name%'`).
 #' @param life_stage Optional character vector restricting `ichthyo.life_stage`
@@ -528,13 +538,15 @@ cc_match_ichthyo_by_taxon <- function(
 
 #' Match zooplankton biomass to environmental data
 #'
-#' Relates net-tow zooplankton displacement-volume biomass (`net.totalplankton`
-#' or `net.smallplankton`) to CTD-bottle environmental measurements. Supersedes
-#' the retired `/zooplankton_biomass` endpoint.
+#' Relates net-tow zooplankton displacement-volume biomass (the
+#' `total_plankton_biomass` / `small_plankton_biomass` measurement types in
+#' `sample_measurement`) to environmental measurements. Supersedes the retired
+#' `/zooplankton_biomass` endpoint.
 #'
 #' @param env_var Environmental `measurement_type` (default: `"temperature"`).
-#' @param biomass_type Which net biomass column to use: `"totalplankton"`
-#'   (default) or `"smallplankton"`.
+#' @param biomass_type Which net biomass to use: `"totalplankton"`
+#'   (default; = `sample_measurement` type `total_plankton_biomass`) or
+#'   `"smallplankton"` (= `small_plankton_biomass`).
 #' @param date_min,date_max Optional date bounds on the tow start time.
 #' @param depth_m_min,depth_m_max Optional depth bounds (meters) on the bottle
 #'   environmental observations.
@@ -575,29 +587,35 @@ cc_match_zooplankton_biomass <- function(
   version <- .cc_resolve_version(version)
   base    <- .cc_parquet_base(version)
 
+  # map the biomass choice to its sample_measurement measurement_type; net
+  # displacement-volume biomass is now long-format in `sample_measurement`,
+  # joined to `sample` (sample_type = 'net') for position + time
+  meas_type <- c(
+    totalplankton = "total_plankton_biomass",
+    smallplankton = "small_plankton_biomass")[[biomass_type]]
+
   filt <- c(
-    glue::glue("n.{biomass_type} IS NOT NULL"),
-    "t.datetime_start_utc IS NOT NULL",
+    "sm.dataset_key = 'swfsc_ichthyo'",
+    glue::glue("sm.measurement_type = '{meas_type}'"),
+    "sm.measurement_value IS NOT NULL",
+    "s.datetime IS NOT NULL",
     "s.longitude IS NOT NULL",
     "s.latitude IS NOT NULL")
   if (!is.null(date_min))
-    filt <- c(filt, glue::glue("t.datetime_start_utc >= TIMESTAMP '{date_min}'"))
+    filt <- c(filt, glue::glue("s.datetime >= TIMESTAMP '{date_min}'"))
   if (!is.null(date_max))
-    filt <- c(filt, glue::glue("t.datetime_start_utc <= TIMESTAMP '{date_max}'"))
+    filt <- c(filt, glue::glue("s.datetime <= TIMESTAMP '{date_max}'"))
 
   bio_sql <- glue::glue(
     "  SELECT
-    n.net_uuid::VARCHAR AS bio_id,
-    t.datetime_start_utc        AS bio_datetime,
-    s.longitude         AS bio_lon,
-    s.latitude          AS bio_lat,
-    n.{biomass_type}    AS bio_value,
-    '{biomass_type}'    AS biomass_type,
-    n.side,
-    t.tow_type_key
-  FROM read_parquet('{base}/net.parquet') n
-  JOIN read_parquet('{base}/tow.parquet')  t ON n.tow_uuid  = t.tow_uuid
-  JOIN read_parquet('{base}/site.parquet') s ON t.site_uuid = s.site_uuid
+    sm.sample_measurement_id::VARCHAR AS bio_id,
+    s.datetime AS bio_datetime,
+    s.longitude AS bio_lon,
+    s.latitude AS bio_lat,
+    sm.measurement_value AS bio_value,
+    '{biomass_type}' AS biomass_type
+  FROM read_parquet('{base}/sample_measurement.parquet') sm
+  JOIN read_parquet('{base}/sample.parquet') s ON s.sample_key = sm.sample_key
   WHERE {filt_sql}",
     filt_sql = paste(filt, collapse = "\n    AND "))
 
