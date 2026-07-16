@@ -222,12 +222,12 @@ ORDER BY bio_id",
     o.latitude AS bio_lat,
     o.measurement_value * shf.measurement_value / nullif(ps.measurement_value, 0) AS bio_value,
     o.measurement_value AS tally,
-    CAST(o.taxon_id AS INTEGER) AS species_id,
-    sp.scientific_name,
-    sp.worms_id,
+    o.taxon_key,
+    t.scientific_name,
+    t.worms_id,
     o.life_stage
   FROM read_parquet('{base}/obs.parquet') o
-  JOIN read_parquet('{base}/species.parquet') sp ON CAST(o.taxon_id AS INTEGER) = sp.species_id
+  JOIN read_parquet('{base}/taxon.parquet') t ON t.taxon_key = o.taxon_key
   LEFT JOIN read_parquet('{base}/sample_measurement.parquet') shf ON shf.sample_key = o.sample_key AND shf.measurement_type = 'std_haul_factor'
   LEFT JOIN read_parquet('{base}/sample_measurement.parquet') ps ON ps.sample_key = o.sample_key AND ps.measurement_type = 'prop_sorted'
   WHERE {filt_sql}",
@@ -426,12 +426,12 @@ cc_match_ichthyo_by_name <- function(
   nm <- gsub("'", "''", scientific_name)
   species_where <- if (isTRUE(exact_match)) {
     glue::glue(
-      "sp.scientific_name IN ({vals})",
+      "t.scientific_name IN ({vals})",
       vals = paste0("'", nm, "'", collapse = ", "))
   } else {
     paste0(
       "(",
-      paste0("sp.scientific_name ILIKE '%", nm, "%'", collapse = " OR "),
+      paste0("t.scientific_name ILIKE '%", nm, "%'", collapse = " OR "),
       ")")
   }
 
@@ -505,23 +505,23 @@ cc_match_ichthyo_by_taxon <- function(
   version <- .cc_resolve_version(version)
   base    <- .cc_parquet_base(version)
 
-  # recursive walk of the WoRMS taxon tree: seed taxa + every descendant
+  # recursive walk of the unified taxon tree: seed taxa (by worms_id) + every
+  # descendant via parent_taxon_key. Yields taxon_key to filter obs directly.
   taxon_cte <- glue::glue(
     "WITH RECURSIVE taxon_tree AS (
-      SELECT taxonID
+      SELECT taxon_key
       FROM read_parquet('{base}/taxon.parquet')
-      WHERE authority = 'WoRMS' AND taxonID IN ({ids})
+      WHERE worms_id IN ({ids})
     UNION ALL
-      SELECT t.taxonID
+      SELECT t.taxon_key
       FROM read_parquet('{base}/taxon.parquet') t
-      JOIN taxon_tree tt ON t.parentNameUsageID = tt.taxonID
-      WHERE t.authority = 'WoRMS'
+      JOIN taxon_tree tt ON t.parent_taxon_key = tt.taxon_key
   )",
     ids = paste(worms_id, collapse = ", "))
 
   bio_sql <- .cc_bio_sql_ichthyo(
     version,
-    species_where = "sp.worms_id IN (SELECT taxonID FROM taxon_tree)",
+    species_where = "o.taxon_key IN (SELECT taxon_key FROM taxon_tree)",
     taxon_cte     = taxon_cte,
     life_stage    = life_stage, date_min = date_min, date_max = date_max)
   env_sql <- .cc_env_sql(

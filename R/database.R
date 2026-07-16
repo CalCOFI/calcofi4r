@@ -19,7 +19,11 @@
 #'   of remote views (default: FALSE). Useful for apps that need fast local
 #'   queries without network overhead.
 #' @param tables Character vector of table names to include. NULL (default)
-#'   includes all tables. Use to exclude large tables like CTD data.
+#'   includes all (non-supplemental) tables. Use to exclude large tables, or to
+#'   explicitly include a supplemental table by name.
+#' @param supplemental Logical; include supplemental tables (e.g. `obs_ctd_full`,
+#'   the 216M full-resolution CTD scans) that are hosted + cataloged but hidden by
+#'   default. Default `FALSE`. Ignored when `tables` names them explicitly.
 #'
 #' @return DuckDB connection object
 #' @export
@@ -53,12 +57,13 @@
 #' }
 #' @importFrom glue glue
 cc_get_db <- function(
-    version     = "latest",
-    local_cache = TRUE,
-    cache_dir   = NULL,
-    refresh     = FALSE,
-    local_data  = FALSE,
-    tables      = NULL) {
+    version      = "latest",
+    local_cache  = TRUE,
+    cache_dir    = NULL,
+    refresh      = FALSE,
+    local_data   = FALSE,
+    tables       = NULL,
+    supplemental = FALSE) {
 
   if (!requireNamespace("duckdb", quietly = TRUE)) {
     stop("Package 'duckdb' is required. Install with: install.packages('duckdb')")
@@ -157,10 +162,14 @@ cc_get_db <- function(
     return(con)
   }
 
-  # filter catalog to requested tables
+  # filter catalog to requested tables. Supplemental tables (e.g. obs_ctd_full,
+  # 216M full-resolution CTD scans) are hosted + cataloged but excluded by
+  # default; opt in with supplemental = TRUE, or name them explicitly in `tables`.
   tbl_catalog <- catalog$tables
   if (!is.null(tables)) {
     tbl_catalog <- tbl_catalog[tbl_catalog$name %in% tables, ]
+  } else if (!isTRUE(supplemental) && "supplemental" %in% names(tbl_catalog)) {
+    tbl_catalog <- tbl_catalog[!(tbl_catalog$supplemental %in% TRUE), ]
   }
 
   message(glue::glue(

@@ -10,7 +10,8 @@ cc_get_db(
   cache_dir = NULL,
   refresh = FALSE,
   local_data = FALSE,
-  tables = NULL
+  tables = NULL,
+  supplemental = FALSE
 )
 }
 \arguments{
@@ -29,7 +30,12 @@ of remote views (default: FALSE). Useful for apps that need fast local
 queries without network overhead.}
 
 \item{tables}{Character vector of table names to include. NULL (default)
-includes all tables. Use to exclude large tables like CTD data.}
+includes all (non-supplemental) tables. Use to exclude large tables, or to
+explicitly include a supplemental table by name.}
+
+\item{supplemental}{Logical; include supplemental tables (e.g. \code{obs_ctd_full},
+the 216M full-resolution CTD scans) that are hosted + cataloged but hidden by
+default. Default \code{FALSE}. Ignored when \code{tables} names them explicitly.}
 }
 \value{
 DuckDB connection object
