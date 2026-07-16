@@ -61,7 +61,8 @@ database locally for fast subsequent access.</p>
 <span>  cache_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  refresh <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  local_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  tables <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  tables <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  supplemental <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -95,7 +96,14 @@ queries without network overhead.</p></dd>
 
 <dt id="arg-tables">tables<a class="anchor" aria-label="anchor" href="#arg-tables"></a></dt>
 <dd><p>Character vector of table names to include. NULL (default)
-includes all tables. Use to exclude large tables like CTD data.</p></dd>
+includes all (non-supplemental) tables. Use to exclude large tables, or to
+explicitly include a supplemental table by name.</p></dd>
+
+
+<dt id="arg-supplemental">supplemental<a class="anchor" aria-label="anchor" href="#arg-supplemental"></a></dt>
+<dd><p>Logical; include supplemental tables (e.g. <code>obs_ctd_full</code>,
+the 216M full-resolution CTD scans) that are hosted + cataloged but hidden by
+default. Default <code>FALSE</code>. Ignored when <code>tables</code> names them explicitly.</p></dd>
 
 </dl></div>
     <div class="section level2">
