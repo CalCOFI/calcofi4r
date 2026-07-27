@@ -2,21 +2,31 @@
 % Please edit documentation in R/analytics.R
 \name{cc_client_ip}
 \alias{cc_client_ip}
-\title{Best-effort client IP for a Shiny session}
+\title{Best-effort client IP from a Shiny request}
 \usage{
-cc_client_ip(session)
+cc_client_ip(x)
 }
 \arguments{
-\item{session}{the Shiny \code{session} object}
+\item{x}{a Shiny \code{session}, or the \code{req} environment handed to a \code{ui}
+function (anything carrying the request fields directly)}
 }
 \value{
 character scalar, or \code{NA_character_} if unavailable
 }
 \description{
-Reads \code{X-Forwarded-For} (set by the nginx/shiny-server proxy the apps sit
-behind) and falls back to the direct \code{REMOTE_ADDR}. Never errors.
+Reads \code{X-Forwarded-For} (set by the Caddy reverse proxy the apps sit behind)
+and falls back to the direct \code{REMOTE_ADDR}. Never errors.
+}
+\details{
+\strong{Pass the \code{req} of a \code{ui} function, not a \code{session}, when you can.}
+shiny-server does not proxy the websocket upgrade — it opens a fresh
+localhost connection to the R worker — so a session's \code{request} carries no
+\code{X-Forwarded-For} and its \code{REMOTE_ADDR} is always \verb{127.0.0.1}. The page's
+HTTP request, which \verb{ui = function(req)} receives, is the only place the real
+client IP survives. See the \code{ip} argument of \code{\link[=cc_ga_js]{cc_ga_js()}}.
 }
 \examples{
 cc_client_ip(list(request = list(HTTP_X_FORWARDED_FOR = "203.0.113.7, 10.0.0.1")))
+cc_client_ip(list(HTTP_X_FORWARDED_FOR = "203.0.113.7"))   # a ui(req)
 }
 \concept{analytics}

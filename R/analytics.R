@@ -183,20 +183,30 @@ cc_event <- function(event, ...) .cc_payload(event, list(...))
 cc_track <- function(session, event, ...)
   .cc_send(session, "ccTrack", .cc_payload(event, list(...)))
 
-#' Best-effort client IP for a Shiny session
+#' Best-effort client IP from a Shiny request
 #'
-#' Reads `X-Forwarded-For` (set by the nginx/shiny-server proxy the apps sit
-#' behind) and falls back to the direct `REMOTE_ADDR`. Never errors.
+#' Reads `X-Forwarded-For` (set by the Caddy reverse proxy the apps sit behind)
+#' and falls back to the direct `REMOTE_ADDR`. Never errors.
 #'
-#' @param session the Shiny `session` object
+#' **Pass the `req` of a `ui` function, not a `session`, when you can.**
+#' shiny-server does not proxy the websocket upgrade — it opens a fresh
+#' localhost connection to the R worker — so a session's `request` carries no
+#' `X-Forwarded-For` and its `REMOTE_ADDR` is always `127.0.0.1`. The page's
+#' HTTP request, which `ui = function(req)` receives, is the only place the real
+#' client IP survives. See the `ip` argument of [cc_ga_js()].
+#'
+#' @param x a Shiny `session`, or the `req` environment handed to a `ui`
+#'   function (anything carrying the request fields directly)
 #' @return character scalar, or `NA_character_` if unavailable
 #' @examples
 #' cc_client_ip(list(request = list(HTTP_X_FORWARDED_FOR = "203.0.113.7, 10.0.0.1")))
+#' cc_client_ip(list(HTTP_X_FORWARDED_FOR = "203.0.113.7"))   # a ui(req)
 #' @export
 #' @concept analytics
-cc_client_ip <- function(session) {
+cc_client_ip <- function(x) {
   tryCatch({
-    req <- session$request
+    # a session carries the fields under $request; a ui() req carries them itself
+    req <- if (is.null(x$request)) x else x$request
     xff <- req[["HTTP_X_FORWARDED_FOR"]]
     if (!is.null(xff) && nzchar(xff)) trimws(strsplit(xff, ",")[[1]][1])
     else {
@@ -213,6 +223,10 @@ cc_client_ip <- function(session) {
 #' queued row (the `ip` and `session` columns of [cc_log_header()]). Call it at
 #' the top of the `server` function, before any [cc_track()] call, so no event
 #' is written without them.
+#'
+#' The token is authoritative, the IP is only a **fallback**: behind
+#' shiny-server a session sees `127.0.0.1`, so an `ip` already baked into the
+#' page by [cc_ga_js()] wins and this one is ignored.
 #'
 #' @param session the Shiny `session` object
 #' @return the sent list, invisibly
@@ -285,6 +299,12 @@ cc_track_query <- function(session, event, params = list(), expr) {
 #' @param app short app id recorded on every event, e.g. `"db-viz-hex"`
 #' @param content_group GA4 content group for reporting; defaults to `app`
 #' @param app_version version string recorded on every event, e.g. a git SHA
+#' @param ip client IP stamped on every logged row. Behind shiny-server this is
+#'   the **only** way to record a real one: the websocket handshake the R session
+#'   sees is a fresh localhost connection with no `X-Forwarded-For`, so make the
+#'   app's `ui` a `function(req)` and pass `cc_client_ip(req)` here. Left empty,
+#'   the `ip` column falls back to whatever [cc_track_session()] reports
+#'   (`127.0.0.1` behind a proxy).
 #' @param measurement_id GA4 measurement ID; defaults to the CalCOFI apps property
 #' @param log_url Apps Script `/exec` endpoint for the Sheet log. Defaults to the
 #'   `CALCOFI_LOG_URL` environment variable; empty means the Sheet leg is a
@@ -297,9 +317,12 @@ cc_track_query <- function(session, event, params = list(), expr) {
 cc_ga_js <- function(app,
                      content_group  = app,
                      app_version    = "",
+                     ip             = "",
                      measurement_id = .CC_GA_ID,
                      log_url        = Sys.getenv("CALCOFI_LOG_URL", "")) {
   stopifnot(length(app) == 1L, nzchar(app))
+  # cc_client_ip() returns NA when it cannot tell; the page wants an empty string
+  if (length(ip) != 1L || is.na(ip)) ip <- ""
 
   # JSON-encode every interpolated value so a stray quote can't break the script
   j <- function(x) as.character(jsonlite::toJSON(x, auto_unbox = TRUE))
@@ -340,9 +363,11 @@ cc_ga_js <- function(app,
   var CLIENT_ID  = stored(window.localStorage,   "calcofi_client_id");
   var SESSION_ID = stored(window.sessionStorage, "calcofi_session_id");
 
-  // the client IP and the Shiny session token are server-only facts;
-  // cc_track_session() pushes them once at session start.
-  var SERVER_IP = "", SERVER_SESSION = "";
+  // the client IP and the Shiny session token are server-only facts. The IP is
+  // baked in from the PAGE request (the only request that still carries
+  // X-Forwarded-For — shiny-server rebuilds the websocket handshake as a fresh
+  // localhost connection); the token arrives from cc_track_session().
+  var SERVER_IP = <<j(ip)>>, SERVER_SESSION = "";
 
   // ---- Sheet log: queue + batched beacon -----------------------------------
   var queue = [];
@@ -421,7 +446,10 @@ cc_ga_js <- function(app,
       window.ccTrack(m.event, obj(m.params), obj(m.metrics));
     });
     Shiny.addCustomMessageHandler("ccTrackSession", function (m) {
-      SERVER_IP      = m.ip      || "";
+      // the IP reported here is a FALLBACK, never an override: behind
+      // shiny-server a session always sees 127.0.0.1, which would clobber the
+      // real address the page request supplied.
+      if (!SERVER_IP && m.ip) SERVER_IP = m.ip;
       SERVER_SESSION = m.session || "";
     });
   }
@@ -446,9 +474,11 @@ cc_ga_js <- function(app,
 cc_ga_head <- function(app,
                        content_group  = app,
                        app_version    = "",
+                       ip             = "",
                        measurement_id = .CC_GA_ID,
                        log_url        = Sys.getenv("CALCOFI_LOG_URL", ""))
-  htmltools::HTML(cc_ga_js(app, content_group, app_version, measurement_id, log_url))
+  htmltools::HTML(
+    cc_ga_js(app, content_group, app_version, ip, measurement_id, log_url))
 
 #' Apps Script source for the usage-log Sheet
 #'

@@ -8,6 +8,7 @@ cc_ga_head(
   app,
   content_group = app,
   app_version = "",
+  ip = "",
   measurement_id = .CC_GA_ID,
   log_url = Sys.getenv("CALCOFI_LOG_URL", "")
 )
@@ -18,6 +19,13 @@ cc_ga_head(
 \item{content_group}{GA4 content group for reporting; defaults to \code{app}}
 
 \item{app_version}{version string recorded on every event, e.g. a git SHA}
+
+\item{ip}{client IP stamped on every logged row. Behind shiny-server this is
+the \strong{only} way to record a real one: the websocket handshake the R session
+sees is a fresh localhost connection with no \code{X-Forwarded-For}, so make the
+app's \code{ui} a \verb{function(req)} and pass \code{cc_client_ip(req)} here. Left empty,
+the \code{ip} column falls back to whatever \code{\link[=cc_track_session]{cc_track_session()}} reports
+(\verb{127.0.0.1} behind a proxy).}
 
 \item{measurement_id}{GA4 measurement ID; defaults to the CalCOFI apps property}
 

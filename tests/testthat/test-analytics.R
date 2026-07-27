@@ -89,6 +89,18 @@ test_that("cc_track is silent when the session cannot receive", {
   expect_error(cc_track(list(), "select_layer"), NA)   # no handler at all
 })
 
+test_that("cc_client_ip reads a ui(req) as well as a session", {
+  # THE reason this matters: shiny-server does not proxy the websocket upgrade,
+  # it opens a fresh localhost connection to the R worker - so session$request
+  # has no X-Forwarded-For and REMOTE_ADDR is 127.0.0.1. The page request handed
+  # to `ui = function(req)` is the only one that still carries the real IP.
+  expect_equal(cc_client_ip(list(HTTP_X_FORWARDED_FOR = "203.0.113.7")), "203.0.113.7")
+  expect_equal(cc_client_ip(list(REMOTE_ADDR = "198.51.100.4")), "198.51.100.4")
+  # an environment, which is what Shiny actually hands a ui function
+  e <- new.env(); assign("HTTP_X_FORWARDED_FOR", "203.0.113.9, 10.0.0.1", e)
+  expect_equal(cc_client_ip(e), "203.0.113.9")
+})
+
 test_that("cc_client_ip prefers X-Forwarded-For over REMOTE_ADDR", {
   # behind the shiny-server/nginx proxy the direct peer is the proxy itself,
   # so the left-most forwarded address is the real client
@@ -174,6 +186,19 @@ test_that("cc_ga_js embeds the configured ids and app metadata", {
   # REGRESSION: an empty R list serialises as [] not {} — without normalising,
   # the Sheet's params column reads "[]".
   expect_true(grepl("(!x || Array.isArray(x)) ? {} : x", js, fixed = TRUE))
+})
+
+test_that("cc_ga_js bakes in the page-request IP, which the session cannot override", {
+  js <- cc_ga_js("db-viz-hex", ip = "203.0.113.7", log_url = "https://example.com/exec")
+  expect_true(grepl('var SERVER_IP = "203.0.113.7"', js, fixed = TRUE))
+  # REGRESSION: cc_track_session() reports the SESSION's ip, which behind
+  # shiny-server is 127.0.0.1 - applying it unconditionally would overwrite the
+  # real address the page supplied, putting the log right back where it started.
+  expect_true(grepl("if (!SERVER_IP && m.ip) SERVER_IP = m.ip;", js, fixed = TRUE))
+
+  # NA (cc_client_ip's "cannot tell") must not reach the page as the string "NA"
+  expect_true(grepl('var SERVER_IP = ""', cc_ga_js("x", ip = NA), fixed = TRUE))
+  expect_true(grepl('var SERVER_IP = ""', cc_ga_js("x"), fixed = TRUE))
 })
 
 test_that("cc_ga_js keeps the Sheet beacon a CORS-simple request", {

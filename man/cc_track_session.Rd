@@ -19,6 +19,11 @@ queued row (the \code{ip} and \code{session} columns of \code{\link[=cc_log_head
 the top of the \code{server} function, before any \code{\link[=cc_track]{cc_track()}} call, so no event
 is written without them.
 }
+\details{
+The token is authoritative, the IP is only a \strong{fallback}: behind
+shiny-server a session sees \verb{127.0.0.1}, so an \code{ip} already baked into the
+page by \code{\link[=cc_ga_js]{cc_ga_js()}} wins and this one is ignored.
+}
 \examples{
 \dontrun{
 server <- function(input, output, session) {

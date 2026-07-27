@@ -1,3 +1,11 @@
+# calcofi4r 1.4.1
+
+*Log the real client IP, not the proxy*
+
+- **`cc_ga_js()` / `cc_ga_head()` gain `ip`** Stamps a client IP on every logged row from the **page** request. Behind shiny-server this is the only place a real one exists: shiny-server does not proxy the websocket upgrade — it opens a fresh localhost connection to the R worker — so `session$request` has no `X-Forwarded-For` and `REMOTE_ADDR` is always `127.0.0.1`, no matter how correctly the reverse proxy is configured. Make the app's `ui` a `function(req)` and pass `ip = cc_client_ip(req)`.
+- **`cc_client_ip()` accepts a `ui(req)`** as well as a `session` — the argument is now `x`, and the request fields are read directly when there is no `$request`.
+- **`cc_track_session()`'s IP is now a fallback**, not an override: the client keeps the page-supplied address rather than letting the session's `127.0.0.1` clobber it.
+
 # calcofi4r 1.4.0
 
 *Non-blocking usage analytics for the Shiny apps*
