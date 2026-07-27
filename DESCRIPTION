@@ -1,6 +1,6 @@
 Package: calcofi4r
 Title: CalCOFI R helper functions
-Version: 1.3.0
+Version: 1.4.0
 URL: https://calcofi.io/calcofi4r
 BugReports: https://github.com/calcofi/calcofi4r/issues
 Authors@R: c(
@@ -75,8 +75,11 @@ Suggests:
     knitr,
     patchwork,
     rmarkdown,
-    rnaturalearthdata
+    rnaturalearthdata,
+    testthat (>= 3.0.0),
+    withr
 VignetteBuilder: knitr
+Config/testthat/edition: 3
 Config/Needs/website:
     patchwork,
     rnaturalearthdata

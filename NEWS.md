@@ -1,3 +1,14 @@
+# calcofi4r 1.4.0
+
+*Non-blocking usage analytics for the Shiny apps*
+
+- **`cc_track()`** New: send a usage event from the Shiny server to the browser over the session's existing websocket. Makes **no HTTP request**, so instrumenting a hot control can never stall a reactive — replacing the synchronous `httr2::req_perform()` per query that `db-viz-hex` used to run on every filter submit and download.
+- **`cc_track_query()`** New: wrap a query expression to record its row count, duration, and any error (`n_rows` / `ms` / `status` / `error` get their own Sheet columns, so they stay numeric and chartable). The result — including a lazy `dbplyr` table — passes through untouched, and an error is re-raised after being logged.
+- **`cc_ga_head()` / `cc_ga_js()`** New: the one `<head>` snippet every CalCOFI app installs. Emits GA4 events for aggregate behavior and beacons full-cardinality detail to a Google Sheet, batched (10 events / 15 s / page-hide) via `navigator.sendBeacon()`. Also defines `window.ccTrack()` for pure UI events that never need to reach R.
+- **`cc_track_session()`, `cc_client_ip()`** New: hand the browser the client IP and Shiny session token, which JavaScript cannot read, so the log's `ip`/`session` columns survive the move to a browser-sent beacon.
+- **`cc_log_header()`, `cc_apps_script()`** New: the Sheet's column order and the generated `Code.gs` that appends a whole batch in one `setValues()` call — kept in one place so the Sheet, the Apps Script, and the client payload cannot drift.
+- **testthat suite** The package now has tests (`devtools::test()`), starting with 18 for the analytics module.
+
 # calcofi4r 1.3.0
 
 *Dataset-driven ERD coloring (stroke-based)*

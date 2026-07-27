@@ -50,7 +50,11 @@ reference:
   desc: functions specific to database (Admin only)
   contents:
   - has_concept("database")
+- title: "Analytics"
+  desc: non-blocking usage tracking for the Shiny apps (App maintainers only)
+  contents:
+  - has_concept("analytics")
 - title: "Other"
   desc: check for other functions or datasets not captured by above categories
   contents:
-  - lacks_concepts(c("read", "analyze", "visualize", "data", "database"))
+  - lacks_concepts(c("read", "analyze", "visualize", "data", "database", "analytics"))
