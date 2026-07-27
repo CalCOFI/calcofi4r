@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,6 +56,7 @@
 <span>  <span class="va">app</span>,</span>
 <span>  content_group <span class="op">=</span> <span class="va">app</span>,</span>
 <span>  app_version <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  ip <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  measurement_id <span class="op">=</span> <span class="va">.CC_GA_ID</span>,</span>
 <span>  log_url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"CALCOFI_LOG_URL"</span>, <span class="st">""</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -75,6 +76,15 @@
 
 <dt id="arg-app-version">app_version<a class="anchor" aria-label="anchor" href="#arg-app-version"></a></dt>
 <dd><p>version string recorded on every event, e.g. a git SHA</p></dd>
+
+
+<dt id="arg-ip">ip<a class="anchor" aria-label="anchor" href="#arg-ip"></a></dt>
+<dd><p>client IP stamped on every logged row. Behind shiny-server this is
+the <strong>only</strong> way to record a real one: the websocket handshake the R session
+sees is a fresh localhost connection with no <code>X-Forwarded-For</code>, so make the
+app's <code>ui</code> a <code>function(req)</code> and pass <code>cc_client_ip(req)</code> here. Left empty,
+the <code>ip</code> column falls back to whatever <code><a href="cc_track_session.html">cc_track_session()</a></code> reports
+(<code>127.0.0.1</code> behind a proxy).</p></dd>
 
 
 <dt id="arg-measurement-id">measurement_id<a class="anchor" aria-label="anchor" href="#arg-measurement-id"></a></dt>

@@ -21,7 +21,7 @@ is written without them."><meta property="og:image" content="https://calcofi.io/
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,6 +78,12 @@ is written without them.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>the sent list, invisibly</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The token is authoritative, the IP is only a <strong>fallback</strong>: behind
+shiny-server a session sees <code>127.0.0.1</code>, so an <code>ip</code> already baked into the
+page by <code><a href="cc_ga_js.html">cc_ga_js()</a></code> wins and this one is ignored.</p>
     </div>
 
     <div class="section level2">
