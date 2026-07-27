@@ -239,6 +239,30 @@ test_that("cc_ga_head wraps the script for tags$head()", {
   expect_s3_class(h, "html")
 })
 
+test_that("cc_ga_html writes a self-describing, GA4-only file", {
+  f <- withr::local_tempfile(fileext = ".html")
+  expect_equal(cc_ga_html(f, app = "marmam"), f)
+  txt <- paste(readLines(f), collapse = "\n")
+
+  expect_true(grepl('var APP      = "marmam"', txt, fixed = TRUE))
+  expect_true(grepl("G-VV117EV9ZT", txt, fixed = TRUE))
+  # the banner is a runnable regeneration command, not a vague hint - these
+  # files live in six repos and must never be hand-patched out of sync
+  expect_true(grepl('cc_ga_html("', txt, fixed = TRUE))
+  expect_true(grepl('"marmam"', txt, fixed = TRUE))
+  # Sheet leg off by default: a generated file is static, so it can carry
+  # neither a per-request ip nor an env-var-driven endpoint
+  expect_true(grepl('var LOG_URL  = ""', txt, fixed = TRUE))
+  expect_true(grepl('var SERVER_IP = ""', txt, fixed = TRUE))
+
+  # non-default arguments make it into the regeneration command
+  g <- withr::local_tempfile(fileext = ".html")
+  cc_ga_html(g, app = "x", app_version = "v9", log_url = "https://e.com/exec")
+  txt2 <- paste(readLines(g), collapse = "\n")
+  expect_true(grepl('app_version = "v9"', txt2, fixed = TRUE))
+  expect_true(grepl('log_url = "https://e.com/exec"', txt2, fixed = TRUE))
+})
+
 test_that("the Sheet header, Apps Script, and client payload agree", {
   hdr <- cc_log_header()
   expect_equal(hdr[1], "timestamp")

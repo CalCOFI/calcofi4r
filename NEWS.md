@@ -1,3 +1,9 @@
+# calcofi4r 1.4.2
+
+*One GA4 snippet for apps that do not depend on calcofi4r*
+
+- **`cc_ga_html()`** New: writes [cc_ga_js()]'s snippet to a standalone HTML file, so an app can keep `includeHTML("google-analytics.html")` and gain nothing at runtime. Loading the calcofi4r namespace costs ~4 s of cold start (sf/terra/stars come with it), which a small app should not pay just to be counted. The file carries a banner spelling out the exact regeneration command — these files live in several repos and must not be hand-patched apart. Static by nature, so the Sheet leg and the per-request `ip` are off; GA4 is unaffected, since gtag resolves the client IP in the browser.
+
 # calcofi4r 1.4.1
 
 *Log the real client IP, not the proxy*
