@@ -201,6 +201,24 @@ test_that("cc_ga_js bakes in the page-request IP, which the session cannot overr
   expect_true(grepl('var SERVER_IP = ""', cc_ga_js("x"), fixed = TRUE))
 })
 
+test_that("cc_ga_js does not count automated browsers", {
+  # GA4's bot list is user-agent based, so it never sees Playwright/Puppeteer/
+  # Selenium — or our own shot-scraper screenshots — which render the page and
+  # fire gtag like a real visitor. One cookie-less fetch per page turns a site
+  # sweep into N one-page "users" with no engagement.
+  js <- cc_ga_js("db-viz-hex", log_url = "https://example.com/exec")
+  expect_true(grepl("var IS_BOT = !!navigator.webdriver;", js, fixed = TRUE))
+  # neither leg may fire: no GA4 config...
+  expect_true(grepl("if (!IS_BOT) {", js, fixed = TRUE))
+  # ...and no Sheet row either
+  expect_true(grepl("if (IS_BOT) return;", js, fixed = TRUE))
+  # REGRESSION: ccTrack must still be DEFINED and the handlers still
+  # registered, or a server-side cc_track() logs an unknown-message warning in
+  # the console instead of doing nothing.
+  expect_true(grepl("window.ccTrack = function", js, fixed = TRUE))
+  expect_true(grepl('addCustomMessageHandler("ccTrack"', js, fixed = TRUE))
+})
+
 test_that("cc_ga_js keeps the Sheet beacon a CORS-simple request", {
   # REGRESSION: an application/json body triggers a preflight OPTIONS, which an
   # Apps Script /exec endpoint does not answer -> every event silently dropped.

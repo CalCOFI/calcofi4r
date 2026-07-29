@@ -1,3 +1,9 @@
+# calcofi4r 1.4.3
+
+*Don't count automated browsers*
+
+- **`cc_ga_js()` / `cc_ga_head()` / `cc_ga_html()` skip `navigator.webdriver` clients.** GA4 filters known bots by user agent, so what gets through is exactly the automation that *renders* — Playwright, Puppeteer, Selenium, and our own `shot-scraper` screenshot runs — firing gtag like a real visitor. Each fetch arrives cookie-less, so a site sweep becomes N one-page "users" with no engagement; that is how `calcofi4db` came to top the usage table on 169 users and 0% engagement. Both legs (GA4 and the Sheet) go silent under automation, while `window.ccTrack` stays defined and the message handlers still register, so a server-side `cc_track()` is a no-op rather than an unknown-message console warning.
+
 # calcofi4r 1.4.2
 
 *One GA4 snippet for apps that do not depend on calcofi4r*

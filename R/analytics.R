@@ -340,12 +340,25 @@ cc_ga_js <- function(app,
   var BATCH    = <<.CC_LOG_BATCH>>;
   var INTERVAL = <<.CC_LOG_INTERVAL_MS>>;
 
+  // ---- is this a person? ---------------------------------------------------
+  // GA4 drops KNOWN bots by user agent, which means what survives is precisely
+  // the automation that renders pages — Playwright, Puppeteer, Selenium, and
+  // our own shot-scraper screenshot runs. Those execute gtag exactly like a
+  // browser and each fetch arrives cookie-less, so a site sweep shows up as N
+  // one-page "users" with no engagement. navigator.webdriver is set by the
+  // WebDriver spec in every controlled browser, so treat it as do-not-count.
+  // (A crawler that patches the flag still gets through; engagement rate is
+  // the backstop for those — see calcofi.io/analytics.)
+  var IS_BOT = !!navigator.webdriver;
+
   // ---- GA4 ----------------------------------------------------------------
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
   window.gtag = window.gtag || gtag;
-  gtag("js", new Date());
-  gtag("config", GA_ID, { content_group: GROUP, app_name: APP, app_version: APP_VER });
+  if (!IS_BOT) {
+    gtag("js", new Date());
+    gtag("config", GA_ID, { content_group: GROUP, app_name: APP, app_version: APP_VER });
+  }
 
   // ---- identity -----------------------------------------------------------
   // Independent of GA so the Sheet log still stitches sessions when gtag is
@@ -401,6 +414,10 @@ cc_ga_js <- function(app,
   // Sheet queue (full values). `metrics` carries the reserved n_rows / ms /
   // status / error, which get their own Sheet columns.
   window.ccTrack = function (event, params, metrics) {
+    // stays DEFINED under automation, just inert: the message handlers below
+    // must still register, or a server-side cc_track() becomes an unknown-
+    // message warning in the browser console instead of a silent no-op.
+    if (IS_BOT) return;
     params  = params  || {};
     metrics = metrics || {};
     try {
