@@ -1,3 +1,21 @@
+# calcofi4r 1.4.4
+
+## `cc_tbl()` follows the spatial table rename, and keeps the old names working
+
+Release v2026.08.02 renames `_spatial` → **`spatial`** and `_spatial_attr` →
+**`spatial_attribute`**, and both now carry a real primary key,
+`spatial_key = '{layer}:{id}'`. The old `id` is per-layer sequential — a county
+and a sanctuary both have `id` 1 — so joining on it alone silently mixed layers;
+`spatial_key` is namespaced the way `sample_key` is.
+
+`cc_tbl()` accepts **either** name and picks the matching attribute table, so
+code pinned to an older release keeps working:
+
+```r
+cc_tbl(con, "spatial",  layer = "CA Counties")   # v2026.08.02 on
+cc_tbl(con, "_spatial", layer = "CA Counties")   # older releases
+```
+
 # calcofi4r 1.4.3
 
 *Don't count automated browsers*

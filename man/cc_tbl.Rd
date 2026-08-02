@@ -11,7 +11,7 @@ cc_tbl(con, table_name, layer = NULL, geom_col = "geom", crs = 4326)
 
 \item{table_name}{Name of the table}
 
-\item{layer}{Required when \code{table_name = "_spatial"}. Character string
+\item{layer}{Required when \code{table_name = "spatial"}. Character string
 specifying which spatial layer to return.}
 
 \item{geom_col}{Name of the geometry column for spatial tables
@@ -30,8 +30,8 @@ Returns a lazy \code{dplyr::tbl()} reference for non-spatial tables, or
 an \code{sf} object for tables with geometry columns.
 }
 \details{
-For the \verb{_spatial} table, automatically pivots attributes from
-\verb{_spatial_attr} wide and returns an sf object filtered to the
+For the \code{spatial} table, automatically pivots attributes from
+\code{spatial_attribute} wide and returns an sf object filtered to the
 requested layer.
 }
 \examples{
@@ -47,8 +47,8 @@ cc_tbl(con, "grid")
 # spatial: select alternate geometry
 cc_tbl(con, "grid", geom_col = "geom_ctr")
 
-# _spatial: returns sf with pivoted attributes for a layer
-cc_tbl(con, "_spatial", layer = "CA Counties")
+# spatial: returns sf with pivoted attributes for a layer
+cc_tbl(con, "spatial", layer = "CA Counties")
 }
 }
 \concept{database}

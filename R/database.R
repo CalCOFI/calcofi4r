@@ -656,13 +656,13 @@ cc_read_sf <- function(
 #' Returns a lazy `dplyr::tbl()` reference for non-spatial tables, or
 #' an `sf` object for tables with geometry columns.
 #'
-#' For the `_spatial` table, automatically pivots attributes from
-#' `_spatial_attr` wide and returns an sf object filtered to the
+#' For the `spatial` table, automatically pivots attributes from
+#' `spatial_attribute` wide and returns an sf object filtered to the
 #' requested layer.
 #'
 #' @param con DuckDB connection (from [cc_get_db()])
 #' @param table_name Name of the table
-#' @param layer Required when `table_name = "_spatial"`. Character string
+#' @param layer Required when `table_name = "spatial"`. Character string
 #'   specifying which spatial layer to return.
 #' @param geom_col Name of the geometry column for spatial tables
 #'   (default: "geom"). Use this to select alternate geometry columns,
@@ -687,8 +687,8 @@ cc_read_sf <- function(
 #' # spatial: select alternate geometry
 #' cc_tbl(con, "grid", geom_col = "geom_ctr")
 #'
-#' # _spatial: returns sf with pivoted attributes for a layer
-#' cc_tbl(con, "_spatial", layer = "CA Counties")
+#' # spatial: returns sf with pivoted attributes for a layer
+#' cc_tbl(con, "spatial", layer = "CA Counties")
 #' }
 #' @importFrom DBI dbGetQuery
 #' @importFrom glue glue
@@ -711,11 +711,13 @@ cc_tbl <- function(
     return(dplyr::tbl(con, table_name))
   }
 
-  # _spatial table: require layer, pivot attributes wide
-
-  if (table_name == "_spatial") {
+  # `spatial` table: require layer, pivot attributes wide. Renamed from
+  # `_spatial` / `_spatial_attr` in release v2026.08.02; the old names are still
+  # accepted so a caller pinned to an older release keeps working.
+  if (table_name %in% c("spatial", "_spatial")) {
+    attr_tbl <- if (table_name == "spatial") "spatial_attribute" else "_spatial_attr"
     if (is.null(layer)) {
-      stop("layer argument is required for the _spatial table")
+      stop("layer argument is required for the ", table_name, " table")
     }
 
     # read geometry for the requested layer
@@ -741,7 +743,7 @@ cc_tbl <- function(
                 CAST(val_date AS VARCHAR),
                 CAST(val_lgl AS VARCHAR)
               ) AS val
-       FROM _spatial_attr
+       FROM {attr_tbl}
        WHERE layer = '{layer}'"))
 
     if (nrow(attrs) > 0) {
