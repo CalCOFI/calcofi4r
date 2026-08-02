@@ -21,7 +21,7 @@ an sf object for tables with geometry columns."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,7 +78,7 @@ an <code>sf</code> object for tables with geometry columns.</p>
 
 
 <dt id="arg-layer">layer<a class="anchor" aria-label="anchor" href="#arg-layer"></a></dt>
-<dd><p>Required when <code>table_name = "_spatial"</code>. Character string
+<dd><p>Required when <code>table_name = "spatial"</code>. Character string
 specifying which spatial layer to return.</p></dd>
 
 
@@ -99,8 +99,8 @@ For spatial tables: an <code>sf</code> object with geometry.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>For the <code>_spatial</code> table, automatically pivots attributes from
-<code>_spatial_attr</code> wide and returns an sf object filtered to the
+    <p>For the <code>spatial</code> table, automatically pivots attributes from
+<code>spatial_attribute</code> wide and returns an sf object filtered to the
 requested layer.</p>
     </div>
 
@@ -118,8 +118,8 @@ requested layer.</p>
 <span class="r-in"><span><span class="co"># spatial: select alternate geometry</span></span></span>
 <span class="r-in"><span><span class="fu">cc_tbl</span><span class="op">(</span><span class="va">con</span>, <span class="st">"grid"</span>, geom_col <span class="op">=</span> <span class="st">"geom_ctr"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># _spatial: returns sf with pivoted attributes for a layer</span></span></span>
-<span class="r-in"><span><span class="fu">cc_tbl</span><span class="op">(</span><span class="va">con</span>, <span class="st">"_spatial"</span>, layer <span class="op">=</span> <span class="st">"CA Counties"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># spatial: returns sf with pivoted attributes for a layer</span></span></span>
+<span class="r-in"><span><span class="fu">cc_tbl</span><span class="op">(</span><span class="va">con</span>, <span class="st">"spatial"</span>, layer <span class="op">=</span> <span class="st">"CA Counties"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
