@@ -1,3 +1,48 @@
+# calcofi4r 1.5.0
+
+## Transects, climatology and anomalies: one implementation, five new functions
+
+Every app that draws a CalCOFI section had its own private helper. `apps/ctd-viz`
+made the user click two stations on a map and ordered them by ship track;
+`ctd-transects` needed the same section pre-rendered for a browser with no R
+behind it. A fix to the ordering or the depth binning had to be made twice, and
+the two had already drifted.
+
+* **`cc_transect_stations()`** — stations on a line, ordered **nearshore →
+  offshore by station number**. Well defined for every cruise with no endpoints to
+  pick, which is what makes a whole archive of sections pre-renderable. Station
+  order is deliberately not `order_occ`: that is the ship's track, so its
+  direction is whichever way the ship steamed, and it is NULL on roughly half the
+  release's cast rows.
+* **`cc_transect_section()`** — observations along that transect, binned by depth
+  (default 5 m to 500 m), long/tidy.
+* **`cc_climatology()`** — a baseline mean per (station, depth bin, calendar
+  month) over a stated year range, returned with `clim_n` so a thin cell can be
+  filtered rather than silently trusted.
+* **`cc_anomaly()`** — `value - clim_mean`. A cell with no baseline comes back
+  `NA`, **never 0**: an unsampled baseline is not a zero anomaly. Also returns
+  `anomaly_sd`, the departure in baseline standard deviations, which is what makes
+  1 degC interpretable — large in the deep, unremarkable at the surface in spring.
+* **`cc_transect_matrix()`** — pivot to the station x depth matrix a heatmap wants.
+
+These **prepare** data; they do not draw. Rendering stays with each app, because
+`ctd-viz` can interpolate server-side and `ctd-transects` cannot.
+
+### `x = "occupied"` vs `x = "line"`
+
+`cc_transect_stations(x=)` chooses the horizontal ruler. `"occupied"` (default)
+measures between the stations a cruise actually occupied, so the section fills the
+plot; `"line"` measures along the full line geometry, so cruises that sampled
+different subsets are comparable in width.
+
+This is not cosmetic. Line 93.3 has not been sampled past station 90 since
+2025-01, though 113 of the 130 cruises before it reached station 120 — so under
+the default ruler a recent section spans a shorter distance than a historical one
+at the same width, and comparing them by eye overstates recent gradients.
+
+Not to be confused with `buffer_transect()`, which is a user-drawn line plus
+buffer corridor.
+
 # calcofi4r 1.4.4
 
 ## `cc_tbl()` follows the spatial table rename, and keeps the old names working
