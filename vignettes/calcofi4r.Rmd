@@ -52,7 +52,7 @@ cc_list_versions()
 cc_list_tables()
 
 # describe a table
-cc_describe_table("ichthyo")
+cc_describe_table("obs")
 
 # list measurement types
 cc_list_measurement_types() |> head(10)
@@ -63,43 +63,37 @@ cc_list_measurement_types() |> head(10)
 Convenience functions return tibbles with optional filtering:
 
 ```{r read-convenience}
-# read species data
-species <- cc_read_species()
-head(species)
+# taxonomy: one row per taxon, keyed worms:<id> or itis:<id>
+taxa <- cc_read_taxon()
+head(taxa)
 
-# read ichthyo data (first 100 rows for demo)
+# ichthyoplankton occurrences
 ichthyo_sample <- cc_read_ichthyo() |> head(100)
 head(ichthyo_sample)
-
-# read with filtering (lazy query)
-anchovy <- cc_read_ichthyo(species_id == 19, collect = FALSE)
-anchovy |> head(5) |> collect()
 ```
 
 ## Database Schema
 
-The CalCOFI database contains data from two main programs:
+The database used to expose one table triple per dataset — `ichthyo`, `bottle`,
+`bottle_measurement`, `casts`, `species` and roughly thirty more. Those are gone.
+Every dataset now projects into one small **core** family, so a query written
+against ichthyoplankton works unchanged against CTD, zooplankton or seabirds:
 
-**Ichthyoplankton Survey** (since 1949):
+- **`obs`** — the occurrence table, one scalar per row. `realm` is `bio` or
+  `env`; biology carries `taxon_key`, environment carries a measurement type.
+- **`sample`** — one row per physical sampling event (cast, tow, net, bottle,
+  transect), with an adjacency list via `parent_sample_key` / `root_sample_key`.
+- **`obs_attribute`** — sub-occurrence detail: length and stage frequency, plus
+  categorical behaviour.
+- **`sample_measurement`** — event-level effort (volume sampled, haul factor,
+  cast conditions).
 
-- `cruise` - cruise metadata (691 cruises)
-- `ship` - research vessels (48 ships)
-- `site` - sampling locations (61K sites)
-- `tow` - net tow events (76K tows)
-- `net` - net samples (77K nets)
-- `ichthyo` - fish larvae counts (831K records)
-- `species` - species taxonomy (1,144 species)
-- `taxon` - taxonomic hierarchy
-- `grid` - CalCOFI station grid (218 cells)
-- `segment` - line segments between stations
+Shared references: **`taxon`** (one row per taxon, keyed `worms:<id>` or
+`itis:<id>`), **`dataset_taxon`** (each dataset's vocabulary crosswalked to it),
+**`taxon_group`**, **`cruise`**, **`ship`**, **`grid`**, **`measurement_type`**,
+**`spatial`** / **`spatial_attribute`**, **`region`**, **`dataset`**, **`lookup`**.
 
-**Bottle Database** (since 1949):
-
-- `casts` - CTD/bottle cast events (36K casts)
-- `bottle` - water sample bottles (895K bottles)
-- `bottle_measurement` - oceanographic measurements (11M records)
-- `measurement_type` - measurement definitions (47 types)
-- `cast_condition` - cast quality flags
+Full column-level reference: [calcofi.io/schema](https://calcofi.io/schema/).
 
 ```{r schema}
 # show row counts for each table
@@ -112,25 +106,26 @@ tibble(
   arrange(desc(rows))
 ```
 
-## Query Bottle Data
+## Query Environmental Data
 
-The bottle data contains oceanographic measurements from CTD casts. Measurements are stored in a normalized "long" format in `bottle_measurement`.
+Environmental measurements live in `obs` alongside biology, distinguished by
+`realm`, in a long format: one row per (sample, depth, measurement type).
+Position and time come from `sample`.
 
 ```{r bottle-temp}
-# get temperature measurements with location and depth
+# surface temperature with location and depth
 d_temp <- dbGetQuery(con, "
   SELECT
-    c.lon_dec as lon,
-    c.lat_dec as lat,
-    c.datetime_utc,
-    b.depth_m,
-    bm.measurement_value as temperature
-  FROM bottle_measurement bm
-  JOIN bottle b ON bm.bottle_id = b.bottle_id
-  JOIN casts c ON b.cast_id = c.cast_id
-  WHERE bm.measurement_type = 'temperature'
-    AND bm.measurement_value IS NOT NULL
-    AND b.depth_m <= 10
+    s.longitude AS lon,
+    s.latitude  AS lat,
+    s.datetime,
+    o.depth_min_m AS depth_m,
+    o.measurement_value AS temperature
+  FROM obs o
+  JOIN sample s USING (sample_key)
+  WHERE o.measurement_type = 'temperature'
+    AND o.measurement_value IS NOT NULL
+    AND o.depth_min_m <= 10
   LIMIT 100000")
 
 head(d_temp)
@@ -236,17 +231,19 @@ mapview(p_ext, zcol = "z_avg", layer.name = "Temp (C)")
 The ichthyoplankton survey counts fish larvae by species across sampling sites.
 
 ```{r ichthyo}
-# get top 10 species by total count
+# top 10 taxa by total count. `taxon_key` is global, so the same join works for
+# any dataset — swap the dataset_key and this counts euphausiids or seabirds.
 top_species <- dbGetQuery(con, "
   SELECT
-    s.scientific_name,
-    s.common_name,
-    SUM(i.tally) as total_count,
-    COUNT(DISTINCT n.tow_uuid) as n_tows
-  FROM ichthyo i
-  JOIN species s ON i.species_id = s.species_id
-  JOIN net n ON i.net_uuid = n.net_uuid
-  GROUP BY s.scientific_name, s.common_name
+    t.scientific_name,
+    t.common_name,
+    SUM(o.measurement_value)      AS total_count,
+    COUNT(DISTINCT o.sample_key)  AS n_samples
+  FROM obs o
+  JOIN taxon t USING (taxon_key)
+  WHERE o.realm = 'bio'
+    AND o.dataset_key = 'swfsc_ichthyo'
+  GROUP BY 1, 2
   ORDER BY total_count DESC
   LIMIT 10")
 
@@ -259,18 +256,18 @@ Map the distribution of a common species:
 
 ```{r species-map}
 # get Northern Anchovy observations with locations
+# `sample` replaces the old site -> tow -> net chain: obs joins it directly.
 anchovy <- dbGetQuery(con, "
   SELECT
-    si.latitude as lat,
-    si.longitude as lon,
-    SUM(i.tally) as count
-  FROM ichthyo i
-  JOIN species sp ON i.species_id = sp.species_id
-  JOIN net n ON i.net_uuid = n.net_uuid
-  JOIN tow t ON n.tow_uuid = t.tow_uuid
-  JOIN site si ON t.site_uuid = si.site_uuid
-  WHERE sp.scientific_name = 'Engraulis mordax'
-  GROUP BY si.latitude, si.longitude") |>
+    s.latitude  AS lat,
+    s.longitude AS lon,
+    SUM(o.measurement_value) AS count
+  FROM obs o
+  JOIN taxon  t USING (taxon_key)
+  JOIN sample s USING (sample_key)
+  WHERE t.scientific_name = 'Engraulis mordax'
+    AND o.realm = 'bio'
+  GROUP BY 1, 2") |>
   filter(!is.na(lon), !is.na(lat)) |>
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
 
@@ -307,7 +304,8 @@ cruises |>
 
 ## Available Measurement Types
 
-The bottle database includes many oceanographic variables:
+`measurement_type` is the shared vocabulary across every dataset, with units and
+the physical bounds each value is validated against:
 
 ```{r measurements}
 # list all measurement types
@@ -334,5 +332,9 @@ The package also includes pre-loaded spatial data objects for convenience:
 - `cc_grid_ctrs` - Station centroids (sf)
 - `cc_grid_zones` - Aggregated zone polygons (sf)
 - `cc_bottle` - Sample bottle data for examples (tibble)
+
+See also `vignette("bio-env-matching")` for joining biology to environment, and
+`vignette("ctd-temperature-anomalies")` for transects, climatologies and
+anomalies.
 
 These can be used without connecting to the database for quick spatial operations.

@@ -509,26 +509,74 @@ cc_describe_table <- function(table, version = "latest") {
 # internal: null-coalescing operator (avoid importing from rlang)
 `%||%` <- function(x, y) if (is.null(x) || length(x) == 0L) y else x
 
-#' Read CalCOFI species data
+#' Read CalCOFI taxonomy
 #'
-#' Convenience function to read species taxonomy data from the CalCOFI database.
+#' One row per taxon, keyed `worms:<id>` or `itis:<id>` (birds key ITIS, because
+#' WoRMS bird taxonomy lags). Carries `worms_id` / `itis_id` / `gbif_id`,
+#' `parent_taxon_key` and the flattened classification, so a hierarchy rollup
+#' ("everything in Decapoda") resolves without a second source.
+#'
+#' Replaces the per-dataset `species` table, which the taxon consolidation
+#' removed — see [cc_read_species()].
 #'
 #' @param version Database version (default: "latest")
 #' @param collect If TRUE, collect results into memory. If FALSE, return
 #'   lazy dbplyr table (default: TRUE)
 #' @param ... Additional filter expressions passed to \code{dplyr::filter()}
 #'
-#' @return Tibble of species data (if collect=TRUE) or lazy table
+#' @return Tibble of taxa (if collect=TRUE) or lazy table
 #'
 #' @export
 #' @concept read
 #'
 #' @examples
 #' \dontrun{
-#' species <- cc_read_species()
+#' taxa <- cc_read_taxon()
+#' anchovy <- cc_read_taxon(scientific_name == "Engraulis mordax")
 #' }
 #' @importFrom dplyr tbl filter collect
+cc_read_taxon <- function(..., version = "latest", collect = TRUE) {
+  con <- cc_get_db(version = version)
+  table <- dplyr::tbl(con, "taxon")
+
+  dots <- rlang::enquos(...)
+  if (length(dots) > 0) {
+    table <- dplyr::filter(table, !!!dots)
+  }
+
+  if (collect) dplyr::collect(table) else table
+}
+
+#' Read CalCOFI species data (deprecated)
+#'
+#' `r lifecycle::badge("deprecated")` The `species` table no longer exists: the
+#' taxon consolidation replaced the ~7 per-dataset taxonomy tables with one
+#' global [`taxon`][cc_read_taxon()] keyed `worms:<id>` / `itis:<id>`.
+#'
+#' This called `tbl(con, "species")` and failed with "Can't query fields" against
+#' any release from v2026.07 on. It now forwards to [cc_read_taxon()] with a
+#' warning, so existing scripts keep running — but the columns differ
+#' (`scientific_name` and `common_name` survive; `species_id` is replaced by
+#' `taxon_key`), so check any code that joined on `species_id`.
+#'
+#' @inheritParams cc_read_taxon
+#' @param ... Additional filter expressions passed to \code{dplyr::filter()}
+#'
+#' @return Tibble of taxa (if collect=TRUE) or lazy table
+#'
+#' @export
+#' @concept read
+#' @keywords internal
 cc_read_species <- function(..., version = "latest", collect = TRUE) {
+  warning(
+    "`cc_read_species()` is deprecated: the `species` table was replaced by the ",
+    "global `taxon` table. Use `cc_read_taxon()`. Note `species_id` is now ",
+    "`taxon_key` ('worms:<id>' / 'itis:<id>').",
+    call. = FALSE)
+  cc_read_taxon(..., version = version, collect = collect)
+}
+
+.cc_read_species_defunct <- function(..., version = "latest", collect = TRUE) {
   con <- cc_get_db(version = version)
   table <- dplyr::tbl(con, "species")
 

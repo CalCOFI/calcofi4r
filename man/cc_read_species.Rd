@@ -2,7 +2,7 @@
 % Please edit documentation in R/read.R
 \name{cc_read_species}
 \alias{cc_read_species}
-\title{Read CalCOFI species data}
+\title{Read CalCOFI species data (deprecated)}
 \usage{
 cc_read_species(..., version = "latest", collect = TRUE)
 }
@@ -15,14 +15,19 @@ cc_read_species(..., version = "latest", collect = TRUE)
 lazy dbplyr table (default: TRUE)}
 }
 \value{
-Tibble of species data (if collect=TRUE) or lazy table
+Tibble of taxa (if collect=TRUE) or lazy table
 }
 \description{
-Convenience function to read species taxonomy data from the CalCOFI database.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The \code{species} table no longer exists: the
+taxon consolidation replaced the ~7 per-dataset taxonomy tables with one
+global \code{\link[=cc_read_taxon]{taxon}} keyed \verb{worms:<id>} / \verb{itis:<id>}.
 }
-\examples{
-\dontrun{
-species <- cc_read_species()
-}
+\details{
+This called \code{tbl(con, "species")} and failed with "Can't query fields" against
+any release from v2026.07 on. It now forwards to \code{\link[=cc_read_taxon]{cc_read_taxon()}} with a
+warning, so existing scripts keep running — but the columns differ
+(\code{scientific_name} and \code{common_name} survive; \code{species_id} is replaced by
+\code{taxon_key}), so check any code that joined on \code{species_id}.
 }
 \concept{read}
+\keyword{internal}

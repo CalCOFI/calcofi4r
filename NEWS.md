@@ -1,3 +1,30 @@
+# calcofi4r 1.5.3
+
+## The getting-started vignette documented a schema that no longer exists
+
+`vignette("calcofi4r")` — the package's front door — still described the
+pre-consolidation database: `ichthyo`, `species`, `casts`, `bottle`,
+`bottle_measurement`, `net`, `tow`, `site`. Every one of those tables is gone,
+replaced by the core `obs` / `sample` / `obs_attribute` / `sample_measurement`
+family plus the global `taxon`. It failed on
+`cc_describe_table("ichthyo")` and would have failed on four more chunks.
+
+Rewritten against the current schema, with every query run against the live
+release before being committed. The schema section now explains the consolidation
+rather than listing tables, and makes the point that matters: a query written
+against ichthyoplankton now works unchanged against CTD, zooplankton or seabirds.
+
+## `cc_read_taxon()`, and `cc_read_species()` deprecated
+
+* **`cc_read_taxon()`** reads the global `taxon` table — one row per taxon, keyed
+  `worms:<id>` or `itis:<id>`, with cross-reference ids, `parent_taxon_key` and
+  the flattened classification.
+* **`cc_read_species()`** is deprecated. It called `tbl(con, "species")` and has
+  failed with "Can't query fields" against every release since the taxon
+  consolidation. It now warns and forwards to `cc_read_taxon()`, so existing
+  scripts run — but check any code that joined on `species_id`, which is now
+  `taxon_key`.
+
 # calcofi4r 1.5.2
 
 ## `cc_latest_version()`, and a pkgdown build that fails when it fails
