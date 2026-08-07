@@ -35,8 +35,17 @@ jobs:
           extra-packages: any::pkgdown, any::DiagrammeRsvg, local::.
           needs: website
 
+      # No continue-on-error. It was here, and it turned a broken build into a
+      # green tick: pkgdown writes articles/index.html (the navbar) BEFORE
+      # rendering the articles themselves, so when one vignette failed the site
+      # deployed listing every article and serving only the ones built before the
+      # failure. The symptom is a 404 from a link in your own navbar, and nothing
+      # anywhere says so.
+      #
+      # A failed build must fail the run — the deploy step below is then skipped,
+      # which is right: better to keep serving the last good site than to publish
+      # a half-built one.
       - name: Build site
-        continue-on-error: true
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 

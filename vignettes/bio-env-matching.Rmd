@@ -61,14 +61,19 @@ window. *Relaxed* matching widens the windows to 5 km / 72 hr.
 library(calcofi4r)
 library(dplyr)
 
+# Pin to whatever release is current as this page is built, rather than to a
+# literal written once. See "Version pinning" below for why a literal rots.
+REL <- cc_latest_version()
+
 d <- cc_match_ichthyo_by_name(
   scientific_name = "Sardinops sagax",
   env_var         = "temperature",
   date_min        = "2014-01-01",
   date_max        = "2019-12-31",
   relax_matching  = TRUE,
-  version         = "v2026.05.14")   # pin for archival reproducibility
+  version         = REL)
 
+REL
 dim(d)
 ```
 
@@ -263,15 +268,38 @@ d <- cc_match_ichthyo_by_name(
   "Sardinops sagax", env_var = "temperature",
   date_min = "2014-01-01", date_max = "2019-12-31",
   relax_matching = TRUE,
-  version = "v2026.05.14")
+  version = "v2026.08.07")
 ```
 
-Every URL inside `attr(d, "sql")` then carries `v2026.05.14`, so the query
-references **immutable Parquet** — a colleague re-running it in 10 years gets
-the same rows, even after dozens of new releases have shipped. The release
-version, the GCS URLs, the windows, and the join method are all in
-`attr(d, "query_meta")`; ship that beside your figures and your analysis is
-self-describing.
+Every URL inside `attr(d, "sql")` then carries that version, so the query
+references **immutable Parquet** — a colleague re-running it gets the same rows
+even after dozens of new releases have shipped. The release version, the GCS
+URLs, the windows, and the join method are all in `attr(d, "query_meta")`; ship
+that beside your figures and your analysis is self-describing.
+
+### Pin the package too, not just the data
+
+This vignette used to pin `v2026.05.14` and stopped building, which is worth
+recording rather than quietly fixing.
+
+The release was still there. What was missing was `obs.parquet` *inside* it:
+`v2026.05.14` predates the consolidation of the per-dataset tables into the core
+`obs` / `sample` model, so it carries `ctd_cast`, `bottle`, `dic_measurement` and
+the rest. `cc_match_bio_env()` was later rewritten to query `obs`. The data was
+immutable exactly as promised — the **code** moved to a schema that data does not
+have.
+
+So immutable data is only half of reproducibility. Record the package version
+beside the release version:
+
+```r
+c(release = REL, calcofi4r = as.character(utils::packageVersion("calcofi4r")))
+```
+
+and restore both together ([renv](https://rstudio.github.io/renv/) or
+`remotes::install_github("CalCOFI/calcofi4r@v1.5.1")` for the package). A
+release number alone tells a future reader which bytes to fetch, not which code
+could read them.
 
 ## Beyond `cc_match_ichthyo_by_name()`
 

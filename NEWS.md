@@ -1,3 +1,33 @@
+# calcofi4r 1.5.2
+
+## `cc_latest_version()`, and a pkgdown build that fails when it fails
+
+* **`cc_latest_version()`** is now exported — it resolves the promoted release to
+  a concrete version string from the same `latest.txt` every other CalCOFI
+  consumer reads. Use it when you are about to pin: `version = "latest"` is not
+  reproducible, but you cannot pin to a version you have not looked up.
+
+### The bio-env-matching vignette stopped building, and the site said it was fine
+
+Two failures stacked, and the second hid the first.
+
+**The pin rotted in a way a pin is not supposed to.** That vignette pinned
+`v2026.05.14` to demonstrate archival reproducibility. The release is still
+there — what is missing is `obs.parquet` *inside* it. `v2026.05.14` predates the
+consolidation of the per-dataset tables into the core `obs` / `sample` model, and
+`cc_match_bio_env()` was later rewritten to query `obs`. The data was immutable
+exactly as promised; the **code** moved to a schema that data does not have. The
+vignette now says so, and pins to the release current at build time.
+
+**And the site deployed anyway.** `pkgdown.yaml` carried
+`continue-on-error: true`, so a failed build was a green tick. pkgdown writes
+`articles/index.html` — the navbar — *before* rendering the articles, so the site
+published listing every article while serving only those built before the
+failure. The symptom is a 404 from a link in your own navbar with nothing
+anywhere reporting it. Removed; a failed build now fails the run and the deploy
+is skipped, which keeps the last good site up instead of publishing a half-built
+one.
+
 # calcofi4r 1.5.1
 
 ## New vignette: summer CTD temperature anomalies
