@@ -1,7 +1,10 @@
-# Read CalCOFI species data
+# Read CalCOFI species data (deprecated)
 
-Convenience function to read species taxonomy data from the CalCOFI
-database.
+**\[deprecated\]** The `species` table no longer exists: the taxon
+consolidation replaced the ~7 per-dataset taxonomy tables with one
+global
+[`taxon`](https://calcofi.io/calcofi4r/reference/cc_read_taxon.md) keyed
+`worms:<id>` / `itis:<id>`.
 
 ## Usage
 
@@ -27,12 +30,13 @@ cc_read_species(..., version = "latest", collect = TRUE)
 
 ## Value
 
-Tibble of species data (if collect=TRUE) or lazy table
+Tibble of taxa (if collect=TRUE) or lazy table
 
-## Examples
+## Details
 
-``` r
-if (FALSE) { # \dontrun{
-species <- cc_read_species()
-} # }
-```
+This called `tbl(con, "species")` and failed with "Can't query fields"
+against any release from v2026.07 on. It now forwards to
+[`cc_read_taxon()`](https://calcofi.io/calcofi4r/reference/cc_read_taxon.md)
+with a warning, so existing scripts keep running — but the columns
+differ (`scientific_name` and `common_name` survive; `species_id` is
+replaced by `taxon_key`), so check any code that joined on `species_id`.

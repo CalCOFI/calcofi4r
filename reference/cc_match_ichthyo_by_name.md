@@ -37,8 +37,8 @@ cc_match_ichthyo_by_name(
 
 - env_var:
 
-  Environmental `measurement_type` from the `bottle_measurement` table
-  (default: `"temperature"`). See
+  Environmental `measurement_type` from the `obs` table
+  (`realm = 'env'`; default: `"temperature"`). See
   [`cc_list_measurement_types()`](https://calcofi.io/calcofi4r/reference/cc_list_measurement_types.md).
 
 - exact_match:
@@ -87,7 +87,7 @@ See
 if (FALSE) { # \dontrun{
 # Pacific sardine larvae vs. temperature, Q1 2018, relaxed matching
 # (note: CTD-bottle env data ends 2021-05, so Q1 2018 is used as the
-#  recurring worked example across calcofi4r, int-app and the docs book)
+#  recurring worked example across calcofi4r, db-viz-hex and the docs book)
 d <- cc_match_ichthyo_by_name(
   "Sardinops sagax",
   env_var        = "temperature",

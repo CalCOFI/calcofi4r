@@ -27,16 +27,12 @@ q <- dbExecute(con, "INSTALL spatial; LOAD spatial;")
 
 # list available tables
 dbListTables(con)
-#>  [1] "_spatial"           "_spatial_attr"      "bottle"            
-#>  [4] "bottle_measurement" "cast_condition"     "casts"             
-#>  [7] "cruise"             "cruise_summary"     "ctd_cast"          
-#> [10] "ctd_summary"        "ctd_thin"           "dataset"           
-#> [13] "dic_measurement"    "dic_sample"         "dic_summary"       
-#> [16] "grid"               "ichthyo"            "invert"            
-#> [19] "lookup"             "measurement_type"   "net"               
-#> [22] "segment"            "ship"               "site"              
-#> [25] "species"            "taxa_rank"          "taxon"             
-#> [28] "tow"
+#>  [1] "cruise"             "dataset"            "dataset_taxon"     
+#>  [4] "grid"               "lookup"             "measurement_type"  
+#>  [7] "obs"                "obs_attribute"      "region"            
+#> [10] "sample"             "sample_measurement" "ship"              
+#> [13] "spatial"            "spatial_attribute"  "taxon"             
+#> [16] "taxon_group"
 ```
 
 ## Convenience Functions
@@ -47,67 +43,69 @@ The package provides convenience functions for common operations:
 
 # list available versions
 cc_list_versions()
-#> # A tibble: 12 × 6
+#> # A tibble: 23 × 6
 #>    version     release_date tables total_rows size_mb is_latest
 #>    <chr>       <chr>         <int>      <int>   <dbl> <lgl>    
-#>  1 v2026.06.08 2026-06-08       44  133807311   3553. FALSE    
-#>  2 v2026.06.07 2026-06-07       28  133015544   3547. TRUE     
-#>  3 v2026.05.20 2026-05-20       28  133022102   5503  FALSE    
-#>  4 v2026.05.19 2026-05-19       28  133022102   5503. FALSE    
-#>  5 v2026.05.15 2026-05-15       28  133013839      0  FALSE    
-#>  6 v2026.05.14 2026-05-14       28  133013839      0  FALSE    
-#>  7 v2026.04.08 2026-04-08       28  357418040      0  FALSE    
-#>  8 v2026.04.06 2026-04-06       29  361200542      0  FALSE    
-#>  9 v2026.04.03 2026-04-03       29  361183451      0  FALSE    
-#> 10 v2026.04.02 2026-04-02       43  361152303  11498. FALSE    
-#> 11 v2026.03.25 2026-03-25       18  354898020  11263. FALSE    
-#> 12 v2026.03.14 2026-03-14       20  357001188  11330. FALSE
+#>  1 v2026.08.07 2026-08-07       18  324094102   2024. TRUE     
+#>  2 v2026.08.06 2026-08-06       18  255137845   1636. FALSE    
+#>  3 v2026.08.05 2026-08-05       18  255137845   1636. FALSE    
+#>  4 v2026.08.04 2026-08-04       18  255155031   1635  FALSE    
+#>  5 v2026.08.03 2026-08-03       18  255037035   2057. FALSE    
+#>  6 v2026.08.02 2026-08-02       18  255037035   2087. FALSE    
+#>  7 v2026.07.30 2026-07-30       17  233730737   1710  FALSE    
+#>  8 v2026.07.17 2026-07-17       17  236577241   1943  FALSE    
+#>  9 v2026.07.16 2026-07-16       17  236577241   1945. FALSE    
+#> 10 v2026.07.15 2026-07-15       22  236371206   5472. FALSE    
+#> # ℹ 13 more rows
 
 # list tables
 cc_list_tables()
-#>  [1] "_spatial"           "_spatial_attr"      "bottle"            
-#>  [4] "bottle_measurement" "cast_condition"     "casts"             
-#>  [7] "cruise"             "cruise_summary"     "ctd_cast"          
-#> [10] "ctd_summary"        "ctd_thin"           "dataset"           
-#> [13] "dic_measurement"    "dic_sample"         "dic_summary"       
-#> [16] "grid"               "ichthyo"            "invert"            
-#> [19] "lookup"             "measurement_type"   "net"               
-#> [22] "segment"            "ship"               "site"              
-#> [25] "species"            "taxa_rank"          "taxon"             
-#> [28] "tow"
+#>  [1] "cruise"             "dataset"            "dataset_taxon"     
+#>  [4] "grid"               "lookup"             "measurement_type"  
+#>  [7] "obs"                "obs_attribute"      "region"            
+#> [10] "sample"             "sample_measurement" "ship"              
+#> [13] "spatial"            "spatial_attribute"  "taxon"             
+#> [16] "taxon_group"
 
 # describe a table
-cc_describe_table("ichthyo")
-#> # A tibble: 11 × 6
+cc_describe_table("obs")
+#> # A tibble: 18 × 6
 #>    column_name       data_type is_nullable name_long        units description_md
 #>    <chr>             <chr>     <chr>       <chr>            <chr> <chr>         
-#>  1 ichthyo_uuid      UUID      YES         "Ichthyo UUID"   NA    "Deterministi…
-#>  2 net_uuid          UUID      YES         "Net UUID"       NA    "Foreign key …
-#>  3 species_id        SMALLINT  YES         "Species ID"     NA    "Foreign key …
-#>  4 life_stage        VARCHAR   YES         "Life Stage"     NA    "Life stage: …
-#>  5 measurement_type  VARCHAR   YES         "Measurement Ty… NA    "Type of meas…
-#>  6 measurement_value DOUBLE    YES         "Measurement Va… NA    "Numeric valu…
-#>  7 tally             INTEGER   YES         "Tally"          count "Raw count of…
-#>  8 _source_file      VARCHAR   YES         " Source File"   NA    ""            
-#>  9 _source_row       INTEGER   YES         " Source Row"    NA    ""            
-#> 10 _ingested_at      TIMESTAMP YES         " Ingested At"   NA    ""            
-#> 11 _source_uuid      VARCHAR   YES         " Source Uuid"   NA    ""
+#>  1 obs_id            BIGINT    YES         Observation ID   NA    Surrogate key…
+#>  2 realm             VARCHAR   YES         Realm            NA    `env` for phy…
+#>  3 sample_key        VARCHAR   YES         Sample Key       NA    The sampling …
+#>  4 grid_key          VARCHAR   YES         Grid Key         NA    CalCOFI stati…
+#>  5 cruise_key        VARCHAR   YES         Cruise Key       NA    Cruise, denor…
+#>  6 latitude          DOUBLE    YES         Latitude         deci… Observation l…
+#>  7 longitude         DOUBLE    YES         Longitude        deci… Observation l…
+#>  8 datetime          TIMESTAMP YES         Datetime         NA    Observation t…
+#>  9 depth_min_m       DOUBLE    YES         Depth Min        m     Shallowest de…
+#> 10 depth_max_m       DOUBLE    YES         Depth Max        m     Deepest depth…
+#> 11 taxon_key         VARCHAR   YES         Taxon Key        NA    Global taxon …
+#> 12 life_stage        VARCHAR   YES         Life Stage       NA    Life stage wh…
+#> 13 measurement_type  VARCHAR   YES         Measurement Type NA    Measured quan…
+#> 14 measurement_value DOUBLE    YES         Measurement Val… NA    The measured …
+#> 15 measurement_qual  VARCHAR   YES         Measurement Qua… NA    Source qualit…
+#> 16 measurement_prec  DOUBLE    YES         Measurement Pre… NA    Source-report…
+#> 17 hex_id            UBIGINT   YES         Hex ID           NA    H3 cell at re…
+#> 18 dataset_key       VARCHAR   YES         Dataset Key      NA    Provenance st…
 
 # list measurement types
 cc_list_measurement_types() |> head(10)
 #> # A tibble: 10 × 3
-#>    measurement_type    description                  units    
-#>    <chr>               <chr>                        <chr>    
-#>  1 alkalinity          Total alkalinity             umol/kg  
-#>  2 alkalinity_rep1     Total alkalinity replicate 1 umol/kg  
-#>  3 alkalinity_rep2     Total alkalinity replicate 2 umol/kg  
-#>  4 ammonia             Ammonia concentration (QC'd) umol/L   
-#>  5 barometric_pressure Barometric pressure          millibars
-#>  6 beam_attenuation    Beam attenuation coefficient 1/m      
-#>  7 btl_ammonium        Bottle ammonium              umol/L   
-#>  8 btl_chlorophyll_a   Bottle chlorophyll-a         ug/L     
-#>  9 btl_depth           Bottle trip depth            m        
-#> 10 btl_nitrate         Bottle nitrate               umol/L
+#>    measurement_type    description                                         units
+#>    <chr>               <chr>                                               <chr>
+#>  1 abundance           Specimen count per net tow (headline occurrence; s… count
+#>  2 air_temp_c          Air temperature                                     deg_C
+#>  3 alkalinity          Total alkalinity                                    umol…
+#>  4 alkalinity_rep1     Total alkalinity replicate 1                        umol…
+#>  5 alkalinity_rep2     Total alkalinity replicate 2                        umol…
+#>  6 ammonia             Ammonia concentration (QC'd)                        umol…
+#>  7 anchovy_eggs        Northern anchovy egg count                          count
+#>  8 atm_pressure_mb     Atmospheric pressure (ship level)                   mb   
+#>  9 atm_pressure_slc_mb Atmospheric pressure (sea-level corrected)          mb   
+#> 10 barometric_pressure Barometric pressure                                 mill…
 ```
 
 ### Read Data Directly
@@ -116,75 +114,67 @@ Convenience functions return tibbles with optional filtering:
 
 ``` r
 
-# read species data
-species <- cc_read_species()
-head(species)
-#> # A tibble: 6 × 10
-#>   species_id scientific_name itis_id worms_id common_name         `_source_file`
-#>        <int> <chr>             <int>    <int> <chr>               <chr>         
-#> 1          1 Teleostei        161105   293496 Unidentified Telio… gs://calcofi-…
-#> 2          3 Elopidae         161109   153689 Tenpounders         gs://calcofi-…
-#> 3          4 Elops affinis    161112   275403 Machete             gs://calcofi-…
-#> 4          5 Albulidae        161119   151805 Bonefishes          gs://calcofi-…
-#> 5          7 Albula           161120   157878 NA                  gs://calcofi-…
-#> 6          9 Clupeiformes     161694    10297 NA                  gs://calcofi-…
-#> # ℹ 4 more variables: `_source_row` <int>, `_ingested_at` <dttm>,
-#> #   `_source_uuid` <chr>, gbif_id <int>
+# taxonomy: one row per taxon, keyed worms:<id> or itis:<id>
+taxa <- cc_read_taxon()
+head(taxa)
+#> # A tibble: 6 × 19
+#>   taxon_key worms_id itis_id gbif_id ncbi_id inat_id scientific_name common_name
+#>   <chr>        <int>   <int>   <int>   <int>   <int> <chr>           <chr>      
+#> 1 calcofi_…       NA      NA      NA      NA      NA NA              NA         
+#> 2 calcofi_…       NA      NA      NA      NA      NA NA              NA         
+#> 3 calcofi_…       NA      NA      NA      NA      NA NA              NA         
+#> 4 calcofi_…       NA      NA      NA      NA      NA NA              NA         
+#> 5 calcofi_…       NA      NA      NA      NA      NA NA              NA         
+#> 6 calcofi_…       NA      NA      NA      NA      NA NA              NA         
+#> # ℹ 11 more variables: rank <chr>, rank_order <int>, taxonomic_status <chr>,
+#> #   status_checked <chr>, parent_taxon_key <chr>, kingdom <chr>, phylum <chr>,
+#> #   class <chr>, order_taxon <chr>, family <chr>, notes <chr>
 
-# read ichthyo data (first 100 rows for demo)
+# ichthyoplankton occurrences
 ichthyo_sample <- cc_read_ichthyo() |> head(100)
 head(ichthyo_sample)
-#> # A tibble: 6 × 11
-#>   ichthyo_uuid net_uuid species_id life_stage measurement_type measurement_value
-#>   <chr>        <chr>         <int> <chr>      <chr>                        <dbl>
-#> 1 d7d7f5c3-17… eb8733f…          1 egg        NA                              NA
-#> 2 0360608f-cf… ec8733f…          1 egg        NA                              NA
-#> 3 b08d9ed2-40… ef8733f…          1 egg        NA                              NA
-#> 4 4264c438-9c… f38733f…          1 egg        NA                              NA
-#> 5 72b8c81d-1c… f48733f…          1 egg        NA                              NA
-#> 6 19492607-0f… f58733f…          1 egg        NA                              NA
-#> # ℹ 5 more variables: tally <int>, `_source_file` <chr>, `_source_row` <int>,
-#> #   `_ingested_at` <dttm>, `_source_uuid` <chr>
-
-# read with filtering (lazy query)
-anchovy <- cc_read_ichthyo(species_id == 19, collect = FALSE)
-anchovy |> head(5) |> collect()
-#> # A tibble: 5 × 11
-#>   ichthyo_uuid net_uuid species_id life_stage measurement_type measurement_value
-#>   <chr>        <chr>         <int> <chr>      <chr>                        <dbl>
-#> 1 d4aa72df-b0… be8833f…         19 egg        NA                              NA
-#> 2 2a818847-d0… c68833f…         19 egg        NA                              NA
-#> 3 f324eced-b1… c98833f…         19 egg        NA                              NA
-#> 4 873cabc2-c7… ca8833f…         19 egg        NA                              NA
-#> 5 5a24d010-81… cb8833f…         19 egg        NA                              NA
-#> # ℹ 5 more variables: tally <int>, `_source_file` <chr>, `_source_row` <int>,
-#> #   `_ingested_at` <dttm>, `_source_uuid` <chr>
+#> # A tibble: 6 × 18
+#>     obs_id realm sample_key               grid_key cruise_key latitude longitude
+#>      <dbl> <chr> <chr>                    <chr>    <chr>         <dbl>     <dbl>
+#> 1 26172115 bio   swfsc_ichthyo:net:2ea75… st60-ln… 1987-11-3…     34.2     -121.
+#> 2 26172119 bio   swfsc_ichthyo:net:2ea75… st60-ln… 1987-11-3…     34.2     -121.
+#> 3 26174560 bio   swfsc_ichthyo:net:2ea75… st60-ln… 1987-11-3…     34.2     -121.
+#> 4 26172117 bio   swfsc_ichthyo:net:2ea75… st60-ln… 1987-11-3…     34.2     -121.
+#> 5 26172120 bio   swfsc_ichthyo:net:2ea75… st60-ln… 1987-11-3…     34.2     -121.
+#> 6 26174564 bio   swfsc_ichthyo:net:2ea75… st60-ln… 1987-11-3…     34.2     -121.
+#> # ℹ 11 more variables: datetime <dttm>, depth_min_m <dbl>, depth_max_m <dbl>,
+#> #   taxon_key <chr>, life_stage <chr>, measurement_type <chr>,
+#> #   measurement_value <dbl>, measurement_qual <chr>, measurement_prec <dbl>,
+#> #   hex_id <dbl>, dataset_key <chr>
 ```
 
 ## Database Schema
 
-The CalCOFI database contains data from two main programs:
+The database used to expose one table triple per dataset — `ichthyo`,
+`bottle`, `bottle_measurement`, `casts`, `species` and roughly thirty
+more. Those are gone. Every dataset now projects into one small **core**
+family, so a query written against ichthyoplankton works unchanged
+against CTD, zooplankton or seabirds:
 
-**Ichthyoplankton Survey** (since 1949):
+- **`obs`** — the occurrence table, one scalar per row. `realm` is `bio`
+  or `env`; biology carries `taxon_key`, environment carries a
+  measurement type.
+- **`sample`** — one row per physical sampling event (cast, tow, net,
+  bottle, transect), with an adjacency list via `parent_sample_key` /
+  `root_sample_key`.
+- **`obs_attribute`** — sub-occurrence detail: length and stage
+  frequency, plus categorical behaviour.
+- **`sample_measurement`** — event-level effort (volume sampled, haul
+  factor, cast conditions).
 
-- `cruise` - cruise metadata (691 cruises)
-- `ship` - research vessels (48 ships)
-- `site` - sampling locations (61K sites)
-- `tow` - net tow events (76K tows)
-- `net` - net samples (77K nets)
-- `ichthyo` - fish larvae counts (831K records)
-- `species` - species taxonomy (1,144 species)
-- `taxon` - taxonomic hierarchy
-- `grid` - CalCOFI station grid (218 cells)
-- `segment` - line segments between stations
+Shared references: **`taxon`** (one row per taxon, keyed `worms:<id>` or
+`itis:<id>`), **`dataset_taxon`** (each dataset’s vocabulary crosswalked
+to it), **`taxon_group`**, **`cruise`**, **`ship`**, **`grid`**,
+**`measurement_type`**, **`spatial`** / **`spatial_attribute`**,
+**`region`**, **`dataset`**, **`lookup`**.
 
-**Bottle Database** (since 1949):
-
-- `casts` - CTD/bottle cast events (36K casts)
-- `bottle` - water sample bottles (895K bottles)
-- `bottle_measurement` - oceanographic measurements (11M records)
-- `measurement_type` - measurement definitions (47 types)
-- `cast_condition` - cast quality flags
+Full column-level reference:
+[calcofi.io/schema](https://calcofi.io/schema/).
 
 ``` r
 
@@ -196,56 +186,60 @@ tibble(
     dbGetQuery(con, sprintf("SELECT COUNT(*) as n FROM %s", t))$n
   })) |>
   arrange(desc(rows))
-#> # A tibble: 28 × 2
-#>    table                   rows
-#>    <chr>                  <dbl>
-#>  1 ctd_summary        108390249
-#>  2 bottle_measurement  11135600
-#>  3 ctd_thin             5551551
-#>  4 ctd_cast             5550014
-#>  5 bottle                895371
-#>  6 ichthyo               852228
-#>  7 cast_condition        235513
-#>  8 net                    76512
-#>  9 tow                    75506
-#> 10 site                   61104
-#> # ℹ 18 more rows
+#> # A tibble: 16 × 2
+#>    table                  rows
+#>    <chr>                 <dbl>
+#>  1 obs                26290615
+#>  2 sample              1465189
+#>  3 sample_measurement   588986
+#>  4 obs_attribute        452682
+#>  5 spatial_attribute    148461
+#>  6 spatial               13206
+#>  7 taxon                  2121
+#>  8 dataset_taxon          1907
+#>  9 cruise                  691
+#> 10 grid                    218
+#> 11 measurement_type        198
+#> 12 taxon_group             154
+#> 13 ship                     49
+#> 14 lookup                   26
+#> 15 dataset                  16
+#> 16 region                    4
 ```
 
-## Query Bottle Data
+## Query Environmental Data
 
-The bottle data contains oceanographic measurements from CTD casts.
-Measurements are stored in a normalized “long” format in
-`bottle_measurement`.
+Environmental measurements live in `obs` alongside biology,
+distinguished by `realm`, in a long format: one row per (sample, depth,
+measurement type). Position and time come from `sample`.
 
 ``` r
 
-# get temperature measurements with location and depth
+# surface temperature with location and depth
 d_temp <- dbGetQuery(con, "
   SELECT
-    c.lon_dec as lon,
-    c.lat_dec as lat,
-    c.datetime_utc,
-    b.depth_m,
-    bm.measurement_value as temperature
-  FROM bottle_measurement bm
-  JOIN bottle b ON bm.bottle_id = b.bottle_id
-  JOIN casts c ON b.cast_id = c.cast_id
-  WHERE bm.measurement_type = 'temperature'
-    AND bm.measurement_value IS NOT NULL
-    AND b.depth_m <= 10
+    s.longitude AS lon,
+    s.latitude  AS lat,
+    s.datetime,
+    o.depth_min_m AS depth_m,
+    o.measurement_value AS temperature
+  FROM obs o
+  JOIN sample s USING (sample_key)
+  WHERE o.measurement_type = 'temperature'
+    AND o.measurement_value IS NOT NULL
+    AND o.depth_min_m <= 10
   LIMIT 100000")
 
 head(d_temp)
-#>         lon      lat        datetime_utc depth_m temperature
-#> 1 -117.4667 33.24167 1975-06-26 13:40:00       0       17.31
-#> 2 -117.4667 33.24167 1975-06-26 13:40:00       5       14.78
-#> 3 -117.4667 33.24167 1975-06-26 13:40:00      10       13.36
-#> 4 -117.4917 33.23333 1975-06-26 15:03:00       0       17.11
-#> 5 -117.4917 33.23333 1975-06-26 15:03:00      10       13.01
-#> 6 -117.5667 33.19167 1975-06-26 16:21:00       0       17.25
+#>         lon      lat            datetime depth_m temperature
+#> 1 -123.4750 32.23333 1960-01-15 06:30:00       0       14.18
+#> 2 -123.4667 32.23333 1968-01-17 05:48:00       0       14.11
+#> 3 -123.4917 32.24333 1981-05-22 16:55:00       0       15.71
+#> 4 -123.4917 32.24333 1981-05-22 17:18:00       0       15.71
+#> 5 -123.4933 32.24500 1984-01-08 13:35:00       0       16.57
+#> 6 -123.4933 32.24500 1984-01-08 18:42:00       0       16.54
 nrow(d_temp)
-#> [1] 93985
+#> [1] 93292
 ```
 
 ### Summarize by Location
@@ -266,17 +260,17 @@ head(d_t)
 #> Simple feature collection with 6 features and 4 fields
 #> Geometry type: POINT
 #> Dimension:     XY
-#> Bounding box:  xmin: -164.0833 ymin: 20.05 xmax: -150.025 ymax: 42.38333
+#> Bounding box:  xmin: -133.7 ymin: 32.85 xmax: -133.4667 ymax: 44.9
 #> Geodetic CRS:  WGS 84
 #> # A tibble: 6 × 5
 #>     lon   lat     n t_avg             geometry
 #>   <dbl> <dbl> <int> <dbl>          <POINT [°]>
-#> 1 -164.  42       2  10.1       (-164.0833 42)
-#> 2 -158.  42.4    16  16.7 (-157.9833 42.36667)
-#> 3 -158.  42.4     4  11.8 (-157.9833 42.38333)
-#> 4 -153.  20.1     4  24.2    (-153.1 20.10833)
-#> 5 -150.  31.2     3  23.1     (-150.1167 31.2)
-#> 6 -150.  20.0     4  24.3     (-150.025 20.05)
+#> 1 -134.  42.5     2  11.2        (-133.7 42.5)
+#> 2 -134.  32.9     3  19.5   (-133.65 32.86667)
+#> 3 -134.  32.8     2  19.9    (-133.5167 32.85)
+#> 4 -134.  44.9     2  15.6     (-133.5167 44.9)
+#> 5 -133.  32.9     3  19.7   (-133.4667 32.875)
+#> 6 -133.  32.9     2  15.5 (-133.4667 32.91667)
 ```
 
 ## CalCOFI Grid
@@ -387,32 +381,34 @@ sites.
 
 ``` r
 
-# get top 10 species by total count
+# top 10 taxa by total count. `taxon_key` is global, so the same join works for
+# any dataset — swap the dataset_key and this counts euphausiids or seabirds.
 top_species <- dbGetQuery(con, "
   SELECT
-    s.scientific_name,
-    s.common_name,
-    SUM(i.tally) as total_count,
-    COUNT(DISTINCT n.tow_uuid) as n_tows
-  FROM ichthyo i
-  JOIN species s ON i.species_id = s.species_id
-  JOIN net n ON i.net_uuid = n.net_uuid
-  GROUP BY s.scientific_name, s.common_name
+    t.scientific_name,
+    t.common_name,
+    SUM(o.measurement_value)      AS total_count,
+    COUNT(DISTINCT o.sample_key)  AS n_samples
+  FROM obs o
+  JOIN taxon t USING (taxon_key)
+  WHERE o.realm = 'bio'
+    AND o.dataset_key = 'swfsc_ichthyo'
+  GROUP BY 1, 2
   ORDER BY total_count DESC
   LIMIT 10")
 
 top_species
-#>              scientific_name                common_name total_count n_tows
-#> 1                  Teleostei       Unidentified Teliost     8960182  61416
-#> 2           Engraulis mordax           Northern anchovy     8553961  29491
-#> 3            Sardinops sagax Pacific sardine (pilchard)     1430924   9766
-#> 4       Merluccius productus    Pacific hake or whiting     1298807  12527
-#> 5       Vinciguerria lucetia           Panama lightfish      500036  14829
-#> 6                   Sebastes                 Rockfishes      289447  18187
-#> 7      Trachurus symmetricus              Jack mackerel      260927   9526
-#> 8      Leuroglossus stilbius    California smoothtongue      184814  12450
-#> 9  Stenobrachius leucopsarus          Northern lampfish      178543  12726
-#> 10     Triphoturus mexicanus           Mexican lampfish      147571  14572
+#>              scientific_name                common_name total_count n_samples
+#> 1                  Teleostei       Unidentified Teliost     8366572     58892
+#> 2           Engraulis mordax           Northern anchovy     6410672     29514
+#> 3            Sardinops sagax Pacific sardine (pilchard)      898640      9760
+#> 4       Merluccius productus    Pacific hake or whiting      872595     12527
+#> 5       Vinciguerria lucetia           Panama lightfish      387504     13564
+#> 6                   Sebastes                 Rockfishes      235178     18146
+#> 7      Trachurus symmetricus              Jack mackerel      193327      9520
+#> 8      Leuroglossus stilbius    California smoothtongue      159060     12449
+#> 9  Stenobrachius leucopsarus          Northern lampfish      139568     12704
+#> 10     Triphoturus mexicanus           Mexican lampfish      137930     14552
 ```
 
 ### Species Distribution
@@ -422,18 +418,18 @@ Map the distribution of a common species:
 ``` r
 
 # get Northern Anchovy observations with locations
+# `sample` replaces the old site -> tow -> net chain: obs joins it directly.
 anchovy <- dbGetQuery(con, "
   SELECT
-    si.latitude as lat,
-    si.longitude as lon,
-    SUM(i.tally) as count
-  FROM ichthyo i
-  JOIN species sp ON i.species_id = sp.species_id
-  JOIN net n ON i.net_uuid = n.net_uuid
-  JOIN tow t ON n.tow_uuid = t.tow_uuid
-  JOIN site si ON t.site_uuid = si.site_uuid
-  WHERE sp.scientific_name = 'Engraulis mordax'
-  GROUP BY si.latitude, si.longitude") |>
+    s.latitude  AS lat,
+    s.longitude AS lon,
+    SUM(o.measurement_value) AS count
+  FROM obs o
+  JOIN taxon  t USING (taxon_key)
+  JOIN sample s USING (sample_key)
+  WHERE t.scientific_name = 'Engraulis mordax'
+    AND o.realm = 'bio'
+  GROUP BY 1, 2") |>
   filter(!is.na(lon), !is.na(lat)) |>
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
 
@@ -473,7 +469,8 @@ cruises |>
 
 ## Available Measurement Types
 
-The bottle database includes many oceanographic variables:
+`measurement_type` is the shared vocabulary across every dataset, with
+units and the physical bounds each value is validated against:
 
 ``` r
 
@@ -483,27 +480,69 @@ dbGetQuery(con, "
   FROM measurement_type
   ORDER BY measurement_type") |>
   head(20)
-#>       measurement_type                                 description      units
-#> 1           alkalinity                            Total alkalinity    umol/kg
-#> 2      alkalinity_rep1                Total alkalinity replicate 1    umol/kg
-#> 3      alkalinity_rep2                Total alkalinity replicate 2    umol/kg
-#> 4              ammonia                Ammonia concentration (QC'd)     umol/L
-#> 5  barometric_pressure                         Barometric pressure  millibars
-#> 6     beam_attenuation                Beam attenuation coefficient        1/m
-#> 7         btl_ammonium                             Bottle ammonium     umol/L
-#> 8    btl_chlorophyll_a                        Bottle chlorophyll-a       ug/L
-#> 9            btl_depth                           Bottle trip depth          m
-#> 10         btl_nitrate                              Bottle nitrate     umol/L
-#> 11         btl_nitrite                              Bottle nitrite     umol/L
-#> 12    btl_phaeopigment                         Bottle phaeopigment       ug/L
-#> 13       btl_phosphate                            Bottle phosphate     umol/L
-#> 14        btl_silicate                             Bottle silicate     umol/L
-#> 15     btl_temperature                          Bottle temperature       degC
-#> 16            c14_dark        14C assimilation dark/control bottle mgC/m3/hld
-#> 17            c14_mean Mean 14C assimilation of replicates 1 and 2 mgC/m3/hld
-#> 18            c14_rep1                14C assimilation replicate 1 mgC/m3/hld
-#> 19            c14_rep2                14C assimilation replicate 2 mgC/m3/hld
-#> 20       chlorophyll_a     Chlorophyll-a measured fluorometrically       ug/L
+#>       measurement_type
+#> 1            abundance
+#> 2           air_temp_c
+#> 3           alkalinity
+#> 4      alkalinity_rep1
+#> 5      alkalinity_rep2
+#> 6              ammonia
+#> 7         anchovy_eggs
+#> 8      atm_pressure_mb
+#> 9  atm_pressure_slc_mb
+#> 10 barometric_pressure
+#> 11    beam_attenuation
+#> 12            behavior
+#> 13         body_length
+#> 14        bottom_depth
+#> 15      bottom_depth_m
+#> 16   bottom_depth_mb_m
+#> 17        btl_ammonium
+#> 18   btl_chlorophyll_a
+#> 19           btl_depth
+#> 20         btl_nitrate
+#>                                                                          description
+#> 1  Specimen count per net tow (headline occurrence; standardize via std_haul_factor)
+#> 2                                                                    Air temperature
+#> 3                                                                   Total alkalinity
+#> 4                                                       Total alkalinity replicate 1
+#> 5                                                       Total alkalinity replicate 2
+#> 6                                                       Ammonia concentration (QC'd)
+#> 7                                                         Northern anchovy egg count
+#> 8                                                  Atmospheric pressure (ship level)
+#> 9                                         Atmospheric pressure (sea-level corrected)
+#> 10                                                               Barometric pressure
+#> 11                                                      Beam attenuation coefficient
+#> 12     Seabird/marine-mammal behavior category (obs_attribute; e.g. Flying, Feeding)
+#> 13                                     Larva body length (obs_freq binned attribute)
+#> 14              Water depth at the sampling event (sea floor depth beneath the cast)
+#> 15                                                        Bottom depth (single-beam)
+#> 16                                                          Bottom depth (multibeam)
+#> 17                                                                   Bottle ammonium
+#> 18                                                              Bottle chlorophyll-a
+#> 19                                                                 Bottle trip depth
+#> 20                                                                    Bottle nitrate
+#>        units
+#> 1      count
+#> 2      deg_C
+#> 3    umol/kg
+#> 4    umol/kg
+#> 5    umol/kg
+#> 6     umol/L
+#> 7      count
+#> 8         mb
+#> 9         mb
+#> 10 millibars
+#> 11       1/m
+#> 12      <NA>
+#> 13        mm
+#> 14         m
+#> 15         m
+#> 16         m
+#> 17    umol/L
+#> 18      ug/L
+#> 19         m
+#> 20    umol/L
 ```
 
 ## Disconnect
@@ -524,6 +563,12 @@ convenience:
 - `cc_grid_ctrs` - Station centroids (sf)
 - `cc_grid_zones` - Aggregated zone polygons (sf)
 - `cc_bottle` - Sample bottle data for examples (tibble)
+
+See also
+[`vignette("bio-env-matching")`](https://calcofi.io/calcofi4r/articles/bio-env-matching.md)
+for joining biology to environment, and
+[`vignette("ctd-temperature-anomalies")`](https://calcofi.io/calcofi4r/articles/ctd-temperature-anomalies.md)
+for transects, climatologies and anomalies.
 
 These can be used without connecting to the database for quick spatial
 operations.

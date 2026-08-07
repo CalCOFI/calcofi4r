@@ -21,7 +21,7 @@ actually touches, and it runs the *same engine* on:
 | **R**, on your laptop | this vignette |
 | **Python**, on a notebook server | `import duckdb; con.sql(open('q.sql').read()).df()` |
 | **shell**, on the command line | `duckdb < q.sql` |
-| **a web browser**, no install | [**CalCOFI Query**](https://calcofi.io/query/) — left-side accordion of point-and-click forms (the three bio↔︎env wrappers + custom SQL + a free-form SQL shell + simple browse / spatial / temporal / per-dataset queries), all running DuckDB-WASM client-side. Or [shell.duckdb.org](https://shell.duckdb.org) for free-form SQL without CalCOFI context. |
+| **a web browser**, no install | [**CalCOFI Query**](https://calcofi.io/db-query/) — left-side accordion of point-and-click forms (the three bio↔︎env wrappers + custom SQL + a free-form SQL shell + simple browse / spatial / temporal / per-dataset queries), all running DuckDB-WASM client-side. Or [shell.duckdb.org](https://shell.duckdb.org) for free-form SQL without CalCOFI context. |
 
 Below we ask one cross-domain question — *how did Pacific sardine larvae
 experience the 2014–2016 marine heatwave?* — answer it with a single
@@ -42,14 +42,20 @@ over the window. *Relaxed* matching widens the windows to 5 km / 72 hr.
 library(calcofi4r)
 library(dplyr)
 
+# Pin to whatever release is current as this page is built, rather than to a
+# literal written once. See "Version pinning" below for why a literal rots.
+REL <- cc_latest_version()
+
 d <- cc_match_ichthyo_by_name(
   scientific_name = "Sardinops sagax",
   env_var         = "temperature",
   date_min        = "2014-01-01",
   date_max        = "2019-12-31",
   relax_matching  = TRUE,
-  version         = "v2026.05.14")   # pin for archival reproducibility
+  version         = REL)
 
+REL
+#> [1] "v2026.08.07"
 dim(d)
 #> [1] 310  19
 ```
@@ -65,12 +71,12 @@ d |>
 #> # A tibble: 6 × 11
 #>   scientific_name life_stage bio_datetime        bio_lon bio_lat bio_value
 #>   <chr>           <chr>      <dttm>                <dbl>   <dbl>     <dbl>
-#> 1 Sardinops sagax larva      2019-02-12 21:54:00   -119.    33.8    112.  
-#> 2 Sardinops sagax larva      2015-02-05 07:04:00   -124.    37.6     88.2 
+#> 1 Sardinops sagax larva      2017-04-12 07:32:00   -124.    33.4     10.2 
+#> 2 Sardinops sagax larva      2018-04-19 08:15:00   -124.    32.8     24.6 
 #> 3 Sardinops sagax larva      2017-04-07 12:48:00   -123.    31.7      5.02
-#> 4 Sardinops sagax egg        2014-04-08 06:38:00   -118.    33.9      0.6 
-#> 5 Sardinops sagax egg        2016-07-22 09:37:00   -119.    34.3    292.  
-#> 6 Sardinops sagax larva      2014-07-13 23:09:00   -120.    33.3      7.38
+#> 4 Sardinops sagax larva      2018-04-15 04:33:00   -123.    31.7      4.91
+#> 5 Sardinops sagax larva      2018-04-08 03:38:00   -122.    30.5     42.2 
+#> 6 Sardinops sagax larva      2018-04-15 14:46:00   -124.    31.9     19.9 
 #> # ℹ 5 more variables: env_value <dbl>, env_depth_m <dbl>, n_env <dbl>,
 #> #   dist_km <dbl>, time_diff_hr <dbl>
 ```
@@ -242,19 +248,19 @@ data. That is the package’s reproducibility contract:
 meta <- attr(d, "query_meta")
 str(meta)
 #> List of 6
-#>  $ package_version: chr "1.3.0"
-#>  $ release_version: chr "v2026.05.14"
+#>  $ package_version: chr "1.5.3"
+#>  $ release_version: chr "v2026.08.07"
 #>  $ params         :List of 3
 #>   ..$ max_dist_km: num 5
 #>   ..$ max_time_hr: num 72
 #>   ..$ join_method: chr "nearest_time"
-#>  $ source_urls    : chr [1:8] "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/bottle_measurement.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/bottle.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/casts.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/ichthyo.parquet" ...
-#>  $ generated_at   : chr "2026-06-18 17:41:14 UTC"
+#>  $ source_urls    : chr [1:3] "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/obs.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/sample_measurement.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/taxon.parquet"
+#>  $ generated_at   : chr "2026-08-07 11:53:20 UTC"
 #>  $ n_rows         : int 310
 ```
 
 `meta$release_version` pins which release the result came from
-(v2026.05.14 here). `meta$source_urls` is the full list of public GCS
+(v2026.08.07 here). `meta$source_urls` is the full list of public GCS
 parquet files the query reads. And `attr(d, "sql")` is the literal query
 — no `dplyr` translation, no hidden state, ~90 lines of plain DuckDB
 SQL:
@@ -271,19 +277,19 @@ length(strsplit(sql, "\n")[[1]])
 cat(substr(sql, 1, 600), "\n…\n")
 #> WITH bio AS (
 #> SELECT
-#>   i.ichthyo_uuid::VARCHAR AS bio_id,
-#>   t.time_start            AS bio_datetime,
-#>   s.longitude             AS bio_lon,
-#>   s.latitude              AS bio_lat,
-#>   n.std_haul_factor * i.tally / nullif(n.prop_sorted, 0) AS bio_value,
-#>   sp.scientific_name,
-#>   sp.common_name,
-#>   sp.worms_id,
-#>   i.life_stage,
-#>   i.tally
-#> FROM read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/ichthyo.parquet') i
-#> JOIN read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/species.parquet') sp ON i.species_id = sp.species_id
-#>  
+#>   o.obs_id::VARCHAR AS bio_id,
+#>   o.datetime AS bio_datetime,
+#>   o.longitude AS bio_lon,
+#>   o.latitude AS bio_lat,
+#>   o.measurement_value * shf.measurement_value / nullif(ps.measurement_value, 0) AS bio_value,
+#>   o.measurement_value AS tally,
+#>   o.taxon_key,
+#>   t.scientific_name,
+#>   t.worms_id,
+#>   o.life_stage
+#> FROM read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/obs.parquet') o
+#> JOIN read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/taxon.parquet') t ON t.taxon_key = o.taxon_key
+#> LEFT JOIN read_ 
 #> …
 ```
 
@@ -298,8 +304,8 @@ writeLines(sql, "sardine_match.sql")
 ```
 
 This is the same artifact the [CalCOFI Integrated
-App](https://app.calcofi.io/int) ships in its data-download bundle’s
-`query/` folder — re-run it anywhere, get identical rows.
+App](https://app.calcofi.io/db-viz-hex) ships in its data-download
+bundle’s `query/` folder — re-run it anywhere, get identical rows.
 
 ## Run it from anywhere
 
@@ -323,7 +329,7 @@ $(cat sardine_match.sql)"
 ```
 
 **A web browser, no install** — open [**CalCOFI
-Query**](https://calcofi.io/query/), pick a tab (by name / by taxon /
+Query**](https://calcofi.io/db-query/), pick a tab (by name / by taxon /
 zoo biomass / custom / SQL shell), fill the form, hit **Run**. The page
 loads [DuckDB-WASM](https://duckdb.org/docs/api/wasm/overview.html) in a
 worker thread, runs the *exact same* generated SQL (it imports a
@@ -342,15 +348,41 @@ d <- cc_match_ichthyo_by_name(
   "Sardinops sagax", env_var = "temperature",
   date_min = "2014-01-01", date_max = "2019-12-31",
   relax_matching = TRUE,
-  version = "v2026.05.14")
+  version = "v2026.08.07")
 ```
 
-Every URL inside `attr(d, "sql")` then carries `v2026.05.14`, so the
-query references **immutable Parquet** — a colleague re-running it in 10
-years gets the same rows, even after dozens of new releases have
-shipped. The release version, the GCS URLs, the windows, and the join
-method are all in `attr(d, "query_meta")`; ship that beside your figures
-and your analysis is self-describing.
+Every URL inside `attr(d, "sql")` then carries that version, so the
+query references **immutable Parquet** — a colleague re-running it gets
+the same rows even after dozens of new releases have shipped. The
+release version, the GCS URLs, the windows, and the join method are all
+in `attr(d, "query_meta")`; ship that beside your figures and your
+analysis is self-describing.
+
+### Pin the package too, not just the data
+
+This vignette used to pin `v2026.05.14` and stopped building, which is
+worth recording rather than quietly fixing.
+
+The release was still there. What was missing was `obs.parquet` *inside*
+it: `v2026.05.14` predates the consolidation of the per-dataset tables
+into the core `obs` / `sample` model, so it carries `ctd_cast`,
+`bottle`, `dic_measurement` and the rest.
+[`cc_match_bio_env()`](https://calcofi.io/calcofi4r/reference/cc_match_bio_env.md)
+was later rewritten to query `obs`. The data was immutable exactly as
+promised — the **code** moved to a schema that data does not have.
+
+So immutable data is only half of reproducibility. Record the package
+version beside the release version:
+
+``` r
+
+c(release = REL, calcofi4r = as.character(utils::packageVersion("calcofi4r")))
+```
+
+and restore both together ([renv](https://rstudio.github.io/renv/) or
+`remotes::install_github("CalCOFI/calcofi4r@v1.5.1")` for the package).
+A release number alone tells a future reader which bytes to fetch, not
+which code could read them.
 
 ## Beyond `cc_match_ichthyo_by_name()`
 

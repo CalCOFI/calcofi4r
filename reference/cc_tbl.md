@@ -25,7 +25,7 @@ cc_tbl(con, table_name, layer = NULL, geom_col = "geom", crs = 4326)
 
 - layer:
 
-  Required when `table_name = "_spatial"`. Character string specifying
+  Required when `table_name = "spatial"`. Character string specifying
   which spatial layer to return.
 
 - geom_col:
@@ -46,9 +46,9 @@ reference. For spatial tables: an `sf` object with geometry.
 
 ## Details
 
-For the `_spatial` table, automatically pivots attributes from
-`_spatial_attr` wide and returns an sf object filtered to the requested
-layer.
+For the `spatial` table, automatically pivots attributes from
+`spatial_attribute` wide and returns an sf object filtered to the
+requested layer.
 
 ## Examples
 
@@ -65,7 +65,7 @@ cc_tbl(con, "grid")
 # spatial: select alternate geometry
 cc_tbl(con, "grid", geom_col = "geom_ctr")
 
-# _spatial: returns sf with pivoted attributes for a layer
-cc_tbl(con, "_spatial", layer = "CA Counties")
+# spatial: returns sf with pivoted attributes for a layer
+cc_tbl(con, "spatial", layer = "CA Counties")
 } # }
 ```

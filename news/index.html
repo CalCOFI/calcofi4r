@@ -4,7 +4,11 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-0HVK8TDMCF');
+  // content_group is what the usage report at calcofi.io/analytics/ joins on
+  // navigator.webdriver is set in every WebDriver/CDP-controlled browser, so
+  // Playwright, Puppeteer and our own shot-scraper screenshots stop counting.
+  // GA4's bot list is user-agent based and never sees them.
+  if (!navigator.webdriver) gtag('config', 'G-0HVK8TDMCF', { content_group: 'calcofi4r' });
 </script></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
@@ -13,7 +17,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,10 +30,11 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/bio-env-matching.html">Matching biology to environment: query 75 years of ocean data, anywhere</a></li>
+    <li><a class="dropdown-item" href="../articles/ctd-temperature-anomalies.html">Summer CTD temperature anomalies against a 1993-2013 baseline</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://calcofi.io/schema/" aria-label="CalCOFI Schema explorer (ERD, tables, columns, units)">Schema</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://calcofi.io/query/" aria-label="CalCOFI Query (browser DuckDB-WASM)">Query</a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://calcofi.io/db-schema/" aria-label="CalCOFI Schema explorer (ERD, tables, columns, units)">Schema</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://calcofi.io/db-query/" aria-label="CalCOFI Query (browser DuckDB-WASM)">Query</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://calcofi.io/docs/" aria-label="CalCOFI Docs">Docs</a></li>
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -45,6 +50,122 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.5.3" id="calcofi4r-153">calcofi4r 1.5.3<a class="anchor" aria-label="anchor" href="#calcofi4r-153"></a></h2>
+<div class="section level3">
+<h3 id="the-getting-started-vignette-documented-a-schema-that-no-longer-exists-1-5-3">The getting-started vignette documented a schema that no longer exists<a class="anchor" aria-label="anchor" href="#the-getting-started-vignette-documented-a-schema-that-no-longer-exists-1-5-3"></a></h3>
+<p><code><a href="../articles/calcofi4r.html">vignette("calcofi4r")</a></code> — the package’s front door — still described the pre-consolidation database: <code>ichthyo</code>, <code>species</code>, <code>casts</code>, <code>bottle</code>, <code>bottle_measurement</code>, <code>net</code>, <code>tow</code>, <code>site</code>. Every one of those tables is gone, replaced by the core <code>obs</code> / <code>sample</code> / <code>obs_attribute</code> / <code>sample_measurement</code> family plus the global <code>taxon</code>. It failed on <code>cc_describe_table("ichthyo")</code> and would have failed on four more chunks.</p>
+<p>Rewritten against the current schema, with every query run against the live release before being committed. The schema section now explains the consolidation rather than listing tables, and makes the point that matters: a query written against ichthyoplankton now works unchanged against CTD, zooplankton or seabirds.</p>
+</div>
+<div class="section level3">
+<h3 id="cc_read_taxon-and-cc_read_species-deprecated-1-5-3">
+<code>cc_read_taxon()</code>, and <code>cc_read_species()</code> deprecated<a class="anchor" aria-label="anchor" href="#cc_read_taxon-and-cc_read_species-deprecated-1-5-3"></a></h3>
+<ul><li>
+<strong><code><a href="../reference/cc_read_taxon.html">cc_read_taxon()</a></code></strong> reads the global <code>taxon</code> table — one row per taxon, keyed <code>worms:&lt;id&gt;</code> or <code>itis:&lt;id&gt;</code>, with cross-reference ids, <code>parent_taxon_key</code> and the flattened classification.</li>
+<li>
+<strong><code><a href="../reference/cc_read_species.html">cc_read_species()</a></code></strong> is deprecated. It called <code>tbl(con, "species")</code> and has failed with “Can’t query fields” against every release since the taxon consolidation. It now warns and forwards to <code><a href="../reference/cc_read_taxon.html">cc_read_taxon()</a></code>, so existing scripts run — but check any code that joined on <code>species_id</code>, which is now <code>taxon_key</code>.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.5.2" id="calcofi4r-152">calcofi4r 1.5.2<a class="anchor" aria-label="anchor" href="#calcofi4r-152"></a></h2>
+<div class="section level3">
+<h3 id="cc_latest_version-and-a-pkgdown-build-that-fails-when-it-fails-1-5-2">
+<code>cc_latest_version()</code>, and a pkgdown build that fails when it fails<a class="anchor" aria-label="anchor" href="#cc_latest_version-and-a-pkgdown-build-that-fails-when-it-fails-1-5-2"></a></h3>
+<ul><li>
+<strong><code><a href="../reference/cc_latest_version.html">cc_latest_version()</a></code></strong> is now exported — it resolves the promoted release to a concrete version string from the same <code>latest.txt</code> every other CalCOFI consumer reads. Use it when you are about to pin: <code>version = "latest"</code> is not reproducible, but you cannot pin to a version you have not looked up.</li>
+</ul><div class="section level4">
+<h4 id="the-bio-env-matching-vignette-stopped-building-and-the-site-said-it-was-fine-1-5-2">The bio-env-matching vignette stopped building, and the site said it was fine<a class="anchor" aria-label="anchor" href="#the-bio-env-matching-vignette-stopped-building-and-the-site-said-it-was-fine-1-5-2"></a></h4>
+<p>Two failures stacked, and the second hid the first.</p>
+<p><strong>The pin rotted in a way a pin is not supposed to.</strong> That vignette pinned <code>v2026.05.14</code> to demonstrate archival reproducibility. The release is still there — what is missing is <code>obs.parquet</code> <em>inside</em> it. <code>v2026.05.14</code> predates the consolidation of the per-dataset tables into the core <code>obs</code> / <code>sample</code> model, and <code><a href="../reference/cc_match_bio_env.html">cc_match_bio_env()</a></code> was later rewritten to query <code>obs</code>. The data was immutable exactly as promised; the <strong>code</strong> moved to a schema that data does not have. The vignette now says so, and pins to the release current at build time.</p>
+<p><strong>And the site deployed anyway.</strong> <code>pkgdown.yaml</code> carried <code>continue-on-error: true</code>, so a failed build was a green tick. pkgdown writes <code>articles/index.html</code> — the navbar — <em>before</em> rendering the articles, so the site published listing every article while serving only those built before the failure. The symptom is a 404 from a link in your own navbar with nothing anywhere reporting it. Removed; a failed build now fails the run and the deploy is skipped, which keeps the last good site up instead of publishing a half-built one.</p>
+</div>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.5.1" id="calcofi4r-151">calcofi4r 1.5.1<a class="anchor" aria-label="anchor" href="#calcofi4r-151"></a></h2>
+<div class="section level3">
+<h3 id="new-vignette-summer-ctd-temperature-anomalies-1-5-1">New vignette: summer CTD temperature anomalies<a class="anchor" aria-label="anchor" href="#new-vignette-summer-ctd-temperature-anomalies-1-5-1"></a></h3>
+<p><code><a href="../articles/ctd-temperature-anomalies.html">vignette("ctd-temperature-anomalies")</a></code> walks a real request end to end — extract the summer cruise temperatures and plot anomalies against a 1993-2013 baseline — using five of the 1.5.0 exports and no SQL. It doubles as their documentation, so the functions and the worked example cannot drift apart.</p>
+<p>It also demonstrates something worth doing regardless of the analysis: <strong>screening the source for physically impossible values before computing a baseline, rather than after the result looks odd.</strong> The released CTD carries 18 temperature readings in 13.5 million that are not ocean temperatures — the soak artifact, where the sensor is still warm from the deck on the first metres of the downcast. They pass the release’s declared bounds because those are set to “impossible” (-2 to 40 degC) rather than “unusual”.</p>
+<p>Eighteen rows sounds ignorable, and is not: they land on the sparsely-sampled northern lines, where an April baseline cell may hold 2-7 observations across all of 1993-2013. One 38 degC reading moves that cell’s mean by more than 10 degC, and every other April cruise at the station then reads as a spurious ~11 degC <em>cold</em> anomaly. The vignette screens them client-side and says why, rather than inheriting the judgement invisibly.</p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.5.0" id="calcofi4r-150">calcofi4r 1.5.0<a class="anchor" aria-label="anchor" href="#calcofi4r-150"></a></h2>
+<div class="section level3">
+<h3 id="transects-climatology-and-anomalies-one-implementation-five-new-functions-1-5-0">Transects, climatology and anomalies: one implementation, five new functions<a class="anchor" aria-label="anchor" href="#transects-climatology-and-anomalies-one-implementation-five-new-functions-1-5-0"></a></h3>
+<p>Every app that draws a CalCOFI section had its own private helper. <code>apps/ctd-viz</code> made the user click two stations on a map and ordered them by ship track; <code>ctd-transects</code> needed the same section pre-rendered for a browser with no R behind it. A fix to the ordering or the depth binning had to be made twice, and the two had already drifted.</p>
+<ul><li>
+<strong><code><a href="../reference/cc_transect_stations.html">cc_transect_stations()</a></code></strong> — stations on a line, ordered <strong>nearshore → offshore by station number</strong>. Well defined for every cruise with no endpoints to pick, which is what makes a whole archive of sections pre-renderable. Station order is deliberately not <code>order_occ</code>: that is the ship’s track, so its direction is whichever way the ship steamed, and it is NULL on roughly half the release’s cast rows.</li>
+<li>
+<strong><code><a href="../reference/cc_transect_section.html">cc_transect_section()</a></code></strong> — observations along that transect, binned by depth (default 5 m to 500 m), long/tidy.</li>
+<li>
+<strong><code><a href="../reference/cc_climatology.html">cc_climatology()</a></code></strong> — a baseline mean per (station, depth bin, calendar month) over a stated year range, returned with <code>clim_n</code> so a thin cell can be filtered rather than silently trusted.</li>
+<li>
+<strong><code><a href="../reference/cc_anomaly.html">cc_anomaly()</a></code></strong> — <code>value - clim_mean</code>. A cell with no baseline comes back <code>NA</code>, <strong>never 0</strong>: an unsampled baseline is not a zero anomaly. Also returns <code>anomaly_sd</code>, the departure in baseline standard deviations, which is what makes 1 degC interpretable — large in the deep, unremarkable at the surface in spring.</li>
+<li>
+<strong><code><a href="../reference/cc_transect_matrix.html">cc_transect_matrix()</a></code></strong> — pivot to the station x depth matrix a heatmap wants.</li>
+</ul><p>These <strong>prepare</strong> data; they do not draw. Rendering stays with each app, because <code>ctd-viz</code> can interpolate server-side and <code>ctd-transects</code> cannot.</p>
+<div class="section level4">
+<h4 id="x--occupied-vs-x--line-1-5-0">
+<code>x = "occupied"</code> vs <code>x = "line"</code>
+<a class="anchor" aria-label="anchor" href="#x--occupied-vs-x--line-1-5-0"></a></h4>
+<p><code>cc_transect_stations(x=)</code> chooses the horizontal ruler. <code>"occupied"</code> (default) measures between the stations a cruise actually occupied, so the section fills the plot; <code>"line"</code> measures along the full line geometry, so cruises that sampled different subsets are comparable in width.</p>
+<p>This is not cosmetic. Line 93.3 has not been sampled past station 90 since 2025-01, though 113 of the 130 cruises before it reached station 120 — so under the default ruler a recent section spans a shorter distance than a historical one at the same width, and comparing them by eye overstates recent gradients.</p>
+<p>Not to be confused with <code><a href="../reference/buffer_transect.html">buffer_transect()</a></code>, which is a user-drawn line plus buffer corridor.</p>
+</div>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.4.4" id="calcofi4r-144">calcofi4r 1.4.4<a class="anchor" aria-label="anchor" href="#calcofi4r-144"></a></h2>
+<div class="section level3">
+<h3 id="cc_tbl-follows-the-spatial-table-rename-and-keeps-the-old-names-working-1-4-4">
+<code>cc_tbl()</code> follows the spatial table rename, and keeps the old names working<a class="anchor" aria-label="anchor" href="#cc_tbl-follows-the-spatial-table-rename-and-keeps-the-old-names-working-1-4-4"></a></h3>
+<p>Release v2026.08.02 renames <code>_spatial</code> → <strong><code>spatial</code></strong> and <code>_spatial_attr</code> → <strong><code>spatial_attribute</code></strong>, and both now carry a real primary key, <code>spatial_key = '{layer}:{id}'</code>. The old <code>id</code> is per-layer sequential — a county and a sanctuary both have <code>id</code> 1 — so joining on it alone silently mixed layers; <code>spatial_key</code> is namespaced the way <code>sample_key</code> is.</p>
+<p><code><a href="../reference/cc_tbl.html">cc_tbl()</a></code> accepts <strong>either</strong> name and picks the matching attribute table, so code pinned to an older release keeps working:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/cc_tbl.html">cc_tbl</a></span><span class="op">(</span><span class="va">con</span>, <span class="st">"spatial"</span>,  layer <span class="op">=</span> <span class="st">"CA Counties"</span><span class="op">)</span>   <span class="co"># v2026.08.02 on</span></span>
+<span><span class="fu"><a href="../reference/cc_tbl.html">cc_tbl</a></span><span class="op">(</span><span class="va">con</span>, <span class="st">"_spatial"</span>, layer <span class="op">=</span> <span class="st">"CA Counties"</span><span class="op">)</span>   <span class="co"># older releases</span></span></code></pre></div>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.4.3" id="calcofi4r-143">calcofi4r 1.4.3<a class="anchor" aria-label="anchor" href="#calcofi4r-143"></a></h2>
+<p><em>Don’t count automated browsers</em></p>
+<ul><li>
+<strong><code><a href="../reference/cc_ga_js.html">cc_ga_js()</a></code> / <code><a href="../reference/cc_ga_head.html">cc_ga_head()</a></code> / <code><a href="../reference/cc_ga_html.html">cc_ga_html()</a></code> skip <code>navigator.webdriver</code> clients.</strong> GA4 filters known bots by user agent, so what gets through is exactly the automation that <em>renders</em> — Playwright, Puppeteer, Selenium, and our own <code>shot-scraper</code> screenshot runs — firing gtag like a real visitor. Each fetch arrives cookie-less, so a site sweep becomes N one-page “users” with no engagement; that is how <code>calcofi4db</code> came to top the usage table on 169 users and 0% engagement. Both legs (GA4 and the Sheet) go silent under automation, while <code>window.ccTrack</code> stays defined and the message handlers still register, so a server-side <code><a href="../reference/cc_track.html">cc_track()</a></code> is a no-op rather than an unknown-message console warning.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.4.2" id="calcofi4r-142">calcofi4r 1.4.2<a class="anchor" aria-label="anchor" href="#calcofi4r-142"></a></h2>
+<p><em>One GA4 snippet for apps that do not depend on calcofi4r</em></p>
+<ul><li>
+<strong><code><a href="../reference/cc_ga_html.html">cc_ga_html()</a></code></strong> New: writes [cc_ga_js()]’s snippet to a standalone HTML file, so an app can keep <code>includeHTML("google-analytics.html")</code> and gain nothing at runtime. Loading the calcofi4r namespace costs ~4 s of cold start (sf/terra/stars come with it), which a small app should not pay just to be counted. The file carries a banner spelling out the exact regeneration command — these files live in several repos and must not be hand-patched apart. Static by nature, so the Sheet leg and the per-request <code>ip</code> are off; GA4 is unaffected, since gtag resolves the client IP in the browser.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.4.1" id="calcofi4r-141">calcofi4r 1.4.1<a class="anchor" aria-label="anchor" href="#calcofi4r-141"></a></h2>
+<p><em>Log the real client IP, not the proxy</em></p>
+<ul><li>
+<strong><code><a href="../reference/cc_ga_js.html">cc_ga_js()</a></code> / <code><a href="../reference/cc_ga_head.html">cc_ga_head()</a></code> gain <code>ip</code></strong> Stamps a client IP on every logged row from the <strong>page</strong> request. Behind shiny-server this is the only place a real one exists: shiny-server does not proxy the websocket upgrade — it opens a fresh localhost connection to the R worker — so <code>session$request</code> has no <code>X-Forwarded-For</code> and <code>REMOTE_ADDR</code> is always <code>127.0.0.1</code>, no matter how correctly the reverse proxy is configured. Make the app’s <code>ui</code> a <code>function(req)</code> and pass <code>ip = cc_client_ip(req)</code>.</li>
+<li>
+<strong><code><a href="../reference/cc_client_ip.html">cc_client_ip()</a></code> accepts a <code>ui(req)</code></strong> as well as a <code>session</code> — the argument is now <code>x</code>, and the request fields are read directly when there is no <code>$request</code>.</li>
+<li>
+<strong><code><a href="../reference/cc_track_session.html">cc_track_session()</a></code>’s IP is now a fallback</strong>, not an override: the client keeps the page-supplied address rather than letting the session’s <code>127.0.0.1</code> clobber it.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.4.0" id="calcofi4r-140">calcofi4r 1.4.0<a class="anchor" aria-label="anchor" href="#calcofi4r-140"></a></h2>
+<p><em>Non-blocking usage analytics for the Shiny apps</em></p>
+<ul><li>
+<strong><code><a href="../reference/cc_track.html">cc_track()</a></code></strong> New: send a usage event from the Shiny server to the browser over the session’s existing websocket. Makes <strong>no HTTP request</strong>, so instrumenting a hot control can never stall a reactive — replacing the synchronous <code><a href="https://httr2.r-lib.org/reference/req_perform.html" class="external-link">httr2::req_perform()</a></code> per query that <code>db-viz-hex</code> used to run on every filter submit and download.</li>
+<li>
+<strong><code><a href="../reference/cc_track_query.html">cc_track_query()</a></code></strong> New: wrap a query expression to record its row count, duration, and any error (<code>n_rows</code> / <code>ms</code> / <code>status</code> / <code>error</code> get their own Sheet columns, so they stay numeric and chartable). The result — including a lazy <code>dbplyr</code> table — passes through untouched, and an error is re-raised after being logged.</li>
+<li>
+<strong><code><a href="../reference/cc_ga_head.html">cc_ga_head()</a></code> / <code><a href="../reference/cc_ga_js.html">cc_ga_js()</a></code></strong> New: the one <code>&lt;head&gt;</code> snippet every CalCOFI app installs. Emits GA4 events for aggregate behavior and beacons full-cardinality detail to a Google Sheet, batched (10 events / 15 s / page-hide) via <code>navigator.sendBeacon()</code>. Also defines <code>window.ccTrack()</code> for pure UI events that never need to reach R.</li>
+<li>
+<strong><code><a href="../reference/cc_track_session.html">cc_track_session()</a></code>, <code><a href="../reference/cc_client_ip.html">cc_client_ip()</a></code></strong> New: hand the browser the client IP and Shiny session token, which JavaScript cannot read, so the log’s <code>ip</code>/<code>session</code> columns survive the move to a browser-sent beacon.</li>
+<li>
+<strong><code><a href="../reference/cc_log_header.html">cc_log_header()</a></code>, <code><a href="../reference/cc_apps_script.html">cc_apps_script()</a></code></strong> New: the Sheet’s column order and the generated <code>Code.gs</code> that appends a whole batch in one <code>setValues()</code> call — kept in one place so the Sheet, the Apps Script, and the client payload cannot drift.</li>
+<li>
+<strong>testthat suite</strong> The package now has tests (<code>devtools::test()</code>), starting with 18 for the analytics module.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.3.0" id="calcofi4r-130">calcofi4r 1.3.0<a class="anchor" aria-label="anchor" href="#calcofi4r-130"></a></h2>
 <p><em>Dataset-driven ERD coloring (stroke-based)</em></p>
@@ -121,7 +242,7 @@
 <li>Convenience Functions - Documents the new read functions:
 <ul><li>
 <code><a href="../reference/cc_read_ichthyo.html">cc_read_larvae()</a></code><br></li>
-<li><code><a href="../reference/cc_read_bottle.html">cc_read_bottle()</a></code></li>
+<li><code>cc_read_bottle()</code></li>
 <li><code><a href="../reference/cc_read_casts.html">cc_read_cast()</a></code></li>
 <li>With filter examples using dplyr syntax</li>
 </ul></li>
@@ -239,7 +360,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

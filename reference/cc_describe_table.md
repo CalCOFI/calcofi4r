@@ -32,14 +32,14 @@ description is in `attr(<result>, "description_md")`.
 
 For a point-and-click view of the same metadata (ERD, sortable
 tables/columns, measurement-type registry), see the [CalCOFI Schema
-explorer](https://calcofi.io/schema/).
+explorer](https://calcofi.io/db-schema/).
 
 ## See also
 
 [`cc_db_catalog()`](https://calcofi.io/calcofi4r/reference/cc_db_catalog.md)
 for a DT::datatable() of every table and column in a release. [CalCOFI
-Schema explorer](https://calcofi.io/schema/) for a web view of the same
-metadata.
+Schema explorer](https://calcofi.io/db-schema/) for a web view of the
+same metadata.
 
 ## Examples
 

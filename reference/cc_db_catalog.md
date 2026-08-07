@@ -33,14 +33,14 @@ tables and columns.
 
 For a richer point-and-click view with ERD diagram, dataset provenance,
 and the canonical measurement-type registry, see the [CalCOFI Schema
-explorer](https://calcofi.io/schema/).
+explorer](https://calcofi.io/db-schema/).
 
 ## See also
 
 [`cc_describe_table()`](https://calcofi.io/calcofi4r/reference/cc_describe_table.md)
 for per-table schema as a tibble. [CalCOFI Schema
-explorer](https://calcofi.io/schema/) for the web-based browser with ERD
-and measurement-type registry.
+explorer](https://calcofi.io/db-schema/) for the web-based browser with
+ERD and measurement-type registry.
 
 ## Examples
 

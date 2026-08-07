@@ -21,7 +21,11 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-0HVK8TDMCF');
+  // content_group is what the usage report at calcofi.io/analytics/ joins on
+  // navigator.webdriver is set in every WebDriver/CDP-controlled browser, so
+  // Playwright, Puppeteer and our own shot-scraper screenshots stop counting.
+  // GA4's bot list is user-agent based and never sees them.
+  if (!navigator.webdriver) gtag('config', 'G-0HVK8TDMCF', { content_group: 'calcofi4r' });
 </script>
 </head>
 <body>
@@ -32,7 +36,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,13 +51,14 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/bio-env-matching.html">Matching biology to environment: query 75 years of ocean data, anywhere</a></li>
+    <li><a class="dropdown-item" href="../articles/ctd-temperature-anomalies.html">Summer CTD temperature anomalies against a 1993-2013 baseline</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="external-link nav-link" href="https://calcofi.io/schema/" aria-label="CalCOFI Schema explorer (ERD, tables, columns, units)">Schema</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://calcofi.io/query/" aria-label="CalCOFI Query (browser DuckDB-WASM)">Query</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://calcofi.io/db-schema/" aria-label="CalCOFI Schema explorer (ERD, tables, columns, units)">Schema</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://calcofi.io/db-query/" aria-label="CalCOFI Query (browser DuckDB-WASM)">Query</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://calcofi.io/docs/" aria-label="CalCOFI Docs">Docs</a></li>
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
@@ -125,7 +130,7 @@ columns and row groups your query actually touches, and it runs the
 <td>
 <strong>a web browser</strong>, no install</td>
 <td>
-<a href="https://calcofi.io/query/" class="external-link"><strong>CalCOFI
+<a href="https://calcofi.io/db-query/" class="external-link"><strong>CalCOFI
 Query</strong></a> — left-side accordion of point-and-click forms (the
 three bio↔︎env wrappers + custom SQL + a free-form SQL shell + simple
 browse / spatial / temporal / per-dataset queries), all running
@@ -154,14 +159,20 @@ hr.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://calcofi.io/calcofi4r">calcofi4r</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Pin to whatever release is current as this page is built, rather than to a</span></span>
+<span><span class="co"># literal written once. See "Version pinning" below for why a literal rots.</span></span>
+<span><span class="va">REL</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cc_latest_version.html">cc_latest_version</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cc_match_ichthyo_by_name.html">cc_match_ichthyo_by_name</a></span><span class="op">(</span></span>
 <span>  scientific_name <span class="op">=</span> <span class="st">"Sardinops sagax"</span>,</span>
 <span>  env_var         <span class="op">=</span> <span class="st">"temperature"</span>,</span>
 <span>  date_min        <span class="op">=</span> <span class="st">"2014-01-01"</span>,</span>
 <span>  date_max        <span class="op">=</span> <span class="st">"2019-12-31"</span>,</span>
 <span>  relax_matching  <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  version         <span class="op">=</span> <span class="st">"v2026.05.14"</span><span class="op">)</span>   <span class="co"># pin for archival reproducibility</span></span>
+<span>  version         <span class="op">=</span> <span class="va">REL</span><span class="op">)</span></span>
 <span></span>
+<span><span class="va">REL</span></span>
+<span><span class="co">#&gt; [1] "v2026.08.07"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 310  19</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -174,12 +185,12 @@ hr.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 11</span></span></span>
 <span><span class="co">#&gt;   scientific_name life_stage bio_datetime        bio_lon bio_lat bio_value</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Sardinops sagax larva      2019-02-12 <span style="color: #949494;">21:54:00</span>   -<span style="color: #BB0000;">119.</span>    33.8    112.  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Sardinops sagax larva      2015-02-05 <span style="color: #949494;">07:04:00</span>   -<span style="color: #BB0000;">124.</span>    37.6     88.2 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Sardinops sagax larva      2017-04-12 <span style="color: #949494;">07:32:00</span>   -<span style="color: #BB0000;">124.</span>    33.4     10.2 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Sardinops sagax larva      2018-04-19 <span style="color: #949494;">08:15:00</span>   -<span style="color: #BB0000;">124.</span>    32.8     24.6 </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Sardinops sagax larva      2017-04-07 <span style="color: #949494;">12:48:00</span>   -<span style="color: #BB0000;">123.</span>    31.7      5.02</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Sardinops sagax egg        2014-04-08 <span style="color: #949494;">06:38:00</span>   -<span style="color: #BB0000;">118.</span>    33.9      0.6 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> Sardinops sagax egg        2016-07-22 <span style="color: #949494;">09:37:00</span>   -<span style="color: #BB0000;">119.</span>    34.3    292.  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> Sardinops sagax larva      2014-07-13 <span style="color: #949494;">23:09:00</span>   -<span style="color: #BB0000;">120.</span>    33.3      7.38</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Sardinops sagax larva      2018-04-15 <span style="color: #949494;">04:33:00</span>   -<span style="color: #BB0000;">123.</span>    31.7      4.91</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> Sardinops sagax larva      2018-04-08 <span style="color: #949494;">03:38:00</span>   -<span style="color: #BB0000;">122.</span>    30.5     42.2 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> Sardinops sagax larva      2018-04-15 <span style="color: #949494;">14:46:00</span>   -<span style="color: #BB0000;">124.</span>    31.9     19.9 </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5 more variables: env_value &lt;dbl&gt;, env_depth_m &lt;dbl&gt;, n_env &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   dist_km &lt;dbl&gt;, time_diff_hr &lt;dbl&gt;</span></span></span></code></pre></div>
 <p>Each row is one net-haul observation of a sardine egg or larva,
@@ -393,17 +404,17 @@ contract:</p>
 <code class="sourceCode R"><span><span class="va">meta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">d</span>, <span class="st">"query_meta"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">meta</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 6</span></span>
-<span><span class="co">#&gt;  $ package_version: chr "1.3.0"</span></span>
-<span><span class="co">#&gt;  $ release_version: chr "v2026.05.14"</span></span>
+<span><span class="co">#&gt;  $ package_version: chr "1.5.3"</span></span>
+<span><span class="co">#&gt;  $ release_version: chr "v2026.08.07"</span></span>
 <span><span class="co">#&gt;  $ params         :List of 3</span></span>
 <span><span class="co">#&gt;   ..$ max_dist_km: num 5</span></span>
 <span><span class="co">#&gt;   ..$ max_time_hr: num 72</span></span>
 <span><span class="co">#&gt;   ..$ join_method: chr "nearest_time"</span></span>
-<span><span class="co">#&gt;  $ source_urls    : chr [1:8] "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/bottle_measurement.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/bottle.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/casts.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/ichthyo.parquet" ...</span></span>
-<span><span class="co">#&gt;  $ generated_at   : chr "2026-06-18 17:41:14 UTC"</span></span>
+<span><span class="co">#&gt;  $ source_urls    : chr [1:3] "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/obs.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/sample_measurement.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/taxon.parquet"</span></span>
+<span><span class="co">#&gt;  $ generated_at   : chr "2026-08-07 11:53:20 UTC"</span></span>
 <span><span class="co">#&gt;  $ n_rows         : int 310</span></span></code></pre></div>
 <p><code>meta$release_version</code> pins which release the result came
-from (v2026.05.14 here). <code>meta$source_urls</code> is the full list
+from (v2026.08.07 here). <code>meta$source_urls</code> is the full list
 of public GCS parquet files the query reads. And
 <code>attr(d, "sql")</code> is the literal query — no <code>dplyr</code>
 translation, no hidden state, ~90 lines of plain DuckDB SQL:</p>
@@ -415,19 +426,19 @@ translation, no hidden state, ~90 lines of plain DuckDB SQL:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">sql</span>, <span class="fl">1</span>, <span class="fl">600</span><span class="op">)</span>, <span class="st">"\n…\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; WITH bio AS (</span></span>
 <span><span class="co">#&gt; SELECT</span></span>
-<span><span class="co">#&gt;   i.ichthyo_uuid::VARCHAR AS bio_id,</span></span>
-<span><span class="co">#&gt;   t.time_start            AS bio_datetime,</span></span>
-<span><span class="co">#&gt;   s.longitude             AS bio_lon,</span></span>
-<span><span class="co">#&gt;   s.latitude              AS bio_lat,</span></span>
-<span><span class="co">#&gt;   n.std_haul_factor * i.tally / nullif(n.prop_sorted, 0) AS bio_value,</span></span>
-<span><span class="co">#&gt;   sp.scientific_name,</span></span>
-<span><span class="co">#&gt;   sp.common_name,</span></span>
-<span><span class="co">#&gt;   sp.worms_id,</span></span>
-<span><span class="co">#&gt;   i.life_stage,</span></span>
-<span><span class="co">#&gt;   i.tally</span></span>
-<span><span class="co">#&gt; FROM read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/ichthyo.parquet') i</span></span>
-<span><span class="co">#&gt; JOIN read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.05.14/parquet/species.parquet') sp ON i.species_id = sp.species_id</span></span>
-<span><span class="co">#&gt;  </span></span>
+<span><span class="co">#&gt;   o.obs_id::VARCHAR AS bio_id,</span></span>
+<span><span class="co">#&gt;   o.datetime AS bio_datetime,</span></span>
+<span><span class="co">#&gt;   o.longitude AS bio_lon,</span></span>
+<span><span class="co">#&gt;   o.latitude AS bio_lat,</span></span>
+<span><span class="co">#&gt;   o.measurement_value * shf.measurement_value / nullif(ps.measurement_value, 0) AS bio_value,</span></span>
+<span><span class="co">#&gt;   o.measurement_value AS tally,</span></span>
+<span><span class="co">#&gt;   o.taxon_key,</span></span>
+<span><span class="co">#&gt;   t.scientific_name,</span></span>
+<span><span class="co">#&gt;   t.worms_id,</span></span>
+<span><span class="co">#&gt;   o.life_stage</span></span>
+<span><span class="co">#&gt; FROM read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/obs.parquet') o</span></span>
+<span><span class="co">#&gt; JOIN read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/taxon.parquet') t ON t.taxon_key = o.taxon_key</span></span>
+<span><span class="co">#&gt; LEFT JOIN read_ </span></span>
 <span><span class="co">#&gt; …</span></span></code></pre></div>
 <p>To get the SQL <em>without</em> running it — e.g. to share, save into
 version control, or hand to a colleague who works in Python — pass
@@ -435,9 +446,9 @@ version control, or hand to a colleague who works in Python — pass
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sql</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cc_match_ichthyo_by_name.html">cc_match_ichthyo_by_name</a></span><span class="op">(</span><span class="st">"Sardinops sagax"</span>, return_sql <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="va">sql</span>, <span class="st">"sardine_match.sql"</span><span class="op">)</span></span></code></pre></div>
-<p>This is the same artifact the <a href="https://app.calcofi.io/int" class="external-link">CalCOFI Integrated App</a> ships in
-its data-download bundle’s <code>query/</code> folder — re-run it
-anywhere, get identical rows.</p>
+<p>This is the same artifact the <a href="https://app.calcofi.io/db-viz-hex" class="external-link">CalCOFI Integrated App</a>
+ships in its data-download bundle’s <code>query/</code> folder — re-run
+it anywhere, get identical rows.</p>
 </div>
 <div class="section level2">
 <h2 id="run-it-from-anywhere">Run it from anywhere<a class="anchor" aria-label="anchor" href="#run-it-from-anywhere"></a>
@@ -452,7 +463,7 @@ anywhere, get identical rows.</p>
 <p><strong>DuckDB CLI</strong></p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="ex">duckdb</span> <span class="at">-c</span> <span class="st">"INSTALL httpfs; LOAD httpfs; INSTALL spatial; LOAD spatial;</span></span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="va">$(</span><span class="fu">cat</span> sardine_match.sql<span class="va">)</span><span class="st">"</span></span></code></pre></div>
-<p><strong>A web browser, no install</strong> — open <a href="https://calcofi.io/query/" class="external-link"><strong>CalCOFI Query</strong></a>,
+<p><strong>A web browser, no install</strong> — open <a href="https://calcofi.io/db-query/" class="external-link"><strong>CalCOFI Query</strong></a>,
 pick a tab (by name / by taxon / zoo biomass / custom / SQL shell), fill
 the form, hit <strong>Run</strong>. The page loads <a href="https://duckdb.org/docs/api/wasm/overview.html" class="external-link">DuckDB-WASM</a> in
 a worker thread, runs the <em>exact same</em> generated SQL (it imports
@@ -469,14 +480,35 @@ official WASM shell. Try either on a phone if you like.</p>
 <span>  <span class="st">"Sardinops sagax"</span>, env_var <span class="op">=</span> <span class="st">"temperature"</span>,</span>
 <span>  date_min <span class="op">=</span> <span class="st">"2014-01-01"</span>, date_max <span class="op">=</span> <span class="st">"2019-12-31"</span>,</span>
 <span>  relax_matching <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  version <span class="op">=</span> <span class="st">"v2026.05.14"</span><span class="op">)</span></span></code></pre></div>
-<p>Every URL inside <code>attr(d, "sql")</code> then carries
-<code>v2026.05.14</code>, so the query references <strong>immutable
-Parquet</strong> — a colleague re-running it in 10 years gets the same
-rows, even after dozens of new releases have shipped. The release
-version, the GCS URLs, the windows, and the join method are all in
-<code>attr(d, "query_meta")</code>; ship that beside your figures and
-your analysis is self-describing.</p>
+<span>  version <span class="op">=</span> <span class="st">"v2026.08.07"</span><span class="op">)</span></span></code></pre></div>
+<p>Every URL inside <code>attr(d, "sql")</code> then carries that
+version, so the query references <strong>immutable Parquet</strong> — a
+colleague re-running it gets the same rows even after dozens of new
+releases have shipped. The release version, the GCS URLs, the windows,
+and the join method are all in <code>attr(d, "query_meta")</code>; ship
+that beside your figures and your analysis is self-describing.</p>
+<div class="section level3">
+<h3 id="pin-the-package-too-not-just-the-data">Pin the package too, not just the data<a class="anchor" aria-label="anchor" href="#pin-the-package-too-not-just-the-data"></a>
+</h3>
+<p>This vignette used to pin <code>v2026.05.14</code> and stopped
+building, which is worth recording rather than quietly fixing.</p>
+<p>The release was still there. What was missing was
+<code>obs.parquet</code> <em>inside</em> it: <code>v2026.05.14</code>
+predates the consolidation of the per-dataset tables into the core
+<code>obs</code> / <code>sample</code> model, so it carries
+<code>ctd_cast</code>, <code>bottle</code>, <code>dic_measurement</code>
+and the rest. <code><a href="../reference/cc_match_bio_env.html">cc_match_bio_env()</a></code> was later rewritten to
+query <code>obs</code>. The data was immutable exactly as promised — the
+<strong>code</strong> moved to a schema that data does not have.</p>
+<p>So immutable data is only half of reproducibility. Record the package
+version beside the release version:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>release <span class="op">=</span> <span class="va">REL</span>, calcofi4r <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/packageDescription.html" class="external-link">packageVersion</a></span><span class="op">(</span><span class="st">"calcofi4r"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>and restore both together (<a href="https://rstudio.github.io/renv/" class="external-link">renv</a> or
+<code>remotes::install_github("CalCOFI/calcofi4r@v1.5.1")</code> for the
+package). A release number alone tells a future reader which bytes to
+fetch, not which code could read them.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="beyond-cc_match_ichthyo_by_name">Beyond <code>cc_match_ichthyo_by_name()</code><a class="anchor" aria-label="anchor" href="#beyond-cc_match_ichthyo_by_name"></a>
@@ -518,7 +550,7 @@ chapters of the CalCOFI documentation book.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

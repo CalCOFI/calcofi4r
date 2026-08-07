@@ -187,13 +187,13 @@ required for queries.
 
 ## See also
 
-- [**CalCOFI Schema**](https://calcofi.io/schema/) — per-release ERD,
+- [**CalCOFI Schema**](https://calcofi.io/db-schema/) — per-release ERD,
   tables, columns (units + descriptions), datasets, and measurement-type
   registry. The same `metadata.json` sidecar that powers
   [`cc_describe_table()`](https://calcofi.io/calcofi4r/reference/cc_describe_table.md)
   and
   [`cc_db_catalog()`](https://calcofi.io/calcofi4r/reference/cc_db_catalog.md).
-- [**CalCOFI Query**](https://calcofi.io/query/) — browser-only
+- [**CalCOFI Query**](https://calcofi.io/db-query/) — browser-only
   DuckDB-WASM playground against the public release Parquet.
 - [**CalCOFI Docs**](https://calcofi.io/docs/) — data access, helpers,
   portals, API.
@@ -213,41 +213,83 @@ functions reading data, particularly from the CalCOFI API
 
 - [`cc_describe_table()`](https://calcofi.io/calcofi4r/reference/cc_describe_table.md)
   : Describe a CalCOFI database table
+
 - [`cc_list_measurement_types()`](https://calcofi.io/calcofi4r/reference/cc_list_measurement_types.md)
   : List available measurement types
+
 - [`cc_list_tables()`](https://calcofi.io/calcofi4r/reference/cc_list_tables.md)
   : List tables in CalCOFI database
+
 - [`cc_query()`](https://calcofi.io/calcofi4r/reference/cc_query.md) :
   Execute SQL query on CalCOFI database
-- [`cc_read_bottle()`](https://calcofi.io/calcofi4r/reference/cc_read_bottle.md)
-  : Read CalCOFI bottle data
+
 - [`cc_read_casts()`](https://calcofi.io/calcofi4r/reference/cc_read_casts.md)
   [`cc_read_cast()`](https://calcofi.io/calcofi4r/reference/cc_read_casts.md)
   : Read CalCOFI cast data
+
 - [`cc_read_cruise()`](https://calcofi.io/calcofi4r/reference/cc_read_cruise.md)
   : Read CalCOFI cruise data
+
+- [`cc_read_ctd_full()`](https://calcofi.io/calcofi4r/reference/cc_read_ctd_full.md)
+  :
+
+  Read full-resolution CTD scans (`obs_ctd_full`, supplemental)
+
 - [`cc_read_ichthyo()`](https://calcofi.io/calcofi4r/reference/cc_read_ichthyo.md)
   [`cc_read_larvae()`](https://calcofi.io/calcofi4r/reference/cc_read_ichthyo.md)
   : Read CalCOFI ichthyoplankton (larvae) data
+
 - [`cc_read_measurements()`](https://calcofi.io/calcofi4r/reference/cc_read_measurements.md)
   : Read CalCOFI bottle measurements
+
+- [`cc_read_obs()`](https://calcofi.io/calcofi4r/reference/cc_read_obs.md)
+  :
+
+  Read consolidated observations (`obs`)
+
+- [`cc_read_obs_freq()`](https://calcofi.io/calcofi4r/reference/cc_read_obs_freq.md)
+  :
+
+  Read sub-occurrence frequency distributions (`obs_freq`)
+
+- [`cc_read_sample()`](https://calcofi.io/calcofi4r/reference/cc_read_sample.md)
+  :
+
+  Read the sampling-event dimension (`sample`)
+
+- [`cc_read_sample_measurement()`](https://calcofi.io/calcofi4r/reference/cc_read_sample_measurement.md)
+  :
+
+  Read event-level effort measurements (`sample_measurement`)
+
 - [`cc_read_site()`](https://calcofi.io/calcofi4r/reference/cc_read_site.md)
   : Read CalCOFI site data
-- [`cc_read_species()`](https://calcofi.io/calcofi4r/reference/cc_read_species.md)
-  : Read CalCOFI species data
+
+- [`cc_read_taxon()`](https://calcofi.io/calcofi4r/reference/cc_read_taxon.md)
+  : Read CalCOFI taxonomy
+
 - [`cc_read_tow()`](https://calcofi.io/calcofi4r/reference/cc_read_tow.md)
   : Read CalCOFI tow data
+
+- [`.cc_reader_retired()`](https://calcofi.io/calcofi4r/reference/dot-cc_reader_retired.md)
+  : Read CalCOFI bottle data
+
 - [`get_cruises()`](https://calcofi.io/calcofi4r/reference/get_cruises.md)
   **\[deprecated\]** : Get cruises from CalCOFI API
+
 - [`get_env()`](https://calcofi.io/calcofi4r/reference/get_env.md) :
   Retrieve Environmental Data from Database
+
 - [`get_raster()`](https://calcofi.io/calcofi4r/reference/get_raster.md)
   **\[deprecated\]** : Get raster of interpolated values from CalCOFI
   API
+
 - [`get_sp()`](https://calcofi.io/calcofi4r/reference/get_sp.md) :
   Retrieve Species Larval Abundance Data from Database
+
 - [`get_timeseries()`](https://calcofi.io/calcofi4r/reference/get_timeseries.md)
   **\[deprecated\]** : Get timeseries summary from CalCOFI API
+
 - [`get_variables()`](https://calcofi.io/calcofi4r/reference/get_variables.md)
   **\[deprecated\]** : Get variables from CalCOFI API
 
@@ -329,37 +371,96 @@ functions specific to database (Admin only)
 
 - [`cc_db_catalog()`](https://calcofi.io/calcofi4r/reference/cc_db_catalog.md)
   : Show CalCOFI database catalog as interactive table
+
 - [`cc_db_connect()`](https://calcofi.io/calcofi4r/reference/cc_db_connect.md)
   : Connect to the CalCOFI PostgreSQL database (Admin only) - DEPRECATED
+
 - [`cc_db_info()`](https://calcofi.io/calcofi4r/reference/cc_db_info.md)
   : Get CalCOFI database information
+
 - [`cc_erd()`](https://calcofi.io/calcofi4r/reference/cc_erd.md) :
   Generate Mermaid ERD from DuckDB Connection
+
 - [`cc_erd_color_map()`](https://calcofi.io/calcofi4r/reference/cc_erd_color_map.md)
   : Build an ERD color map from table → dataset metadata
+
 - [`cc_get_db()`](https://calcofi.io/calcofi4r/reference/cc_get_db.md) :
   Connect to CalCOFI Database
+
 - [`cc_get_dm()`](https://calcofi.io/calcofi4r/reference/cc_get_dm.md) :
   Get CalCOFI Database as dm Object with Relationships
+
+- [`cc_latest_version()`](https://calcofi.io/calcofi4r/reference/cc_latest_version.md)
+  :
+
+  Which release is currently `latest`
+
 - [`cc_list_versions()`](https://calcofi.io/calcofi4r/reference/cc_list_versions.md)
   : List available CalCOFI database versions
+
 - [`cc_list_view_templates()`](https://calcofi.io/calcofi4r/reference/cc_list_view_templates.md)
   : List Available View Templates
+
 - [`cc_make_view()`](https://calcofi.io/calcofi4r/reference/cc_make_view.md)
   : Create a Derived VIEW in the Database
+
 - [`cc_read_sf()`](https://calcofi.io/calcofi4r/reference/cc_read_sf.md)
   : Read Spatial Table from DuckDB as sf Object
+
 - [`cc_release_notes()`](https://calcofi.io/calcofi4r/reference/cc_release_notes.md)
   : View CalCOFI database release notes
+
 - [`cc_tbl()`](https://calcofi.io/calcofi4r/reference/cc_tbl.md) :
   Access a CalCOFI Database Table
+
 - [`create_index()`](https://calcofi.io/calcofi4r/reference/create_index.md)
   : Create index in database
+
+## Analytics
+
+non-blocking usage tracking for the Shiny apps (App maintainers only)
+
+- [`cc_apps_script()`](https://calcofi.io/calcofi4r/reference/cc_apps_script.md)
+  : Apps Script source for the usage-log Sheet
+
+- [`cc_client_ip()`](https://calcofi.io/calcofi4r/reference/cc_client_ip.md)
+  : Best-effort client IP from a Shiny request
+
+- [`cc_event()`](https://calcofi.io/calcofi4r/reference/cc_event.md) :
+  Build a tracking-event payload
+
+- [`cc_ga_head()`](https://calcofi.io/calcofi4r/reference/cc_ga_head.md)
+  :
+
+  Analytics `<head>` snippet as a Shiny tag
+
+- [`cc_ga_html()`](https://calcofi.io/calcofi4r/reference/cc_ga_html.md)
+  : Write the analytics snippet to a standalone HTML file
+
+- [`cc_ga_js()`](https://calcofi.io/calcofi4r/reference/cc_ga_js.md) :
+
+  Analytics `<head>` snippet (GA4 + batched Sheet beacon)
+
+- [`cc_log_header()`](https://calcofi.io/calcofi4r/reference/cc_log_header.md)
+  : Column header for the usage-log Sheet
+
+- [`cc_track()`](https://calcofi.io/calcofi4r/reference/cc_track.md) :
+  Send a tracking event from the Shiny server to the browser
+
+- [`cc_track_query()`](https://calcofi.io/calcofi4r/reference/cc_track_query.md)
+  : Time a query, log it, and return its result
+
+- [`cc_track_session()`](https://calcofi.io/calcofi4r/reference/cc_track_session.md)
+  : Hand the browser the session facts only the server knows
 
 ## Other
 
 check for other functions or datasets not captured by above categories
 
+- [`cc_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_anomaly.md)
+  : Join a section to a climatology and difference it
+- [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
+  : Seasonal climatology for one or more measurement types
 - [`cc_match_bio_env()`](https://calcofi.io/calcofi4r/reference/cc_match_bio_env.md)
   : Match biological to environmental observations
 - [`cc_match_ichthyo_by_name()`](https://calcofi.io/calcofi4r/reference/cc_match_ichthyo_by_name.md)
@@ -368,6 +469,12 @@ check for other functions or datasets not captured by above categories
   : Match ichthyoplankton to environmental data by WoRMS taxon subtree
 - [`cc_match_zooplankton_biomass()`](https://calcofi.io/calcofi4r/reference/cc_match_zooplankton_biomass.md)
   : Match zooplankton biomass to environmental data
+- [`cc_transect_matrix()`](https://calcofi.io/calcofi4r/reference/cc_transect_matrix.md)
+  : Pivot a section (or anomaly) to a station x depth matrix
+- [`cc_transect_section()`](https://calcofi.io/calcofi4r/reference/cc_transect_section.md)
+  : Observations along a transect, binned by depth
+- [`cc_transect_stations()`](https://calcofi.io/calcofi4r/reference/cc_transect_stations.md)
+  : Stations along a CalCOFI line, ordered nearshore to offshore
 - [`get_taxon_children()`](https://calcofi.io/calcofi4r/reference/get_taxon_children.md)
   : Retrieve Taxon Children from Database
 - [`plot(`*`<cc_erd>`*`)`](https://calcofi.io/calcofi4r/reference/plot.cc_erd.md)
@@ -382,3 +489,5 @@ check for other functions or datasets not captured by above categories
 - [Matching biology to environment: query 75 years of ocean data,
   anywhere](https://calcofi.io/calcofi4r/articles/bio-env-matching.md):
 - [calcofi4r](https://calcofi.io/calcofi4r/articles/calcofi4r.md):
+- [Summer CTD temperature anomalies against a 1993-2013
+  baseline](https://calcofi.io/calcofi4r/articles/ctd-temperature-anomalies.md):

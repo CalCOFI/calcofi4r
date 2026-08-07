@@ -187,13 +187,13 @@ required for queries.
 
 ## See also
 
-- [**CalCOFI Schema**](https://calcofi.io/schema/) — per-release ERD,
+- [**CalCOFI Schema**](https://calcofi.io/db-schema/) — per-release ERD,
   tables, columns (units + descriptions), datasets, and measurement-type
   registry. The same `metadata.json` sidecar that powers
   [`cc_describe_table()`](https://calcofi.io/calcofi4r/reference/cc_describe_table.md)
   and
   [`cc_db_catalog()`](https://calcofi.io/calcofi4r/reference/cc_db_catalog.md).
-- [**CalCOFI Query**](https://calcofi.io/query/) — browser-only
+- [**CalCOFI Query**](https://calcofi.io/db-query/) — browser-only
   DuckDB-WASM playground against the public release Parquet.
 - [**CalCOFI Docs**](https://calcofi.io/docs/) — data access, helpers,
   portals, API.

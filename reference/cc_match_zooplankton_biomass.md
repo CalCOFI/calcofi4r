@@ -1,8 +1,9 @@
 # Match zooplankton biomass to environmental data
 
-Relates net-tow zooplankton displacement-volume biomass
-(`net.totalplankton` or `net.smallplankton`) to CTD-bottle environmental
-measurements. Supersedes the retired `/zooplankton_biomass` endpoint.
+Relates net-tow zooplankton displacement-volume biomass (the
+`total_plankton_biomass` / `small_plankton_biomass` measurement types in
+`sample_measurement`) to environmental measurements. Supersedes the
+retired `/zooplankton_biomass` endpoint.
 
 ## Usage
 
@@ -33,8 +34,9 @@ cc_match_zooplankton_biomass(
 
 - biomass_type:
 
-  Which net biomass column to use: `"totalplankton"` (default) or
-  `"smallplankton"`.
+  Which net biomass to use: `"totalplankton"` (default; =
+  `sample_measurement` type `total_plankton_biomass`) or
+  `"smallplankton"` (= `small_plankton_biomass`).
 
 - date_min, date_max:
 

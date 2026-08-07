@@ -12,7 +12,8 @@ cc_get_db(
   cache_dir = NULL,
   refresh = FALSE,
   local_data = FALSE,
-  tables = NULL
+  tables = NULL,
+  supplemental = FALSE
 )
 ```
 
@@ -45,7 +46,14 @@ cc_get_db(
 - tables:
 
   Character vector of table names to include. NULL (default) includes
-  all tables. Use to exclude large tables like CTD data.
+  all (non-supplemental) tables. Use to exclude large tables, or to
+  explicitly include a supplemental table by name.
+
+- supplemental:
+
+  Logical; include supplemental tables (e.g. `obs_ctd_full`, the 216M
+  full-resolution CTD scans) that are hosted + cataloged but hidden by
+  default. Default `FALSE`. Ignored when `tables` names them explicitly.
 
 ## Value
 
