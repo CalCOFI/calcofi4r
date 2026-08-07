@@ -157,17 +157,26 @@ so they can be fixed at source rather than papered over by every downstream user
 in their own way.
 
 ```{r screen}
-# 30 degC: ~5 degC above the warmest genuine CalCOFI reading, ~5 degC below the
-# coldest artifact. Nothing legitimate is anywhere near it.
-TEMP_MAX_REGIONAL <- 30
+# Two-sided, on purpose. An earlier draft screened only the upper bound, because
+# the artifact I had in front of me was a hot one — which would have sailed past
+# the cold artifact that motivated this whole exercise (a failed sensor averaged
+# into TempAve produced values near -47 degC). A screen that can only catch the
+# failure you already know about is not a screen.
+#
+# 0 and 30 degC: roughly 5 degC outside the coldest and warmest genuine CalCOFI
+# readings, and far outside anything the region produces. Nothing legitimate is
+# near either bound.
+TEMP_RANGE_REGIONAL <- c(0, 30)
 
 screen <- function(d, col = "measurement_value")
-  filter(d, .data[[col]] <= TEMP_MAX_REGIONAL)
+  filter(d, .data[[col]] >= TEMP_RANGE_REGIONAL[1],
+            .data[[col]] <= TEMP_RANGE_REGIONAL[2])
 
 clim_screened <- cc_climatology(
   con, variables = VAR, years = BASELINE,
   depth_max = DEPTH_MAX, min_n = MIN_N) |>
-  filter(clim_mean <= TEMP_MAX_REGIONAL)
+  filter(clim_mean >= TEMP_RANGE_REGIONAL[1],
+         clim_mean <= TEMP_RANGE_REGIONAL[2])
 
 nrow(clim) - nrow(clim_screened)   # baseline cells the screen removes
 ```
@@ -255,6 +264,12 @@ series <- anom_summer |>
 head(series)
 ```
 
+A sanity check before reading anything into it: the baseline years must sit near
+zero by construction, and the series should reproduce events we already know
+happened. It does — 2014-15 is the marine heatwave ("the Blob"), 2016 its El
+Niño tail, and 2026 is warm at *every* depth rather than just at the surface.
+2018 is absent because there was no summer occupation that year.
+
 ```{r fig-series, fig.alt = "Summer temperature anomaly by year and depth layer"}
 ggplot(series, aes(yr, anomaly, colour = layer)) +
   annotate("rect", xmin = BASELINE[1] - .5, xmax = BASELINE[2] + .5,
@@ -281,7 +296,8 @@ before the 1993–2002 cruises were ingested.
 clim_98 <- cc_climatology(
   con, variables = VAR, years = c(1998, 2013),
   depth_max = DEPTH_MAX, min_n = MIN_N) |>
-  filter(clim_mean <= TEMP_MAX_REGIONAL)
+  filter(clim_mean >= TEMP_RANGE_REGIONAL[1],
+         clim_mean <= TEMP_RANGE_REGIONAL[2])
 
 cmp <- obs_summer |>
   inner_join(clim_98, by = c("grid_key", "mon" = "month", "depth_m", "variable")) |>
