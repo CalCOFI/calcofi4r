@@ -17,7 +17,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,6 +30,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/bio-env-matching.html">Matching biology to environment: query 75 years of ocean data, anywhere</a></li>
+    <li><a class="dropdown-item" href="../articles/ctd-temperature-anomalies.html">Summer CTD temperature anomalies against a 1993-2013 baseline</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://calcofi.io/db-schema/" aria-label="CalCOFI Schema explorer (ERD, tables, columns, units)">Schema</a></li>
@@ -79,7 +80,7 @@
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="op">(</span><span class="va">r_tif</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext<span class="op">=</span><span class="st">".tif"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/tmp/Rtmpv8yCot/file1e2741d9c4e8.tif"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/tmp/RtmpAoAIUG/file1f7058631ad7.tif"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># use second variable from previously fetched v</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">table_field</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="va">v</span><span class="op">$</span><span class="va">plot_label</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span></span>
@@ -99,7 +100,7 @@
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Expecting type "application/json" or suffix "json".</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html" class="external-link">raster</a></span><span class="op">(</span><span class="va">r_tif</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>GDAL Error 4: /tmp/Rtmpv8yCot/file1e2741d9c4e8.tif: No such file or directory</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>GDAL Error 4: /tmp/RtmpAoAIUG/file1f7058631ad7.tif: No such file or directory</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in .rasterObjectFromFile(x, band = band, objecttype = "RasterLayer",     ...):</span> Cannot create a RasterLayer object from this file. (file does not exist)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># plot raster</span></span></span>
