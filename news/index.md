@@ -1,5 +1,27 @@
 # Changelog
 
+## calcofi4r 1.5.4
+
+### The anomaly vignette’s outlier screen is now two-sided
+
+It screened only the upper bound, which would have sailed straight past
+the cold artifact that motivated the whole exercise: a failed
+temperature sensor averaged into `TempAve` produced values near **-47
+degC**. A screen that can only catch the failure you already have in
+front of you is not a screen.
+
+The vignette is also rebuilt against the corrected release. The
+published figure showed a -46 degC anomaly at the start of the series
+and repeated +7 degC spikes in which all four depth layers moved in
+lockstep — one cause with two symptoms, since a baseline cell containing
+-47 degC readings is dragged so low that every other year at that
+station reads as strongly positive.
+
+The corrected series ranges **-0.97 to +1.79 degC** and reproduces
+events we already know happened: 2014-15 is the marine heatwave, 2016
+its El Nino tail, and 2026 is warm at every depth rather than only at
+the surface. Baseline years sit near zero, as they must by construction.
+
 ## calcofi4r 1.5.3
 
 ### The getting-started vignette documented a schema that no longer exists

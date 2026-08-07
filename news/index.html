@@ -17,7 +17,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,6 +50,15 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.5.4" id="calcofi4r-154">calcofi4r 1.5.4<a class="anchor" aria-label="anchor" href="#calcofi4r-154"></a></h2>
+<div class="section level3">
+<h3 id="the-anomaly-vignettes-outlier-screen-is-now-two-sided-1-5-4">The anomaly vignette’s outlier screen is now two-sided<a class="anchor" aria-label="anchor" href="#the-anomaly-vignettes-outlier-screen-is-now-two-sided-1-5-4"></a></h3>
+<p>It screened only the upper bound, which would have sailed straight past the cold artifact that motivated the whole exercise: a failed temperature sensor averaged into <code>TempAve</code> produced values near <strong>-47 degC</strong>. A screen that can only catch the failure you already have in front of you is not a screen.</p>
+<p>The vignette is also rebuilt against the corrected release. The published figure showed a -46 degC anomaly at the start of the series and repeated +7 degC spikes in which all four depth layers moved in lockstep — one cause with two symptoms, since a baseline cell containing -47 degC readings is dragged so low that every other year at that station reads as strongly positive.</p>
+<p>The corrected series ranges <strong>-0.97 to +1.79 degC</strong> and reproduces events we already know happened: 2014-15 is the marine heatwave, 2016 its El Nino tail, and 2026 is warm at every depth rather than only at the surface. Baseline years sit near zero, as they must by construction.</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.5.3" id="calcofi4r-153">calcofi4r 1.5.3<a class="anchor" aria-label="anchor" href="#calcofi4r-153"></a></h2>
 <div class="section level3">

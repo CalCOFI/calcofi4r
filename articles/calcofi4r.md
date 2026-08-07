@@ -46,7 +46,7 @@ cc_list_versions()
 #> # A tibble: 23 × 6
 #>    version     release_date tables total_rows size_mb is_latest
 #>    <chr>       <chr>         <int>      <int>   <dbl> <lgl>    
-#>  1 v2026.08.07 2026-08-07       18  324094102   2024. TRUE     
+#>  1 v2026.08.07 2026-08-07       18  323733662   2024. TRUE     
 #>  2 v2026.08.06 2026-08-06       18  255137845   1636. FALSE    
 #>  3 v2026.08.05 2026-08-05       18  255137845   1636. FALSE    
 #>  4 v2026.08.04 2026-08-04       18  255155031   1635  FALSE    
@@ -136,12 +136,12 @@ head(ichthyo_sample)
 #> # A tibble: 6 × 18
 #>     obs_id realm sample_key               grid_key cruise_key latitude longitude
 #>      <dbl> <chr> <chr>                    <chr>    <chr>         <dbl>     <dbl>
-#> 1 26172115 bio   swfsc_ichthyo:net:2ea75… st60-ln… 1987-11-3…     34.2     -121.
-#> 2 26172119 bio   swfsc_ichthyo:net:2ea75… st60-ln… 1987-11-3…     34.2     -121.
-#> 3 26174560 bio   swfsc_ichthyo:net:2ea75… st60-ln… 1987-11-3…     34.2     -121.
-#> 4 26172117 bio   swfsc_ichthyo:net:2ea75… st60-ln… 1987-11-3…     34.2     -121.
-#> 5 26172120 bio   swfsc_ichthyo:net:2ea75… st60-ln… 1987-11-3…     34.2     -121.
-#> 6 26174564 bio   swfsc_ichthyo:net:2ea75… st60-ln… 1987-11-3…     34.2     -121.
+#> 1 25807229 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
+#> 2 25807230 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
+#> 3 25807231 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
+#> 4 25807232 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
+#> 5 25807233 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
+#> 6 25807234 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
 #> # ℹ 11 more variables: datetime <dttm>, depth_min_m <dbl>, depth_max_m <dbl>,
 #> #   taxon_key <chr>, life_stage <chr>, measurement_type <chr>,
 #> #   measurement_value <dbl>, measurement_qual <chr>, measurement_prec <dbl>,
@@ -189,7 +189,7 @@ tibble(
 #> # A tibble: 16 × 2
 #>    table                  rows
 #>    <chr>                 <dbl>
-#>  1 obs                26290615
+#>  1 obs                26266514
 #>  2 sample              1465189
 #>  3 sample_measurement   588986
 #>  4 obs_attribute        452682
@@ -232,12 +232,12 @@ d_temp <- dbGetQuery(con, "
 
 head(d_temp)
 #>         lon      lat            datetime depth_m temperature
-#> 1 -123.4750 32.23333 1960-01-15 06:30:00       0       14.18
-#> 2 -123.4667 32.23333 1968-01-17 05:48:00       0       14.11
-#> 3 -123.4917 32.24333 1981-05-22 16:55:00       0       15.71
-#> 4 -123.4917 32.24333 1981-05-22 17:18:00       0       15.71
-#> 5 -123.4933 32.24500 1984-01-08 13:35:00       0       16.57
-#> 6 -123.4933 32.24500 1984-01-08 18:42:00       0       16.54
+#> 1 -124.3333 33.41667 1968-01-20 10:36:00       0       14.18
+#> 2 -124.3333 33.40000 1969-02-17 06:15:00       0       12.85
+#> 3 -124.3250 33.39167 1981-05-26 23:04:00       0       16.15
+#> 4 -124.3250 33.39167 1981-05-26 23:23:00       0       16.11
+#> 5 -124.3233 33.38833 1984-01-15 10:05:00       0       15.43
+#> 6 -124.3517 33.35833 1984-02-15 12:51:00       0       15.55
 nrow(d_temp)
 #> [1] 93292
 ```

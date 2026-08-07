@@ -36,7 +36,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -187,7 +187,7 @@ station 120:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">clim</span>, <span class="st">"baseline"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1993 2013</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">clim</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 35645</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 35680</span></span></code></pre></div>
 <p><code><a href="../reference/cc_climatology.html">cc_climatology()</a></code> is a plain mean per (station, 5 m depth
 bin, calendar month) — the finest grouping CalCOFI’s design supports,
 since quarterly-ish cruises over decades give many <em>years</em> per
@@ -223,34 +223,41 @@ and 35 °C.</p>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>band <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">measurement_value</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="cn">Inf</span>, <span class="fl">24</span>, <span class="fl">26</span>, <span class="fl">30</span>, <span class="fl">35</span>, <span class="cn">Inf</span><span class="op">)</span>,</span>
 <span>                    labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"&lt;24"</span>, <span class="st">"24-26"</span>, <span class="st">"26-30"</span>, <span class="st">"30-35"</span>, <span class="st">"&gt;=35"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">band</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
 <span><span class="co">#&gt;   band       n</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> &lt;24   <span style="text-decoration: underline;">701</span>896</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 24-26      8</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 26-30     43</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 30-35    134</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> &gt;=35     206</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> &lt;24   <span style="text-decoration: underline;">702</span>218</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 24-26      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> &gt;=35      18</span></span></code></pre></div>
 <p>So a regional ceiling well inside that gap removes every artifact and
 nothing else. This is a <em>client-side</em> screen — the release keeps
 the rows, and the values are reported to the data provider as <a href="https://calcofi.io/workflows/ingest_calcofi_ctd-cast.html#questions-for-data-providers" class="external-link">Q22</a>
 so they can be fixed at source rather than papered over by every
 downstream user in their own way.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 30 degC: ~5 degC above the warmest genuine CalCOFI reading, ~5 degC below the</span></span>
-<span><span class="co"># coldest artifact. Nothing legitimate is anywhere near it.</span></span>
-<span><span class="va">TEMP_MAX_REGIONAL</span> <span class="op">&lt;-</span> <span class="fl">30</span></span>
+<code class="sourceCode R"><span><span class="co"># Two-sided, on purpose. An earlier draft screened only the upper bound, because</span></span>
+<span><span class="co"># the artifact I had in front of me was a hot one — which would have sailed past</span></span>
+<span><span class="co"># the cold artifact that motivated this whole exercise (a failed sensor averaged</span></span>
+<span><span class="co"># into TempAve produced values near -47 degC). A screen that can only catch the</span></span>
+<span><span class="co"># failure you already know about is not a screen.</span></span>
+<span><span class="co">#</span></span>
+<span><span class="co"># 0 and 30 degC: roughly 5 degC outside the coldest and warmest genuine CalCOFI</span></span>
+<span><span class="co"># readings, and far outside anything the region produces. Nothing legitimate is</span></span>
+<span><span class="co"># near either bound.</span></span>
+<span><span class="va">TEMP_RANGE_REGIONAL</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">30</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">screen</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">d</span>, <span class="va">col</span> <span class="op">=</span> <span class="st">"measurement_value"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">d</span>, <span class="va">.data</span><span class="op">[[</span><span class="va">col</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">TEMP_MAX_REGIONAL</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">d</span>, <span class="va">.data</span><span class="op">[[</span><span class="va">col</span><span class="op">]</span><span class="op">]</span> <span class="op">&gt;=</span> <span class="va">TEMP_RANGE_REGIONAL</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>            <span class="va">.data</span><span class="op">[[</span><span class="va">col</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">TEMP_RANGE_REGIONAL</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">clim_screened</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cc_climatology.html">cc_climatology</a></span><span class="op">(</span></span>
 <span>  <span class="va">con</span>, variables <span class="op">=</span> <span class="va">VAR</span>, years <span class="op">=</span> <span class="va">BASELINE</span>,</span>
 <span>  depth_max <span class="op">=</span> <span class="va">DEPTH_MAX</span>, min_n <span class="op">=</span> <span class="va">MIN_N</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">clim_mean</span> <span class="op">&lt;=</span> <span class="va">TEMP_MAX_REGIONAL</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">clim_mean</span> <span class="op">&gt;=</span> <span class="va">TEMP_RANGE_REGIONAL</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>         <span class="va">clim_mean</span> <span class="op">&lt;=</span> <span class="va">TEMP_RANGE_REGIONAL</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">clim</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">clim_screened</span><span class="op">)</span>   <span class="co"># baseline cells the screen removes</span></span>
-<span><span class="co">#&gt; [1] 3</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -265,9 +272,9 @@ how a plot ends up colouring “normal” somewhere never measured.</p>
 <code class="sourceCode R"><span><span class="va">anom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cc_anomaly.html">cc_anomaly</a></span><span class="op">(</span><span class="va">sec</span>, <span class="va">clim_screened</span>, <span class="va">sta</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">anom</span><span class="op">$</span><span class="va">anomaly</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>   <span class="co"># % of this section with a baseline</span></span>
-<span><span class="co">#&gt; [1] 68</span></span>
+<span><span class="co">#&gt; [1] 75</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">anom</span><span class="op">$</span><span class="va">anomaly</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] -18.580120   5.523606</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] -3.140529  5.376190</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">anom</span><span class="op">$</span><span class="va">anomaly</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -294,8 +301,8 @@ distances — the shape a Plotly or ODV-style section takes directly.</p>
 <span><span class="co">#&gt; List of 4</span></span>
 <span><span class="co">#&gt;  $ x  : num [1:11] 0 11.3 62.7 99.8 135.6 ...</span></span>
 <span><span class="co">#&gt;  $ sta: num [1:11] 25 30 35 40 45 50 55 60 70 80 ...</span></span>
-<span><span class="co">#&gt;  $ y  : num [1:101] 0 5 10 15 20 25 30 35 40 45 ...</span></span>
-<span><span class="co">#&gt;  $ z  :List of 101</span></span></code></pre></div>
+<span><span class="co">#&gt;  $ y  : num [1:88] 0 5 10 15 20 25 30 35 40 45 ...</span></span>
+<span><span class="co">#&gt;  $ z  :List of 88</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="all-summer-cruises-an-anomaly-time-series">All summer cruises: an anomaly time series<a class="anchor" aria-label="anchor" href="#all-summer-cruises-an-anomaly-time-series"></a>
@@ -345,14 +352,20 @@ see.</li>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">series</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 4</span></span></span>
-<span><span class="co">#&gt;      yr layer       anomaly     n</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  <span style="text-decoration: underline;">1</span>993 200-500 m -<span style="color: #BB0000;">44.4</span>      <span style="text-decoration: underline;">1</span>884</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  <span style="text-decoration: underline;">1</span>994 200-500 m   7.15     <span style="text-decoration: underline;">2</span>075</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  <span style="text-decoration: underline;">1</span>995 200-500 m   0.008<span style="text-decoration: underline;">65</span>  <span style="text-decoration: underline;">2</span>011</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>  <span style="text-decoration: underline;">1</span>996 200-500 m   7.21     <span style="text-decoration: underline;">2</span>059</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>  <span style="text-decoration: underline;">1</span>997 200-500 m   0.183    <span style="text-decoration: underline;">2</span>133</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>  <span style="text-decoration: underline;">1</span>998 200-500 m   0.369    <span style="text-decoration: underline;">2</span>678</span></span></code></pre></div>
+<span><span class="co">#&gt;      yr layer     anomaly     n</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  <span style="text-decoration: underline;">1</span>993 100-200 m   0.292  <span style="text-decoration: underline;">1</span>082</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  <span style="text-decoration: underline;">1</span>994 100-200 m   0.175  <span style="text-decoration: underline;">1</span>165</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  <span style="text-decoration: underline;">1</span>995 100-200 m   1.04   <span style="text-decoration: underline;">1</span>164</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>  <span style="text-decoration: underline;">1</span>996 100-200 m   0.169  <span style="text-decoration: underline;">1</span>081</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>  <span style="text-decoration: underline;">1</span>997 100-200 m   0.282  <span style="text-decoration: underline;">1</span>101</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>  <span style="text-decoration: underline;">1</span>998 100-200 m  -<span style="color: #BB0000;">0.218</span>  <span style="text-decoration: underline;">1</span>459</span></span></code></pre></div>
+<p>A sanity check before reading anything into it: the baseline years
+must sit near zero by construction, and the series should reproduce
+events we already know happened. It does — 2014-15 is the marine
+heatwave (“the Blob”), 2016 its El Niño tail, and 2026 is warm at
+<em>every</em> depth rather than just at the surface. 2018 is absent
+because there was no summer occupation that year.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">series</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">yr</span>, <span class="va">anomaly</span>, colour <span class="op">=</span> <span class="va">layer</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/annotate.html" class="external-link">annotate</a></span><span class="op">(</span><span class="st">"rect"</span>, xmin <span class="op">=</span> <span class="va">BASELINE</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="fl">.5</span>, xmax <span class="op">=</span> <span class="va">BASELINE</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">+</span> <span class="fl">.5</span>,</span>
@@ -379,7 +392,8 @@ possible before the 1993–2002 cruises were ingested.</p>
 <code class="sourceCode R"><span><span class="va">clim_98</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cc_climatology.html">cc_climatology</a></span><span class="op">(</span></span>
 <span>  <span class="va">con</span>, variables <span class="op">=</span> <span class="va">VAR</span>, years <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1998</span>, <span class="fl">2013</span><span class="op">)</span>,</span>
 <span>  depth_max <span class="op">=</span> <span class="va">DEPTH_MAX</span>, min_n <span class="op">=</span> <span class="va">MIN_N</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">clim_mean</span> <span class="op">&lt;=</span> <span class="va">TEMP_MAX_REGIONAL</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">clim_mean</span> <span class="op">&gt;=</span> <span class="va">TEMP_RANGE_REGIONAL</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>         <span class="va">clim_mean</span> <span class="op">&lt;=</span> <span class="va">TEMP_RANGE_REGIONAL</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">cmp</span> <span class="op">&lt;-</span> <span class="va">obs_summer</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span><span class="va">clim_98</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grid_key"</span>, <span class="st">"mon"</span> <span class="op">=</span> <span class="st">"month"</span>, <span class="st">"depth_m"</span>, <span class="st">"variable"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -395,7 +409,7 @@ possible before the 1993–2002 cruises were ingested.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">comparison</span><span class="op">$</span><span class="va">difference</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span><span class="co">#&gt; 0.03228 0.06110 0.06660 1.82632 3.86144 9.13806</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.04182 0.06830 0.07321 0.15121 0.27553 0.42800</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="reading-it-honestly">Reading it honestly<a class="anchor" aria-label="anchor" href="#reading-it-honestly"></a>

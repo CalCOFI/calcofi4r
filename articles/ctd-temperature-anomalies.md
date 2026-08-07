@@ -116,7 +116,7 @@ clim <- cc_climatology(
 attr(clim, "baseline")
 #> [1] 1993 2013
 nrow(clim)
-#> [1] 35645
+#> [1] 35680
 ```
 
 [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
@@ -157,14 +157,12 @@ temp_all |>
   mutate(band = cut(measurement_value, c(-Inf, 24, 26, 30, 35, Inf),
                     labels = c("<24", "24-26", "26-30", "30-35", ">=35"))) |>
   count(band)
-#> # A tibble: 5 × 2
+#> # A tibble: 3 × 2
 #>   band       n
 #>   <fct>  <int>
-#> 1 <24   701896
-#> 2 24-26      8
-#> 3 26-30     43
-#> 4 30-35    134
-#> 5 >=35     206
+#> 1 <24   702218
+#> 2 24-26      1
+#> 3 >=35      18
 ```
 
 So a regional ceiling well inside that gap removes every artifact and
@@ -176,20 +174,29 @@ downstream user in their own way.
 
 ``` r
 
-# 30 degC: ~5 degC above the warmest genuine CalCOFI reading, ~5 degC below the
-# coldest artifact. Nothing legitimate is anywhere near it.
-TEMP_MAX_REGIONAL <- 30
+# Two-sided, on purpose. An earlier draft screened only the upper bound, because
+# the artifact I had in front of me was a hot one — which would have sailed past
+# the cold artifact that motivated this whole exercise (a failed sensor averaged
+# into TempAve produced values near -47 degC). A screen that can only catch the
+# failure you already know about is not a screen.
+#
+# 0 and 30 degC: roughly 5 degC outside the coldest and warmest genuine CalCOFI
+# readings, and far outside anything the region produces. Nothing legitimate is
+# near either bound.
+TEMP_RANGE_REGIONAL <- c(0, 30)
 
 screen <- function(d, col = "measurement_value")
-  filter(d, .data[[col]] <= TEMP_MAX_REGIONAL)
+  filter(d, .data[[col]] >= TEMP_RANGE_REGIONAL[1],
+            .data[[col]] <= TEMP_RANGE_REGIONAL[2])
 
 clim_screened <- cc_climatology(
   con, variables = VAR, years = BASELINE,
   depth_max = DEPTH_MAX, min_n = MIN_N) |>
-  filter(clim_mean <= TEMP_MAX_REGIONAL)
+  filter(clim_mean >= TEMP_RANGE_REGIONAL[1],
+         clim_mean <= TEMP_RANGE_REGIONAL[2])
 
 nrow(clim) - nrow(clim_screened)   # baseline cells the screen removes
-#> [1] 3
+#> [1] 1
 ```
 
 ## Anomalies for one section
@@ -206,9 +213,9 @@ never measured.
 anom <- cc_anomaly(sec, clim_screened, sta)
 
 round(100 * mean(!is.na(anom$anomaly)))   # % of this section with a baseline
-#> [1] 68
+#> [1] 75
 range(anom$anomaly, na.rm = TRUE)
-#> [1] -18.580120   5.523606
+#> [1] -3.140529  5.376190
 ```
 
 ``` r
@@ -244,8 +251,8 @@ str(m, max.level = 1)
 #> List of 4
 #>  $ x  : num [1:11] 0 11.3 62.7 99.8 135.6 ...
 #>  $ sta: num [1:11] 25 30 35 40 45 50 55 60 70 80 ...
-#>  $ y  : num [1:101] 0 5 10 15 20 25 30 35 40 45 ...
-#>  $ z  :List of 101
+#>  $ y  : num [1:88] 0 5 10 15 20 25 30 35 40 45 ...
+#>  $ z  :List of 88
 ```
 
 ## All summer cruises: an anomaly time series
@@ -293,15 +300,22 @@ series <- anom_summer |>
 
 head(series)
 #> # A tibble: 6 × 4
-#>      yr layer       anomaly     n
-#>   <int> <fct>         <dbl> <int>
-#> 1  1993 200-500 m -44.4      1884
-#> 2  1994 200-500 m   7.15     2075
-#> 3  1995 200-500 m   0.00865  2011
-#> 4  1996 200-500 m   7.21     2059
-#> 5  1997 200-500 m   0.183    2133
-#> 6  1998 200-500 m   0.369    2678
+#>      yr layer     anomaly     n
+#>   <int> <fct>       <dbl> <int>
+#> 1  1993 100-200 m   0.292  1082
+#> 2  1994 100-200 m   0.175  1165
+#> 3  1995 100-200 m   1.04   1164
+#> 4  1996 100-200 m   0.169  1081
+#> 5  1997 100-200 m   0.282  1101
+#> 6  1998 100-200 m  -0.218  1459
 ```
+
+A sanity check before reading anything into it: the baseline years must
+sit near zero by construction, and the series should reproduce events we
+already know happened. It does — 2014-15 is the marine heatwave (“the
+Blob”), 2016 its El Niño tail, and 2026 is warm at *every* depth rather
+than just at the surface. 2018 is absent because there was no summer
+occupation that year.
 
 ``` r
 
@@ -334,7 +348,8 @@ possible before the 1993–2002 cruises were ingested.
 clim_98 <- cc_climatology(
   con, variables = VAR, years = c(1998, 2013),
   depth_max = DEPTH_MAX, min_n = MIN_N) |>
-  filter(clim_mean <= TEMP_MAX_REGIONAL)
+  filter(clim_mean >= TEMP_RANGE_REGIONAL[1],
+         clim_mean <= TEMP_RANGE_REGIONAL[2])
 
 cmp <- obs_summer |>
   inner_join(clim_98, by = c("grid_key", "mon" = "month", "depth_m", "variable")) |>
@@ -350,7 +365,7 @@ comparison <- series |>
 
 summary(abs(comparison$difference))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#> 0.03228 0.06110 0.06660 1.82632 3.86144 9.13806
+#> 0.04182 0.06830 0.07321 0.15121 0.27553 0.42800
 ```
 
 ## Reading it honestly
