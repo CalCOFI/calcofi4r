@@ -1,3 +1,27 @@
+# calcofi4r 1.5.1
+
+## New vignette: summer CTD temperature anomalies
+
+`vignette("ctd-temperature-anomalies")` walks a real request end to end — extract
+the summer cruise temperatures and plot anomalies against a 1993-2013 baseline —
+using five of the 1.5.0 exports and no SQL. It doubles as their documentation, so
+the functions and the worked example cannot drift apart.
+
+It also demonstrates something worth doing regardless of the analysis:
+**screening the source for physically impossible values before computing a
+baseline, rather than after the result looks odd.** The released CTD carries 18
+temperature readings in 13.5 million that are not ocean temperatures — the soak
+artifact, where the sensor is still warm from the deck on the first metres of the
+downcast. They pass the release's declared bounds because those are set to
+"impossible" (-2 to 40 degC) rather than "unusual".
+
+Eighteen rows sounds ignorable, and is not: they land on the sparsely-sampled
+northern lines, where an April baseline cell may hold 2-7 observations across all
+of 1993-2013. One 38 degC reading moves that cell's mean by more than 10 degC,
+and every other April cruise at the station then reads as a spurious ~11 degC
+*cold* anomaly. The vignette screens them client-side and says why, rather than
+inheriting the judgement invisibly.
+
 # calcofi4r 1.5.0
 
 ## Transects, climatology and anomalies: one implementation, five new functions
