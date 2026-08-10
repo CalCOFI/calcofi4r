@@ -17,7 +17,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,6 +50,24 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.6.0" id="calcofi4r-160">calcofi4r 1.6.0<a class="anchor" aria-label="anchor" href="#calcofi4r-160"></a></h2>
+<div class="section level3">
+<h3 id="the-seafloor-under-a-section-is-now-sampled-along-the-track-not-at-stations-1-6-0">The seafloor under a section is now sampled along the track, not at stations<a class="anchor" aria-label="anchor" href="#the-seafloor-under-a-section-is-now-sampled-along-the-track-not-at-stations-1-6-0"></a></h3>
+<p>New: <code><a href="../reference/cc_bathy.html">cc_bathy()</a></code>, <code><a href="../reference/cc_bathy_depth.html">cc_bathy_depth()</a></code> and <code><a href="../reference/cc_transect_bathy.html">cc_transect_bathy()</a></code>.</p>
+<p>Every app that draws a section draws a seafloor under it, and none of them was drawing the seafloor that is there. <code>apps/ctd-viz</code> sampled GEBCO <strong>only at cast positions</strong>; <code>CalCOFI/ctd-transects</code> sampled along the line but at 2 km, against a grid whose own cell is ~390 m. Both under-resolve the same real features into the same artifact — a bank drawn as a spike, right at the depths where someone is reading the thermocline.</p>
+<p>Line 93.3 is the case. Fortymile Bank is a ~14 km rise from 652 m to a <strong>178 m</strong> crest, with flanks on both sides. At 2 km it is four soundings — 385, 344, 238, 370 — and draws as a triangle. Line 86.7 is the worse version of it: station 50 sits on a Channel Islands bank at 80 m between neighbours at 1,654 m and 1,190 m that are 37 km away, so station-only sampling drew a mountain 74 km wide and 1.5 km tall that does not exist.</p>
+<p><code>cc_transect_bathy(lon, lat, interval_m = 500)</code> samples between the positions, not only at them. The default sits just above GEBCO’s own cell: fine enough to keep every cell the track crosses, coarse enough not to imply detail the grid does not have.</p>
+<p>Three things it does that the private helpers it replaces did not:</p>
+<ul><li>
+<strong><code>dist_km</code></strong> puts the profile on the caller’s own x-axis, interpolated within each leg, so it is anchored exactly at every station and stretched between them. <code>ctd-transects</code> was doing this warp afterwards in Python.</li>
+<li>
+<strong><code>on_land</code></strong> is returned rather than the land samples being dropped. A cruise track — unlike a CalCOFI line — zigzags, and a leg between two casts can cross an island. That was <code>ctd-viz</code>’s stated reason for not sampling between casts at all; it is now a flag the consumer breaks its polygon on, so a crossing reads as coastline instead of being hidden.</li>
+<li>
+<strong>Positions come from a great circle</strong>, not a blend in lon/lat. The shortcut is within metres over a 40 km leg and not over the 400 km hop an arbitrary cast selection can produce.</li>
+</ul><p><code><a href="../reference/cc_bathy.html">cc_bathy()</a></code> fetches the GEBCO 2025 crop (4.3 MB, positive-down depth in metres, land clamped to 0) from <code>gs://calcofi-db/bathymetry/</code> and caches it, so <code>calcofi4r</code> no longer needs a sibling app checkout to know where the bottom is. <code>options(calcofi4r.bathy=)</code> or <code>CALCOFI_BATHY</code> points it at a local file instead.</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.5.4" id="calcofi4r-154">calcofi4r 1.5.4<a class="anchor" aria-label="anchor" href="#calcofi4r-154"></a></h2>
 <div class="section level3">

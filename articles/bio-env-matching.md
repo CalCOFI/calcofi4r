@@ -55,7 +55,7 @@ d <- cc_match_ichthyo_by_name(
   version         = REL)
 
 REL
-#> [1] "v2026.08.07"
+#> [1] "v2026.08.08"
 dim(d)
 #> [1] 310  19
 ```
@@ -248,19 +248,19 @@ data. That is the package’s reproducibility contract:
 meta <- attr(d, "query_meta")
 str(meta)
 #> List of 6
-#>  $ package_version: chr "1.5.4"
-#>  $ release_version: chr "v2026.08.07"
+#>  $ package_version: chr "1.6.0"
+#>  $ release_version: chr "v2026.08.08"
 #>  $ params         :List of 3
 #>   ..$ max_dist_km: num 5
 #>   ..$ max_time_hr: num 72
 #>   ..$ join_method: chr "nearest_time"
-#>  $ source_urls    : chr [1:3] "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/obs.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/sample_measurement.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/taxon.parquet"
-#>  $ generated_at   : chr "2026-08-07 17:44:00 UTC"
+#>  $ source_urls    : chr [1:3] "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.08/parquet/obs.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.08/parquet/sample_measurement.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.08/parquet/taxon.parquet"
+#>  $ generated_at   : chr "2026-08-10 14:55:45 UTC"
 #>  $ n_rows         : int 310
 ```
 
 `meta$release_version` pins which release the result came from
-(v2026.08.07 here). `meta$source_urls` is the full list of public GCS
+(v2026.08.08 here). `meta$source_urls` is the full list of public GCS
 parquet files the query reads. And `attr(d, "sql")` is the literal query
 — no `dplyr` translation, no hidden state, ~90 lines of plain DuckDB
 SQL:
@@ -287,8 +287,8 @@ cat(substr(sql, 1, 600), "\n…\n")
 #>   t.scientific_name,
 #>   t.worms_id,
 #>   o.life_stage
-#> FROM read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/obs.parquet') o
-#> JOIN read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.07/parquet/taxon.parquet') t ON t.taxon_key = o.taxon_key
+#> FROM read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.08/parquet/obs.parquet') o
+#> JOIN read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.08/parquet/taxon.parquet') t ON t.taxon_key = o.taxon_key
 #> LEFT JOIN read_ 
 #> …
 ```

@@ -252,6 +252,10 @@ check for other functions or datasets not captured by above categories
 
 - [`cc_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_anomaly.md)
   : Join a section to a climatology and difference it
+- [`cc_bathy()`](https://calcofi.io/calcofi4r/reference/cc_bathy.md) :
+  GEBCO seafloor bathymetry over the CalCOFI area
+- [`cc_bathy_depth()`](https://calcofi.io/calcofi4r/reference/cc_bathy_depth.md)
+  : Seafloor depth at points
 - [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
   : Seasonal climatology for one or more measurement types
 - [`cc_match_bio_env()`](https://calcofi.io/calcofi4r/reference/cc_match_bio_env.md)
@@ -262,6 +266,8 @@ check for other functions or datasets not captured by above categories
   : Match ichthyoplankton to environmental data by WoRMS taxon subtree
 - [`cc_match_zooplankton_biomass()`](https://calcofi.io/calcofi4r/reference/cc_match_zooplankton_biomass.md)
   : Match zooplankton biomass to environmental data
+- [`cc_transect_bathy()`](https://calcofi.io/calcofi4r/reference/cc_transect_bathy.md)
+  : Seafloor profile along a transect, sampled at a regular interval
 - [`cc_transect_matrix()`](https://calcofi.io/calcofi4r/reference/cc_transect_matrix.md)
   : Pivot a section (or anomaly) to a station x depth matrix
 - [`cc_transect_section()`](https://calcofi.io/calcofi4r/reference/cc_transect_section.md)
