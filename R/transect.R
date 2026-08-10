@@ -14,6 +14,11 @@
 # NOT to be confused with buffer_transect(), which is db-viz-hex's arbitrary
 # user-drawn line plus buffer corridor. This file is about CalCOFI lines and
 # their numbered stations.
+#
+# The seafloor silhouette under a section lives here too (cc_bathy(),
+# cc_bathy_depth(), cc_transect_bathy()) for the same reason: both apps drew one,
+# neither drew the same one, and neither drew the seafloor that is actually
+# there. See cc_transect_bathy() for what that cost.
 
 #' Stations along a CalCOFI line, ordered nearshore to offshore
 #'
@@ -47,7 +52,7 @@
 #' @export
 #' @concept transect
 #' @importFrom dplyr tbl filter select mutate arrange group_by ungroup collect
-#'   left_join distinct row_number lag if_else
+#'   left_join distinct row_number lag if_else bind_rows
 cc_transect_stations <- function(
   con,
   line,
@@ -338,6 +343,196 @@ cc_transect_matrix <- function(section, value = "value", depths = NULL) {
   })
 
   list(x = stn$dist_km, sta = stn$sta, y = y, z = z)
+}
+
+#' GEBCO seafloor bathymetry over the CalCOFI area
+#'
+#' A `terra::SpatRaster` of GEBCO 2025 sub-ice bathymetry cropped to the CalCOFI
+#' grid, 15 arc-second (~390 m x 460 m at 33 degN), as **positive-down depth in
+#' metres with land clamped to 0**. Downloaded once and cached, so the first call
+#' in a session costs a 4.3 MB fetch and later ones cost nothing.
+#'
+#' The sign and land convention are baked into the published raster rather than
+#' applied on read: a caller who sees `12.4` is 12.4 m under water, and `0` is
+#' land. Nothing downstream has to remember to negate an elevation.
+#'
+#' @section Using a local file instead:
+#' Set `options(calcofi4r.bathy = "/path/to.tif")` (or the `CALCOFI_BATHY`
+#' environment variable) to bypass the download — how an app that already ships
+#' its own crop, or a machine with no network, keeps working.
+#'
+#' @param path explicit raster to load; defaults to the option / env var above,
+#'   then to the cached download.
+#' @param cache_dir where to keep the download. Defaults to
+#'   `rappdirs::user_cache_dir("calcofi4r")`.
+#' @param refresh re-download even if cached (default `FALSE`).
+#' @return A `terra::SpatRaster`, single layer `depth_m`.
+#' @source GEBCO Compilation Group (2025) GEBCO 2025 Grid,
+#'   <https://www.gebco.net/data_and_products/gridded_bathymetry_data/>.
+#' @export
+#' @concept transect
+cc_bathy <- function(path = NULL, cache_dir = NULL, refresh = FALSE) {
+  if (is.null(path))
+    path <- getOption("calcofi4r.bathy", Sys.getenv("CALCOFI_BATHY", ""))
+  if (nzchar(path)) {
+    if (!file.exists(path))
+      stop("bathymetry raster not found: ", path, call. = FALSE)
+    return(terra::rast(path))
+  }
+
+  if (is.null(cache_dir))
+    cache_dir <- if (requireNamespace("rappdirs", quietly = TRUE)) {
+      rappdirs::user_cache_dir("calcofi4r")
+    } else file.path(tempdir(), "calcofi4r_cache")
+  dir.create(file.path(cache_dir, "bathymetry"), recursive = TRUE,
+             showWarnings = FALSE)
+
+  tif <- file.path(cache_dir, "bathymetry", "gebco_2025_calcofi.tif")
+  if (refresh || !file.exists(tif)) {
+    url <- paste0("https://storage.googleapis.com/calcofi-db/",
+                  "bathymetry/gebco_2025_calcofi.tif")
+    # download to a temp path and rename, so an interrupted fetch cannot leave a
+    # truncated GeoTIFF in the cache that every later session then trusts
+    tmp <- paste0(tif, ".part")
+    ok  <- try(utils::download.file(url, tmp, mode = "wb", quiet = TRUE),
+               silent = TRUE)
+    if (inherits(ok, "try-error") || !file.exists(tmp)) {
+      unlink(tmp)
+      stop("could not download CalCOFI bathymetry from ", url,
+           "\n  set options(calcofi4r.bathy = ) to use a local raster",
+           call. = FALSE)
+    }
+    file.rename(tmp, tif)
+  }
+  terra::rast(tif)
+}
+
+#' Seafloor depth at points
+#'
+#' Bilinear rather than nearest-cell, so a station on a steep slope is not
+#' pinned to whichever 15 arc-second cell it happens to land in.
+#'
+#' @param lon,lat numeric vectors of equal length, decimal degrees.
+#' @param bathy raster from [cc_bathy()]; pass one explicitly to avoid re-reading
+#'   it per call.
+#' @return Numeric vector of depth in metres, `NA` outside the raster's extent.
+#'   Land reads 0, never negative.
+#' @export
+#' @concept transect
+cc_bathy_depth <- function(lon, lat, bathy = cc_bathy()) {
+  stopifnot(length(lon) == length(lat))
+  if (!length(lon)) return(numeric(0))
+  d <- terra::extract(bathy, cbind(lon, lat), method = "bilinear")[, 1]
+  pmax(d, 0)
+}
+
+#' Seafloor profile along a transect, sampled at a regular interval
+#'
+#' Samples the seafloor **between** the supplied positions, not only at them.
+#'
+#' @section Why the interval matters:
+#' Sampling at stations alone and joining those soundings with straight lines
+#' does not simplify the terrain, it invents different terrain. Line 86.7 is the
+#' case: station 50 sits on a Channel Islands bank at 80 m between neighbours at
+#' 1,654 m and 1,190 m that are 37 km away on either side, so station-only
+#' sampling drew that bank as one triangle 74 km wide rising 1.5 km off the
+#' seafloor — at the exact depths where someone is reading the thermocline.
+#'
+#' Too coarse an interval fails the same way, more quietly. At 2 km, Fortymile
+#' Bank on line 93.3 is four soundings (385, 344, 238, 370 m) and draws as a
+#' spike; at 500 m it is what it really is, a ~14 km rise from 652 m to a 178 m
+#' crest with flanks on both sides. The default sits just above GEBCO's ~390 m cell:
+#' fine enough to keep every cell the track crosses, coarse enough not to imply
+#' detail the grid does not have.
+#'
+#' @section Crossing land:
+#' A cruise track — as opposed to a CalCOFI line — zigzags, so a leg between two
+#' consecutive casts can cross an island. Those samples come back at depth 0 with
+#' `on_land = TRUE` rather than being dropped or smoothed away: the track really
+#' did cross land, and a consumer that draws a filled silhouette should break the
+#' polygon there instead of drawing a wall to the surface.
+#'
+#' @param lon,lat positions to sample between, in order along the transect.
+#' @param dist_km optional ruler value at each position — the section's own
+#'   x-axis. Interpolated linearly within each leg, so the profile lands on the
+#'   caller's axis and is anchored exactly at every station. Defaults to
+#'   cumulative great-circle distance from the first position.
+#' @param interval_m spacing along the track, metres (default 500).
+#' @param bathy raster from [cc_bathy()].
+#' @param land_depth_m at or below this depth a sample is reported `on_land`
+#'   (default 0, the raster's land clamp).
+#' @return Tibble of `dist_km`, `lon`, `lat`, `depth_m`, `on_land`, one row per
+#'   sample, ordered along the transect. Positions outside the raster carry
+#'   `NA` depth; the caller decides whether that is a gap or an error.
+#' @export
+#' @concept transect
+#' @importFrom tibble tibble
+cc_transect_bathy <- function(
+  lon,
+  lat,
+  dist_km      = NULL,
+  interval_m   = 500,
+  bathy        = cc_bathy(),
+  land_depth_m = 0
+) {
+  stopifnot(
+    length(lon) == length(lat),
+    is.numeric(interval_m), length(interval_m) == 1, interval_m > 0)
+  n <- length(lon)
+  if (n < 2)
+    return(tibble::tibble(dist_km = numeric(0), lon = numeric(0),
+                          lat = numeric(0), depth_m = numeric(0),
+                          on_land = logical(0)))
+
+  if (is.null(dist_km)) dist_km <- .cumdist(lon, lat)
+  stopifnot(length(dist_km) == n)
+
+  leg_km <- diff(.cumdist(lon, lat))
+  parts  <- lapply(seq_len(n - 1), function(i) {
+    # +1 so the leg ends ON the next station: a profile that stops short of a
+    # station would let the fill leak past the last sounding
+    k  <- max(2L, ceiling(leg_km[i] * 1000 / interval_m) + 1L)
+    f  <- seq(0, 1, length.out = k)
+    ll <- .gc_interp(lon[i], lat[i], lon[i + 1], lat[i + 1], f)
+    tibble::tibble(
+      dist_km = dist_km[i] + f * (dist_km[i + 1] - dist_km[i]),
+      lon     = ll[, 1],
+      lat     = ll[, 2])
+  })
+
+  out <- dplyr::bind_rows(parts) |>
+    # the shared endpoint of two legs is sampled by both
+    dplyr::distinct(dist_km, .keep_all = TRUE) |>
+    dplyr::arrange(dist_km)
+
+  out$depth_m <- cc_bathy_depth(out$lon, out$lat, bathy)
+  out$on_land <- !is.na(out$depth_m) & out$depth_m <= land_depth_m
+  out
+}
+
+#' Points along a great circle
+#'
+#' Spherical linear interpolation between two lon/lat positions at fractions `f`.
+#' A blend in lon/lat is within metres of this over a 40 km leg at CalCOFI
+#' latitudes, but not over the 400 km hops a sparse cruise selection can produce.
+#' @return Matrix, `length(f)` rows, columns lon and lat.
+#' @noRd
+.gc_interp <- function(lon1, lat1, lon2, lat2, f) {
+  d2r <- pi / 180
+  uv  <- function(lon, lat) c(
+    cos(lat * d2r) * cos(lon * d2r),
+    cos(lat * d2r) * sin(lon * d2r),
+    sin(lat * d2r))
+  p1 <- uv(lon1, lat1)
+  p2 <- uv(lon2, lat2)
+  om <- acos(max(-1, min(1, sum(p1 * p2))))
+  # coincident (or antipodal) points: sin(om) is 0 and the weights blow up
+  if (om < 1e-10)
+    return(cbind(rep(lon1, length(f)), rep(lat1, length(f))))
+  x <- outer(sin((1 - f) * om) / sin(om), p1) +
+       outer(sin(f * om)       / sin(om), p2)
+  cbind(atan2(x[, 2], x[, 1]) / d2r,
+        asin(pmax(-1, pmin(1, x[, 3]))) / d2r)
 }
 
 # Columns referenced via NSE inside dplyr verbs. Declared so R CMD check does not

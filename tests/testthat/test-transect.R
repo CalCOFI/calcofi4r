@@ -178,3 +178,145 @@ test_that("an empty selection returns zero rows rather than erroring", {
   expect_equal(nrow(cc_transect_section(con, 93.3, "9999XX")), 0)
   expect_error(cc_transect_stations(con, 66.7), "no grid stations")
 })
+
+# --- bathymetry ---------------------------------------------------------------
+# A synthetic grid rather than the real GEBCO crop: the rule under test is that
+# a feature BETWEEN two positions is found, and a fixture whose seafloor is a
+# formula lets that be asserted as a number. Deep everywhere, with one narrow
+# ridge placed off any round fraction of the test track (so no sampling interval
+# lands on its crest by luck) and a land block in the east.
+
+RIDGE_LON <- -118.43   # crest
+RIDGE_SD  <-    0.03   # ~2.8 km, so the ridge is ~10 km wide
+
+bathy_fixture <- function() {
+  r <- terra::rast(
+    xmin = -120, xmax = -117, ymin = 32, ymax = 34,
+    resolution = 0.01, crs = "EPSG:4326")
+  lon <- terra::xyFromCell(r, seq_len(terra::ncell(r)))[, 1]
+  d <- 1000 - 800 * exp(-((lon - RIDGE_LON)^2) / (2 * RIDGE_SD^2))
+  d[lon > -117.2] <- 0                      # land
+  terra::values(r) <- d
+  names(r) <- "depth_m"
+  r
+}
+
+test_that(".gc_interp walks the great circle, and survives coincident points", {
+  m <- .gc_interp(0, 0, 90, 0, c(0, 0.5, 1))          # along the equator
+  expect_equal(m[, 1], c(0, 45, 90), tolerance = 1e-8)
+  expect_equal(m[, 2], c(0, 0, 0),   tolerance = 1e-8)
+
+  # a great circle between two points at one latitude bows poleward — a lon/lat
+  # blend would put the midpoint at lat 33 exactly, which is the shortcut this
+  # replaces
+  mid <- .gc_interp(-125, 33, -117, 33, 0.5)
+  expect_gt(mid[, 2], 33)
+  expect_equal(mid[, 1], -121, tolerance = 1e-6)
+
+  same <- .gc_interp(-119, 33, -119, 33, c(0, 0.5, 1))
+  expect_true(all(same[, 1] == -119))       # no division by sin(0)
+  expect_true(all(same[, 2] == 33))
+})
+
+test_that("cc_bathy_depth is NA off-grid and never negative on land", {
+  b <- bathy_fixture()
+  expect_equal(cc_bathy_depth(-119, 33, b), 1000, tolerance = 1e-6)
+  expect_equal(cc_bathy_depth(RIDGE_LON, 33, b), 200, tolerance = 1)
+  expect_identical(cc_bathy_depth(-117.1, 33, b), 0)      # land clamp
+  expect_true(is.na(cc_bathy_depth(-130, 33, b)))         # outside the extent
+  expect_identical(cc_bathy_depth(numeric(0), numeric(0), b), numeric(0))
+  expect_error(cc_bathy_depth(c(-119, -118), 33, b))
+})
+
+test_that("a ridge BETWEEN two stations is found, and station-only misses it", {
+  # the regression this whole function exists for: line 86.7 drew a bank as a
+  # 74 km triangle because nothing was sampled between the stations
+  b <- bathy_fixture()
+  lon <- c(-119, -118); lat <- c(33, 33)
+
+  expect_equal(cc_bathy_depth(lon, lat, b), c(1000, 1000), tolerance = 1)
+
+  p <- cc_transect_bathy(lon, lat, interval_m = 500, bathy = b)
+  expect_lt(min(p$depth_m), 250)                # the crest is ~200 m
+  expect_gt(nrow(p), 150)                       # ~93 km leg at 500 m
+
+  # and a coarse interval straightens the flanks: the same ridge reads far
+  # deeper, which is exactly the 2 km-vs-500 m failure on line 93.3
+  coarse <- cc_transect_bathy(lon, lat, interval_m = 10000, bathy = b)
+  expect_gt(min(coarse$depth_m), min(p$depth_m) + 100)
+  expect_lt(nrow(coarse), nrow(p))
+})
+
+test_that("samples sit interval_m apart and land exactly on every station", {
+  b <- bathy_fixture()
+  lon <- c(-119, -118.5, -117.5); lat <- c(33, 33, 33)
+  p <- cc_transect_bathy(lon, lat, interval_m = 500, bathy = b)
+
+  expect_true(all(diff(p$dist_km) > 0))                      # ordered, unique
+  expect_lte(max(diff(p$dist_km)), 0.5 + 1e-6)               # never coarser
+  expect_identical(p$dist_km[1], 0)
+
+  # the leg must END on the next station, or the fill leaks past the last sounding
+  knot_km <- .cumdist(lon, lat)
+  for (k in knot_km)
+    expect_true(any(abs(p$dist_km - k) < 1e-6))
+  expect_equal(max(p$dist_km), max(knot_km), tolerance = 1e-9)
+})
+
+test_that("dist_km puts the profile on the caller's ruler, anchored at stations", {
+  # the section's x-axis (station-to-station hops) is a different ruler from
+  # distance along the track; the profile has to be stretched onto it
+  b <- bathy_fixture()
+  lon <- c(-119, -118.5, -117.5); lat <- c(33, 33, 33)
+  ruler <- c(0, 10, 200)                # deliberately unlike the true spacing
+  p <- cc_transect_bathy(lon, lat, dist_km = ruler, interval_m = 500, bathy = b)
+
+  expect_identical(range(p$dist_km), c(0, 200))
+  for (k in ruler)
+    expect_true(any(abs(p$dist_km - k) < 1e-9))
+  expect_true(all(diff(p$dist_km) > 0))
+
+  # anchored: the depth reported AT a station equals the station's own sounding
+  at_knot <- p$depth_m[match(TRUE, abs(p$dist_km - 10) < 1e-9)]
+  expect_equal(at_knot, cc_bathy_depth(lon[2], lat[2], b), tolerance = 1e-6)
+
+  expect_error(cc_transect_bathy(lon, lat, dist_km = c(0, 1), bathy = b))
+})
+
+test_that("crossing land is flagged, not smoothed away or dropped", {
+  b <- bathy_fixture()
+  # a leg that runs from deep water into the land block in the east
+  p <- cc_transect_bathy(c(-119, -117.05), c(33, 33), interval_m = 500, bathy = b)
+
+  expect_true(any(p$on_land))
+  expect_true(all(p$depth_m[p$on_land] == 0))
+  expect_false(any(p$depth_m < 0, na.rm = TRUE))
+  expect_false(any(p$on_land[p$depth_m > 0]))
+  # land samples are RETURNED — a consumer needs them to break its polygon
+  expect_identical(nrow(p), nrow(dplyr::filter(p, !is.na(depth_m))))
+})
+
+test_that("a profile off the grid is NA, and one point is zero rows", {
+  b <- bathy_fixture()
+  p <- cc_transect_bathy(c(-130, -129), c(33, 33), interval_m = 500, bathy = b)
+  expect_true(all(is.na(p$depth_m)))
+  expect_true(all(!p$on_land))          # unknown is not land
+
+  expect_identical(nrow(cc_transect_bathy(-119, 33, bathy = b)), 0L)
+  expect_named(cc_transect_bathy(-119, 33, bathy = b),
+               c("dist_km", "lon", "lat", "depth_m", "on_land"))
+  expect_error(cc_transect_bathy(c(-119, -118), c(33, 33), interval_m = 0,
+                                 bathy = b))
+})
+
+test_that("cc_bathy prefers an explicit local raster over the download", {
+  b   <- bathy_fixture()
+  tif <- withr::local_tempfile(fileext = ".tif")
+  terra::writeRaster(b, tif, overwrite = TRUE)
+
+  expect_equal(terra::ncell(cc_bathy(tif)), terra::ncell(b))
+  withr::with_options(list(calcofi4r.bathy = tif), {
+    expect_equal(terra::ncell(cc_bathy()), terra::ncell(b))
+  })
+  expect_error(cc_bathy("/nope/missing.tif"), "not found")
+})

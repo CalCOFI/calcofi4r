@@ -1,3 +1,47 @@
+# calcofi4r 1.6.0
+
+## The seafloor under a section is now sampled along the track, not at stations
+
+New: `cc_bathy()`, `cc_bathy_depth()` and `cc_transect_bathy()`.
+
+Every app that draws a section draws a seafloor under it, and none of them was
+drawing the seafloor that is there. `apps/ctd-viz` sampled GEBCO **only at cast
+positions**; `CalCOFI/ctd-transects` sampled along the line but at 2 km, against
+a grid whose own cell is ~390 m. Both under-resolve the same real features into
+the same artifact — a bank drawn as a spike, right at the depths where someone is
+reading the thermocline.
+
+Line 93.3 is the case. Fortymile Bank is a ~14 km rise from 652 m to a **178 m**
+crest, with flanks on both sides. At 2 km it is four soundings — 385, 344, 238,
+370 — and draws as a triangle. Line 86.7 is the worse version of it: station
+50 sits on a Channel Islands bank at 80 m between neighbours at 1,654 m and
+1,190 m that are 37 km away, so station-only sampling drew a mountain 74 km wide
+and 1.5 km tall that does not exist.
+
+`cc_transect_bathy(lon, lat, interval_m = 500)` samples between the positions,
+not only at them. The default sits just above GEBCO's own cell: fine enough to
+keep every cell the track crosses, coarse enough not to imply detail the grid
+does not have.
+
+Three things it does that the private helpers it replaces did not:
+
+- **`dist_km`** puts the profile on the caller's own x-axis, interpolated within
+  each leg, so it is anchored exactly at every station and stretched between
+  them. `ctd-transects` was doing this warp afterwards in Python.
+- **`on_land`** is returned rather than the land samples being dropped. A cruise
+  track — unlike a CalCOFI line — zigzags, and a leg between two casts can cross
+  an island. That was `ctd-viz`'s stated reason for not sampling between casts at
+  all; it is now a flag the consumer breaks its polygon on, so a crossing reads
+  as coastline instead of being hidden.
+- **Positions come from a great circle**, not a blend in lon/lat. The shortcut is
+  within metres over a 40 km leg and not over the 400 km hop an arbitrary cast
+  selection can produce.
+
+`cc_bathy()` fetches the GEBCO 2025 crop (4.3 MB, positive-down depth in metres,
+land clamped to 0) from `gs://calcofi-db/bathymetry/` and caches it, so
+`calcofi4r` no longer needs a sibling app checkout to know where the bottom is.
+`options(calcofi4r.bathy=)` or `CALCOFI_BATHY` points it at a local file instead.
+
 # calcofi4r 1.5.4
 
 ## The anomaly vignette's outlier screen is now two-sided
