@@ -1,3 +1,32 @@
+# calcofi4r 1.7.0
+
+## A time-series gap is drawn as a gap, not as a measured zero
+
+`prep_ts_sp()` now inserts `NA` rows at time steps with no observations, so the
+line BREAKS there instead of running straight through.
+
+A species series is mostly zeros and Highcharts connects consecutive points, so
+an unsampled stretch rendered as a flat line along zero — which reads as "we
+looked and found none" when the truth is "nobody looked". The two are different
+facts and the chart was showing the wrong one.
+
+The worked case is `cdfw_dungeness-crab`. Its sorted-archive effort exists in
+nine years only — 1984, 1988, 1998, 2004-2009 — because the sorting log records
+which archived jars have been examined, and most have not. The chart drew a
+continuous zero from 1984 to 2008, asserting measured absence across roughly 20
+years in which not one jar was opened.
+
+Gaps are `NA` on `avg`/`std`/`upr`/`lwr` and `n = 0`, never `0` — zero is a
+measurement, and collapsing the two is the bug. `n` lets a consumer tell them
+apart.
+
+Only resolutions that are a real time AXIS are filled (`year`, `year_quarter`,
+`year_month`, `year_day`). `quarter`/`month`/`day` are climatology CYCLES where
+every bin is populated by construction and an absent one means something else,
+so they are untouched. Nothing is padded beyond a series` observed range, and
+each series gets its own range — one taxon`s gap is never another`s.
+
+
 # calcofi4r 1.6.0
 
 ## The seafloor under a section is now sampled along the track, not at stations

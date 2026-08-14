@@ -491,6 +491,40 @@ prep_env_hex <- function(df_env, res_range, env_stat) {
 }
 
 
+# Insert NA rows at time steps with no observations, so a line chart BREAKS
+# there instead of drawing straight through.
+#
+# Highcharts connects consecutive points, and a species series is mostly zeros,
+# so an unsampled stretch renders as a flat line along zero — which reads as
+# "we looked and found none" when the truth is "nobody looked". Metacarcinus
+# magister is the worked example: its sorted-archive effort exists in only 9
+# years (1984, 1988, 1998, 2004-2009), and the chart drew a continuous zero from
+# 1984 to 2008, asserting measured absence across ~20 years in which not one jar
+# was opened.
+#
+# Only applied to resolutions that are a real time AXIS. "quarter"/"month"/"day"
+# are climatology CYCLES — every bin is populated by construction and a gap there
+# means something different — so they are left alone.
+.ts_gaps <- function(d, ts_res) {
+  by <- switch(ts_res, year = "year", year_quarter = "quarter",
+               year_month = "month", year_day = "day", NULL)
+  if (is.null(by) || !nrow(d) || !inherits(d$time, c("Date", "POSIXct"))) return(d)
+
+  full <- do.call(rbind, lapply(split(d, d$name), function(g) {
+    steps <- seq(min(g$time), max(g$time), by = by)
+    miss  <- steps[!steps %in% g$time]
+    if (!length(miss)) return(g)
+    gap <- g[rep(1L, length(miss)), , drop = FALSE]
+    gap$time <- miss
+    # every measure NA, not 0 — an unsampled step has no value, and zero is a
+    # measurement. `n` stays 0 so a consumer can tell the two apart.
+    for (cl in intersect(c("avg", "std", "upr", "lwr"), names(gap))) gap[[cl]] <- NA_real_
+    if ("n" %in% names(gap)) gap$n <- 0L
+    rbind(g, gap)
+  }))
+  full[order(full$name, full$time), , drop = FALSE]
+}
+
 #' Build Species Time Series Data
 #'
 #' Aggregates species abundance data by temporal resolution, computing mean and
@@ -558,6 +592,9 @@ prep_ts_sp <- function(df_sp, ts_res) {
           mutate(
             time = time + 366))
   }
+
+  # break the line where nothing was sampled — see .ts_gaps()
+  sp_ts_data <- .ts_gaps(sp_ts_data, ts_res)
 
   return(sp_ts_data)
 }
