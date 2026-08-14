@@ -75,9 +75,15 @@ sec <- cc_transect_section(
   con, LINE, cruise_recent, variables = VAR, depth_max = DEPTH_MAX)
 
 head(sec)
-#> # A tibble: 0 × 6
-#> # ℹ 6 variables: cruise_key <chr>, sta <dbl>, dist_km <dbl>, depth_m <dbl>,
-#> #   variable <chr>, value <dbl>
+#> # A tibble: 6 × 6
+#>   cruise_key     sta dist_km depth_m variable        value
+#>   <chr>        <dbl>   <dbl>   <dbl> <chr>           <dbl>
+#> 1 2026-07-3322    25       0       0 temperature_ave  20.3
+#> 2 2026-07-3322    25       0       5 temperature_ave  20.3
+#> 3 2026-07-3322    25       0      10 temperature_ave  19.4
+#> 4 2026-07-3322    25       0      15 temperature_ave  16.1
+#> 5 2026-07-3322    25       0      20 temperature_ave  13.7
+#> 6 2026-07-3322    25       0      25 temperature_ave  11.8
 ```
 
 [`cc_transect_stations()`](https://calcofi.io/calcofi4r/reference/cc_transect_stations.md)
@@ -97,7 +103,7 @@ lin <- cc_transect_stations(con, LINE, cruise_recent, x = "line")
 
 c(occupied_km = max(occ$dist_km), along_line_km = max(lin$dist_km))
 #>   occupied_km along_line_km 
-#>      468.7072      470.4013
+#>      468.7072      470.5459
 ```
 
 ## The baseline, and a filter before it
@@ -110,7 +116,7 @@ clim <- cc_climatology(
 attr(clim, "baseline")
 #> [1] 1993 2013
 nrow(clim)
-#> [1] 34558
+#> [1] 33695
 ```
 
 [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
@@ -154,7 +160,7 @@ temp_all |>
 #> # A tibble: 3 × 2
 #>   band       n
 #>   <fct>  <int>
-#> 1 <24   652202
+#> 1 <24   654998
 #> 2 24-26      1
 #> 3 >=35      18
 ```
@@ -207,9 +213,9 @@ never measured.
 anom <- cc_anomaly(sec, clim_screened, sta)
 
 round(100 * mean(!is.na(anom$anomaly)))   # % of this section with a baseline
-#> [1] NaN
+#> [1] 75
 range(anom$anomaly, na.rm = TRUE)
-#> [1]  Inf -Inf
+#> [1] -3.140529  5.376190
 ```
 
 ``` r
@@ -243,10 +249,10 @@ shape a Plotly or ODV-style section takes directly.
 m <- cc_transect_matrix(anom, value = "anomaly")
 str(m, max.level = 1)
 #> List of 4
-#>  $ x  : num(0) 
-#>  $ sta: num(0) 
-#>  $ y  : num(0) 
-#>  $ z  : list()
+#>  $ x  : num [1:11] 0 11.3 62.7 99.8 135.6 ...
+#>  $ sta: num [1:11] 25 30 35 40 45 50 55 60 70 80 ...
+#>  $ y  : num [1:88] 0 5 10 15 20 25 30 35 40 45 ...
+#>  $ z  :List of 88
 ```
 
 ## All summer cruises: an anomaly time series
@@ -294,14 +300,14 @@ series <- anom_summer |>
 
 head(series)
 #> # A tibble: 6 × 4
-#>      yr layer     anomaly     n
-#>   <int> <fct>       <dbl> <int>
-#> 1  1994 100-200 m  0.189   1129
-#> 2  1998 100-200 m -0.183   1449
-#> 3  2008 100-200 m -0.348    965
-#> 4  2013 100-200 m -0.0959   908
-#> 5  2014 100-200 m  0.219    997
-#> 6  2021 100-200 m  0.0534   835
+#>      yr layer      anomaly     n
+#>   <int> <fct>        <dbl> <int>
+#> 1  1993 200-500 m -0.0254   1919
+#> 2  1994 200-500 m -0.0849   2045
+#> 3  1995 200-500 m  0.00865  2011
+#> 4  1996 200-500 m -0.00924  2031
+#> 5  1997 200-500 m  0.183    2133
+#> 6  1998 200-500 m -1.03     2116
 ```
 
 A sanity check before reading anything into it: the baseline years must
@@ -359,7 +365,7 @@ comparison <- series |>
 
 summary(abs(comparison$difference))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#> 0.04216 0.05814 0.06273 0.14239 0.24732 0.46284
+#> 0.04182 0.06821 0.07311 0.19055 0.33329 0.65131
 ```
 
 ## Reading it honestly

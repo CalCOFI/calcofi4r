@@ -43,20 +43,20 @@ The package provides convenience functions for common operations:
 
 # list available versions
 cc_list_versions()
-#> # A tibble: 24 × 6
+#> # A tibble: 27 × 6
 #>    version     release_date tables total_rows size_mb is_latest
 #>    <chr>       <chr>         <int>      <int>   <dbl> <lgl>    
-#>  1 v2026.08.08 2026-08-08       18  309122838   1947  TRUE     
-#>  2 v2026.08.07 2026-08-07       18  323733662   2024. FALSE    
-#>  3 v2026.08.06 2026-08-06       18  255137845   1636. FALSE    
-#>  4 v2026.08.05 2026-08-05       18  255137845   1636. FALSE    
-#>  5 v2026.08.04 2026-08-04       18  255155031   1635  FALSE    
-#>  6 v2026.08.03 2026-08-03       18  255037035   2057. FALSE    
-#>  7 v2026.08.02 2026-08-02       18  255037035   2087. FALSE    
-#>  8 v2026.07.30 2026-07-30       17  233730737   1710  FALSE    
-#>  9 v2026.07.17 2026-07-17       17  236577241   1943  FALSE    
-#> 10 v2026.07.16 2026-07-16       17  236577241   1945. FALSE    
-#> # ℹ 14 more rows
+#>  1 v2026.08.14 2026-08-14       18  307537056   1930. TRUE     
+#>  2 v2026.08.11 2026-08-11       18  323912311   2016. FALSE    
+#>  3 v2026.08.10 2026-08-11       18  323912364   2017. FALSE    
+#>  4 v2026.08.08 2026-08-08       18  309122838   1947  FALSE    
+#>  5 v2026.08.07 2026-08-07       18  323733662   2024. FALSE    
+#>  6 v2026.08.06 2026-08-06       18  255137845   1636. FALSE    
+#>  7 v2026.08.05 2026-08-05       18  255137845   1636. FALSE    
+#>  8 v2026.08.04 2026-08-04       18  255155031   1635  FALSE    
+#>  9 v2026.08.03 2026-08-03       18  255037035   2057. FALSE    
+#> 10 v2026.08.02 2026-08-02       18  255037035   2087. FALSE    
+#> # ℹ 17 more rows
 
 # list tables
 cc_list_tables()
@@ -120,12 +120,12 @@ head(taxa)
 #> # A tibble: 6 × 19
 #>   taxon_key worms_id itis_id gbif_id ncbi_id inat_id scientific_name common_name
 #>   <chr>        <int>   <int>   <int>   <int>   <int> <chr>           <chr>      
-#> 1 calcofi_…       NA      NA      NA      NA      NA NA              NA         
-#> 2 calcofi_…       NA      NA      NA      NA      NA NA              NA         
-#> 3 calcofi_…       NA      NA      NA      NA      NA NA              NA         
-#> 4 calcofi_…       NA      NA      NA      NA      NA NA              NA         
-#> 5 calcofi_…       NA      NA      NA      NA      NA NA              NA         
-#> 6 calcofi_…       NA      NA      NA      NA      NA NA              NA         
+#> 1 itis:174…   136995  174477      NA      NA      NA Podicipedidae   grebes     
+#> 2 itis:174…   148742  174513      NA      NA      NA Diomedeidae     albatrosses
+#> 3 itis:174…   148794  174619      NA      NA      NA Hydrobatidae    storm petr…
+#> 4 itis:174…   136992  174671      NA      NA      NA Phaethontidae   tropicbirds
+#> 5 itis:174…   136991  174682      NA      NA      NA Pelecanidae     pelicans   
+#> 6 itis:174…   136994  174696      NA      NA      NA Sulidae         gannets & …
 #> # ℹ 11 more variables: rank <chr>, rank_order <int>, taxonomic_status <chr>,
 #> #   status_checked <chr>, parent_taxon_key <chr>, kingdom <chr>, phylum <chr>,
 #> #   class <chr>, order_taxon <chr>, family <chr>, notes <chr>
@@ -136,12 +136,12 @@ head(ichthyo_sample)
 #> # A tibble: 6 × 18
 #>     obs_id realm sample_key               grid_key cruise_key latitude longitude
 #>      <dbl> <chr> <chr>                    <chr>    <chr>         <dbl>     <dbl>
-#> 1 24933091 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
-#> 2 24933092 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
-#> 3 24933093 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
-#> 4 24933094 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
-#> 5 24933095 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
-#> 6 24933096 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
+#> 1 25559130 bio   swfsc_ichthyo:net:be1d3… st80-ln… 2011-04-3…     35.2     -124.
+#> 2 25558961 bio   swfsc_ichthyo:net:be1d3… st80-ln… 2011-04-3…     35.2     -124.
+#> 3 25559036 bio   swfsc_ichthyo:net:be1d3… st80-ln… 2011-04-3…     35.2     -124.
+#> 4 25558969 bio   swfsc_ichthyo:net:be1d3… st80-ln… 2011-04-3…     35.2     -124.
+#> 5 25559085 bio   swfsc_ichthyo:net:be1d3… st80-ln… 2011-04-3…     35.2     -124.
+#> 6 25559125 bio   swfsc_ichthyo:net:be1d3… st80-ln… 2011-04-3…     35.2     -124.
 #> # ℹ 11 more variables: datetime <dttm>, depth_min_m <dbl>, depth_max_m <dbl>,
 #> #   taxon_key <chr>, life_stage <chr>, measurement_type <chr>,
 #> #   measurement_value <dbl>, measurement_qual <chr>, measurement_prec <dbl>,
@@ -189,18 +189,18 @@ tibble(
 #> # A tibble: 16 × 2
 #>    table                  rows
 #>    <chr>                 <dbl>
-#>  1 obs                25392376
-#>  2 sample              1465189
-#>  3 sample_measurement   588986
-#>  4 obs_attribute        452682
+#>  1 obs                25624046
+#>  2 sample              1466254
+#>  3 sample_measurement   589603
+#>  4 obs_attribute        452789
 #>  5 spatial_attribute    148461
 #>  6 spatial               13206
-#>  7 taxon                  2121
-#>  8 dataset_taxon          1907
+#>  7 taxon                  2125
+#>  8 dataset_taxon          1910
 #>  9 cruise                  691
 #> 10 grid                    218
-#> 11 measurement_type        198
-#> 12 taxon_group             154
+#> 11 measurement_type        200
+#> 12 taxon_group             151
 #> 13 ship                     49
 #> 14 lookup                   26
 #> 15 dataset                  16
@@ -232,14 +232,14 @@ d_temp <- dbGetQuery(con, "
 
 head(d_temp)
 #>         lon      lat            datetime depth_m temperature
-#> 1 -109.3833 22.55000 1950-11-28 19:42:00       0       27.25
-#> 2 -109.3833 22.55000 1951-03-08 19:36:00       0       21.81
-#> 3 -109.3833 22.55000 1951-06-11 04:36:00       0       24.19
-#> 4 -109.3833 22.55000 1951-06-11 07:42:00       0       24.09
-#> 5 -109.3167 22.58333 1954-12-04 20:42:00       0       26.00
-#> 6 -109.3000 22.65000 1955-02-13 23:24:00       0       20.87
+#> 1 -118.8500 25.13333 1949-03-11 17:30:00       0       16.15
+#> 2 -118.1667 25.43333 1949-03-11 23:06:00       0       16.80
+#> 3 -118.2000 25.45000 1949-04-03 09:00:00       0       15.68
+#> 4 -118.8833 25.01667 1949-04-03 15:54:00       0       16.30
+#> 5 -118.2667 25.43333 1949-05-02 09:42:00       0       17.66
+#> 6 -118.8167 25.03333 1949-05-02 15:36:00       0       17.50
 nrow(d_temp)
-#> [1] 93292
+#> [1] 93985
 ```
 
 ### Summarize by Location
@@ -260,17 +260,17 @@ head(d_t)
 #> Simple feature collection with 6 features and 4 fields
 #> Geometry type: POINT
 #> Dimension:     XY
-#> Bounding box:  xmin: -133.7 ymin: 32.85 xmax: -133.4667 ymax: 44.9
+#> Bounding box:  xmin: -164.0833 ymin: 20.05 xmax: -150.025 ymax: 42.38333
 #> Geodetic CRS:  WGS 84
 #> # A tibble: 6 × 5
 #>     lon   lat     n t_avg             geometry
 #>   <dbl> <dbl> <int> <dbl>          <POINT [°]>
-#> 1 -134.  42.5     2  11.2        (-133.7 42.5)
-#> 2 -134.  32.9     3  19.5   (-133.65 32.86667)
-#> 3 -134.  32.8     2  19.9    (-133.5167 32.85)
-#> 4 -134.  44.9     2  15.6     (-133.5167 44.9)
-#> 5 -133.  32.9     3  19.7   (-133.4667 32.875)
-#> 6 -133.  32.9     2  15.5 (-133.4667 32.91667)
+#> 1 -164.  42       2  10.1       (-164.0833 42)
+#> 2 -158.  42.4    16  16.7 (-157.9833 42.36667)
+#> 3 -158.  42.4     4  11.8 (-157.9833 42.38333)
+#> 4 -153.  20.1     4  24.2    (-153.1 20.10833)
+#> 5 -150.  31.2     3  23.1     (-150.1167 31.2)
+#> 6 -150.  20.0     4  24.3     (-150.025 20.05)
 ```
 
 ## CalCOFI Grid
@@ -399,16 +399,16 @@ top_species <- dbGetQuery(con, "
 
 top_species
 #>              scientific_name                common_name total_count n_samples
-#> 1                  Teleostei       Unidentified Teliost     8366572     58892
-#> 2           Engraulis mordax           Northern anchovy     6410672     29514
-#> 3            Sardinops sagax Pacific sardine (pilchard)      898640      9760
+#> 1                  Teleostei       Unidentified Teliost     8958412     61442
+#> 2           Engraulis mordax           Northern anchovy     6410683     29521
+#> 3            Sardinops sagax Pacific sardine (pilchard)      898866      9766
 #> 4       Merluccius productus    Pacific hake or whiting      872595     12527
-#> 5       Vinciguerria lucetia           Panama lightfish      387504     13564
-#> 6                   Sebastes                 Rockfishes      235178     18146
-#> 7      Trachurus symmetricus              Jack mackerel      193327      9520
-#> 8      Leuroglossus stilbius    California smoothtongue      159060     12449
-#> 9  Stenobrachius leucopsarus          Northern lampfish      139568     12704
-#> 10     Triphoturus mexicanus           Mexican lampfish      137930     14552
+#> 5       Vinciguerria lucetia           Panama lightfish      421943     14829
+#> 6                   Sebastes                 Rockfishes      235762     18187
+#> 7      Trachurus symmetricus              Jack mackerel      193414      9528
+#> 8      Leuroglossus stilbius    California smoothtongue      159765     12478
+#> 9  Stenobrachius leucopsarus          Northern lampfish      139854     12726
+#> 10     Triphoturus mexicanus           Mexican lampfish      137992     14572
 ```
 
 ### Species Distribution

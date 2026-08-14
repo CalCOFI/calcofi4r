@@ -17,7 +17,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,6 +50,17 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.7.0" id="calcofi4r-170">calcofi4r 1.7.0<a class="anchor" aria-label="anchor" href="#calcofi4r-170"></a></h2>
+<div class="section level3">
+<h3 id="a-time-series-gap-is-drawn-as-a-gap-not-as-a-measured-zero-1-7-0">A time-series gap is drawn as a gap, not as a measured zero<a class="anchor" aria-label="anchor" href="#a-time-series-gap-is-drawn-as-a-gap-not-as-a-measured-zero-1-7-0"></a></h3>
+<p><code><a href="../reference/prep_ts_sp.html">prep_ts_sp()</a></code> now inserts <code>NA</code> rows at time steps with no observations, so the line BREAKS there instead of running straight through.</p>
+<p>A species series is mostly zeros and Highcharts connects consecutive points, so an unsampled stretch rendered as a flat line along zero — which reads as “we looked and found none” when the truth is “nobody looked”. The two are different facts and the chart was showing the wrong one.</p>
+<p>The worked case is <code>cdfw_dungeness-crab</code>. Its sorted-archive effort exists in nine years only — 1984, 1988, 1998, 2004-2009 — because the sorting log records which archived jars have been examined, and most have not. The chart drew a continuous zero from 1984 to 2008, asserting measured absence across roughly 20 years in which not one jar was opened.</p>
+<p>Gaps are <code>NA</code> on <code>avg</code>/<code>std</code>/<code>upr</code>/<code>lwr</code> and <code>n = 0</code>, never <code>0</code> — zero is a measurement, and collapsing the two is the bug. <code>n</code> lets a consumer tell them apart.</p>
+<p>Only resolutions that are a real time AXIS are filled (<code>year</code>, <code>year_quarter</code>, <code>year_month</code>, <code>year_day</code>). <code>quarter</code>/<code>month</code>/<code>day</code> are climatology CYCLES where every bin is populated by construction and an absent one means something else, so they are untouched. Nothing is padded beyond a series<code>observed range, and each series gets its own range — one taxon</code>s gap is never another`s.</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.6.0" id="calcofi4r-160">calcofi4r 1.6.0<a class="anchor" aria-label="anchor" href="#calcofi4r-160"></a></h2>
 <div class="section level3">

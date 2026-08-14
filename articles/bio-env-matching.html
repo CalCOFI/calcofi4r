@@ -36,7 +36,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -172,7 +172,7 @@ hr.</p>
 <span>  version         <span class="op">=</span> <span class="va">REL</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">REL</span></span>
-<span><span class="co">#&gt; [1] "v2026.08.08"</span></span>
+<span><span class="co">#&gt; [1] "v2026.08.14"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 310  19</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -187,8 +187,8 @@ hr.</p>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Sardinops sagax larva      2017-04-12 <span style="color: #949494;">07:32:00</span>   -<span style="color: #BB0000;">124.</span>    33.4     10.2 </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Sardinops sagax larva      2018-04-19 <span style="color: #949494;">08:15:00</span>   -<span style="color: #BB0000;">124.</span>    32.8     24.6 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Sardinops sagax larva      2017-04-07 <span style="color: #949494;">12:48:00</span>   -<span style="color: #BB0000;">123.</span>    31.7      5.02</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Sardinops sagax larva      2018-04-15 <span style="color: #949494;">04:33:00</span>   -<span style="color: #BB0000;">123.</span>    31.7      4.91</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Sardinops sagax larva      2018-04-15 <span style="color: #949494;">04:33:00</span>   -<span style="color: #BB0000;">123.</span>    31.7      4.91</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Sardinops sagax larva      2017-04-07 <span style="color: #949494;">12:48:00</span>   -<span style="color: #BB0000;">123.</span>    31.7      5.02</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> Sardinops sagax larva      2018-04-08 <span style="color: #949494;">03:38:00</span>   -<span style="color: #BB0000;">122.</span>    30.5     42.2 </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> Sardinops sagax larva      2018-04-15 <span style="color: #949494;">14:46:00</span>   -<span style="color: #BB0000;">124.</span>    31.9     19.9 </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5 more variables: env_value &lt;dbl&gt;, env_depth_m &lt;dbl&gt;, n_env &lt;dbl&gt;,</span></span></span>
@@ -404,17 +404,17 @@ contract:</p>
 <code class="sourceCode R"><span><span class="va">meta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">d</span>, <span class="st">"query_meta"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">meta</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 6</span></span>
-<span><span class="co">#&gt;  $ package_version: chr "1.6.0"</span></span>
-<span><span class="co">#&gt;  $ release_version: chr "v2026.08.08"</span></span>
+<span><span class="co">#&gt;  $ package_version: chr "1.7.0"</span></span>
+<span><span class="co">#&gt;  $ release_version: chr "v2026.08.14"</span></span>
 <span><span class="co">#&gt;  $ params         :List of 3</span></span>
 <span><span class="co">#&gt;   ..$ max_dist_km: num 5</span></span>
 <span><span class="co">#&gt;   ..$ max_time_hr: num 72</span></span>
 <span><span class="co">#&gt;   ..$ join_method: chr "nearest_time"</span></span>
-<span><span class="co">#&gt;  $ source_urls    : chr [1:3] "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.08/parquet/obs.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.08/parquet/sample_measurement.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.08/parquet/taxon.parquet"</span></span>
-<span><span class="co">#&gt;  $ generated_at   : chr "2026-08-10 14:55:45 UTC"</span></span>
+<span><span class="co">#&gt;  $ source_urls    : chr [1:3] "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.14/parquet/obs.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.14/parquet/sample_measurement.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.14/parquet/taxon.parquet"</span></span>
+<span><span class="co">#&gt;  $ generated_at   : chr "2026-08-14 08:28:48 UTC"</span></span>
 <span><span class="co">#&gt;  $ n_rows         : int 310</span></span></code></pre></div>
 <p><code>meta$release_version</code> pins which release the result came
-from (v2026.08.08 here). <code>meta$source_urls</code> is the full list
+from (v2026.08.14 here). <code>meta$source_urls</code> is the full list
 of public GCS parquet files the query reads. And
 <code>attr(d, "sql")</code> is the literal query — no <code>dplyr</code>
 translation, no hidden state, ~90 lines of plain DuckDB SQL:</p>
@@ -436,8 +436,8 @@ translation, no hidden state, ~90 lines of plain DuckDB SQL:</p>
 <span><span class="co">#&gt;   t.scientific_name,</span></span>
 <span><span class="co">#&gt;   t.worms_id,</span></span>
 <span><span class="co">#&gt;   o.life_stage</span></span>
-<span><span class="co">#&gt; FROM read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.08/parquet/obs.parquet') o</span></span>
-<span><span class="co">#&gt; JOIN read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.08/parquet/taxon.parquet') t ON t.taxon_key = o.taxon_key</span></span>
+<span><span class="co">#&gt; FROM read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.14/parquet/obs.parquet') o</span></span>
+<span><span class="co">#&gt; JOIN read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.14/parquet/taxon.parquet') t ON t.taxon_key = o.taxon_key</span></span>
 <span><span class="co">#&gt; LEFT JOIN read_ </span></span>
 <span><span class="co">#&gt; …</span></span></code></pre></div>
 <p>To get the SQL <em>without</em> running it — e.g. to share, save into
