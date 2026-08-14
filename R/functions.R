@@ -491,21 +491,39 @@ prep_env_hex <- function(df_env, res_range, env_stat) {
 }
 
 
-# Insert NA rows at time steps with no observations, so a line chart BREAKS
-# there instead of drawing straight through.
-#
-# Highcharts connects consecutive points, and a species series is mostly zeros,
-# so an unsampled stretch renders as a flat line along zero — which reads as
-# "we looked and found none" when the truth is "nobody looked". Metacarcinus
-# magister is the worked example: its sorted-archive effort exists in only 9
-# years (1984, 1988, 1998, 2004-2009), and the chart drew a continuous zero from
-# 1984 to 2008, asserting measured absence across ~20 years in which not one jar
-# was opened.
-#
-# Only applied to resolutions that are a real time AXIS. "quarter"/"month"/"day"
-# are climatology CYCLES — every bin is populated by construction and a gap there
-# means something different — so they are left alone.
-.ts_gaps <- function(d, ts_res) {
+#' Insert NA rows at time steps with no observations
+#'
+#' So a line chart BREAKS at an unsampled step instead of drawing straight
+#' through it.
+#'
+#' Highcharts connects consecutive points, and a species series is mostly zeros,
+#' so an unsampled stretch renders as a flat line along zero — which reads as
+#' "we looked and found none" when the truth is "nobody looked". Those are
+#' different facts and the chart was showing the wrong one.
+#'
+#' `cdfw_dungeness-crab` is the worked example: its sorted-archive effort exists
+#' in only nine years (1984, 1988, 1998, 2004-2009), because the sorting log
+#' records which archived jars have been examined and most have not. The chart
+#' drew a continuous zero from 1984 to 2008, asserting measured absence across
+#' roughly 20 years in which not one jar was opened.
+#'
+#' Gaps are NA on `avg`/`std`/`upr`/`lwr` and `n = 0`, never `0` — zero is a
+#' measurement, and collapsing the two is the bug. `n` tells them apart.
+#'
+#' Only applied to resolutions that are a real time AXIS. `"quarter"`/`"month"`/
+#' `"day"` are climatology CYCLES — every bin is populated by construction and a
+#' gap there means something different — so they are left alone.
+#'
+#' Exported because `db-viz-hex` carries its own copy of [prep_ts_sp()]; both call
+#' this, so the rule cannot drift into two versions.
+#'
+#' @param d data frame from [prep_ts_sp()]: `time`, `name`, `avg`, `std`, `n`,
+#'   `upr`, `lwr`.
+#' @param ts_res temporal resolution, as passed to [prep_ts_sp()].
+#' @return `d` with NA-valued rows added at missing steps, ordered by name/time.
+#' @concept analyze
+#' @export
+cc_ts_gaps <- function(d, ts_res) {
   by <- switch(ts_res, year = "year", year_quarter = "quarter",
                year_month = "month", year_day = "day", NULL)
   if (is.null(by) || !nrow(d) || !inherits(d$time, c("Date", "POSIXct"))) return(d)
@@ -594,7 +612,7 @@ prep_ts_sp <- function(df_sp, ts_res) {
   }
 
   # break the line where nothing was sampled — see .ts_gaps()
-  sp_ts_data <- .ts_gaps(sp_ts_data, ts_res)
+  sp_ts_data <- cc_ts_gaps(sp_ts_data, ts_res)
 
   return(sp_ts_data)
 }
