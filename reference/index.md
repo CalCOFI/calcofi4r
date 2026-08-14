@@ -92,6 +92,8 @@ functions for analyzing data
 
 - [`buffer_transect()`](https://calcofi.io/calcofi4r/reference/buffer_transect.md)
   : Create Buffer Around Line Segment with Dateline Handling
+- [`cc_ts_gaps()`](https://calcofi.io/calcofi4r/reference/cc_ts_gaps.md)
+  : Insert NA rows at time steps with no observations
 - [`get_oceano_var_aoi()`](https://calcofi.io/calcofi4r/reference/get_oceano_var_aoi.md)
   **\[deprecated\]** : Get oceanographic variable for area of interest
 - [`prep_env_hex()`](https://calcofi.io/calcofi4r/reference/prep_env_hex.md)

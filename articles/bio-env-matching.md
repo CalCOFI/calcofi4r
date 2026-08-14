@@ -255,7 +255,7 @@ str(meta)
 #>   ..$ max_time_hr: num 72
 #>   ..$ join_method: chr "nearest_time"
 #>  $ source_urls    : chr [1:3] "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.14/parquet/obs.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.14/parquet/sample_measurement.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.14/parquet/taxon.parquet"
-#>  $ generated_at   : chr "2026-08-14 08:28:48 UTC"
+#>  $ generated_at   : chr "2026-08-14 08:45:27 UTC"
 #>  $ n_rows         : int 310
 ```
 
