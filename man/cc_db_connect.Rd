@@ -16,8 +16,10 @@ a \code{DBI::dbConnect()} object
 \description{
 \lifecycle{deprecated}
 
-This function is deprecated. Please use \code{\link{cc_get_db}} instead for
-connecting to the new DuckDB-based database.
+This function is deprecated. For the public releases use \code{\link{cc_get_db}}
+(DuckDB over Parquet); for the multi-user PostgreSQL database (CTD QA/QC,
+database \code{calcofi}) use \code{\link{cc_pg_connect}}, which reads your
+role and password from \code{~/.pgpass} instead of a password file.
 
 Note that you must either be running this from the CalCOFI server or have a
 \href{https://github.com/calcofi/server#ssh-tunnel-connection-to-postgis-db}{tunnelled SSH connection}

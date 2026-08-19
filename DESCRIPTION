@@ -1,6 +1,6 @@
 Package: calcofi4r
 Title: CalCOFI R helper functions
-Version: 1.7.0
+Version: 1.8.0
 URL: https://calcofi.io/calcofi4r
 BugReports: https://github.com/calcofi/calcofi4r/issues
 Authors@R: c(
@@ -71,6 +71,7 @@ Remotes:
     ropensci/rnaturalearthhires
 Suggests:
     DiagrammeR,
+    processx,
     DiagrammeRsvg,
     knitr,
     patchwork,

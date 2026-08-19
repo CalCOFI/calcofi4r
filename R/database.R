@@ -881,8 +881,10 @@ cc_list_view_templates <- function() {
 #' @description
 #' \lifecycle{deprecated}
 #'
-#' This function is deprecated. Please use \code{\link{cc_get_db}} instead for
-#' connecting to the new DuckDB-based database.
+#' This function is deprecated. For the public releases use \code{\link{cc_get_db}}
+#' (DuckDB over Parquet); for the multi-user PostgreSQL database (CTD QA/QC,
+#' database \code{calcofi}) use \code{\link{cc_pg_connect}}, which reads your
+#' role and password from \code{~/.pgpass} instead of a password file.
 #'
 #' Note that you must either be running this from the CalCOFI server or have a
 #' [tunnelled SSH
@@ -911,10 +913,10 @@ cc_db_connect <- function(path_pw = "~/.calcofi_db_pass.txt"){
     lifecycle::deprecate_warn(
       "1.0.0",
       "cc_db_connect()",
-      "cc_get_db()",
-      details = "PostgreSQL is being phased out. Use cc_get_db() for DuckDB access.")
+      "cc_pg_connect()",
+      details = "Public releases: cc_get_db() (DuckDB over Parquet). Multi-user PostgreSQL (calcofi db): cc_pg_connect() + ~/.pgpass.")
   } else {
-    warning("cc_db_connect() is deprecated. Use cc_get_db() instead for DuckDB access.")
+    warning("cc_db_connect() is deprecated. Use cc_get_db() for releases or cc_pg_connect() for PostgreSQL.")
   }
 
   is_server <- Sys.info()[["sysname"]] == "Linux"

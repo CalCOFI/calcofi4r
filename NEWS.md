@@ -1,3 +1,31 @@
+# calcofi4r 1.8.0
+
+## PostgreSQL helpers for the multi-user CTD QA/QC database
+
+New: `cc_pg_connect()`, `cc_pg_tunnel()` / `cc_pg_tunnel_close()`, `cc_pg_attach()`.
+
+The public releases are Parquet and `cc_get_db()` reads them without credentials. The
+CTD team's *working* database is different: a multi-user PostgreSQL (`calcofi`) on the
+CalCOFI server, reachable only through an SSH tunnel. These three helpers make that a
+one-liner without putting a password in anyone's script:
+
+- `cc_pg_connect()` — `RPostgres` connection with every default resolved: host is
+  `postgis` on the server (RStudio Server, Shiny) and `localhost` elsewhere (the tunnel),
+  the role name is read from the `~/.pgpass` line you copied from the server, and the
+  password is left to libpq, which reads the same file. `PGHOST`/`PGPORT`/`PGUSER` override.
+- `cc_pg_tunnel()` — starts `ssh -N -L 5432:localhost:5432 calcofi` via `processx` using
+  your `~/.ssh/config` alias, waits for the port, and is reused while alive;
+  `cc_pg_connect(tunnel = TRUE)` calls it. Refuses to stomp on a port that is already open
+  and says to use 15432 instead.
+- `cc_pg_attach()` — `INSTALL postgres; ATTACH … (TYPE postgres)` inside a DuckDB connection
+  (e.g. from `cc_get_db()`), so one query joins release tables with `pg.ctd.*` /
+  `pg.work.*`; `read_only = FALSE` allows bulk writes from Parquet into PostgreSQL.
+
+`cc_db_connect()` stays deprecated and now points at `cc_pg_connect()` (it hard-coded
+`gis`/`admin`/`~/.calcofi_db_pass.txt`). Account, tunnel and `.pgpass` instructions for Mac
+and Windows live at https://calcofi.io/docs/server-access.html.
+
+
 # calcofi4r 1.7.0
 
 ## A time-series gap is drawn as a gap, not as a measured zero
