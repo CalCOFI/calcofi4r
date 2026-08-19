@@ -28,7 +28,7 @@ interactive plot of
 
 ``` r
 (r_tif <- tempfile(fileext=".tif"))
-#> [1] "/tmp/RtmpYgRW3v/file1ff151789b82.tif"
+#> [1] "/tmp/Rtmpdao5kg/file1e556425007b.tif"
 
 # use second variable from previously fetched v
 c(v$table_field[2], v$plot_label[2])
@@ -48,7 +48,7 @@ get_raster(
 #> • Expecting type "application/json" or suffix "json".
 
 r <- raster::raster(r_tif)
-#> Warning: GDAL Error 4: /tmp/RtmpYgRW3v/file1ff151789b82.tif: No such file or directory
+#> Warning: GDAL Error 4: /tmp/Rtmpdao5kg/file1e556425007b.tif: No such file or directory
 #> Error in .rasterObjectFromFile(x, band = band, objecttype = "RasterLayer",     ...): Cannot create a RasterLayer object from this file. (file does not exist)
 
 # plot raster

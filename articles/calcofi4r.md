@@ -120,12 +120,12 @@ head(taxa)
 #> # A tibble: 6 × 19
 #>   taxon_key worms_id itis_id gbif_id ncbi_id inat_id scientific_name common_name
 #>   <chr>        <int>   <int>   <int>   <int>   <int> <chr>           <chr>      
-#> 1 itis:174…   136995  174477      NA      NA      NA Podicipedidae   grebes     
-#> 2 itis:174…   148742  174513      NA      NA      NA Diomedeidae     albatrosses
-#> 3 itis:174…   148794  174619      NA      NA      NA Hydrobatidae    storm petr…
-#> 4 itis:174…   136992  174671      NA      NA      NA Phaethontidae   tropicbirds
-#> 5 itis:174…   136991  174682      NA      NA      NA Pelecanidae     pelicans   
-#> 6 itis:174…   136994  174696      NA      NA      NA Sulidae         gannets & …
+#> 1 itis:174…   136996  174467      NA      NA      NA Gaviidae        loons      
+#> 2 itis:174…   136995  174477      NA      NA      NA Podicipedidae   grebes     
+#> 3 itis:174…   148742  174513      NA      NA      NA Diomedeidae     albatrosses
+#> 4 itis:174…   136998  174532      NA      NA      NA Procellariidae  shearwaters
+#> 5 itis:174…   148794  174619      NA      NA      NA Hydrobatidae    storm petr…
+#> 6 itis:174…   136992  174671      NA      NA      NA Phaethontidae   tropicbirds
 #> # ℹ 11 more variables: rank <chr>, rank_order <int>, taxonomic_status <chr>,
 #> #   status_checked <chr>, parent_taxon_key <chr>, kingdom <chr>, phylum <chr>,
 #> #   class <chr>, order_taxon <chr>, family <chr>, notes <chr>
@@ -232,12 +232,12 @@ d_temp <- dbGetQuery(con, "
 
 head(d_temp)
 #>         lon      lat            datetime depth_m temperature
-#> 1 -128.7000 35.83333 1949-03-04 17:42:00       0        12.0
-#> 2 -127.9167 36.06667 1949-03-04 23:54:00       0        11.7
-#> 3 -127.1000 36.28333 1949-03-05 06:12:00       0        11.5
-#> 4 -128.6167 35.73333 1949-04-06 06:48:00       0        12.8
-#> 5 -127.8500 35.96667 1949-04-06 12:36:00       0        12.6
-#> 6 -127.0667 36.18333 1949-04-06 18:30:00       0        12.0
+#> 1 -123.4750 32.23333 1960-01-15 06:30:00       0       14.18
+#> 2 -123.4667 32.23333 1968-01-17 05:48:00       0       14.11
+#> 3 -123.4917 32.24333 1981-05-22 16:55:00       0       15.71
+#> 4 -123.4917 32.24333 1981-05-22 17:18:00       0       15.71
+#> 5 -123.4933 32.24500 1984-01-08 13:35:00       0       16.57
+#> 6 -123.4933 32.24500 1984-01-08 18:42:00       0       16.54
 nrow(d_temp)
 #> [1] 93985
 ```

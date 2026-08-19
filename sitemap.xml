@@ -49,6 +49,9 @@
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_match_ichthyo_by_name.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_match_ichthyo_by_taxon.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_match_zooplankton_biomass.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_pg_attach.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_pg_connect.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_pg_tunnel.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_places.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_query.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_read_casts.html</loc></url>

@@ -199,6 +199,16 @@ functions specific to database (Admin only)
 - [`cc_make_view()`](https://calcofi.io/calcofi4r/reference/cc_make_view.md)
   : Create a Derived VIEW in the Database
 
+- [`cc_pg_attach()`](https://calcofi.io/calcofi4r/reference/cc_pg_attach.md)
+  : Attach the CalCOFI PostgreSQL database inside a DuckDB connection
+
+- [`cc_pg_connect()`](https://calcofi.io/calcofi4r/reference/cc_pg_connect.md)
+  : Connect to the CalCOFI PostgreSQL database
+
+- [`cc_pg_tunnel()`](https://calcofi.io/calcofi4r/reference/cc_pg_tunnel.md)
+  [`cc_pg_tunnel_close()`](https://calcofi.io/calcofi4r/reference/cc_pg_tunnel.md)
+  : Open an SSH tunnel to the CalCOFI server's PostgreSQL
+
 - [`cc_read_sf()`](https://calcofi.io/calcofi4r/reference/cc_read_sf.md)
   : Read Spatial Table from DuckDB as sf Object
 

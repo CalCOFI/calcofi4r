@@ -2,9 +2,13 @@
 
 deprecated
 
-This function is deprecated. Please use
+This function is deprecated. For the public releases use
 [`cc_get_db`](https://calcofi.io/calcofi4r/reference/cc_get_db.md)
-instead for connecting to the new DuckDB-based database.
+(DuckDB over Parquet); for the multi-user PostgreSQL database (CTD
+QA/QC, database `calcofi`) use
+[`cc_pg_connect`](https://calcofi.io/calcofi4r/reference/cc_pg_connect.md),
+which reads your role and password from `~/.pgpass` instead of a
+password file.
 
 Note that you must either be running this from the CalCOFI server or
 have a [tunnelled SSH

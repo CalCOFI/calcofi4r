@@ -17,7 +17,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,6 +50,21 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.8.0" id="calcofi4r-180">calcofi4r 1.8.0<a class="anchor" aria-label="anchor" href="#calcofi4r-180"></a></h2>
+<div class="section level3">
+<h3 id="postgresql-helpers-for-the-multi-user-ctd-qaqc-database-1-8-0">PostgreSQL helpers for the multi-user CTD QA/QC database<a class="anchor" aria-label="anchor" href="#postgresql-helpers-for-the-multi-user-ctd-qaqc-database-1-8-0"></a></h3>
+<p>New: <code><a href="../reference/cc_pg_connect.html">cc_pg_connect()</a></code>, <code><a href="../reference/cc_pg_tunnel.html">cc_pg_tunnel()</a></code> / <code><a href="../reference/cc_pg_tunnel.html">cc_pg_tunnel_close()</a></code>, <code><a href="../reference/cc_pg_attach.html">cc_pg_attach()</a></code>.</p>
+<p>The public releases are Parquet and <code><a href="../reference/cc_get_db.html">cc_get_db()</a></code> reads them without credentials. The CTD team’s <em>working</em> database is different: a multi-user PostgreSQL (<code>calcofi</code>) on the CalCOFI server, reachable only through an SSH tunnel. These three helpers make that a one-liner without putting a password in anyone’s script:</p>
+<ul><li>
+<code><a href="../reference/cc_pg_connect.html">cc_pg_connect()</a></code> — <code>RPostgres</code> connection with every default resolved: host is <code>postgis</code> on the server (RStudio Server, Shiny) and <code>localhost</code> elsewhere (the tunnel), the role name is read from the <code>~/.pgpass</code> line you copied from the server, and the password is left to libpq, which reads the same file. <code>PGHOST</code>/<code>PGPORT</code>/<code>PGUSER</code> override.</li>
+<li>
+<code><a href="../reference/cc_pg_tunnel.html">cc_pg_tunnel()</a></code> — starts <code>ssh -N -L 5432:localhost:5432 calcofi</code> via <code>processx</code> using your <code>~/.ssh/config</code> alias, waits for the port, and is reused while alive; <code>cc_pg_connect(tunnel = TRUE)</code> calls it. Refuses to stomp on a port that is already open and says to use 15432 instead.</li>
+<li>
+<code><a href="../reference/cc_pg_attach.html">cc_pg_attach()</a></code> — <code>INSTALL postgres; ATTACH … (TYPE postgres)</code> inside a DuckDB connection (e.g. from <code><a href="../reference/cc_get_db.html">cc_get_db()</a></code>), so one query joins release tables with <code>pg.ctd.*</code> / <code>pg.work.*</code>; <code>read_only = FALSE</code> allows bulk writes from Parquet into PostgreSQL.</li>
+</ul><p><code><a href="../reference/cc_db_connect.html">cc_db_connect()</a></code> stays deprecated and now points at <code><a href="../reference/cc_pg_connect.html">cc_pg_connect()</a></code> (it hard-coded <code>gis</code>/<code>admin</code>/<code>~/.calcofi_db_pass.txt</code>). Account, tunnel and <code>.pgpass</code> instructions for Mac and Windows live at <a href="https://calcofi.io/docs/server-access.html" class="external-link uri">https://calcofi.io/docs/server-access.html</a>.</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.7.0" id="calcofi4r-170">calcofi4r 1.7.0<a class="anchor" aria-label="anchor" href="#calcofi4r-170"></a></h2>
 <div class="section level3">
