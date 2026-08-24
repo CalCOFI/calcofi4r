@@ -191,6 +191,8 @@ cc_transect_section <- function(
   if (!nrow(sta)) return(sta[0, ])
 
   obs <- dplyr::tbl(con, "obs") |>
+    # flagged questionable/bad (CTD 8/9; see cc_qual_ok_sql) stays out of a section
+    .filter_qual_ok() |>
     dplyr::filter(
       dataset_key      == !!dataset_key,
       measurement_type %in% !!variables,
@@ -249,6 +251,7 @@ cc_climatology <- function(
   stopifnot(length(years) == 2, years[1] <= years[2])
 
   out <- dplyr::tbl(con, "obs") |>
+    .filter_qual_ok() |>
     dplyr::filter(
       dataset_key      == !!dataset_key,
       measurement_type %in% !!variables,
@@ -543,3 +546,12 @@ utils::globalVariables(c(
   "dataset_key", "sample_type", "measurement_type", "measurement_value",
   "depth_min_m", "depth_m", "variable", "value", "yr", "mon", "month",
   "clim_mean", "clim_sd", "clim_n", "anomaly", "cc_grid"))
+
+# internal: drop rows flagged questionable/bad/missing (CTD 8/9; the lazy-table
+# twin of cc_qual_ok_sql()). A table without the column — a test fixture, an old
+# extract — passes through untouched rather than erroring.
+.filter_qual_ok <- function(tb) {
+  if (!"measurement_qual" %in% colnames(tb)) return(tb)
+  dplyr::filter(tb, is.na(measurement_qual) |
+                    !(measurement_qual %in% c("8", "9", "8.0", "9.0")))
+}

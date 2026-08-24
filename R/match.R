@@ -166,6 +166,7 @@ ORDER BY bio_id",
     "realm = 'env'",
     glue::glue("measurement_type = '{env_var}'"),
     "measurement_value IS NOT NULL",
+    cc_qual_ok_sql(),   # drop suspect/bad/missing per the dataset's flag vocabulary
     "datetime IS NOT NULL",
     "longitude IS NOT NULL",
     "latitude IS NOT NULL")
@@ -215,6 +216,7 @@ ORDER BY bio_id",
     "o.dataset_key = 'swfsc_ichthyo'",
     "o.measurement_type = 'abundance'",
     "o.measurement_value IS NOT NULL",
+    cc_qual_ok_sql("o"),
     "o.datetime IS NOT NULL",
     "o.longitude IS NOT NULL",
     "o.latitude IS NOT NULL")
@@ -622,6 +624,7 @@ cc_match_zooplankton_biomass <- function(
     "sm.dataset_key = 'swfsc_ichthyo'",
     glue::glue("sm.measurement_type = '{meas_type}'"),
     "sm.measurement_value IS NOT NULL",
+    cc_qual_ok_sql("sm"),
     "s.datetime IS NOT NULL",
     "s.longitude IS NOT NULL",
     "s.latitude IS NOT NULL")
