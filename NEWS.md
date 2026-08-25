@@ -1,3 +1,9 @@
+# calcofi4r 1.11.1
+
+* `cc_get_db(local_data = TRUE)` keeps partitioned tables as remote views (as before
+  1.11.0), rather than downloading every partition — `obs` is all 16 datasets, and
+  consumers rely on it being a view they can drop after copying one partition.
+
 # calcofi4r 1.12.0
 
 ## The release chip
@@ -26,8 +32,11 @@ that version's schema and release notes.
 * `cc_get_db()` resolves every table through `cc_release_sources()`. Partitioned
   tables on a canonical release are read as an explicit https file list with
   `hive_partitioning = true` (no anonymous-S3 glob), and `local_data = TRUE`
-  now downloads partitioned tables too, into a content-addressed cache
-  (`parquet/tables/{table}/{hash}/…`) shared across pinned versions.
+  keeps its content-addressed cache (`parquet/tables/{table}/{hash}/…`) for
+  single-file tables, shared across pinned versions; a **partitioned** table
+  stays a remote view under `local_data` (downloading every partition of `obs`
+  to serve a pruned query is the wrong default, and consumers rely on it being
+  a view).
 
 # calcofi4r 1.10.0
 

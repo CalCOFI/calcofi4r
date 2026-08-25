@@ -196,7 +196,13 @@ cc_get_db <- function(
   for (i in seq_len(nrow(tbl_catalog))) {
     tbl_name <- tbl_catalog$name[i]
     src      <- srcs[[tbl_name]]
-    can_download <- !anyNA(src$local_paths)   # a legacy s3 glob cannot be
+    # only SINGLE-FILE tables are downloaded under local_data. A partitioned
+    # table stays a remote view: downloading every partition (obs is all 16
+    # datasets, ~hundreds of millions of rows) to serve a query that prunes to
+    # one is the wrong default — and consumers rely on it being a view (ctd-viz
+    # DROPs the obs view once it has copied the one partition it needs). This is
+    # the pre-1.11 behavior; 1.11.0 briefly downloaded partitioned tables too.
+    can_download <- !anyNA(src$local_paths) && !isTRUE(src$hive)
 
     if (local_data && can_download) {
       local <- file.path(parquet_dir, src$local_paths)
@@ -209,8 +215,7 @@ cc_get_db <- function(
       stmt <- glue::glue("CREATE OR REPLACE TABLE \"{tbl_name}\" AS SELECT * FROM ",
                          cc_read_parquet_sql(src, local))
     } else {
-      # remote view (a legacy partitioned table stays remote even with
-      # local_data: its s3 glob cannot be enumerated for download)
+      # remote view: partitioned tables (see above) and any legacy s3 glob
       stmt <- glue::glue("CREATE OR REPLACE VIEW \"{tbl_name}\" AS SELECT * FROM ",
                          cc_read_parquet_sql(src))
     }
