@@ -14,7 +14,7 @@ template:
       <link rel="stylesheet" href="https://calcofi.io/brand/v1/theme.css">
       <script defer src="https://calcofi.io/brand/v1/theme.js"></script>
       <script>(function(){var r=document.documentElement,last=r.getAttribute("data-bs-theme");new MutationObserver(function(){var t=r.getAttribute("data-bs-theme");if(t===last||(t!=="dark"&&t!=="light"))return;last=t;if(window.ccTheme&&ccTheme.get()!==t)ccTheme.set(t)}).observe(r,{attributes:true,attributeFilter:["data-bs-theme"]})})();</script>
-      <style>.navbar .cc-home img{height:28px;width:auto;display:block}</style>
+      <style>.navbar .cc-home .cc-logo{display:inline-block;width:28px;height:28px;vertical-align:middle;background:url(https://calcofi.io/brand/v1/logo_calcofi.svg) center/contain no-repeat}[data-bs-theme=light] .navbar .cc-home .cc-logo{background-image:url(https://calcofi.io/brand/v1/logo_calcofi_light.svg)}</style>
       <!-- Google tag (gtag.js) -->
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-0HVK8TDMCF"></script>
       <script>
@@ -33,13 +33,16 @@ navbar:
     left:  [calcofi, intro, reference, articles, news]
     right: [schema, query, docs, search, lightswitch, github]
   components:
-    # the CalCOFI logo far left, linking to calcofi.io (the brand contract);
-    # the package name beside it stays the pkgdown brand linking to this site
+    # the CalCOFI logo far left, linking to calcofi.io (the brand contract); the
+    # package name beside it stays the pkgdown brand linking to this site. A native
+    # `link` component: pkgdown 2.2 has no `html:` component, and renders `icon`
+    # as <span class="cc cc-logo">, which the <style> in in_header draws as the
+    # logo (swapped for the light-ground variant under data-bs-theme=light)
     calcofi:
-      html: >-
-        <a class="nav-link cc-home" href="https://calcofi.io" aria-label="CalCOFI.io home"><img
-        class="cc-logo-dark" src="https://calcofi.io/brand/v1/logo_calcofi.svg" alt="CalCOFI"><img
-        class="cc-logo-light" src="https://calcofi.io/brand/v1/logo_calcofi_light.svg" alt="CalCOFI"></a>
+      icon: cc-logo
+      href: https://calcofi.io
+      aria-label: CalCOFI.io home
+      class: cc-home
     schema:
       text: Schema
       href: https://calcofi.io/db-schema/
