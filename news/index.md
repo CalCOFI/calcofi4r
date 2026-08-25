@@ -1,5 +1,31 @@
 # Changelog
 
+## calcofi4r 1.9.0
+
+### Quality flags are applied, not just carried
+
+`obs.measurement_qual` has always been in the release and no consumer
+looked at it: the station portal plotted a 1955 bottle oxygen at 2.18
+ml/L between neighbours at 0.95 and 1.00 — a value the bottle database
+had flagged `O_qual = 8` (suspect) all along. The vocabulary is per
+dataset (bottle/CTD 8 = suspect, 9 = missing/bad; DIC WOCE 3 =
+questionable, 4 = bad, 9 = missing).
+
+- **`cc_qual_ok_sql(alias = NULL)`** (new) — the one SQL predicate to
+  append to any `WHERE` over `obs` / `obs_ctd_full` /
+  `sample_measurement` / `ctd_thin`; NULL-safe (an unflagged row is
+  kept) and tolerant of the `"8.0"` spelling the bottle ingest used
+  through v2026.08.14.
+- **`cc_qual_ok(dataset_key, measurement_qual)`** (new) — its vectorised
+  R twin.
+- **`CC_QUAL_EXCLUDE`** (new) — the codes, per dataset.
+- [`cc_match_bio_env()`](https://calcofi.io/calcofi4r/reference/cc_match_bio_env.md)’s
+  env and ichthyo/zooplankton bio subqueries,
+  [`cc_transect_section()`](https://calcofi.io/calcofi4r/reference/cc_transect_section.md)
+  and
+  [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
+  now apply it. The db-query `lib/match.js` twin is updated in step.
+
 ## calcofi4r 1.8.0
 
 ### PostgreSQL helpers for the multi-user CTD QA/QC database

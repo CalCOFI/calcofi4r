@@ -36,7 +36,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -175,7 +175,7 @@ station 120:</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>occupied_km <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">occ</span><span class="op">$</span><span class="va">dist_km</span><span class="op">)</span>, along_line_km <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">lin</span><span class="op">$</span><span class="va">dist_km</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   occupied_km along_line_km </span></span>
-<span><span class="co">#&gt;      468.7072      470.5459</span></span></code></pre></div>
+<span><span class="co">#&gt;      468.7072      470.4155</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="the-baseline-and-a-filter-before-it">The baseline, and a filter before it<a class="anchor" aria-label="anchor" href="#the-baseline-and-a-filter-before-it"></a>
@@ -187,7 +187,7 @@ station 120:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">clim</span>, <span class="st">"baseline"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1993 2013</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">clim</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 33695</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 34978</span></span></code></pre></div>
 <p><code><a href="../reference/cc_climatology.html">cc_climatology()</a></code> is a plain mean per (station, 5 m depth
 bin, calendar month) — the finest grouping CalCOFI’s design supports,
 since quarterly-ish cruises over decades give many <em>years</em> per
@@ -226,7 +226,7 @@ and 35 °C.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
 <span><span class="co">#&gt;   band       n</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> &lt;24   <span style="text-decoration: underline;">654</span>998</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> &lt;24   <span style="text-decoration: underline;">690</span>945</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 24-26      1</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> &gt;=35      18</span></span></code></pre></div>
 <p>So a regional ceiling well inside that gap removes every artifact and
@@ -354,12 +354,12 @@ see.</li>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 4</span></span></span>
 <span><span class="co">#&gt;      yr layer    anomaly     n</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  <span style="text-decoration: underline;">1</span>993 50-100 m   0.658   780</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  <span style="text-decoration: underline;">1</span>994 50-100 m   0.333   824</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  <span style="text-decoration: underline;">1</span>995 50-100 m   1.11    744</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>  <span style="text-decoration: underline;">1</span>996 50-100 m   0.438   790</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>  <span style="text-decoration: underline;">1</span>997 50-100 m   0.479   785</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>  <span style="text-decoration: underline;">1</span>998 50-100 m  -<span style="color: #BB0000;">0.152</span>   763</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  <span style="text-decoration: underline;">1</span>994 50-100 m  0.396    830</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  <span style="text-decoration: underline;">1</span>996 50-100 m  0.512    929</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  <span style="text-decoration: underline;">2</span>003 50-100 m -<span style="color: #BB0000;">0.095</span><span style="color: #BB0000; text-decoration: underline;">5</span>   776</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>  <span style="text-decoration: underline;">2</span>006 50-100 m  0.344    741</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>  <span style="text-decoration: underline;">2</span>013 50-100 m -<span style="color: #BB0000;">0.345</span>    757</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>  <span style="text-decoration: underline;">2</span>021 50-100 m -<span style="color: #BB0000;">0.184</span>    772</span></span></code></pre></div>
 <p>A sanity check before reading anything into it: the baseline years
 must sit near zero by construction, and the series should reproduce
 events we already know happened. It does — 2014-15 is the marine
@@ -409,7 +409,7 @@ possible before the 1993–2002 cruises were ingested.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">comparison</span><span class="op">$</span><span class="va">difference</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span><span class="co">#&gt; 0.04182 0.06821 0.07311 0.19055 0.33329 0.65131</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.04182 0.06830 0.07321 0.16890 0.31969 0.50233</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="reading-it-honestly">Reading it honestly<a class="anchor" aria-label="anchor" href="#reading-it-honestly"></a>

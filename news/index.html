@@ -17,7 +17,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,6 +50,21 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.9.0" id="calcofi4r-190">calcofi4r 1.9.0<a class="anchor" aria-label="anchor" href="#calcofi4r-190"></a></h2>
+<div class="section level3">
+<h3 id="quality-flags-are-applied-not-just-carried-1-9-0">Quality flags are applied, not just carried<a class="anchor" aria-label="anchor" href="#quality-flags-are-applied-not-just-carried-1-9-0"></a></h3>
+<p><code>obs.measurement_qual</code> has always been in the release and no consumer looked at it: the station portal plotted a 1955 bottle oxygen at 2.18 ml/L between neighbours at 0.95 and 1.00 — a value the bottle database had flagged <code>O_qual = 8</code> (suspect) all along. The vocabulary is per dataset (bottle/CTD 8 = suspect, 9 = missing/bad; DIC WOCE 3 = questionable, 4 = bad, 9 = missing).</p>
+<ul><li>
+<strong><code>cc_qual_ok_sql(alias = NULL)</code></strong> (new) — the one SQL predicate to append to any <code>WHERE</code> over <code>obs</code> / <code>obs_ctd_full</code> / <code>sample_measurement</code> / <code>ctd_thin</code>; NULL-safe (an unflagged row is kept) and tolerant of the <code>"8.0"</code> spelling the bottle ingest used through v2026.08.14.</li>
+<li>
+<strong><code>cc_qual_ok(dataset_key, measurement_qual)</code></strong> (new) — its vectorised R twin.</li>
+<li>
+<strong><code>CC_QUAL_EXCLUDE</code></strong> (new) — the codes, per dataset.</li>
+<li>
+<code><a href="../reference/cc_match_bio_env.html">cc_match_bio_env()</a></code>’s env and ichthyo/zooplankton bio subqueries, <code><a href="../reference/cc_transect_section.html">cc_transect_section()</a></code> and <code><a href="../reference/cc_climatology.html">cc_climatology()</a></code> now apply it. The db-query <code>lib/match.js</code> twin is updated in step.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.8.0" id="calcofi4r-180">calcofi4r 1.8.0<a class="anchor" aria-label="anchor" href="#calcofi4r-180"></a></h2>
 <div class="section level3">

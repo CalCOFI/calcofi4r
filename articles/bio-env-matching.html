@@ -36,7 +36,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -172,7 +172,7 @@ hr.</p>
 <span>  version         <span class="op">=</span> <span class="va">REL</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">REL</span></span>
-<span><span class="co">#&gt; [1] "v2026.08.14"</span></span>
+<span><span class="co">#&gt; [1] "v2026.08.25"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 310  19</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -404,24 +404,24 @@ contract:</p>
 <code class="sourceCode R"><span><span class="va">meta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">d</span>, <span class="st">"query_meta"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">meta</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 6</span></span>
-<span><span class="co">#&gt;  $ package_version: chr "1.8.0"</span></span>
-<span><span class="co">#&gt;  $ release_version: chr "v2026.08.14"</span></span>
+<span><span class="co">#&gt;  $ package_version: chr "1.9.0"</span></span>
+<span><span class="co">#&gt;  $ release_version: chr "v2026.08.25"</span></span>
 <span><span class="co">#&gt;  $ params         :List of 3</span></span>
 <span><span class="co">#&gt;   ..$ max_dist_km: num 5</span></span>
 <span><span class="co">#&gt;   ..$ max_time_hr: num 72</span></span>
 <span><span class="co">#&gt;   ..$ join_method: chr "nearest_time"</span></span>
-<span><span class="co">#&gt;  $ source_urls    : chr [1:3] "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.14/parquet/obs.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.14/parquet/sample_measurement.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.14/parquet/taxon.parquet"</span></span>
-<span><span class="co">#&gt;  $ generated_at   : chr "2026-08-19 14:57:06 UTC"</span></span>
+<span><span class="co">#&gt;  $ source_urls    : chr [1:3] "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.25/parquet/obs.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.25/parquet/sample_measurement.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.25/parquet/taxon.parquet"</span></span>
+<span><span class="co">#&gt;  $ generated_at   : chr "2026-08-25 00:31:38 UTC"</span></span>
 <span><span class="co">#&gt;  $ n_rows         : int 310</span></span></code></pre></div>
 <p><code>meta$release_version</code> pins which release the result came
-from (v2026.08.14 here). <code>meta$source_urls</code> is the full list
+from (v2026.08.25 here). <code>meta$source_urls</code> is the full list
 of public GCS parquet files the query reads. And
 <code>attr(d, "sql")</code> is the literal query — no <code>dplyr</code>
 translation, no hidden state, ~90 lines of plain DuckDB SQL:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sql</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">d</span>, <span class="st">"sql"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/strsplit.html" class="external-link">strsplit</a></span><span class="op">(</span><span class="va">sql</span>, <span class="st">"\n"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 90</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 92</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">sql</span>, <span class="fl">1</span>, <span class="fl">600</span><span class="op">)</span>, <span class="st">"\n…\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; WITH bio AS (</span></span>
@@ -436,8 +436,8 @@ translation, no hidden state, ~90 lines of plain DuckDB SQL:</p>
 <span><span class="co">#&gt;   t.scientific_name,</span></span>
 <span><span class="co">#&gt;   t.worms_id,</span></span>
 <span><span class="co">#&gt;   o.life_stage</span></span>
-<span><span class="co">#&gt; FROM read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.14/parquet/obs.parquet') o</span></span>
-<span><span class="co">#&gt; JOIN read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.14/parquet/taxon.parquet') t ON t.taxon_key = o.taxon_key</span></span>
+<span><span class="co">#&gt; FROM read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.25/parquet/obs.parquet') o</span></span>
+<span><span class="co">#&gt; JOIN read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.25/parquet/taxon.parquet') t ON t.taxon_key = o.taxon_key</span></span>
 <span><span class="co">#&gt; LEFT JOIN read_ </span></span>
 <span><span class="co">#&gt; …</span></span></code></pre></div>
 <p>To get the SQL <em>without</em> running it — e.g. to share, save into

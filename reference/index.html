@@ -17,7 +17,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -675,6 +675,13 @@
 
       <dl><dt>
 
+          <code><a href="CC_QUAL_EXCLUDE.html">CC_QUAL_EXCLUDE</a></code>
+
+        </dt>
+        <dd>Quality codes a consumer should exclude, per dataset</dd>
+
+        <dt>
+
           <code><a href="cc_anomaly.html">cc_anomaly()</a></code>
 
         </dt>
@@ -728,6 +735,20 @@
 
         </dt>
         <dd>Match zooplankton biomass to environmental data</dd>
+
+        <dt>
+
+          <code><a href="cc_qual_ok.html">cc_qual_ok()</a></code>
+
+        </dt>
+        <dd>Is each observation's quality flag acceptable? (vectorised, in R)</dd>
+
+        <dt>
+
+          <code><a href="cc_qual_ok_sql.html">cc_qual_ok_sql()</a></code>
+
+        </dt>
+        <dd>SQL predicate keeping only observations whose quality flag is not bad</dd>
 
         <dt>
 

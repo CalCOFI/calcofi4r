@@ -103,7 +103,7 @@ lin <- cc_transect_stations(con, LINE, cruise_recent, x = "line")
 
 c(occupied_km = max(occ$dist_km), along_line_km = max(lin$dist_km))
 #>   occupied_km along_line_km 
-#>      468.7072      470.5459
+#>      468.7072      470.4155
 ```
 
 ## The baseline, and a filter before it
@@ -116,7 +116,7 @@ clim <- cc_climatology(
 attr(clim, "baseline")
 #> [1] 1993 2013
 nrow(clim)
-#> [1] 33695
+#> [1] 34978
 ```
 
 [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
@@ -160,7 +160,7 @@ temp_all |>
 #> # A tibble: 3 × 2
 #>   band       n
 #>   <fct>  <int>
-#> 1 <24   654998
+#> 1 <24   690945
 #> 2 24-26      1
 #> 3 >=35      18
 ```
@@ -302,12 +302,12 @@ head(series)
 #> # A tibble: 6 × 4
 #>      yr layer    anomaly     n
 #>   <int> <fct>      <dbl> <int>
-#> 1  1993 50-100 m   0.658   780
-#> 2  1994 50-100 m   0.333   824
-#> 3  1995 50-100 m   1.11    744
-#> 4  1996 50-100 m   0.438   790
-#> 5  1997 50-100 m   0.479   785
-#> 6  1998 50-100 m  -0.152   763
+#> 1  1994 50-100 m  0.396    830
+#> 2  1996 50-100 m  0.512    929
+#> 3  2003 50-100 m -0.0955   776
+#> 4  2006 50-100 m  0.344    741
+#> 5  2013 50-100 m -0.345    757
+#> 6  2021 50-100 m -0.184    772
 ```
 
 A sanity check before reading anything into it: the baseline years must
@@ -365,7 +365,7 @@ comparison <- series |>
 
 summary(abs(comparison$difference))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#> 0.04182 0.06821 0.07311 0.19055 0.33329 0.65131
+#> 0.04182 0.06830 0.07321 0.16890 0.31969 0.50233
 ```
 
 ## Reading it honestly

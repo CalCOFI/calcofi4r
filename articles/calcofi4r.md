@@ -43,20 +43,20 @@ The package provides convenience functions for common operations:
 
 # list available versions
 cc_list_versions()
-#> # A tibble: 27 × 6
+#> # A tibble: 28 × 6
 #>    version     release_date tables total_rows size_mb is_latest
 #>    <chr>       <chr>         <int>      <int>   <dbl> <lgl>    
-#>  1 v2026.08.14 2026-08-14       18  307537056   1930. TRUE     
-#>  2 v2026.08.11 2026-08-11       18  323912311   2016. FALSE    
-#>  3 v2026.08.10 2026-08-11       18  323912364   2017. FALSE    
-#>  4 v2026.08.08 2026-08-08       18  309122838   1947  FALSE    
-#>  5 v2026.08.07 2026-08-07       18  323733662   2024. FALSE    
-#>  6 v2026.08.06 2026-08-06       18  255137845   1636. FALSE    
-#>  7 v2026.08.05 2026-08-05       18  255137845   1636. FALSE    
-#>  8 v2026.08.04 2026-08-04       18  255155031   1635  FALSE    
-#>  9 v2026.08.03 2026-08-03       18  255037035   2057. FALSE    
-#> 10 v2026.08.02 2026-08-02       18  255037035   2087. FALSE    
-#> # ℹ 17 more rows
+#>  1 v2026.08.25 2026-08-25       18  320265060   1996  TRUE     
+#>  2 v2026.08.14 2026-08-14       18  307537056   1930. FALSE    
+#>  3 v2026.08.11 2026-08-11       18  323912311   2016. FALSE    
+#>  4 v2026.08.10 2026-08-11       18  323912364   2017. FALSE    
+#>  5 v2026.08.08 2026-08-08       18  309122838   1947  FALSE    
+#>  6 v2026.08.07 2026-08-07       18  323733662   2024. FALSE    
+#>  7 v2026.08.06 2026-08-06       18  255137845   1636. FALSE    
+#>  8 v2026.08.05 2026-08-05       18  255137845   1636. FALSE    
+#>  9 v2026.08.04 2026-08-04       18  255155031   1635  FALSE    
+#> 10 v2026.08.03 2026-08-03       18  255037035   2057. FALSE    
+#> # ℹ 18 more rows
 
 # list tables
 cc_list_tables()
@@ -136,12 +136,12 @@ head(ichthyo_sample)
 #> # A tibble: 6 × 18
 #>     obs_id realm sample_key               grid_key cruise_key latitude longitude
 #>      <dbl> <chr> <chr>                    <chr>    <chr>         <dbl>     <dbl>
-#> 1 25559130 bio   swfsc_ichthyo:net:be1d3… st80-ln… 2011-04-3…     35.2     -124.
-#> 2 25558961 bio   swfsc_ichthyo:net:be1d3… st80-ln… 2011-04-3…     35.2     -124.
-#> 3 25559036 bio   swfsc_ichthyo:net:be1d3… st80-ln… 2011-04-3…     35.2     -124.
-#> 4 25558969 bio   swfsc_ichthyo:net:be1d3… st80-ln… 2011-04-3…     35.2     -124.
-#> 5 25559085 bio   swfsc_ichthyo:net:be1d3… st80-ln… 2011-04-3…     35.2     -124.
-#> 6 25559125 bio   swfsc_ichthyo:net:be1d3… st80-ln… 2011-04-3…     35.2     -124.
+#> 1 25923647 bio   swfsc_ichthyo:net:fa874… st40-ln… 1955-05-3…     27.1     -115.
+#> 2 25924165 bio   swfsc_ichthyo:net:fa874… st40-ln… 1955-05-3…     27.1     -115.
+#> 3 25930458 bio   swfsc_ichthyo:net:01884… st40-ln… 1955-05-3…     27.6     -116.
+#> 4 25930460 bio   swfsc_ichthyo:net:02884… st40-ln… 1955-05-3…     27.8     -116.
+#> 5 25930521 bio   swfsc_ichthyo:net:03884… st40-ln… 1955-05-3…     28.0     -115.
+#> 6 25932347 bio   swfsc_ichthyo:net:03884… st40-ln… 1955-05-3…     28.0     -115.
 #> # ℹ 11 more variables: datetime <dttm>, depth_min_m <dbl>, depth_max_m <dbl>,
 #> #   taxon_key <chr>, life_stage <chr>, measurement_type <chr>,
 #> #   measurement_value <dbl>, measurement_qual <chr>, measurement_prec <dbl>,
@@ -189,8 +189,8 @@ tibble(
 #> # A tibble: 16 × 2
 #>    table                  rows
 #>    <chr>                 <dbl>
-#>  1 obs                25624046
-#>  2 sample              1466254
+#>  1 obs                26261931
+#>  2 sample              1472100
 #>  3 sample_measurement   589603
 #>  4 obs_attribute        452789
 #>  5 spatial_attribute    148461
@@ -232,14 +232,14 @@ d_temp <- dbGetQuery(con, "
 
 head(d_temp)
 #>         lon      lat            datetime depth_m temperature
-#> 1 -123.4750 32.23333 1960-01-15 06:30:00       0       14.18
-#> 2 -123.4667 32.23333 1968-01-17 05:48:00       0       14.11
-#> 3 -123.4917 32.24333 1981-05-22 16:55:00       0       15.71
-#> 4 -123.4917 32.24333 1981-05-22 17:18:00       0       15.71
-#> 5 -123.4933 32.24500 1984-01-08 13:35:00       0       16.57
-#> 6 -123.4933 32.24500 1984-01-08 18:42:00       0       16.54
+#> 1 -128.7000 35.83333 1949-03-04 17:42:00       0        12.0
+#> 2 -127.9167 36.06667 1949-03-04 23:54:00       0        11.7
+#> 3 -127.1000 36.28333 1949-03-05 06:12:00       0        11.5
+#> 4 -128.6167 35.73333 1949-04-06 06:48:00       0        12.8
+#> 5 -127.8500 35.96667 1949-04-06 12:36:00       0        12.6
+#> 6 -127.0667 36.18333 1949-04-06 18:30:00       0        12.0
 nrow(d_temp)
-#> [1] 93985
+#> [1] 94248
 ```
 
 ### Summarize by Location

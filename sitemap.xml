@@ -12,6 +12,7 @@
 <url><loc>https://calcofi.io/calcofi4r/data-oceano_man-old.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/index.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/news/index.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/CC_QUAL_EXCLUDE.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/bottle_temp_depth.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/bottle_temp_lonlat.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/buffer_transect.html</loc></url>
@@ -53,6 +54,8 @@
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_pg_connect.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_pg_tunnel.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_places.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_qual_ok.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_qual_ok_sql.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_query.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_read_casts.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_read_cruise.html</loc></url>

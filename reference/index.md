@@ -262,6 +262,8 @@ non-blocking usage tracking for the Shiny apps (App maintainers only)
 
 check for other functions or datasets not captured by above categories
 
+- [`CC_QUAL_EXCLUDE`](https://calcofi.io/calcofi4r/reference/CC_QUAL_EXCLUDE.md)
+  : Quality codes a consumer should exclude, per dataset
 - [`cc_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_anomaly.md)
   : Join a section to a climatology and difference it
 - [`cc_bathy()`](https://calcofi.io/calcofi4r/reference/cc_bathy.md) :
@@ -278,6 +280,11 @@ check for other functions or datasets not captured by above categories
   : Match ichthyoplankton to environmental data by WoRMS taxon subtree
 - [`cc_match_zooplankton_biomass()`](https://calcofi.io/calcofi4r/reference/cc_match_zooplankton_biomass.md)
   : Match zooplankton biomass to environmental data
+- [`cc_qual_ok()`](https://calcofi.io/calcofi4r/reference/cc_qual_ok.md)
+  : Is each observation's quality flag acceptable? (vectorised, in R)
+- [`cc_qual_ok_sql()`](https://calcofi.io/calcofi4r/reference/cc_qual_ok_sql.md)
+  : SQL predicate keeping only observations whose quality flag is not
+  bad
 - [`cc_transect_bathy()`](https://calcofi.io/calcofi4r/reference/cc_transect_bathy.md)
   : Seafloor profile along a transect, sampled at a regular interval
 - [`cc_transect_matrix()`](https://calcofi.io/calcofi4r/reference/cc_transect_matrix.md)
