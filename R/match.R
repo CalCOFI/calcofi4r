@@ -57,10 +57,12 @@
 #' }
 cc_latest_version <- function() .cc_resolve_version("latest")
 
-# internal: base URL for a release's single-file Parquet tables
-.cc_parquet_base <- function(version) {
-  glue::glue(
-    "https://storage.googleapis.com/calcofi-db/ducklake/releases/{version}/parquet")
+# internal: a function table -> read_parquet(...) SQL for one release, resolved
+# through the catalog (cc_release_sources(): content-addressed objects since
+# v2026.09, per-release paths before). One catalog fetch per call site.
+.cc_read_parquet <- function(version) {
+  cat_ <- cc_catalog(version)
+  function(table) cc_read_parquet_sql(cc_release_sources(cat_, table))
 }
 
 # internal: get a DuckDB connection with httpfs + spatial loaded.
@@ -160,7 +162,7 @@ ORDER BY bio_id",
     date_max    = NULL,
     pad_hours   = 0) {
 
-  base <- .cc_parquet_base(version)
+  rp <- .cc_read_parquet(version)
 
   filt <- c(
     "realm = 'env'",
@@ -195,7 +197,7 @@ ORDER BY bio_id",
     measurement_value AS env_value,
     depth_min_m AS env_depth_m,
     measurement_type AS measurement_type
-  FROM read_parquet('{base}/obs.parquet')
+  FROM {rp('obs')}
   WHERE {filt_sql}",
     filt_sql = paste(filt, collapse = "\n    AND "))
 }
@@ -209,7 +211,7 @@ ORDER BY bio_id",
     date_min    = NULL,
     date_max    = NULL) {
 
-  base <- .cc_parquet_base(version)
+  rp <- .cc_read_parquet(version)
 
   filt <- c(
     "o.realm = 'bio'",
@@ -252,10 +254,10 @@ ORDER BY bio_id",
     t.scientific_name,
     t.worms_id,
     o.life_stage
-  FROM read_parquet('{base}/obs.parquet') o
-  JOIN read_parquet('{base}/taxon.parquet') t ON t.taxon_key = o.taxon_key
-  LEFT JOIN read_parquet('{base}/sample_measurement.parquet') shf ON shf.sample_key = o.sample_key AND shf.measurement_type = 'std_haul_factor'
-  LEFT JOIN read_parquet('{base}/sample_measurement.parquet') ps ON ps.sample_key = o.sample_key AND ps.measurement_type = 'prop_sorted'
+  FROM {rp('obs')} o
+  JOIN {rp('taxon')} t ON t.taxon_key = o.taxon_key
+  LEFT JOIN {rp('sample_measurement')} shf ON shf.sample_key = o.sample_key AND shf.measurement_type = 'std_haul_factor'
+  LEFT JOIN {rp('sample_measurement')} ps ON ps.sample_key = o.sample_key AND ps.measurement_type = 'prop_sorted'
   WHERE {filt_sql}",
     filt_sql = paste(filt, collapse = "\n    AND "))
 }
@@ -529,18 +531,18 @@ cc_match_ichthyo_by_taxon <- function(
   if (is.null(max_dist_km)) max_dist_km <- if (relax_matching) 5  else 2
   if (is.null(max_time_hr)) max_time_hr <- if (relax_matching) 72 else 6
   version <- .cc_resolve_version(version)
-  base    <- .cc_parquet_base(version)
+  rp      <- .cc_read_parquet(version)
 
   # recursive walk of the unified taxon tree: seed taxa (by worms_id) + every
   # descendant via parent_taxon_key. Yields taxon_key to filter obs directly.
   taxon_cte <- glue::glue(
     "WITH RECURSIVE taxon_tree AS (
       SELECT taxon_key
-      FROM read_parquet('{base}/taxon.parquet')
+      FROM {rp('taxon')}
       WHERE worms_id IN ({ids})
     UNION ALL
       SELECT t.taxon_key
-      FROM read_parquet('{base}/taxon.parquet') t
+      FROM {rp('taxon')} t
       JOIN taxon_tree tt ON t.parent_taxon_key = tt.taxon_key
   )",
     ids = paste(worms_id, collapse = ", "))
@@ -611,7 +613,7 @@ cc_match_zooplankton_biomass <- function(
   if (is.null(max_dist_km)) max_dist_km <- if (relax_matching) 5  else 2
   if (is.null(max_time_hr)) max_time_hr <- if (relax_matching) 72 else 6
   version <- .cc_resolve_version(version)
-  base    <- .cc_parquet_base(version)
+  rp      <- .cc_read_parquet(version)
 
   # map the biomass choice to its sample_measurement measurement_type; net
   # displacement-volume biomass is now long-format in `sample_measurement`,
@@ -641,8 +643,8 @@ cc_match_zooplankton_biomass <- function(
     s.latitude AS bio_lat,
     sm.measurement_value AS bio_value,
     '{biomass_type}' AS biomass_type
-  FROM read_parquet('{base}/sample_measurement.parquet') sm
-  JOIN read_parquet('{base}/sample.parquet') s ON s.sample_key = sm.sample_key
+  FROM {rp('sample_measurement')} sm
+  JOIN {rp('sample')} s ON s.sample_key = sm.sample_key
   WHERE {filt_sql}",
     filt_sql = paste(filt, collapse = "\n    AND "))
 
