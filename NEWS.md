@@ -1,3 +1,17 @@
+# calcofi4r 1.12.0
+
+## The release chip
+
+Every product on the integrated database showed *which* release its own way
+(a muted span, a subtitle, a footer line, or nothing). The brand header now
+carries one `release <b>vYYYY.MM.DD</b>` chip right after the title, linking to
+that version's schema and release notes.
+
+- **`cc_brand_header()`** gains `release =`.
+- **`cc_release_chip(version)`** (new) — the chip on its own, for a framework-owned
+  bar; `NULL`/`NA`/`""` renders nothing.
+- **`cc_release_url(version)`** (new) — `https://calcofi.io/db-schema/#erd?v=…`.
+
 # calcofi4r 1.11.0
 
 ## Content-addressed releases

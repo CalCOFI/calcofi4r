@@ -127,6 +127,53 @@ cc_tour_enabled <- function(query = NULL, session = shiny::getDefaultReactiveDom
   !v %in% c("off", "false", "0", "no")
 }
 
+#' Where a database release is documented
+#'
+#' The schema browser at <https://calcofi.io/db-schema/> opens on a version's
+#' ERD, with its tables, columns, measurement types and release notes — the one
+#' place a release chip should send someone.
+#'
+#' @param version release version, `"v2026.08.25"`
+#' @return a URL
+#' @examples
+#' cc_release_url("v2026.08.25")
+#' @export
+#' @concept brand
+cc_release_url <- function(version)
+  paste0("https://calcofi.io/db-schema/#erd?v=", version)
+
+#' The integrated-database release chip
+#'
+#' `release <b>v2026.08.25</b>` in the brand header, right after the title — so it
+#' survives a collapsed sidebar and every tab switch, and travels with a
+#' screenshot. Links to [cc_release_url()]. [cc_brand_header()] emits it from its
+#' `release` argument; call this directly where a framework owns the bar
+#' (`page_sidebar()`'s title, `page_navbar()`).
+#'
+#' Show the release the page's data was **built from** (a sidecar the app's
+#' `prep_db.R` wrote), never "latest" fetched at load: the two diverge between a
+#' release and the next redeploy, and a figure is only reproducible if the
+#' release that produced it travelled with it.
+#'
+#' @param version release version, `"v2026.08.25"`; `NULL`/`NA`/`""` → no chip
+#' @param href where the chip links; default [cc_release_url()]
+#' @return an `<a class="cc-release">` tag, or `NULL`
+#' @examples
+#' cc_release_chip("v2026.08.25")
+#' @export
+#' @concept brand
+cc_release_chip <- function(version, href = cc_release_url(version)) {
+  if (is.null(version) || length(version) != 1 || is.na(version) || !nzchar(version))
+    return(NULL)
+  htmltools::tags$a(
+    class = "cc-release", href = href,
+    title = paste0(
+      "CalCOFI integrated database release ", version,
+      " \u2014 every value shown comes from this frozen release; ",
+      "schema and release notes"),
+    "release", htmltools::tags$b(version))
+}
+
 #' Brand `<head>` tags for a Shiny app
 #'
 #' Everything the contract puts in `<head>`: the page `<title>`, the CalCOFI
@@ -173,7 +220,9 @@ cc_brand_head <- function(title = NULL, ga_app = NULL, ..., brand_url = .CC_BRAN
 #'
 #' @param title the app's name, shown beside the logo
 #' @param ... the app's own header controls (selects, buttons, help)
-#' @param subtitle small muted text after the title (a release version, say)
+#' @param subtitle small muted text after the title
+#' @param release the database release the app's data was built from, shown as
+#'   [cc_release_chip()] after the title; `NULL` for an app not on the database
 #' @param href where the title links: the app's root
 #' @param toggle_id id of the dark-mode switch (read it with [cc_is_dark()]);
 #'   `NULL` for no switch
@@ -182,7 +231,7 @@ cc_brand_head <- function(title = NULL, ga_app = NULL, ..., brand_url = .CC_BRAN
 #' @return a `<header class="cc-header">` tag
 #' @export
 #' @concept brand
-cc_brand_header <- function(title, ..., subtitle = NULL, href = "./",
+cc_brand_header <- function(title, ..., subtitle = NULL, release = NULL, href = "./",
                             toggle_id = "dark_toggle", mode = c("dark", "light"),
                             brand_url = .CC_BRAND_URL) {
   mode <- match.arg(mode)
@@ -196,6 +245,7 @@ cc_brand_header <- function(title, ..., subtitle = NULL, href = "./",
     htmltools::tags$a(
       class = "cc-title", href = href, title,
       if (!is.null(subtitle)) htmltools::tags$small(subtitle)),
+    cc_release_chip(release),
     htmltools::tags$span(class = "cc-spacer"),
     ...,
     if (!is.null(toggle_id)) bslib::input_dark_mode(id = toggle_id, mode = mode))

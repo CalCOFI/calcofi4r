@@ -8,6 +8,7 @@ cc_brand_header(
   title,
   ...,
   subtitle = NULL,
+  release = NULL,
   href = "./",
   toggle_id = "dark_toggle",
   mode = c("dark", "light"),
@@ -19,7 +20,10 @@ cc_brand_header(
 
 \item{...}{the app's own header controls (selects, buttons, help)}
 
-\item{subtitle}{small muted text after the title (a release version, say)}
+\item{subtitle}{small muted text after the title}
+
+\item{release}{the database release the app's data was built from, shown as
+\code{\link[=cc_release_chip]{cc_release_chip()}} after the title; \code{NULL} for an app not on the database}
 
 \item{href}{where the title links: the app's root}
 

@@ -86,3 +86,17 @@ test_that("plot colours are the brand tokens and the ggplot/plotly themes apply 
   expect_equal(l$font$color, "#e6e9ed")
   expect_equal(l$xaxis$gridcolor, "#3a3f44")
 })
+
+test_that("the release chip names the version, links to its schema, and is absent when unknown", {
+  h <- as.character(cc_release_chip("v2026.08.25"))
+  expect_match(h, '<a class="cc-release" href="https://calcofi.io/db-schema/#erd?v=v2026.08.25"', fixed = TRUE)
+  expect_match(h, "release<b>v2026.08.25</b>|release <b>v2026.08.25</b>")
+  expect_null(cc_release_chip(NULL))
+  expect_null(cc_release_chip(NA_character_))
+  expect_null(cc_release_chip(""))
+  # in the header it sits between the title and the spacer
+  h2 <- as.character(cc_brand_header("CTD Explorer", release = "v2026.08.25"))
+  expect_lt(regexpr("cc-title", h2, fixed = TRUE), regexpr("cc-release", h2, fixed = TRUE))
+  expect_lt(regexpr("cc-release", h2, fixed = TRUE), regexpr("cc-spacer", h2, fixed = TRUE))
+  expect_no_match(as.character(cc_brand_header("x")), "cc-release")
+})
