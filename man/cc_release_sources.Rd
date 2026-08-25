@@ -21,9 +21,12 @@ cc_release_sources(
 \value{
 list with \code{urls} (character; https, or one \verb{s3://} glob for a legacy
 partitioned table), \code{hive} (logical: pass \code{hive_partitioning = true}),
-\code{canonical} (logical: from \code{objects[]}), \code{hashes} (content hashes, or \code{NA})
-and \code{local_paths} (relative cache paths, one per url, content-addressed so
-a table unchanged between releases is cached once)
+\code{canonical} (logical: from \code{objects[]}), \code{hashes} (content hashes, or \code{NA}),
+\code{local_paths} (relative cache paths, one per url, content-addressed so a
+table unchanged between releases is cached once) and \code{single_file} (the
+whole-table file a partitioned table may also publish — \code{obs} does — for
+https-only readers that cannot take a list; \code{NA} otherwise. Read one or the
+other, never both)
 }
 \description{
 Since the v2026.09 releases the database is \strong{content-addressed}: each table

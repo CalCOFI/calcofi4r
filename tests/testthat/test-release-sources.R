@@ -16,7 +16,13 @@ test_that("canonical catalog resolves to content-addressed https objects", {
     "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs/year=2019/1111111111111111111111aa/data_0.parquet",
     "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs/year=2020/2222222222222222222222bb/data_0.parquet"))
   expect_true(s$hive)
+  # the single-file twin is exposed separately, never mixed into the partition list
+  expect_equal(s$single_file,
+    "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs/9999999999999999999999ff/obs.parquet")
+  expect_true(is.na(cc_release_sources(cat_, "cruise")$single_file))
   expect_match(cc_read_parquet_sql(s), "^read_parquet\\(\\['https.*', 'https.*'\\], hive_partitioning = true\\)$")
+  # list-form sources are recovered for provenance
+  expect_equal(calcofi4r:::.cc_extract_source_urls(paste("SELECT * FROM", cc_read_parquet_sql(s))), sort(s$urls))
   expect_equal(cc_read_parquet_sql(cc_release_sources(cat_, "cruise")),
     "read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/tables/cruise/a1b2c3d4e5f60718293a4b5c/cruise.parquet')")
   expect_error(cc_release_sources(cat_, "nope"), "not in the catalog")
@@ -38,6 +44,13 @@ test_that("a legacy catalog (no objects[]) resolves to per-release paths", {
   s <- cc_release_sources(cat_, "obs")
   expect_equal(s$urls, "s3://calcofi-db/ducklake/releases/v2026.08.14/parquet/obs/**/*.parquet")
   expect_true(s$hive)
+  expect_equal(s$single_file, "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.14/parquet/obs.parquet")
+})
+
+test_that(".cc_match_con() applies the anonymous-S3 settings a legacy partitioned glob needs", {
+  skip_if_not_installed("duckdb")
+  m <- calcofi4r:::.cc_match_con(); on.exit(DBI::dbDisconnect(m$con, shutdown = TRUE))
+  expect_equal(DBI::dbGetQuery(m$con, "SELECT current_setting('s3_endpoint') e")$e, "storage.googleapis.com")
 })
 
 test_that("DuckDB recovers the partition column from a canonical-style file list", {

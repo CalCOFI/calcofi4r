@@ -78,13 +78,19 @@ cc_latest_version <- function() .cc_resolve_version("latest")
   # idempotent — needed for https read_parquet() and ST_Distance_Sphere()
   DBI::dbExecute(con, "INSTALL httpfs; LOAD httpfs;")
   DBI::dbExecute(con, "INSTALL spatial; LOAD spatial;")
+  # a pre-v2026.09 catalog resolves a partitioned table (obs) to an s3:// glob,
+  # which needs the anonymous-S3 settings; harmless for https objects
+  .cc_setup_gcs_httpfs(con)
   list(con = con, created = created)
 }
 
 # internal: pull the distinct read_parquet() source URLs out of a SQL string
 .cc_extract_source_urls <- function(sql) {
-  hits <- regmatches(sql, gregexpr("read_parquet\\('[^']+'", sql))[[1]]
-  sort(unique(gsub("read_parquet\\('|'$", "", hits)))
+  # read_parquet('url') and the list form read_parquet(['u1', 'u2'], …) — a
+  # canonical partitioned table is the latter (1:1 with db-query lib/match.js)
+  hits <- regmatches(sql, gregexpr("read_parquet\\((\\[[^]]*\\]|'[^']*')", sql))[[1]]
+  urls <- unlist(regmatches(hits, gregexpr("'[^']+'", hits)))
+  sort(unique(gsub("'", "", urls)))
 }
 
 # internal: assemble the full matching SQL from bio + env subqueries

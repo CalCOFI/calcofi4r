@@ -28,9 +28,12 @@
 #' @param base_https https root of the bucket (default the public GCS host)
 #' @return list with `urls` (character; https, or one `s3://` glob for a legacy
 #'   partitioned table), `hive` (logical: pass `hive_partitioning = true`),
-#'   `canonical` (logical: from `objects[]`), `hashes` (content hashes, or `NA`)
-#'   and `local_paths` (relative cache paths, one per url, content-addressed so
-#'   a table unchanged between releases is cached once)
+#'   `canonical` (logical: from `objects[]`), `hashes` (content hashes, or `NA`),
+#'   `local_paths` (relative cache paths, one per url, content-addressed so a
+#'   table unchanged between releases is cached once) and `single_file` (the
+#'   whole-table file a partitioned table may also publish — `obs` does — for
+#'   https-only readers that cannot take a list; `NA` otherwise. Read one or the
+#'   other, never both)
 #' @concept database
 #' @export
 #' @examples
@@ -50,25 +53,42 @@ cc_release_sources <- function(catalog, table,
   version <- as.character(catalog$version)
 
   if (length(entry$objects)) {
-    paths  <- vapply(entry$objects, function(o) as.character(o$path), "")
-    hashes <- vapply(entry$objects, function(o) as.character(o$content_hash %||% NA), "")
+    objs <- entry$objects
+    single_file <- NA_character_
+    if (partitioned) {
+      # a partitioned table may ALSO publish one whole-table file (obs does, for
+      # browser DuckDB-WASM and other https-only readers that cannot take a
+      # list): it is the object without a partition, and it must never be read
+      # alongside the partitions — that would double every row
+      is_part <- vapply(objs, function(o) !is.null(o$partition_by), TRUE)
+      twin <- objs[!is_part]
+      if (length(twin)) single_file <- paste0(base_https, "/", as.character(twin[[1]]$path))
+      objs <- objs[is_part]
+    }
+    paths  <- vapply(objs, function(o) as.character(o$path), "")
+    hashes <- vapply(objs, function(o) as.character(o$content_hash %||% NA), "")
     return(list(
       urls        = paste0(base_https, "/", paths),
       hive        = partitioned,
       canonical   = TRUE,
       hashes      = hashes,
       # local mirror of the canonical layout: tables/{table}/[{key}={value}/]{hash}/file
-      local_paths = sub("^ducklake/", "", paths)))
+      local_paths = sub("^ducklake/", "", paths),
+      single_file = single_file))
   }
 
   if (partitioned) {
     list(urls = glue::glue("s3://calcofi-db/ducklake/releases/{version}/parquet/{table}/**/*.parquet"),
          hive = TRUE, canonical = FALSE, hashes = NA_character_,
-         local_paths = NA_character_)
+         local_paths = NA_character_,
+         # obs is the one legacy partitioned table with a single-file twin
+         single_file = if (table == "obs")
+           glue::glue("{base_https}/ducklake/releases/{version}/parquet/obs.parquet") else NA_character_)
   } else {
     list(urls = glue::glue("{base_https}/ducklake/releases/{version}/parquet/{table}.parquet"),
          hive = FALSE, canonical = FALSE, hashes = NA_character_,
-         local_paths = glue::glue("releases/{version}/parquet/{table}.parquet"))
+         local_paths = glue::glue("releases/{version}/parquet/{table}.parquet"),
+         single_file = NA_character_)
   }
 }
 
@@ -114,8 +134,11 @@ cc_catalog <- function(version = "latest",
       t <- lapply(tbls, function(col) col[[i]])
       if (!is.null(t$objects)) {
         o <- t$objects
+        # a data-frame row carries NA for fields other objects have (a single-file
+        # twin has no partition_by): drop them so the record reads as the list form
         t$objects <- if (is.data.frame(o))
-          lapply(seq_len(nrow(o)), function(j) as.list(o[j, , drop = FALSE])) else NULL
+          lapply(seq_len(nrow(o)), function(j) Filter(function(v) !(length(v) == 1 && is.na(v)),
+                                                      as.list(o[j, , drop = FALSE]))) else NULL
       }
       t
     })
