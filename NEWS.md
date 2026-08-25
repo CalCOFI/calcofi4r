@@ -1,4 +1,4 @@
-# calcofi4r 1.11.1
+# calcofi4r 1.12.1
 
 * `cc_get_db(local_data = TRUE)` keeps partitioned tables as remote views (as before
   1.11.0), rather than downloading every partition — `obs` is all 16 datasets, and
