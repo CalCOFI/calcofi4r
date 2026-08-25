@@ -90,7 +90,7 @@ test_that("plot colours are the brand tokens and the ggplot/plotly themes apply 
 test_that("the release chip names the version, links to its schema, and is absent when unknown", {
   h <- as.character(cc_release_chip("v2026.08.25"))
   expect_match(h, '<a class="cc-release" href="https://calcofi.io/db-schema/#erd?v=v2026.08.25"', fixed = TRUE)
-  expect_match(h, "release<b>v2026.08.25</b>|release <b>v2026.08.25</b>")
+  expect_match(h, "release\\s*<b>v2026.08.25</b>")
   expect_null(cc_release_chip(NULL))
   expect_null(cc_release_chip(NA_character_))
   expect_null(cc_release_chip(""))
