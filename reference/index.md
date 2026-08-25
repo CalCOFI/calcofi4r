@@ -164,6 +164,9 @@ small lookup and example datasets not requiring API access
 
 functions specific to database (Admin only)
 
+- [`cc_catalog()`](https://calcofi.io/calcofi4r/reference/cc_catalog.md)
+  : Read a release catalog
+
 - [`cc_db_catalog()`](https://calcofi.io/calcofi4r/reference/cc_db_catalog.md)
   : Show CalCOFI database catalog as interactive table
 
@@ -209,11 +212,19 @@ functions specific to database (Admin only)
   [`cc_pg_tunnel_close()`](https://calcofi.io/calcofi4r/reference/cc_pg_tunnel.md)
   : Open an SSH tunnel to the CalCOFI server's PostgreSQL
 
+- [`cc_read_parquet_sql()`](https://calcofi.io/calcofi4r/reference/cc_read_parquet_sql.md)
+  :
+
+  The `read_parquet(...)` SQL for a resolved source
+
 - [`cc_read_sf()`](https://calcofi.io/calcofi4r/reference/cc_read_sf.md)
   : Read Spatial Table from DuckDB as sf Object
 
 - [`cc_release_notes()`](https://calcofi.io/calcofi4r/reference/cc_release_notes.md)
   : View CalCOFI database release notes
+
+- [`cc_release_sources()`](https://calcofi.io/calcofi4r/reference/cc_release_sources.md)
+  : Resolve where a release table's parquet bytes live
 
 - [`cc_tbl()`](https://calcofi.io/calcofi4r/reference/cc_tbl.md) :
   Access a CalCOFI Database Table
@@ -257,6 +268,39 @@ non-blocking usage tracking for the Shiny apps (App maintainers only)
 
 - [`cc_track_session()`](https://calcofi.io/calcofi4r/reference/cc_track_session.md)
   : Hand the browser the session facts only the server knows
+
+## Brand
+
+the calcofi.io theme / header / favicon contract for the Shiny apps (App
+maintainers only)
+
+- [`cc_brand_head()`](https://calcofi.io/calcofi4r/reference/cc_brand_head.md)
+  :
+
+  Brand `<head>` tags for a Shiny app
+
+- [`cc_brand_header()`](https://calcofi.io/calcofi4r/reference/cc_brand_header.md)
+  : The brand header bar for a Shiny app
+
+- [`cc_ggplot_theme()`](https://calcofi.io/calcofi4r/reference/cc_ggplot_theme.md)
+  : A ggplot2 theme for the current theme
+
+- [`cc_is_dark()`](https://calcofi.io/calcofi4r/reference/cc_is_dark.md)
+  : Is the app currently in dark mode?
+
+- [`cc_plot_colors()`](https://calcofi.io/calcofi4r/reference/cc_plot_colors.md)
+  : Plot colours for the current theme
+
+- [`cc_plotly_theme()`](https://calcofi.io/calcofi4r/reference/cc_plotly_theme.md)
+  : Theme a plotly figure for the current theme
+
+- [`cc_theme()`](https://calcofi.io/calcofi4r/reference/cc_theme.md) :
+  Resolve the theme a Shiny request asks for
+
+- [`cc_tour_enabled()`](https://calcofi.io/calcofi4r/reference/cc_tour_enabled.md)
+  :
+
+  Should the guided tour run? (`?tour=off`)
 
 ## Other
 

@@ -22,6 +22,9 @@
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_bathy.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_bathy_depth.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_bottle.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_brand_head.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_brand_header.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_catalog.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_client_ip.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_climatology.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_db_catalog.html</loc></url>
@@ -36,9 +39,11 @@
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_ga_js.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_get_db.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_get_dm.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_ggplot_theme.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_grid.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_grid_ctrs.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_grid_zones.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_is_dark.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_latest_version.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_list_measurement_types.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_list_tables.html</loc></url>
@@ -54,6 +59,8 @@
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_pg_connect.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_pg_tunnel.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_places.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_plot_colors.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_plotly_theme.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_qual_ok.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_qual_ok_sql.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_query.html</loc></url>
@@ -64,6 +71,7 @@
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_read_measurements.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_read_obs.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_read_obs_freq.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_read_parquet_sql.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_read_sample.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_read_sample_measurement.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_read_sf.html</loc></url>
@@ -72,7 +80,10 @@
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_read_taxon.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_read_tow.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_release_notes.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_release_sources.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_tbl.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_theme.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_tour_enabled.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_track.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_track_query.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_track_session.html</loc></url>

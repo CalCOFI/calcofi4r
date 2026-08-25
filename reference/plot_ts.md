@@ -7,7 +7,14 @@ resolution-dependent date formatting.
 ## Usage
 
 ``` r
-plot_ts(sp_ts, env_ts, ts_res, sel_env_var)
+plot_ts(
+  sp_ts,
+  env_ts,
+  ts_res,
+  sel_env_var,
+  is_dark = TRUE,
+  env_label = sel_env_var
+)
 ```
 
 ## Arguments
@@ -33,6 +40,17 @@ plot_ts(sp_ts, env_ts, ts_res, sel_env_var)
 
   Character string of environmental variable column name (e.g.,
   "t_deg_c")
+
+- is_dark:
+
+  logical; draw text, grid and legend for a dark page (see
+  [`cc_is_dark()`](https://calcofi.io/calcofi4r/reference/cc_is_dark.md));
+  the chart background is transparent either way
+
+- env_label:
+
+  display label for the environmental series and its axis (default:
+  `sel_env_var` itself)
 
 ## Value
 

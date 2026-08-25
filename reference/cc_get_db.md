@@ -74,7 +74,11 @@ When `local_data = TRUE`, parquet files are downloaded to
 `cache_dir/parquet/{version}/` and loaded as local tables for faster
 queries. Files are only downloaded if missing or if `refresh = TRUE`.
 
-Data is stored at `gs://calcofi-db/ducklake/releases/{version}/`.
+Data is stored at `gs://calcofi-db/ducklake/releases/{version}/`; since
+the v2026.09 releases each table's bytes are content-addressed objects
+under `ducklake/tables/` that the release catalog points at — see
+[`cc_release_sources`](https://calcofi.io/calcofi4r/reference/cc_release_sources.md),
+which is how every table here is resolved.
 
 ## Examples
 
