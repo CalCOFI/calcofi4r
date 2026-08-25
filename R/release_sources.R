@@ -96,10 +96,22 @@ cc_release_sources <- function(catalog, table,
 #'
 #' @param src result of [cc_release_sources()]
 #' @param paths override the paths to read (e.g. local downloads); default `src$urls`
+#' @param prefer_single_file when `TRUE` and `src` has a `single_file` twin, read
+#'   that one object instead of the partition list (for https-only readers that
+#'   cannot expand a glob). Ignored when `paths` is given.
 #' @return a length-one character SQL fragment
 #' @concept database
 #' @export
-cc_read_parquet_sql <- function(src, paths = src$urls) {
+cc_read_parquet_sql <- function(src, paths = NULL, prefer_single_file = FALSE) {
+  # a partitioned table may publish a whole-table single-file twin (obs does);
+  # an https-only reader that cannot expand a glob — a vignette in CI, browser
+  # DuckDB-WASM — reads that one object instead of the partition list (and never
+  # both, which would double every row). The twin is read as a plain file.
+  if (is.null(paths) && isTRUE(prefer_single_file) &&
+      !is.null(src$single_file) && !is.na(src$single_file)) {
+    return(glue::glue("read_parquet('{src$single_file}')"))
+  }
+  if (is.null(paths)) paths <- src$urls
   paths <- as.character(paths)
   lst <- if (length(paths) == 1) glue::glue("'{paths}'") else
     glue::glue("[{paste0(\"'\", paths, \"'\", collapse = ', ')}]")

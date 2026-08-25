@@ -4,12 +4,16 @@
 \alias{cc_read_parquet_sql}
 \title{The \code{read_parquet(...)} SQL for a resolved source}
 \usage{
-cc_read_parquet_sql(src, paths = src$urls)
+cc_read_parquet_sql(src, paths = NULL, prefer_single_file = FALSE)
 }
 \arguments{
 \item{src}{result of \code{\link[=cc_release_sources]{cc_release_sources()}}}
 
 \item{paths}{override the paths to read (e.g. local downloads); default \code{src$urls}}
+
+\item{prefer_single_file}{when \code{TRUE} and \code{src} has a \code{single_file} twin, read
+that one object instead of the partition list (for https-only readers that
+cannot expand a glob). Ignored when \code{paths} is given.}
 }
 \value{
 a length-one character SQL fragment

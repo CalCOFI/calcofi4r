@@ -62,7 +62,10 @@ cc_latest_version <- function() .cc_resolve_version("latest")
 # v2026.09, per-release paths before). One catalog fetch per call site.
 .cc_read_parquet <- function(version) {
   cat_ <- cc_catalog(version)
-  function(table) cc_read_parquet_sql(cc_release_sources(cat_, table))
+  # prefer a table's single-file twin (obs has one): the match runs anywhere
+  # https reaches, no anonymous-S3 glob — a pre-v2026.09 partitioned `obs`
+  # otherwise resolves to an s3:// glob that a CI/vignette runner may not reach
+  function(table) cc_read_parquet_sql(cc_release_sources(cat_, table), prefer_single_file = TRUE)
 }
 
 # internal: get a DuckDB connection with httpfs + spatial loaded.
