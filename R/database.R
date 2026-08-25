@@ -107,6 +107,11 @@ cc_get_db <- function(
     stop("Version must be in format vYYYY.MM or vYYYY.MM.DD (e.g., 'v2026.03.14')")
   }
 
+  # a thinned version keeps its sidecars but its parquet is gone (see
+  # metadata/release_policy.yml in CalCOFI/workflows); say so, naming the
+  # replacement, instead of failing table by table on 404s
+  .cc_stop_if_retired(version)
+
   # create DuckDB connection
   db_path <- if (local_cache) {
     file.path(cache_dir, glue::glue("calcofi_{version}.duckdb"))
@@ -1081,3 +1086,20 @@ create_index <- function(con, tbl, flds, is_geom=F, is_unique=F, overwrite=F, sh
     DBI::dbSendQuery(con, sql)
 }
 
+
+
+# error on a version whose parquet has been removed by archive thinning
+.cc_stop_if_retired <- function(version) {
+  vs <- tryCatch(jsonlite::fromJSON(
+    "https://storage.googleapis.com/calcofi-db/ducklake/releases/versions.json",
+    simplifyVector = FALSE)$versions, error = function(e) list())
+  rec <- Filter(function(r) identical(r$version, version), vs)
+  if (length(rec) && !is.null(rec[[1]]$retired)) {
+    r <- rec[[1]]$retired
+    stop(glue::glue(
+      "Release {version} was retired on {substr(r$retired_utc, 1, 10)}: its parquet was removed ",
+      "from the archive (its notes and catalog remain). Use version = \"{r$to}\" — the nearest ",
+      "consolidated release — or \"latest\". See cc_list_versions()."), call. = FALSE)
+  }
+  invisible(TRUE)
+}

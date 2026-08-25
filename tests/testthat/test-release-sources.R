@@ -56,3 +56,14 @@ test_that("DuckDB recovers the partition column from a canonical-style file list
   # the {hash} directory between key=value and the file is not a hive segment and is ignored
   expect_equal(got$year, c(2019L, 2020L)); expect_equal(got$n, c(2, 2))
 })
+
+test_that("a retired version errors naming its replacement", {
+  skip_if_offline()
+  # nothing is retired yet in the live register; exercise the message with a stubbed fetch
+  local_mocked_bindings(
+    fromJSON = function(...) list(versions = list(list(
+      version = "v2026.05.15", retired = list(retired_utc = "2026-09-01T00:00:00Z", to = "v2026.06.26")))),
+    .package = "jsonlite")
+  expect_error(calcofi4r:::.cc_stop_if_retired("v2026.05.15"), "retired on 2026-09-01.*v2026.06.26")
+  expect_true(calcofi4r:::.cc_stop_if_retired("v2026.06.26"))
+})
