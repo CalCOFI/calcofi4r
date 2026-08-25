@@ -53,6 +53,6 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.8.0
         with:
-          clean: false
+          clean: true   # stale files (an old favicon set, an unreferenced lightswitch.js) accumulated for months under clean: false
           branch: gh-pages
           folder: docs

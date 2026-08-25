@@ -1,3 +1,48 @@
+# calcofi4r 1.11.0
+
+## Content-addressed releases
+
+* New `cc_catalog()`, `cc_release_sources()` and `cc_read_parquet_sql()`: the one
+  place a release table is turned into parquet URLs. From the v2026.09 releases
+  each table/partition is an immutable object under
+  `gs://calcofi-db/ducklake/tables/{table}/{content_hash}/…` listed in the
+  catalog's `objects[]`; earlier catalogs still resolve to their per-release
+  `releases/{version}/parquet/…` paths. Never build that path by hand — it is
+  only guaranteed for the promoted and consolidated versions.
+* `cc_get_db()` resolves every table through `cc_release_sources()`. Partitioned
+  tables on a canonical release are read as an explicit https file list with
+  `hive_partitioning = true` (no anonymous-S3 glob), and `local_data = TRUE`
+  now downloads partitioned tables too, into a content-addressed cache
+  (`parquet/tables/{table}/{hash}/…`) shared across pinned versions.
+
+# calcofi4r 1.10.0
+
+## The calcofi.io brand contract, for Shiny apps
+
+Every CalCOFI product now wears one theme (dark by default, `?theme=dark|light`
+on any URL, the choice persisted across `*.calcofi.io` by a cookie), one header
+(the CalCOFI logo far left linking to calcofi.io, the app's title beside it, a
+🌓 switch) and one favicon — see <https://calcofi.io/brand/v1/>. Three apps had
+been carrying the same 30 lines of header/logo/theme CSS; one had a favicon.
+
+- **`cc_brand_head(title, ga_app)`** (new) — `<title>`, the favicon set, the
+  inline pre-paint theme snippet, `theme.css`/`theme.js`, the bslib bridge, and
+  optionally `cc_ga_head()`.
+- **`cc_brand_header(title, ..., subtitle, mode)`** (new) — the `.cc-header` bar
+  with `bslib::input_dark_mode()` at the right.
+- **`cc_theme(request)`** (new) — server-side theme resolution (`?theme=` →
+  `cc_theme` cookie → dark) for `ui <- function(request)`, so the switch starts
+  in the right state and the page never flashes the other colour.
+- **`cc_is_dark(input)`** (new) — the switch's state, for every `is_dark` argument.
+- **`cc_tour_enabled(query)`** (new) — `?tour=off|false|0|no` suppresses a guided
+  tour; the rule db-viz-hex had, now shared.
+- **`cc_plot_colors()`, `cc_plotly_theme(p, is_dark)`, `cc_ggplot_theme(is_dark)`**
+  (new) — so plots stop lagging maps: text, grid and legend in the brand tokens,
+  transparent backgrounds.
+- **`plot_ts()`** gains `is_dark` and `env_label` (promoted from db-viz-hex's
+  local fork, which had drifted ahead of the package); it no longer references
+  the app-global `env_var_choices`.
+
 # calcofi4r 1.9.0
 
 ## Quality flags are applied, not just carried

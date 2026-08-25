@@ -38,7 +38,10 @@
 #' \code{cache_dir/parquet/{version}/} and loaded as local tables for faster
 #' queries. Files are only downloaded if missing or if \code{refresh = TRUE}.
 #'
-#' Data is stored at \code{gs://calcofi-db/ducklake/releases/{version}/}.
+#' Data is stored at \code{gs://calcofi-db/ducklake/releases/{version}/}; since
+#' the v2026.09 releases each table's bytes are content-addressed objects under
+#' \code{ducklake/tables/} that the release catalog points at — see
+#' \code{\link{cc_release_sources}}, which is how every table here is resolved.
 #'
 #' @examples
 #' \dontrun{
@@ -146,12 +149,15 @@ cc_get_db <- function(
 
   catalog <- jsonlite::fromJSON(catalog_path)
 
-  # configure httpfs if any tables are hive-partitioned (S3 glob required);
-  # must run on EVERY connection since DuckDB settings are per-session
-  has_partitioned <- "partitioned" %in% names(catalog$tables) &&
-    any(catalog$tables$partitioned, na.rm = TRUE)
-
-  if (has_partitioned) {
+  # resolve every table to its parquet objects up front (cc_release_sources():
+  # content-addressed objects[] since v2026.09, per-release paths before). A
+  # legacy partitioned table is an s3:// glob, which needs the anonymous-S3
+  # settings on EVERY connection since DuckDB settings are per-session.
+  all_tbls <- .cc_catalog_tables(catalog)
+  srcs <- stats::setNames(
+    lapply(all_tbls, function(t) cc_release_sources(catalog, as.character(t$name))),
+    vapply(all_tbls, function(t) as.character(t$name), ""))
+  if (any(vapply(srcs, function(s) any(startsWith(as.character(s$urls), "s3://")), TRUE))) {
     .cc_setup_gcs_httpfs(con)
   }
 
@@ -177,76 +183,35 @@ cc_get_db <- function(
     if (local_data) " (local data)" else " (remote views)",
     "..."))
 
-  gcs_https_base <- glue::glue(
-    "https://storage.googleapis.com/calcofi-db/ducklake/releases/{version}/parquet")
-  gcs_s3_base <- glue::glue(
-    "s3://calcofi-db/ducklake/releases/{version}/parquet")
-
-  # local parquet download directory
-  if (local_data) {
-    parquet_dir <- file.path(cache_dir, "parquet", version)
-    dir.create(parquet_dir, recursive = TRUE, showWarnings = FALSE)
-  }
+  # local parquet cache, laid out like the bucket: content-addressed objects
+  # under parquet/tables/{table}/{hash}/… (so a table unchanged between two
+  # pinned releases is downloaded once), legacy files under parquet/releases/.
+  parquet_dir <- file.path(cache_dir, "parquet")
 
   for (i in seq_len(nrow(tbl_catalog))) {
-    tbl_name       <- tbl_catalog$name[i]
-    is_partitioned <- has_partitioned &&
-      isTRUE(tbl_catalog$partitioned[i])
+    tbl_name <- tbl_catalog$name[i]
+    src      <- srcs[[tbl_name]]
+    can_download <- !anyNA(src$local_paths)   # a legacy s3 glob cannot be
 
-    if (local_data && !is_partitioned) {
-      # download parquet locally and create table
-      local_pq <- file.path(parquet_dir, paste0(tbl_name, ".parquet"))
-      if (!file.exists(local_pq) || refresh) {
-        message(glue::glue("  downloading {tbl_name}.parquet..."))
-        .cc_download_gcs_file(
-          glue::glue("gs://calcofi-db/ducklake/releases/{version}/parquet/{tbl_name}.parquet"),
-          local_pq,
-          overwrite = refresh)
+    if (local_data && can_download) {
+      local <- file.path(parquet_dir, src$local_paths)
+      for (k in seq_along(local)) {
+        if (!file.exists(local[k]) || refresh) {
+          message(glue::glue("  downloading {basename(dirname(local[k]))}/{basename(local[k])} for {tbl_name}..."))
+          .cc_download_gcs_file(src$urls[k], local[k], overwrite = refresh)
+        }
       }
-      tryCatch({
-        DBI::dbExecute(con, glue::glue(
-          "CREATE OR REPLACE TABLE \"{tbl_name}\" AS ",
-          "SELECT * FROM read_parquet('{local_pq}')"))
-      }, error = function(e) {
-        warning(glue::glue("Failed to load table {tbl_name}: {e$message}"))
-      })
-
-    } else if (local_data && is_partitioned) {
-      # partitioned tables: use remote S3 glob (downloading partition
-      # directories is complex; keep as remote view for now)
-      parquet_url <- glue::glue("{gcs_s3_base}/{tbl_name}/**/*.parquet")
-      read_expr   <- glue::glue(
-        "read_parquet('{parquet_url}', hive_partitioning = true)")
-      tryCatch({
-        DBI::dbExecute(con, glue::glue(
-          "CREATE OR REPLACE VIEW \"{tbl_name}\" AS SELECT * FROM {read_expr}"))
-      }, error = function(e) {
-        warning(glue::glue("Failed to load table {tbl_name}: {e$message}"))
-      })
-
-    } else if (is_partitioned) {
-      # remote view for partitioned table
-      parquet_url <- glue::glue("{gcs_s3_base}/{tbl_name}/**/*.parquet")
-      read_expr   <- glue::glue(
-        "read_parquet('{parquet_url}', hive_partitioning = true)")
-      tryCatch({
-        DBI::dbExecute(con, glue::glue(
-          "CREATE OR REPLACE VIEW \"{tbl_name}\" AS SELECT * FROM {read_expr}"))
-      }, error = function(e) {
-        warning(glue::glue("Failed to load table {tbl_name}: {e$message}"))
-      })
-
+      stmt <- glue::glue("CREATE OR REPLACE TABLE \"{tbl_name}\" AS SELECT * FROM ",
+                         cc_read_parquet_sql(src, local))
     } else {
-      # remote view for single-file table
-      parquet_url <- glue::glue("{gcs_https_base}/{tbl_name}.parquet")
-      read_expr   <- glue::glue("read_parquet('{parquet_url}')")
-      tryCatch({
-        DBI::dbExecute(con, glue::glue(
-          "CREATE OR REPLACE VIEW \"{tbl_name}\" AS SELECT * FROM {read_expr}"))
-      }, error = function(e) {
-        warning(glue::glue("Failed to load table {tbl_name}: {e$message}"))
-      })
+      # remote view (a legacy partitioned table stays remote even with
+      # local_data: its s3 glob cannot be enumerated for download)
+      stmt <- glue::glue("CREATE OR REPLACE VIEW \"{tbl_name}\" AS SELECT * FROM ",
+                         cc_read_parquet_sql(src))
     }
+    tryCatch(DBI::dbExecute(con, stmt), error = function(e) {
+      warning(glue::glue("Failed to load table {tbl_name}: {e$message}"))
+    })
   }
 
   message(glue::glue("Connected to CalCOFI database {version}"))

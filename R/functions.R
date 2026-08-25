@@ -1041,6 +1041,10 @@ map_env <- function(env_hex_list, env_scale_list, env_stat_label, env_var_label,
 #' @param env_ts data.frame from \code{\link{prep_ts_env}} with columns: \code{time}, \code{avg}, \code{std}, \code{lwr}, \code{upr}
 #' @param ts_res Character string specifying temporal resolution: "year", "quarter", "month", "day", etc.
 #' @param sel_env_var Character string of environmental variable column name (e.g., "t_deg_c")
+#' @param is_dark logical; draw text, grid and legend for a dark page (see
+#'   [cc_is_dark()]); the chart background is transparent either way
+#' @param env_label display label for the environmental series and its axis
+#'   (default: `sel_env_var` itself)
 #'
 #' @return highchart object with dual y-axes, line + ribbon series, and zoom capabilities
 #'
@@ -1064,14 +1068,14 @@ map_env <- function(env_hex_list, env_scale_list, env_stat_label, env_var_label,
 #'
 #' @concept visualize
 #' @export
-plot_ts <- function(sp_ts, env_ts, ts_res, sel_env_var) {
+plot_ts <- function(sp_ts, env_ts, ts_res, sel_env_var, is_dark = TRUE, env_label = sel_env_var) {
   # add a 'panel' and consistent 'name' column to each dataset
   sp_ts_mod <- sp_ts |>
     mutate(panel_id = 0) # assign to the first (top) panel
 
   env_ts_mod <- env_ts |>
     mutate(
-      name     = names(which(env_var_choices == sel_env_var)),
+      name     = env_label,
       panel_id = 1) # assign to the second (bottom) panel
 
   # combine into a single data frame
@@ -1105,9 +1109,14 @@ plot_ts <- function(sp_ts, env_ts, ts_res, sel_env_var) {
     xaxis_label_format <- "{value:%b %e, %Y}"
   }
 
+  # text and grid follow the page theme (calcofi.io brand tokens)
+  k          <- cc_plot_colors(is_dark)
+  text_color <- k$fg
+  grid_color <- k$grid
+
   # initialize the chart with its layout
   hc <- highchart() |>
-    hc_chart(zoomType = "x") |>
+    hc_chart(zoomType = "x", backgroundColor = "transparent") |>
     hc_exporting(
       enabled = TRUE,
       buttons = list(
@@ -1116,10 +1125,20 @@ plot_ts <- function(sp_ts, env_ts, ts_res, sel_env_var) {
         )
       )
     ) |>
-    hc_xAxis(type = "datetime", crosshair = TRUE) |>
+    hc_xAxis(
+      type = "datetime", crosshair = TRUE,
+      labels = list(style = list(color = text_color))) |>
     hc_yAxis_multiples(
-      list(title = list(text = "Average Species Abundance"), height = "47%", top = "0%", offset = 0),
-      list(title = list(text = paste0("Average ", names(which(env_var_choices == sel_env_var)))), height = "47%", top = "53%", offset = 0)
+      list(
+        title = list(text = "Average Species Abundance", style = list(color = text_color)),
+        height = "47%", top = "0%", offset = 0,
+        labels = list(style = list(color = text_color)),
+        gridLineColor = grid_color),
+      list(
+        title = list(text = paste0("Average ", env_label), style = list(color = text_color)),
+        height = "47%", top = "53%", offset = 0,
+        labels = list(style = list(color = text_color)),
+        gridLineColor = grid_color)
     )
 
   # configure xAxis based on resolution
@@ -1193,7 +1212,11 @@ plot_ts <- function(sp_ts, env_ts, ts_res, sel_env_var) {
         showInLegend = FALSE
       )
     ) |>
-    hc_legend(enabled = TRUE)
+    hc_legend(
+      enabled = TRUE,
+      itemStyle       = list(color = text_color),
+      itemHoverStyle  = list(color = ifelse(is_dark, "#ffffff", "#000000")),
+      itemHiddenStyle = list(color = ifelse(is_dark, "#666666", "#cccccc")))
 
   # loop through each series to add its line and ribbon
   for (i in 1:nrow(series_list)) {

@@ -4,7 +4,14 @@
 \alias{plot_ts}
 \title{Create Dual-Panel Time Series Plot}
 \usage{
-plot_ts(sp_ts, env_ts, ts_res, sel_env_var)
+plot_ts(
+  sp_ts,
+  env_ts,
+  ts_res,
+  sel_env_var,
+  is_dark = TRUE,
+  env_label = sel_env_var
+)
 }
 \arguments{
 \item{sp_ts}{data.frame from \code{\link{prep_ts_sp}} with columns: \code{time}, \code{name}, \code{avg}, \code{std}, \code{lwr}, \code{upr}}
@@ -14,6 +21,12 @@ plot_ts(sp_ts, env_ts, ts_res, sel_env_var)
 \item{ts_res}{Character string specifying temporal resolution: "year", "quarter", "month", "day", etc.}
 
 \item{sel_env_var}{Character string of environmental variable column name (e.g., "t_deg_c")}
+
+\item{is_dark}{logical; draw text, grid and legend for a dark page (see
+\code{\link[=cc_is_dark]{cc_is_dark()}}); the chart background is transparent either way}
+
+\item{env_label}{display label for the environmental series and its axis
+(default: \code{sel_env_var} itself)}
 }
 \value{
 highchart object with dual y-axes, line + ribbon series, and zoom capabilities

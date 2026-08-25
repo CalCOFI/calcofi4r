@@ -57,7 +57,10 @@ When \code{local_data = TRUE}, parquet files are downloaded to
 \code{cache_dir/parquet/{version}/} and loaded as local tables for faster
 queries. Files are only downloaded if missing or if \code{refresh = TRUE}.
 
-Data is stored at \code{gs://calcofi-db/ducklake/releases/{version}/}.
+Data is stored at \code{gs://calcofi-db/ducklake/releases/{version}/}; since
+the v2026.09 releases each table's bytes are content-addressed objects under
+\code{ducklake/tables/} that the release catalog points at — see
+\code{\link{cc_release_sources}}, which is how every table here is resolved.
 }
 \examples{
 \dontrun{
