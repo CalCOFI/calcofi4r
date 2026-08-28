@@ -1,3 +1,17 @@
+# calcofi4r 1.13.0
+
+## Effort and denominators (plan D8)
+
+- `cc_density_sql()` — the one SQL expression deriving `density_per_10m2` (areal: `count × std_haul_factor /
+  prop_sorted` for C1/CB/CV/PV tows, published per-m² × 10), `density_per_1000m3` (volumetric:
+  `count / prop_sorted / volume_sampled_m3 × 1000`, published per-1000 m³ as is) and `effort_class`
+  (`count_with_effort | raw_count_no_effort | density_as_published | other_unit`). Byte-identical to
+  `calcofi4py.density_sql()` and the explorer's `sql/density.sql`; the fixture pins it. Areal and
+  volumetric are never converted into each other.
+- `cc_default_stage()` / `cc_default_denominator()` — the picker's rule-4 defaults (most rows with
+  effort; most datasets with effort, never largest-n; `per_10m2` on a tie; `raw` only when nothing has
+  effort). `CC_DENSITY_UNITS`, `CC_AREAL_GEARS` are the registry-owned vocabularies.
+
 # calcofi4r 1.12.1
 
 * `cc_get_db(local_data = TRUE)` keeps partitioned tables as remote views (as before
