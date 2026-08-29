@@ -1,0 +1,11 @@
+/* pkgdown's dark mode (BS5/assets/pkgdown.scss, "auto-dark mode for rendered
+   images") applies `filter: invert(100%) hue-rotate(180deg)` to every figure AND
+   every htmlwidget once the light-switch sets data-bs-theme="dark". That is a
+   heuristic for white-background raster plots; on a leaflet map it inverts the
+   DATA along with the tiles — viridis purple (0) became pink and yellow (2,500)
+   became olive-black, so the legend read backwards while its labels did not.
+   Widgets keep their true colors; the filter stays on static R plots, which is
+   the one place it is right. */
+[data-bs-theme="dark"] .html-widget {
+  filter: none;
+}
