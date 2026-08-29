@@ -1,3 +1,9 @@
+# calcofi4r 1.14.2
+
+- **`cc_feedback_script()`** also mails the **submitter** a copy of their report when they gave an email — the
+  same text, screenshot inline and view link, with a thank-you line and the public issue URL — as a separate
+  message, so the team's recipient list is never exposed. Redeploy the Apps Script to pick it up.
+
 # calcofi4r 1.14.1
 
 - **`cc_feedback_script()`** mails the screenshot **inline** (`MailApp` `inlineImages`, `cid:shot`, linked to

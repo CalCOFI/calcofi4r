@@ -58,3 +58,14 @@ test_that("repos, label and branch are parameters and are validated", {
   expect_error(cc_feedback_script(repos = c(explore = "explore")))       # not owner/repo
   expect_error(cc_feedback_script(max_per_hour = 0))
 })
+
+test_that("the submitter gets a copy of the report (1.14.2), separately, only for a well-formed address", {
+  gs <- cc_feedback_script()
+  expect_true(grepl("to: row.email", gs, fixed = TRUE))
+  expect_true(grepl("Your feedback to the CalCOFI", gs, fixed = TRUE))
+  expect_true(grepl("copied to sender", gs, fixed = TRUE))
+  expect_true(grepl("Thanks \u2014 we received this", gs, fixed = TRUE))
+  # never appended to the recipients\' `to`: two sendEmail calls, the team\'s first
+  expect_equal(length(gregexpr("MailApp.sendEmail(", gs, fixed = TRUE)[[1]]), 2L)
+  expect_true(regexpr("MailApp.sendEmail(mail)", gs, fixed = TRUE) < regexpr("MailApp.sendEmail(copy)", gs, fixed = TRUE))
+})

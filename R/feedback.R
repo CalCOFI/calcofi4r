@@ -154,6 +154,15 @@ function doPost(e) {
       MailApp.sendEmail(mail);
       status.push("mailed " + to.length + (inline ? " (screenshot inline)" : ""));
     }
+    // 3b. the sender\'s own copy (a separate message: the recipient list stays private) — the same report, with a
+    //     thank-you line and the public issue to follow. Only a well-formed address; the hourly cap bounds abuse.
+    if (/^[^@\\s]+@[^@\\s]+$/.test(row.email)) {
+      var copy = { to: row.email, subject: "Your feedback to the CalCOFI " + app + ": " + text.split("\\n")[0].slice(0, 80),
+                   htmlBody: "<p>Thanks — we received this. It went to the team" + (issue_url ? " and is public issue <a href=\\"" + issue_url + "\\">" + issue_url + "</a>, where any reply will appear" : "") + ".</p>" + html,
+                   name: "CalCOFI app feedback" };
+      if (inline) copy.inlineImages = inline;
+      try { MailApp.sendEmail(copy); status.push("copied to sender"); } catch (err) { status.push("sender copy failed: " + String(err).slice(0, 80)); }
+    }
     return _json({ ok: true, id: id, image_url: image_url, issue_url: issue_url, status: status.join("; ") });
   } catch (err) { return _json({ ok: false, error: String(err) }); }
 }
