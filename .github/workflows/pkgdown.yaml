@@ -35,6 +35,20 @@ jobs:
           extra-packages: any::pkgdown, any::DiagrammeRsvg, local::.
           needs: website
 
+      # Smoke test, permanent. The vignettes set warning = FALSE / message = FALSE,
+      # so a cc_get_db() that hands back an EMPTY database (every remote view
+      # failed to bind) surfaces only as "Table 'obs' not found" a few chunks
+      # later, with nothing in the log saying why. This runs the same connect
+      # with warnings printed as they happen, and fails the run here.
+      - name: Smoke test cc_get_db()
+        run: |
+          Rscript -e '
+            options(warn = 1)
+            cat("duckdb", as.character(packageVersion("duckdb")), "\n")
+            con <- calcofi4r::cc_get_db()
+            print(DBI::dbListTables(con))
+            stopifnot("obs" %in% DBI::dbListTables(con))'
+
       # No continue-on-error. It was here, and it turned a broken build into a
       # green tick: pkgdown writes articles/index.html (the navbar) BEFORE
       # rendering the articles themselves, so when one vignette failed the site
