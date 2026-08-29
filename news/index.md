@@ -1,5 +1,13 @@
 # Changelog
 
+## calcofi4r 1.14.1
+
+- **[`cc_feedback_script()`](https://calcofi.io/calcofi4r/reference/cc_feedback_script.md)**
+  mails the screenshot **inline** (`MailApp` `inlineImages`, `cid:shot`,
+  linked to the view URL) so the annotated view is in the message
+  itself; the Drive link stays as the archive copy. Redeploy the Apps
+  Script (paste the regenerated `Code.gs`) to pick it up.
+
 ## calcofi4r 1.14.0
 
 ### In-app feedback endpoint (`cc_feedback_script()`)

@@ -39,7 +39,7 @@ one JSON object as text/plain:
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.14.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.14.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -191,19 +191,23 @@ issue embeds points at it)</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 text: text, email: b.email || "", image_url: image_url, issue_url: issue_url, id: id, user_agent: b.user_agent || "", status: status.join("; ") };</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     var sh = _tab("feedback");</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     sh.getRange(sh.getLastRow() + 1, 1, 1, COLS.length).setValues([COLS.map(function (c) { return row[c] === undefined ? "" : row[c]; })]);</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     // 3. the mail</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     // 3. the mail — the screenshot inline (cid), so the annotated view is in the message itself, not behind a Drive click</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     var to = _recipients();</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     if (to.length) {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       var subject = "[" + app + "] " + text.split("\n")[0].slice(0, 80);</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       var inline = (image_url &amp;&amp; bytes &amp;&amp; bytes.length) ? { shot: Utilities.newBlob(bytes, "image/png", "view.png") } : null; // the same PNG Drive holds; an over-size one is neither</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       var html = "&lt;p&gt;" + _esc(text).replace(/\n/g, "&lt;br&gt;") + "&lt;/p&gt;" +</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         (inline ? "&lt;p&gt;&lt;a href=\"" + _esc(row.url) + "\"&gt;&lt;img src=\"cid:shot\" alt=\"the view\" style=\"max-width:100%;border:1px solid #ccc\"&gt;&lt;/a&gt;&lt;/p&gt;" : "") +</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         "&lt;p&gt;&lt;b&gt;View:&lt;/b&gt; &lt;a href=\"" + _esc(row.url) + "\"&gt;" + _esc(row.url) + "&lt;/a&gt;&lt;br&gt;" +</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         "&lt;b&gt;Release:&lt;/b&gt; " + _esc(row.release) + " · " + _esc(row.viewport) + " · " + _esc(row.theme) + "&lt;br&gt;" +</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         (row.email ? "&lt;b&gt;From:&lt;/b&gt; " + _esc(row.email) + "&lt;br&gt;" : "") +</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         (image_url ? "&lt;b&gt;Screenshot:&lt;/b&gt; &lt;a href=\"" + image_url + "\"&gt;Drive&lt;/a&gt;&lt;br&gt;" : "") +</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         (issue_url ? "&lt;b&gt;Issue:&lt;/b&gt; &lt;a href=\"" + issue_url + "\"&gt;" + issue_url + "&lt;/a&gt;&lt;br&gt;" : "") +</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         "&lt;b&gt;Sheet row id:&lt;/b&gt; " + id + "&lt;/p&gt;";</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       MailApp.sendEmail({ to: to.join(","), subject: subject, htmlBody: html, name: "CalCOFI app feedback" });</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       status.push("mailed " + to.length);</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       var mail = { to: to.join(","), subject: subject, htmlBody: html, name: "CalCOFI app feedback" };</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       if (inline) mail.inlineImages = inline;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       MailApp.sendEmail(mail);</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       status.push("mailed " + to.length + (inline ? " (screenshot inline)" : ""));</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     return _json({ ok: true, id: id, image_url: image_url, issue_url: issue_url, status: status.join("; ") });</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   } catch (err) { return _json({ ok: false, error: String(err) }); }</span>

@@ -107,19 +107,23 @@ cat(cc_feedback_script())
 #>                 text: text, email: b.email || "", image_url: image_url, issue_url: issue_url, id: id, user_agent: b.user_agent || "", status: status.join("; ") };
 #>     var sh = _tab("feedback");
 #>     sh.getRange(sh.getLastRow() + 1, 1, 1, COLS.length).setValues([COLS.map(function (c) { return row[c] === undefined ? "" : row[c]; })]);
-#>     // 3. the mail
+#>     // 3. the mail — the screenshot inline (cid), so the annotated view is in the message itself, not behind a Drive click
 #>     var to = _recipients();
 #>     if (to.length) {
 #>       var subject = "[" + app + "] " + text.split("\n")[0].slice(0, 80);
+#>       var inline = (image_url && bytes && bytes.length) ? { shot: Utilities.newBlob(bytes, "image/png", "view.png") } : null; // the same PNG Drive holds; an over-size one is neither
 #>       var html = "<p>" + _esc(text).replace(/\n/g, "<br>") + "</p>" +
+#>         (inline ? "<p><a href=\"" + _esc(row.url) + "\"><img src=\"cid:shot\" alt=\"the view\" style=\"max-width:100%;border:1px solid #ccc\"></a></p>" : "") +
 #>         "<p><b>View:</b> <a href=\"" + _esc(row.url) + "\">" + _esc(row.url) + "</a><br>" +
 #>         "<b>Release:</b> " + _esc(row.release) + " · " + _esc(row.viewport) + " · " + _esc(row.theme) + "<br>" +
 #>         (row.email ? "<b>From:</b> " + _esc(row.email) + "<br>" : "") +
 #>         (image_url ? "<b>Screenshot:</b> <a href=\"" + image_url + "\">Drive</a><br>" : "") +
 #>         (issue_url ? "<b>Issue:</b> <a href=\"" + issue_url + "\">" + issue_url + "</a><br>" : "") +
 #>         "<b>Sheet row id:</b> " + id + "</p>";
-#>       MailApp.sendEmail({ to: to.join(","), subject: subject, htmlBody: html, name: "CalCOFI app feedback" });
-#>       status.push("mailed " + to.length);
+#>       var mail = { to: to.join(","), subject: subject, htmlBody: html, name: "CalCOFI app feedback" };
+#>       if (inline) mail.inlineImages = inline;
+#>       MailApp.sendEmail(mail);
+#>       status.push("mailed " + to.length + (inline ? " (screenshot inline)" : ""));
 #>     }
 #>     return _json({ ok: true, id: id, image_url: image_url, issue_url: issue_url, status: status.join("; ") });
 #>   } catch (err) { return _json({ ok: false, error: String(err) }); }
