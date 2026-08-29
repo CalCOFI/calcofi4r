@@ -1,5 +1,29 @@
 # Changelog
 
+## calcofi4r 1.14.0
+
+### In-app feedback endpoint (`cc_feedback_script()`)
+
+- **[`cc_feedback_script()`](https://calcofi.io/calcofi4r/reference/cc_feedback_script.md)**
+  generates the Apps Script for a *CalCOFI app feedback* Sheet — the
+  sibling of
+  [`cc_apps_script()`](https://calcofi.io/calcofi4r/reference/cc_apps_script.md)
+  (the usage log): an app POSTs
+  `{app, url, release, viewport, theme, text, email, image}` as
+  `text/plain` JSON; per submission the script writes the PNG to a Drive
+  folder, appends a row to the `feedback` tab, mails every address in
+  the Sheet’s **`recipients`** tab (edit a cell, no redeploy) and files
+  a **public GitHub issue** in the app’s repo with the view URL, the
+  text and the screenshot committed under `feedback/<id>.png` — never
+  the submitter’s email, which stays in the Sheet. A `GITHUB_TOKEN`
+  script property enables the issue; without it the step is skipped and
+  the row says so. Honeypot + hourly cap against spam. Built for the
+  CalCOFI Explorer’s annotated-screenshot feedback dialog (explorer UI
+  plan D17); the Shiny apps can reuse it.
+- **[`cc_feedback_header()`](https://calcofi.io/calcofi4r/reference/cc_feedback_header.md)**
+  — the `feedback` tab’s exact first row, so the Sheet, the script and
+  the client cannot drift.
+
 ## calcofi4r 1.13.1
 
 ### `cc_get_db()` never hands back an empty database

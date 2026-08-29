@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.13.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,6 +71,16 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.14.0" id="calcofi4r-1140">calcofi4r 1.14.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1140"></a></h2>
+<div class="section level3">
+<h3 id="in-app-feedback-endpoint-cc_feedback_script-1-14-0">In-app feedback endpoint (<code>cc_feedback_script()</code>)<a class="anchor" aria-label="anchor" href="#in-app-feedback-endpoint-cc_feedback_script-1-14-0"></a></h3>
+<ul><li>
+<strong><code><a href="../reference/cc_feedback_script.html">cc_feedback_script()</a></code></strong> generates the Apps Script for a <em>CalCOFI app feedback</em> Sheet — the sibling of <code><a href="../reference/cc_apps_script.html">cc_apps_script()</a></code> (the usage log): an app POSTs <code>{app, url, release, viewport, theme, text, email, image}</code> as <code>text/plain</code> JSON; per submission the script writes the PNG to a Drive folder, appends a row to the <code>feedback</code> tab, mails every address in the Sheet’s <strong><code>recipients</code></strong> tab (edit a cell, no redeploy) and files a <strong>public GitHub issue</strong> in the app’s repo with the view URL, the text and the screenshot committed under <code>feedback/&lt;id&gt;.png</code> — never the submitter’s email, which stays in the Sheet. A <code>GITHUB_TOKEN</code> script property enables the issue; without it the step is skipped and the row says so. Honeypot + hourly cap against spam. Built for the CalCOFI Explorer’s annotated-screenshot feedback dialog (explorer UI plan D17); the Shiny apps can reuse it.</li>
+<li>
+<strong><code><a href="../reference/cc_feedback_header.html">cc_feedback_header()</a></code></strong> — the <code>feedback</code> tab’s exact first row, so the Sheet, the script and the client cannot drift.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.13.1" id="calcofi4r-1131">calcofi4r 1.13.1<a class="anchor" aria-label="anchor" href="#calcofi4r-1131"></a></h2>
 <div class="section level3">

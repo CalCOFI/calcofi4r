@@ -452,6 +452,12 @@ non-blocking usage tracking for the Shiny apps (App maintainers only)
 - [`cc_event()`](https://calcofi.io/calcofi4r/reference/cc_event.md) :
   Build a tracking-event payload
 
+- [`cc_feedback_header()`](https://calcofi.io/calcofi4r/reference/cc_feedback_header.md)
+  : Column header for the feedback Sheet
+
+- [`cc_feedback_script()`](https://calcofi.io/calcofi4r/reference/cc_feedback_script.md)
+  : Apps Script source for the feedback endpoint
+
 - [`cc_ga_head()`](https://calcofi.io/calcofi4r/reference/cc_ga_head.md)
   :
 
