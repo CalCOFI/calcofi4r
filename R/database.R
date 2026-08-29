@@ -25,7 +25,10 @@
 #'   the 216M full-resolution CTD scans) that are hosted + cataloged but hidden by
 #'   default. Default `FALSE`. Ignored when `tables` names them explicitly.
 #'
-#' @return DuckDB connection object
+#' @return DuckDB connection object with every requested table present. A table
+#'   that cannot be loaded is an \strong{error} naming it (never a warning and a
+#'   database missing tables); the views are created in one transaction, so a
+#'   failed call leaves no partial local cache behind.
 #' @export
 #' @concept database
 #'
@@ -139,6 +142,17 @@ cc_get_db <- function(
     }
   })
 
+  # httpfs is a precondition of every remote view, and it is loaded HERE rather
+  # than left to DuckDB autoloading. Autoload only loads an extension that is
+  # ALREADY INSTALLED (autoinstall_known_extensions is FALSE), which holds on a
+  # laptop that has ever read an https parquet and fails on a fresh CI runner or
+  # a first install. Through 1.13.0 the legacy s3:// glob of a partitioned table
+  # happened to route through .cc_setup_gcs_httpfs(), which installs it; the
+  # first content-addressed release (v2026.08.25) had no glob left, and every
+  # view on the pkgdown runner failed to bind. Idempotent, and needed on the
+  # cached path too: the persisted views bind in THIS connection.
+  .cc_load_httpfs(con)
+
   # get catalog for this version (needed for both cached and fresh paths)
   gcs_base     <- glue::glue("gs://calcofi-db/ducklake/releases/{version}")
   catalog_path <- file.path(cache_dir, glue::glue("catalog_{version}.json"))
@@ -183,6 +197,14 @@ cc_get_db <- function(
     tbl_catalog <- tbl_catalog[!(tbl_catalog$supplemental %in% TRUE), ]
   }
 
+  if (nrow(tbl_catalog) == 0) {
+    try(DBI::dbDisconnect(con), silent = TRUE)
+    stop(glue::glue(
+      "cc_get_db(): none of the requested tables are in release {version} ",
+      "(tables = {paste(tables, collapse = ', ')}). See cc_db_info(\"{version}\")$tables."),
+      call. = FALSE)
+  }
+
   message(glue::glue(
     "Loading {nrow(tbl_catalog)} tables from {version}",
     if (local_data) " (local data)" else " (remote views)",
@@ -192,6 +214,22 @@ cc_get_db <- function(
   # under parquet/tables/{table}/{hash}/… (so a table unchanged between two
   # pinned releases is downloaded once), legacy files under parquet/releases/.
   parquet_dir <- file.path(cache_dir, "parquet")
+
+  # every table binds or none does. A table that fails to load is an ERROR: the
+  # alternative — a warning() per table, 1.5.0 through 1.13.0 — let this return
+  # a database holding none (or some) of the release's tables, and a vignette
+  # rendered with warning = FALSE learned of it three chunks later as
+  # "Table 'obs' not found". One transaction keeps the local cache honest: a run
+  # that fails on table 7 must not persist six views in calcofi_{version}.duckdb
+  # for the next call to find as "existing tables" and return as the release.
+  DBI::dbBegin(con)
+  load_failed <- function(tbl_name, how, e) {
+    try(DBI::dbRollback(con), silent = TRUE)
+    try(DBI::dbDisconnect(con), silent = TRUE)
+    stop(glue::glue(
+      "cc_get_db(): failed to load table '{tbl_name}' of {version} as a {how}: ",
+      "{conditionMessage(e)}"), call. = FALSE)
+  }
 
   for (i in seq_len(nrow(tbl_catalog))) {
     tbl_name <- tbl_catalog$name[i]
@@ -219,13 +257,26 @@ cc_get_db <- function(
       stmt <- glue::glue("CREATE OR REPLACE VIEW \"{tbl_name}\" AS SELECT * FROM ",
                          cc_read_parquet_sql(src))
     }
-    tryCatch(DBI::dbExecute(con, stmt), error = function(e) {
-      warning(glue::glue("Failed to load table {tbl_name}: {e$message}"))
-    })
+    how <- if (local_data && can_download) "local table" else "remote view"
+    tryCatch(DBI::dbExecute(con, stmt), error = function(e) load_failed(tbl_name, how, e))
   }
+  DBI::dbCommit(con)
 
   message(glue::glue("Connected to CalCOFI database {version}"))
   return(con)
+}
+
+# install (once; a no-op when the extension directory already holds it) and load
+# httpfs into a connection. Idempotent. Every remote release view reads
+# read_parquet('https://…'), so a connection without it has no working tables.
+.cc_load_httpfs <- function(con) {
+  tryCatch(
+    DBI::dbExecute(con, "INSTALL httpfs; LOAD httpfs;"),
+    error = function(e) stop(glue::glue(
+      "cc_get_db(): could not load DuckDB's httpfs extension, which every remote ",
+      "release view needs (INSTALL fetches it once from extensions.duckdb.org): ",
+      "{conditionMessage(e)}"), call. = FALSE))
+  invisible(con)
 }
 
 #' List available CalCOFI database versions
@@ -411,7 +462,7 @@ cc_release_notes <- function(version = "latest") {
 
 # configure DuckDB httpfs to access GCS as S3-compatible (public, anonymous)
 .cc_setup_gcs_httpfs <- function(con) {
-  DBI::dbExecute(con, "INSTALL httpfs; LOAD httpfs;")
+  .cc_load_httpfs(con)
   DBI::dbExecute(con, "SET s3_region = 'auto';")
   DBI::dbExecute(con, "SET s3_endpoint = 'storage.googleapis.com';")
   DBI::dbExecute(con, "SET s3_url_style = 'path';")

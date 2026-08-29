@@ -1,0 +1,39 @@
+{
+  "version": "v2026.09.01",
+  "release_date": "2026-09-01",
+  "layout": "canonical",
+  "tables": [
+    {
+      "name": "cruise",
+      "rows": 2,
+      "partitioned": false,
+      "supplemental": false,
+      "content_hash": "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+      "objects": [
+        {
+          "path": "ducklake/tables/cruise/a1b2c3d4e5f60718293a4b5c/cruise.parquet",
+          "bytes": 1,
+          "sha256": "00ff",
+          "content_hash": "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+          "since": "v2026.09.01"
+        }
+      ]
+    },
+    {
+      "name": "nope",
+      "rows": 1,
+      "partitioned": false,
+      "supplemental": false,
+      "content_hash": "deadbeefdeadbeefdeadbeefdeadbeef",
+      "objects": [
+        {
+          "path": "ducklake/tables/nope/deadbeefdeadbeefdeadbeef/nope.parquet",
+          "bytes": 1,
+          "sha256": "dead",
+          "content_hash": "deadbeefdeadbeefdeadbeefdeadbeef",
+          "since": "v2026.09.01"
+        }
+      ]
+    }
+  ]
+}

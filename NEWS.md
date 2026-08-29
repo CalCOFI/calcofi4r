@@ -1,3 +1,23 @@
+# calcofi4r 1.13.1
+
+## `cc_get_db()` never hands back an empty database
+
+- **`httpfs` is installed (once) and loaded explicitly** on every connection, before any view is
+  created and on the cached path too. It used to rely on DuckDB autoloading, which only loads an
+  extension that is *already installed* — true on a laptop that has ever read an https parquet,
+  false on a fresh CI runner or a first install. The legacy `s3://` glob of a partitioned table
+  happened to route through the anonymous-S3 setup that installs it; the first content-addressed
+  release (v2026.08.25) had no glob left, and from that day every remote view on the pkgdown
+  runner failed to bind.
+- **A table that fails to load is an error** naming the table and DuckDB's message — never a
+  per-table `warning()`, which a vignette's `warning = FALSE` hid until `cc_describe_table("obs")`
+  reported `Table 'obs' not found` three chunks later. The views are created in one transaction,
+  so a failed call leaves no partial `calcofi_{version}.duckdb` for the next call to return as
+  "cached". A `tables =` selection that matches nothing is an error too.
+- `cc_list_tables()`, `cc_describe_table()` and `cc_list_measurement_types()` accept `con =` to
+  reuse an open connection (as `cc_get_dm()` already did); the vignette passes its own.
+- pkgdown CI smoke-tests `cc_get_db()` with warnings visible before building the site.
+
 # calcofi4r 1.13.0
 
 ## Effort and denominators (plan D8)

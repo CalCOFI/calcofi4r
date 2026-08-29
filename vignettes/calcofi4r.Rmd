@@ -48,14 +48,14 @@ The package provides convenience functions for common operations:
 # list available versions
 cc_list_versions()
 
-# list tables
-cc_list_tables()
+# list tables (con = reuses the connection opened above)
+cc_list_tables(con = con)
 
 # describe a table
-cc_describe_table("obs")
+cc_describe_table("obs", con = con)
 
 # list measurement types
-cc_list_measurement_types() |> head(10)
+cc_list_measurement_types(con = con) |> head(10)
 ```
 
 ### Read Data Directly

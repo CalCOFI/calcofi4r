@@ -4,10 +4,13 @@
 \alias{cc_list_tables}
 \title{List tables in CalCOFI database}
 \usage{
-cc_list_tables(version = "latest")
+cc_list_tables(version = "latest", con = NULL)
 }
 \arguments{
 \item{version}{Database version (default: "latest")}
+
+\item{con}{Optional open connection from \code{\link[=cc_get_db]{cc_get_db()}}. When given it is used
+as is (no new connection); \code{version} is then ignored.}
 }
 \value{
 Character vector of table names
@@ -18,6 +21,10 @@ Lists all available tables in a CalCOFI database release.
 \examples{
 \dontrun{
 cc_list_tables()
+
+# reuse a connection
+con <- cc_get_db()
+cc_list_tables(con = con)
 }
 }
 \concept{read}

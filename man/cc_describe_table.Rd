@@ -4,12 +4,17 @@
 \alias{cc_describe_table}
 \title{Describe a CalCOFI database table}
 \usage{
-cc_describe_table(table, version = "latest")
+cc_describe_table(table, version = "latest", con = NULL)
 }
 \arguments{
 \item{table}{Table name.}
 
-\item{version}{Database version (default: \code{"latest"}).}
+\item{version}{Database version (default: \code{"latest"}). With \code{con}, this
+only selects the \code{metadata.json} sidecar, so pass the version \code{con} was
+opened on if it is not the latest.}
+
+\item{con}{Optional open connection from \code{\link[=cc_get_db]{cc_get_db()}}. When given it is used
+as is (no new connection).}
 }
 \value{
 Tibble with one row per column:

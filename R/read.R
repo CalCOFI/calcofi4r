@@ -374,6 +374,8 @@ cc_query <- function(sql, version = "latest") {
 #' Lists all available tables in a CalCOFI database release.
 #'
 #' @param version Database version (default: "latest")
+#' @param con Optional open connection from [cc_get_db()]. When given it is used
+#'   as is (no new connection); `version` is then ignored.
 #'
 #' @return Character vector of table names
 #'
@@ -383,10 +385,14 @@ cc_query <- function(sql, version = "latest") {
 #' @examples
 #' \dontrun{
 #' cc_list_tables()
+#'
+#' # reuse a connection
+#' con <- cc_get_db()
+#' cc_list_tables(con = con)
 #' }
 #' @importFrom DBI dbListTables
-cc_list_tables <- function(version = "latest") {
-  con <- cc_get_db(version = version)
+cc_list_tables <- function(version = "latest", con = NULL) {
+  if (is.null(con)) con <- cc_get_db(version = version)
   DBI::dbListTables(con)
 }
 
@@ -403,7 +409,11 @@ cc_list_tables <- function(version = "latest") {
 #' [CalCOFI Schema explorer](https://calcofi.io/db-schema/).
 #'
 #' @param table Table name.
-#' @param version Database version (default: \code{"latest"}).
+#' @param version Database version (default: \code{"latest"}). With `con`, this
+#'   only selects the `metadata.json` sidecar, so pass the version `con` was
+#'   opened on if it is not the latest.
+#' @param con Optional open connection from [cc_get_db()]. When given it is used
+#'   as is (no new connection).
 #'
 #' @return Tibble with one row per column:
 #'   \code{column_name}, \code{data_type}, \code{is_nullable},
@@ -429,8 +439,8 @@ cc_list_tables <- function(version = "latest") {
 #' @importFrom tibble as_tibble tibble
 #' @importFrom dplyr left_join
 #' @importFrom glue glue
-cc_describe_table <- function(table, version = "latest") {
-  con <- cc_get_db(version = version)
+cc_describe_table <- function(table, version = "latest", con = NULL) {
+  if (is.null(con)) con <- cc_get_db(version = version)
 
   # check table exists
   tables <- DBI::dbListTables(con)
@@ -659,6 +669,8 @@ cc_read_measurements <- function(
 #' Returns all available measurement types in the CalCOFI bottle database.
 #'
 #' @param version Database version (default: "latest")
+#' @param con Optional open connection from [cc_get_db()]. When given it is used
+#'   as is (no new connection); `version` is then ignored.
 #'
 #' @return Tibble with measurement_type, description, and units
 #'
@@ -671,8 +683,8 @@ cc_read_measurements <- function(
 #' }
 #' @importFrom DBI dbGetQuery
 #' @importFrom tibble as_tibble
-cc_list_measurement_types <- function(version = "latest") {
-  con <- cc_get_db(version = version)
+cc_list_measurement_types <- function(version = "latest", con = NULL) {
+  if (is.null(con)) con <- cc_get_db(version = version)
   result <- DBI::dbGetQuery(
     con,
     "SELECT measurement_type, description, units
