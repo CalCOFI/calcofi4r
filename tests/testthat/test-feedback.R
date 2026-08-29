@@ -25,6 +25,14 @@ test_that("the four steps are there: Drive image, Sheet row, recipients mail, pu
   expect_true(grepl("issue skipped: no GITHUB_TOKEN", gs, fixed = TRUE))
 })
 
+test_that("the mail carries the screenshot inline (1.14.1), gated on the copy Drive stored", {
+  gs <- cc_feedback_script()
+  expect_true(grepl("mail.inlineImages = inline", gs, fixed = TRUE))
+  expect_true(grepl('src=\\"cid:shot\\"', gs, fixed = TRUE))                      # the <img> names the inline blob
+  expect_true(grepl("(image_url && bytes && bytes.length) ?", gs, fixed = TRUE))  # no Drive copy (too large, absent) -> no inline
+  expect_true(grepl("MailApp.sendEmail(mail)", gs, fixed = TRUE))
+})
+
 test_that("the email never reaches the public issue", {
   gs <- cc_feedback_script()
   fn <- regmatches(gs, regexpr("function _openIssue\\([^)]*\\) \\{.*?\\n\\}", gs))
