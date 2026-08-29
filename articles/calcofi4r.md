@@ -43,23 +43,24 @@ The package provides convenience functions for common operations:
 
 # list available versions
 cc_list_versions()
-#> # A tibble: 28 × 6
-#>    version     release_date tables total_rows size_mb is_latest
-#>    <chr>       <chr>         <int>      <int>   <dbl> <lgl>    
-#>  1 v2026.08.25 2026-08-25       18  320265060   1996  TRUE     
-#>  2 v2026.08.14 2026-08-14       18  307537056   1930. FALSE    
-#>  3 v2026.08.11 2026-08-11       18  323912311   2016. FALSE    
-#>  4 v2026.08.10 2026-08-11       18  323912364   2017. FALSE    
-#>  5 v2026.08.08 2026-08-08       18  309122838   1947  FALSE    
-#>  6 v2026.08.07 2026-08-07       18  323733662   2024. FALSE    
-#>  7 v2026.08.06 2026-08-06       18  255137845   1636. FALSE    
-#>  8 v2026.08.05 2026-08-05       18  255137845   1636. FALSE    
-#>  9 v2026.08.04 2026-08-04       18  255155031   1635  FALSE    
-#> 10 v2026.08.03 2026-08-03       18  255037035   2057. FALSE    
+#> # A tibble: 28 × 8
+#>    version     release_date tables total_rows size_mb consolidated
+#>    <chr>       <chr>         <int>      <int>   <dbl> <lgl>       
+#>  1 v2026.08.25 2026-08-25       18  320260205   1998. TRUE        
+#>  2 v2026.08.14 2026-08-14       18  307537056   1930. TRUE        
+#>  3 v2026.08.11 2026-08-11       18  323912311   2016. FALSE       
+#>  4 v2026.08.10 2026-08-11       18  323912364   2017. FALSE       
+#>  5 v2026.08.08 2026-08-08       18  309122838   1947  FALSE       
+#>  6 v2026.08.07 2026-08-07       18  323733662   2024. FALSE       
+#>  7 v2026.08.06 2026-08-06       18  255137845   1636. FALSE       
+#>  8 v2026.08.05 2026-08-05       18  255137845   1636. FALSE       
+#>  9 v2026.08.04 2026-08-04       18  255155031   1635  FALSE       
+#> 10 v2026.08.03 2026-08-03       18  255037035   2057. FALSE       
 #> # ℹ 18 more rows
+#> # ℹ 2 more variables: retired <df[,3]>, is_latest <lgl>
 
-# list tables
-cc_list_tables()
+# list tables (con = reuses the connection opened above)
+cc_list_tables(con = con)
 #>  [1] "cruise"             "dataset"            "dataset_taxon"     
 #>  [4] "grid"               "lookup"             "measurement_type"  
 #>  [7] "obs"                "obs_attribute"      "region"            
@@ -68,7 +69,7 @@ cc_list_tables()
 #> [16] "taxon_group"
 
 # describe a table
-cc_describe_table("obs")
+cc_describe_table("obs", con = con)
 #> # A tibble: 18 × 6
 #>    column_name       data_type is_nullable name_long        units description_md
 #>    <chr>             <chr>     <chr>       <chr>            <chr> <chr>         
@@ -92,7 +93,7 @@ cc_describe_table("obs")
 #> 18 dataset_key       VARCHAR   YES         Dataset Key      NA    Provenance st…
 
 # list measurement types
-cc_list_measurement_types() |> head(10)
+cc_list_measurement_types(con = con) |> head(10)
 #> # A tibble: 10 × 3
 #>    measurement_type    description                                         units
 #>    <chr>               <chr>                                               <chr>
@@ -120,12 +121,12 @@ head(taxa)
 #> # A tibble: 6 × 19
 #>   taxon_key worms_id itis_id gbif_id ncbi_id inat_id scientific_name common_name
 #>   <chr>        <int>   <int>   <int>   <int>   <int> <chr>           <chr>      
-#> 1 itis:174…   136996  174467      NA      NA      NA Gaviidae        loons      
-#> 2 itis:174…   136995  174477      NA      NA      NA Podicipedidae   grebes     
-#> 3 itis:174…   148742  174513      NA      NA      NA Diomedeidae     albatrosses
-#> 4 itis:174…   136998  174532      NA      NA      NA Procellariidae  shearwaters
-#> 5 itis:174…   148794  174619      NA      NA      NA Hydrobatidae    storm petr…
-#> 6 itis:174…   136992  174671      NA      NA      NA Phaethontidae   tropicbirds
+#> 1 calcofi_…       NA      NA      NA      NA      NA NA              NA         
+#> 2 calcofi_…       NA      NA      NA      NA      NA NA              NA         
+#> 3 calcofi_…       NA      NA      NA      NA      NA NA              NA         
+#> 4 calcofi_…       NA      NA      NA      NA      NA NA              NA         
+#> 5 calcofi_…       NA      NA      NA      NA      NA NA              NA         
+#> 6 calcofi_…       NA      NA      NA      NA      NA NA              NA         
 #> # ℹ 11 more variables: rank <chr>, rank_order <int>, taxonomic_status <chr>,
 #> #   status_checked <chr>, parent_taxon_key <chr>, kingdom <chr>, phylum <chr>,
 #> #   class <chr>, order_taxon <chr>, family <chr>, notes <chr>
@@ -136,12 +137,12 @@ head(ichthyo_sample)
 #> # A tibble: 6 × 18
 #>     obs_id realm sample_key               grid_key cruise_key latitude longitude
 #>      <dbl> <chr> <chr>                    <chr>    <chr>         <dbl>     <dbl>
-#> 1 25923647 bio   swfsc_ichthyo:net:fa874… st40-ln… 1955-05-3…     27.1     -115.
-#> 2 25924165 bio   swfsc_ichthyo:net:fa874… st40-ln… 1955-05-3…     27.1     -115.
-#> 3 25930458 bio   swfsc_ichthyo:net:01884… st40-ln… 1955-05-3…     27.6     -116.
-#> 4 25930460 bio   swfsc_ichthyo:net:02884… st40-ln… 1955-05-3…     27.8     -116.
-#> 5 25930521 bio   swfsc_ichthyo:net:03884… st40-ln… 1955-05-3…     28.0     -115.
-#> 6 25932347 bio   swfsc_ichthyo:net:03884… st40-ln… 1955-05-3…     28.0     -115.
+#> 1 25779682 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
+#> 2 25779683 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
+#> 3 25779684 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
+#> 4 25779685 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
+#> 5 25779686 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
+#> 6 25779687 bio   swfsc_ichthyo:net:dc086… st-20-l… 1999-10-3…     25.3     -109.
 #> # ℹ 11 more variables: datetime <dttm>, depth_min_m <dbl>, depth_max_m <dbl>,
 #> #   taxon_key <chr>, life_stage <chr>, measurement_type <chr>,
 #> #   measurement_value <dbl>, measurement_qual <chr>, measurement_prec <dbl>,
@@ -190,7 +191,7 @@ tibble(
 #>    table                  rows
 #>    <chr>                 <dbl>
 #>  1 obs                26261931
-#>  2 sample              1472100
+#>  2 sample              1467245
 #>  3 sample_measurement   589603
 #>  4 obs_attribute        452789
 #>  5 spatial_attribute    148461
@@ -232,14 +233,14 @@ d_temp <- dbGetQuery(con, "
 
 head(d_temp)
 #>         lon      lat            datetime depth_m temperature
-#> 1 -109.3833 22.55000 1950-11-28 19:42:00       0       27.25
-#> 2 -109.3833 22.55000 1951-03-08 19:36:00       0       21.81
-#> 3 -109.3833 22.55000 1951-06-11 04:36:00       0       24.19
-#> 4 -109.3833 22.55000 1951-06-11 07:42:00       0       24.09
-#> 5 -109.3167 22.58333 1954-12-04 20:42:00       0       26.00
-#> 6 -109.3000 22.65000 1955-02-13 23:24:00       0       20.87
+#> 1 -124.3333 33.41667 1968-01-20 10:36:00       0       14.18
+#> 2 -124.3333 33.40000 1969-02-17 06:15:00       0       12.85
+#> 3 -124.3250 33.39167 1981-05-26 23:04:00       0       16.15
+#> 4 -124.3250 33.39167 1981-05-26 23:23:00       0       16.11
+#> 5 -124.3233 33.38833 1984-01-15 10:05:00       0       15.43
+#> 6 -124.3517 33.35833 1984-02-15 12:51:00       0       15.55
 nrow(d_temp)
-#> [1] 94248
+#> [1] 93985
 ```
 
 ### Summarize by Location
@@ -298,20 +299,20 @@ The grid is also available in the database with additional attributes:
 # query grid from database (includes geometry)
 grid_db <- dbGetQuery(con, "SELECT * EXCLUDE(geom, geom_ctr) FROM grid")
 head(grid_db)
-#>          grid_key station line     shore    pattern spacing
-#> 1   st0-ln10_hist       0   10 nearshore historical      20
-#> 2  st20-ln10_hist      20   10 nearshore historical      20
-#> 3  st40-ln10_hist      40   10 nearshore historical      20
-#> 4  st60-ln10_hist      60   10 nearshore historical      20
-#> 5  st80-ln10_hist      80   10  offshore historical      20
-#> 6 st100-ln10_hist     100   10  offshore historical      20
-#>                   zone area_km2
-#> 1 nearshore-historical 23111.47
-#> 2 nearshore-historical 32060.98
-#> 3 nearshore-historical 32467.41
-#> 4 nearshore-historical 32869.45
-#> 5  offshore-historical 33267.04
-#> 6  offshore-historical 33660.13
+#>           grid_key station line     shore    pattern spacing
+#> 1 st-20-ln130_hist     -20  130 nearshore historical      20
+#> 2 st-20-ln140_hist     -20  140 nearshore historical      20
+#> 3 st-20-ln150_hist     -20  150 nearshore historical      20
+#> 4 st-20-ln160_hist     -20  160 nearshore historical      20
+#> 5 st-40-ln160_hist     -40  160 nearshore historical      20
+#> 6    st0-ln10_hist       0   10 nearshore historical      20
+#>                   zone  area_km2
+#> 1 nearshore-historical  2065.491
+#> 2 nearshore-historical 10689.976
+#> 3 nearshore-historical 21697.541
+#> 4 nearshore-historical 31967.488
+#> 5 nearshore-historical  2993.808
+#> 6 nearshore-historical 23111.471
 ```
 
 ## Show Effort by Grid Cell

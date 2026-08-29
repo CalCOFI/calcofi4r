@@ -248,14 +248,14 @@ data. That is the package’s reproducibility contract:
 meta <- attr(d, "query_meta")
 str(meta)
 #> List of 6
-#>  $ package_version: chr "1.11.0"
+#>  $ package_version: chr "1.13.1"
 #>  $ release_version: chr "v2026.08.25"
 #>  $ params         :List of 3
 #>   ..$ max_dist_km: num 5
 #>   ..$ max_time_hr: num 72
 #>   ..$ join_method: chr "nearest_time"
-#>  $ source_urls    : chr [1:3] "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.25/parquet/obs.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.25/parquet/sample_measurement.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.25/parquet/taxon.parquet"
-#>  $ generated_at   : chr "2026-08-25 11:40:05 UTC"
+#>  $ source_urls    : chr [1:3] "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs/cab10a850ca898f3ec386de7/obs.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/tables/sample_measurement/3ca15d80943300a06e48d290/sample_me"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/taxon/45ae7f809e5971112fa7df0c/taxon.parquet"
+#>  $ generated_at   : chr "2026-08-29 03:27:42 UTC"
 #>  $ n_rows         : int 310
 ```
 
@@ -287,9 +287,8 @@ cat(substr(sql, 1, 600), "\n…\n")
 #>   t.scientific_name,
 #>   t.worms_id,
 #>   o.life_stage
-#> FROM read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.25/parquet/obs.parquet') o
-#> JOIN read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/releases/v2026.08.25/parquet/taxon.parquet') t ON t.taxon_key = o.taxon_key
-#> LEFT JOIN read_ 
+#> FROM read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/tables/obs/cab10a850ca898f3ec386de7/obs.parquet') o
+#> JOIN read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/tables/taxon/45ae7f809e5971112fa7df0c/taxon.parquet') t ON t.taxon_key = o.taxon_key 
 #> …
 ```
 

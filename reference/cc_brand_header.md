@@ -12,6 +12,7 @@ cc_brand_header(
   title,
   ...,
   subtitle = NULL,
+  release = NULL,
   href = "./",
   toggle_id = "dark_toggle",
   mode = c("dark", "light"),
@@ -31,7 +32,13 @@ cc_brand_header(
 
 - subtitle:
 
-  small muted text after the title (a release version, say)
+  small muted text after the title
+
+- release:
+
+  the database release the app's data was built from, shown as
+  [`cc_release_chip()`](https://calcofi.io/calcofi4r/reference/cc_release_chip.md)
+  after the title; `NULL` for an app not on the database
 
 - href:
 

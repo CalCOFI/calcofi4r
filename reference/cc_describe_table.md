@@ -9,7 +9,7 @@ available. The table-level description is attached as the
 ## Usage
 
 ``` r
-cc_describe_table(table, version = "latest")
+cc_describe_table(table, version = "latest", con = NULL)
 ```
 
 ## Arguments
@@ -20,7 +20,15 @@ cc_describe_table(table, version = "latest")
 
 - version:
 
-  Database version (default: `"latest"`).
+  Database version (default: `"latest"`). With `con`, this only selects
+  the `metadata.json` sidecar, so pass the version `con` was opened on
+  if it is not the latest.
+
+- con:
+
+  Optional open connection from
+  [`cc_get_db()`](https://calcofi.io/calcofi4r/reference/cc_get_db.md).
+  When given it is used as is (no new connection).
 
 ## Value
 

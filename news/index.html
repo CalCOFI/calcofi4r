@@ -4,7 +4,16 @@
      same one theme.js reads); the pre-paint below also writes that key so
      the switch and the cross-site cookie agree, and the observer pushes a
      switch click back into the cookie. The favicon set is the calcofi4r
-     hex (pkgdown/favicon/), one of the two designed exceptions. --><script>(function(){var m=/[?&]theme=(dark|light)\b/.exec(location.search),c=/(?:^|;\s*)cc_theme=(dark|light)/.exec(document.cookie),s=null;try{s=localStorage.getItem("theme")}catch(e){}var t=(m&&m[1])||(c&&c[1])||(s==="light"||s==="dark"?s:null)||"dark",d=document.documentElement;d.dataset.theme=t;d.setAttribute("data-bs-theme",t);d.style.colorScheme=t;try{localStorage.setItem("theme",t)}catch(e){}})();</script><link rel="stylesheet" href="https://calcofi.io/brand/v1/theme.css"><script defer src="https://calcofi.io/brand/v1/theme.js"></script><script>(function(){var r=document.documentElement,last=r.getAttribute("data-bs-theme");new MutationObserver(function(){var t=r.getAttribute("data-bs-theme");if(t===last||(t!=="dark"&&t!=="light"))return;last=t;if(window.ccTheme&&ccTheme.get()!==t)ccTheme.set(t)}).observe(r,{attributes:true,attributeFilter:["data-bs-theme"]})})();</script><style>.navbar .cc-home .cc-logo{display:inline-block;width:28px;height:28px;vertical-align:middle;background:url(https://calcofi.io/brand/v1/logo_calcofi.svg) center/contain no-repeat}[data-bs-theme=light] .navbar .cc-home .cc-logo{background-image:url(https://calcofi.io/brand/v1/logo_calcofi_light.svg)}</style><!-- Google tag (gtag.js) --><script async src="https://www.googletagmanager.com/gtag/js?id=G-0HVK8TDMCF"></script><script>
+     hex (pkgdown/favicon/), one of the two designed exceptions. --><script>(function(){var m=/[?&]theme=(dark|light)\b/.exec(location.search),c=/(?:^|;\s*)cc_theme=(dark|light)/.exec(document.cookie),s=null;try{s=localStorage.getItem("theme")}catch(e){}var t=(m&&m[1])||(c&&c[1])||(s==="light"||s==="dark"?s:null)||"dark",d=document.documentElement;d.dataset.theme=t;d.setAttribute("data-bs-theme",t);d.style.colorScheme=t;try{localStorage.setItem("theme",t)}catch(e){}})();</script><link rel="stylesheet" href="https://calcofi.io/brand/v1/theme.css"><script defer src="https://calcofi.io/brand/v1/theme.js"></script><script>(function(){var r=document.documentElement,last=r.getAttribute("data-bs-theme");new MutationObserver(function(){var t=r.getAttribute("data-bs-theme");if(t===last||(t!=="dark"&&t!=="light"))return;last=t;if(window.ccTheme&&ccTheme.get()!==t)ccTheme.set(t)}).observe(r,{attributes:true,attributeFilter:["data-bs-theme"]})})();</script><style>
+  .navbar .cc-home .cc-logo{display:inline-block;width:28px;height:28px;vertical-align:middle;background:url(https://calcofi.io/brand/v1/logo_calcofi.svg) center/contain no-repeat}
+  [data-bs-theme=light] .navbar .cc-home .cc-logo{background-image:url(https://calcofi.io/brand/v1/logo_calcofi_light.svg)}
+  /* the light-switch button wears the brand pair (theme.css exports the masks): the sun while
+     the page is dark, the moon-in-sun while it is light — what a click moves toward, as on
+     calcofi4py — in place of Font Awesome's current-mode sun/moon. The menu's own
+     Light / Dark / Auto icons stay. */
+  #dropdown-lightswitch .fa::before{content:"" !important;display:inline-block;width:1.15rem;height:1.15rem;vertical-align:-.25em;background-color:currentColor;-webkit-mask:var(--cc-icon-moon) center/contain no-repeat;mask:var(--cc-icon-moon) center/contain no-repeat}
+  [data-bs-theme=dark] #dropdown-lightswitch .fa::before{-webkit-mask-image:var(--cc-icon-sun);mask-image:var(--cc-icon-sun)}
+</style><!-- Google tag (gtag.js) --><script async src="https://www.googletagmanager.com/gtag/js?id=G-0HVK8TDMCF"></script><script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
@@ -22,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.11.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.13.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,12 +72,54 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.13.1" id="calcofi4r-1131">calcofi4r 1.13.1<a class="anchor" aria-label="anchor" href="#calcofi4r-1131"></a></h2>
+<div class="section level3">
+<h3 id="cc_get_db-never-hands-back-an-empty-database-1-13-1">
+<code>cc_get_db()</code> never hands back an empty database<a class="anchor" aria-label="anchor" href="#cc_get_db-never-hands-back-an-empty-database-1-13-1"></a></h3>
+<ul><li>
+<strong><code>httpfs</code> is installed (once) and loaded explicitly</strong> on every connection, before any view is created and on the cached path too. It used to rely on DuckDB autoloading, which only loads an extension that is <em>already installed</em> — true on a laptop that has ever read an https parquet, false on a fresh CI runner or a first install. The legacy <code>s3://</code> glob of a partitioned table happened to route through the anonymous-S3 setup that installs it; the first content-addressed release (v2026.08.25) had no glob left, and from that day every remote view on the pkgdown runner failed to bind.</li>
+<li>
+<strong>A table that fails to load is an error</strong> naming the table and DuckDB’s message — never a per-table <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code>, which a vignette’s <code>warning = FALSE</code> hid until <code>cc_describe_table("obs")</code> reported <code>Table 'obs' not found</code> three chunks later. The views are created in one transaction, so a failed call leaves no partial <code>calcofi_{version}.duckdb</code> for the next call to return as “cached”. A <code>tables =</code> selection that matches nothing is an error too.</li>
+<li>
+<code><a href="../reference/cc_list_tables.html">cc_list_tables()</a></code>, <code><a href="../reference/cc_describe_table.html">cc_describe_table()</a></code> and <code><a href="../reference/cc_list_measurement_types.html">cc_list_measurement_types()</a></code> accept <code>con =</code> to reuse an open connection (as <code><a href="../reference/cc_get_dm.html">cc_get_dm()</a></code> already did); the vignette passes its own.</li>
+<li>pkgdown CI smoke-tests <code><a href="../reference/cc_get_db.html">cc_get_db()</a></code> with warnings visible before building the site.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.13.0" id="calcofi4r-1130">calcofi4r 1.13.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1130"></a></h2>
+<div class="section level3">
+<h3 id="effort-and-denominators-plan-d8-1-13-0">Effort and denominators (plan D8)<a class="anchor" aria-label="anchor" href="#effort-and-denominators-plan-d8-1-13-0"></a></h3>
+<ul><li>
+<code><a href="../reference/cc_density_sql.html">cc_density_sql()</a></code> — the one SQL expression deriving <code>density_per_10m2</code> (areal: <code>count × std_haul_factor / prop_sorted</code> for C1/CB/CV/PV tows, published per-m² × 10), <code>density_per_1000m3</code> (volumetric: <code>count / prop_sorted / volume_sampled_m3 × 1000</code>, published per-1000 m³ as is) and <code>effort_class</code> (<code>count_with_effort | raw_count_no_effort | density_as_published | other_unit</code>). Byte-identical to <code>calcofi4py.density_sql()</code> and the explorer’s <code>sql/density.sql</code>; the fixture pins it. Areal and volumetric are never converted into each other.</li>
+<li>
+<code><a href="../reference/cc_default_stage.html">cc_default_stage()</a></code> / <code><a href="../reference/cc_default_stage.html">cc_default_denominator()</a></code> — the picker’s rule-4 defaults (most rows with effort; most datasets with effort, never largest-n; <code>per_10m2</code> on a tie; <code>raw</code> only when nothing has effort). <code>CC_DENSITY_UNITS</code>, <code>CC_AREAL_GEARS</code> are the registry-owned vocabularies.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.12.1" id="calcofi4r-1121">calcofi4r 1.12.1<a class="anchor" aria-label="anchor" href="#calcofi4r-1121"></a></h2>
+<ul><li>
+<code>cc_get_db(local_data = TRUE)</code> keeps partitioned tables as remote views (as before 1.11.0), rather than downloading every partition — <code>obs</code> is all 16 datasets, and consumers rely on it being a view they can drop after copying one partition.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.12.0" id="calcofi4r-1120">calcofi4r 1.12.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1120"></a></h2>
+<div class="section level3">
+<h3 id="the-release-chip-1-12-0">The release chip<a class="anchor" aria-label="anchor" href="#the-release-chip-1-12-0"></a></h3>
+<p>Every product on the integrated database showed <em>which</em> release its own way (a muted span, a subtitle, a footer line, or nothing). The brand header now carries one <code>release &lt;b&gt;vYYYY.MM.DD&lt;/b&gt;</code> chip right after the title, linking to that version’s schema and release notes.</p>
+<ul><li>
+<strong><code><a href="../reference/cc_brand_header.html">cc_brand_header()</a></code></strong> gains <code>release =</code>.</li>
+<li>
+<strong><code>cc_release_chip(version)</code></strong> (new) — the chip on its own, for a framework-owned bar; <code>NULL</code>/<code>NA</code>/<code>""</code> renders nothing.</li>
+<li>
+<strong><code>cc_release_url(version)</code></strong> (new) — <code>https://calcofi.io/db-schema/#erd?v=…</code>.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.11.0" id="calcofi4r-1110">calcofi4r 1.11.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1110"></a></h2>
 <div class="section level3">
 <h3 id="content-addressed-releases-1-11-0">Content-addressed releases<a class="anchor" aria-label="anchor" href="#content-addressed-releases-1-11-0"></a></h3>
 <ul><li>New <code><a href="../reference/cc_catalog.html">cc_catalog()</a></code>, <code><a href="../reference/cc_release_sources.html">cc_release_sources()</a></code> and <code><a href="../reference/cc_read_parquet_sql.html">cc_read_parquet_sql()</a></code>: the one place a release table is turned into parquet URLs. From the v2026.09 releases each table/partition is an immutable object under <code>gs://calcofi-db/ducklake/tables/{table}/{content_hash}/…</code> listed in the catalog’s <code>objects[]</code>; earlier catalogs still resolve to their per-release <code>releases/{version}/parquet/…</code> paths. Never build that path by hand — it is only guaranteed for the promoted and consolidated versions.</li>
 <li>
-<code><a href="../reference/cc_get_db.html">cc_get_db()</a></code> resolves every table through <code><a href="../reference/cc_release_sources.html">cc_release_sources()</a></code>. Partitioned tables on a canonical release are read as an explicit https file list with <code>hive_partitioning = true</code> (no anonymous-S3 glob), and <code>local_data = TRUE</code> now downloads partitioned tables too, into a content-addressed cache (<code>parquet/tables/{table}/{hash}/…</code>) shared across pinned versions.</li>
+<code><a href="../reference/cc_get_db.html">cc_get_db()</a></code> resolves every table through <code><a href="../reference/cc_release_sources.html">cc_release_sources()</a></code>. Partitioned tables on a canonical release are read as an explicit https file list with <code>hive_partitioning = true</code> (no anonymous-S3 glob), and <code>local_data = TRUE</code> keeps its content-addressed cache (<code>parquet/tables/{table}/{hash}/…</code>) for single-file tables, shared across pinned versions; a <strong>partitioned</strong> table stays a remote view under <code>local_data</code> (downloading every partition of <code>obs</code> to serve a pruned query is the wrong default, and consumers rely on it being a view).</li>
 </ul></div>
 </div>
     <div class="section level2">

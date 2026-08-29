@@ -300,14 +300,14 @@ series <- anom_summer |>
 
 head(series)
 #> # A tibble: 6 × 4
-#>      yr layer    anomaly     n
-#>   <int> <fct>      <dbl> <int>
-#> 1  1994 50-100 m  0.396    830
-#> 2  1996 50-100 m  0.512    929
-#> 3  2003 50-100 m -0.0955   776
-#> 4  2006 50-100 m  0.344    741
-#> 5  2013 50-100 m -0.345    757
-#> 6  2021 50-100 m -0.184    772
+#>      yr layer  anomaly     n
+#>   <int> <fct>    <dbl> <int>
+#> 1  1993 0-50 m   0.766   925
+#> 2  1997 0-50 m   0.775   973
+#> 3  1998 0-50 m  -0.631  1005
+#> 4  2001 0-50 m   0.310   954
+#> 5  2004 0-50 m   0.134  1148
+#> 6  2006 0-50 m   0.363  1088
 ```
 
 A sanity check before reading anything into it: the baseline years must

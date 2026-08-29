@@ -12,6 +12,8 @@
 <url><loc>https://calcofi.io/calcofi4r/data-oceano_man-old.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/index.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/news/index.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/CC_AREAL_GEARS.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/CC_DENSITY_UNITS.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/CC_QUAL_EXCLUDE.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/bottle_temp_depth.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/bottle_temp_lonlat.html</loc></url>
@@ -30,6 +32,8 @@
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_db_catalog.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_db_connect.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_db_info.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_default_stage.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_density_sql.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_describe_table.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_erd.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_erd_color_map.html</loc></url>
@@ -79,8 +83,10 @@
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_read_species.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_read_taxon.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_read_tow.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_release_chip.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_release_notes.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_release_sources.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_release_url.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_tbl.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_theme.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_tour_enabled.html</loc></url>

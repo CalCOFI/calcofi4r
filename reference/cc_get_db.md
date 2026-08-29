@@ -57,7 +57,10 @@ cc_get_db(
 
 ## Value
 
-DuckDB connection object
+DuckDB connection object with every requested table present. A table
+that cannot be loaded is an **error** naming it (never a warning and a
+database missing tables); the views are created in one transaction, so a
+failed call leaves no partial local cache behind.
 
 ## Details
 

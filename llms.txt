@@ -501,6 +501,12 @@ maintainers only)
 - [`cc_plotly_theme()`](https://calcofi.io/calcofi4r/reference/cc_plotly_theme.md)
   : Theme a plotly figure for the current theme
 
+- [`cc_release_chip()`](https://calcofi.io/calcofi4r/reference/cc_release_chip.md)
+  : The integrated-database release chip
+
+- [`cc_release_url()`](https://calcofi.io/calcofi4r/reference/cc_release_url.md)
+  : Where a database release is documented
+
 - [`cc_theme()`](https://calcofi.io/calcofi4r/reference/cc_theme.md) :
   Resolve the theme a Shiny request asks for
 
@@ -513,41 +519,77 @@ maintainers only)
 
 check for other functions or datasets not captured by above categories
 
+- [`CC_AREAL_GEARS`](https://calcofi.io/calcofi4r/reference/CC_AREAL_GEARS.md)
+  :
+
+  Gears whose `std_haul_factor` standardizes to a depth-integrated 10 m2
+  (oblique / vertical tows)
+
+- [`CC_DENSITY_UNITS`](https://calcofi.io/calcofi4r/reference/CC_DENSITY_UNITS.md)
+  : Units the release publishes as densities (per unit area, per unit
+  volume)
+
 - [`CC_QUAL_EXCLUDE`](https://calcofi.io/calcofi4r/reference/CC_QUAL_EXCLUDE.md)
   : Quality codes a consumer should exclude, per dataset
+
 - [`cc_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_anomaly.md)
   : Join a section to a climatology and difference it
+
 - [`cc_bathy()`](https://calcofi.io/calcofi4r/reference/cc_bathy.md) :
   GEBCO seafloor bathymetry over the CalCOFI area
+
 - [`cc_bathy_depth()`](https://calcofi.io/calcofi4r/reference/cc_bathy_depth.md)
   : Seafloor depth at points
+
 - [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
   : Seasonal climatology for one or more measurement types
+
+- [`cc_default_stage()`](https://calcofi.io/calcofi4r/reference/cc_default_stage.md)
+  [`cc_default_denominator()`](https://calcofi.io/calcofi4r/reference/cc_default_stage.md)
+  : The picker's defaults: which life stage and which denominator open a
+  taxon (D8 rule 4)
+
+- [`cc_density_sql()`](https://calcofi.io/calcofi4r/reference/cc_density_sql.md)
+  : SQL deriving the two canonical densities and the effort class of a
+  bio observation
+
 - [`cc_match_bio_env()`](https://calcofi.io/calcofi4r/reference/cc_match_bio_env.md)
   : Match biological to environmental observations
+
 - [`cc_match_ichthyo_by_name()`](https://calcofi.io/calcofi4r/reference/cc_match_ichthyo_by_name.md)
   : Match ichthyoplankton to environmental data by scientific name
+
 - [`cc_match_ichthyo_by_taxon()`](https://calcofi.io/calcofi4r/reference/cc_match_ichthyo_by_taxon.md)
   : Match ichthyoplankton to environmental data by WoRMS taxon subtree
+
 - [`cc_match_zooplankton_biomass()`](https://calcofi.io/calcofi4r/reference/cc_match_zooplankton_biomass.md)
   : Match zooplankton biomass to environmental data
+
 - [`cc_qual_ok()`](https://calcofi.io/calcofi4r/reference/cc_qual_ok.md)
   : Is each observation's quality flag acceptable? (vectorised, in R)
+
 - [`cc_qual_ok_sql()`](https://calcofi.io/calcofi4r/reference/cc_qual_ok_sql.md)
   : SQL predicate keeping only observations whose quality flag is not
   bad
+
 - [`cc_transect_bathy()`](https://calcofi.io/calcofi4r/reference/cc_transect_bathy.md)
   : Seafloor profile along a transect, sampled at a regular interval
+
 - [`cc_transect_matrix()`](https://calcofi.io/calcofi4r/reference/cc_transect_matrix.md)
   : Pivot a section (or anomaly) to a station x depth matrix
+
 - [`cc_transect_section()`](https://calcofi.io/calcofi4r/reference/cc_transect_section.md)
   : Observations along a transect, binned by depth
+
 - [`cc_transect_stations()`](https://calcofi.io/calcofi4r/reference/cc_transect_stations.md)
   : Stations along a CalCOFI line, ordered nearshore to offshore
+
 - [`get_taxon_children()`](https://calcofi.io/calcofi4r/reference/get_taxon_children.md)
   : Retrieve Taxon Children from Database
+
 - [`plot(`*`<cc_erd>`*`)`](https://calcofi.io/calcofi4r/reference/plot.cc_erd.md)
   : Plot a cc_erd object as an interactive diagram
+
 - [`updateMermaid()`](https://calcofi.io/calcofi4r/reference/updateMermaid.md)
   : Update the mermaid library in the package
 

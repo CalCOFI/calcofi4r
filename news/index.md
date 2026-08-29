@@ -1,5 +1,82 @@
 # Changelog
 
+## calcofi4r 1.13.1
+
+### `cc_get_db()` never hands back an empty database
+
+- **`httpfs` is installed (once) and loaded explicitly** on every
+  connection, before any view is created and on the cached path too. It
+  used to rely on DuckDB autoloading, which only loads an extension that
+  is *already installed* — true on a laptop that has ever read an https
+  parquet, false on a fresh CI runner or a first install. The legacy
+  `s3://` glob of a partitioned table happened to route through the
+  anonymous-S3 setup that installs it; the first content-addressed
+  release (v2026.08.25) had no glob left, and from that day every remote
+  view on the pkgdown runner failed to bind.
+- **A table that fails to load is an error** naming the table and
+  DuckDB’s message — never a per-table
+  [`warning()`](https://rdrr.io/r/base/warning.html), which a vignette’s
+  `warning = FALSE` hid until `cc_describe_table("obs")` reported
+  `Table 'obs' not found` three chunks later. The views are created in
+  one transaction, so a failed call leaves no partial
+  `calcofi_{version}.duckdb` for the next call to return as “cached”. A
+  `tables =` selection that matches nothing is an error too.
+- [`cc_list_tables()`](https://calcofi.io/calcofi4r/reference/cc_list_tables.md),
+  [`cc_describe_table()`](https://calcofi.io/calcofi4r/reference/cc_describe_table.md)
+  and
+  [`cc_list_measurement_types()`](https://calcofi.io/calcofi4r/reference/cc_list_measurement_types.md)
+  accept `con =` to reuse an open connection (as
+  [`cc_get_dm()`](https://calcofi.io/calcofi4r/reference/cc_get_dm.md)
+  already did); the vignette passes its own.
+- pkgdown CI smoke-tests
+  [`cc_get_db()`](https://calcofi.io/calcofi4r/reference/cc_get_db.md)
+  with warnings visible before building the site.
+
+## calcofi4r 1.13.0
+
+### Effort and denominators (plan D8)
+
+- [`cc_density_sql()`](https://calcofi.io/calcofi4r/reference/cc_density_sql.md)
+  — the one SQL expression deriving `density_per_10m2` (areal:
+  `count × std_haul_factor / prop_sorted` for C1/CB/CV/PV tows,
+  published per-m² × 10), `density_per_1000m3` (volumetric:
+  `count / prop_sorted / volume_sampled_m3 × 1000`, published per-1000
+  m³ as is) and `effort_class`
+  (`count_with_effort | raw_count_no_effort | density_as_published | other_unit`).
+  Byte-identical to `calcofi4py.density_sql()` and the explorer’s
+  `sql/density.sql`; the fixture pins it. Areal and volumetric are never
+  converted into each other.
+- [`cc_default_stage()`](https://calcofi.io/calcofi4r/reference/cc_default_stage.md)
+  /
+  [`cc_default_denominator()`](https://calcofi.io/calcofi4r/reference/cc_default_stage.md)
+  — the picker’s rule-4 defaults (most rows with effort; most datasets
+  with effort, never largest-n; `per_10m2` on a tie; `raw` only when
+  nothing has effort). `CC_DENSITY_UNITS`, `CC_AREAL_GEARS` are the
+  registry-owned vocabularies.
+
+## calcofi4r 1.12.1
+
+- `cc_get_db(local_data = TRUE)` keeps partitioned tables as remote
+  views (as before 1.11.0), rather than downloading every partition —
+  `obs` is all 16 datasets, and consumers rely on it being a view they
+  can drop after copying one partition.
+
+## calcofi4r 1.12.0
+
+### The release chip
+
+Every product on the integrated database showed *which* release its own
+way (a muted span, a subtitle, a footer line, or nothing). The brand
+header now carries one `release <b>vYYYY.MM.DD</b>` chip right after the
+title, linking to that version’s schema and release notes.
+
+- **[`cc_brand_header()`](https://calcofi.io/calcofi4r/reference/cc_brand_header.md)**
+  gains `release =`.
+- **`cc_release_chip(version)`** (new) — the chip on its own, for a
+  framework-owned bar; `NULL`/`NA`/`""` renders nothing.
+- **`cc_release_url(version)`** (new) —
+  `https://calcofi.io/db-schema/#erd?v=…`.
+
 ## calcofi4r 1.11.0
 
 ### Content-addressed releases
@@ -21,9 +98,12 @@
   [`cc_release_sources()`](https://calcofi.io/calcofi4r/reference/cc_release_sources.md).
   Partitioned tables on a canonical release are read as an explicit
   https file list with `hive_partitioning = true` (no anonymous-S3
-  glob), and `local_data = TRUE` now downloads partitioned tables too,
-  into a content-addressed cache (`parquet/tables/{table}/{hash}/…`)
-  shared across pinned versions.
+  glob), and `local_data = TRUE` keeps its content-addressed cache
+  (`parquet/tables/{table}/{hash}/…`) for single-file tables, shared
+  across pinned versions; a **partitioned** table stays a remote view
+  under `local_data` (downloading every partition of `obs` to serve a
+  pruned query is the wrong default, and consumers rely on it being a
+  view).
 
 ## calcofi4r 1.10.0
 
