@@ -10,37 +10,51 @@ cc_climatology(
   years = c(1993, 2013),
   dataset_key = "calcofi_ctd-cast",
   depth_max = 500,
-  depth_bin = 5,
-  min_n = 3
+  depth_bin = 10,
+  min_cruises = 3
 )
 }
 \arguments{
-\item{con}{DuckDB connection to a release.}
+\item{con}{DuckDB connection to a release (\code{\link[=cc_get_db]{cc_get_db()}}).}
 
 \item{variables}{\code{measurement_type}s.}
 
 \item{years}{two-element baseline range, inclusive, e.g. \code{c(1993, 2013)}.
 Recorded on the result as the \code{baseline} attribute so a plot can state it.}
 
-\item{dataset_key, depth_max, depth_bin}{as in \code{\link[=cc_transect_section]{cc_transect_section()}}.}
+\item{dataset_key, depth_max}{as in \code{\link[=cc_transect_section]{cc_transect_section()}}.}
 
-\item{min_n}{minimum observations for a cell to be returned (default 3).}
+\item{depth_bin}{bin width, m (default 10; floor bins, labelled by the shallow
+edge). The release table is only used at 10.}
+
+\item{min_cruises}{minimum distinct cruises for a cell to be returned (default
+3). A floor in cruises rather than observations because a nearshore grid cell
+holds several stations' casts from one cruise.}
 }
 \value{
 Tibble: \code{grid_key}, \code{month}, \code{depth_m}, \code{variable}, \code{clim_mean},
-\code{clim_sd}, \code{clim_n}; with attribute \code{baseline}.
+\code{clim_sd}, \code{clim_n}, \code{n_cruises}; attributes \code{baseline} (the years) and
+\code{source} (\code{"release"} or \code{"computed"}).
 }
 \description{
-A baseline per (\code{grid_key}, depth bin, month), which is the finest grouping
-the CalCOFI sampling design supports: quarterly-ish cruises over decades give
-many years per calendar month at a station, but not many days.
+The baseline every CalCOFI anomaly is a departure from: a plain mean per
+(\code{grid_key}, calendar month, 10 m floor depth bin, measurement type) across a
+window of years, kept where at least \code{min_cruises} distinct cruises contribute.
+Calendar month is the finest season CalCOFI's design supports — quarterly-ish
+cruises over decades give many \emph{years} per month at a station but only a
+handful of days — and the coarsest that works: a mean over all months is a map
+of the seasonal cycle, not an anomaly. A plain mean rather than harmonics:
+Rudnick et al. (2017) fit annual and semiannual harmonics for the CUGN glider
+climatology, which suits continuous glider sampling; CalCOFI's is episodic, and
+a monthly mean is something a reader can state exactly.
 }
 \details{
-Deliberately a \strong{plain monthly mean}, not a harmonic fit. Rudnick et al.
-(2017) fit annual and semiannual harmonics for the CUGN glider climatology,
-which suits near-continuous glider sampling; CalCOFI's is episodic and
-unevenly spaced, and a monthly mean is both defensible and legible — someone
-reading an anomaly can say exactly what it is a departure from. \code{n} is
-returned so a thin cell can be filtered rather than silently trusted.
+\strong{Since the releases of 2026-09 the database ships this table} — \code{climatology},
+built by \code{calcofi4db::build_climatology()} at release time with exactly this
+definition, the window stamped on every row — and ctd-transects and the CalCOFI
+Explorer subtract it. When \code{con} holds that table and \code{years} is its window,
+this returns its cells (\code{source} attribute \code{"release"}), so an R user, the two
+apps and any notebook see one baseline. Otherwise (an older release, or another
+window) it computes the same thing from \code{obs} (\code{source} = \code{"computed"}).
 }
 \concept{transect}

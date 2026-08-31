@@ -1,3 +1,19 @@
+# calcofi4r 1.15.0
+
+## One climatology for every anomaly
+
+- **`cc_climatology()`** returns the release's own **`climatology`** table when the connection has one
+  and `years` is its window (attribute `source = "release"`; `calcofi4db::build_climatology()` ≥ 3.26.0,
+  shipped from the 2026-09 releases) — the same cells ctd-transects and the CalCOFI Explorer subtract —
+  and otherwise computes the identical definition from `obs` (`source = "computed"`). The definition
+  changed with it: **10 m floor depth bins** (was 5 m rounded; the released CTD series is thinned to a
+  10 m grid, so 5 m off-grid bins sampled only the profile's inflection points), and the floor is
+  **`min_cruises` distinct cruises** (default 3; was `min_n` observations — a nearshore grid cell holds
+  several stations' casts from one cruise). Returns `n_cruises` too.
+- **`cc_transect_section()`** bins depth by the same 10 m floor bins (`depth_bin = 10`, labelled by the
+  shallow edge), so `cc_anomaly()` joins the release's cells exactly. Pass `depth_bin = 5` for the old
+  width (still floor, not round).
+
 # calcofi4r 1.14.2
 
 - **`cc_feedback_script()`** also mails the **submitter** a copy of their report when they gave an email — the

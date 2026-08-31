@@ -11,7 +11,7 @@ cc_transect_section(
   variables = "temperature_ave",
   dataset_key = "calcofi_ctd-cast",
   depth_max = 500,
-  depth_bin = 5,
+  depth_bin = 10,
   x = c("occupied", "line")
 )
 }
@@ -26,7 +26,7 @@ cc_transect_section(
 5000 m, and letting them set the axis squashes every standard cast into the
 top tenth of the plot).}
 
-\item{depth_bin}{bin width, m (default 5).}
+\item{depth_bin}{bin width, m (default 10; floor bins).}
 
 \item{x}{passed to \code{\link[=cc_transect_stations]{cc_transect_stations()}}.}
 }
@@ -41,5 +41,9 @@ matrix builder and the climatology consume.
 Depth is binned because CTD sensors sample continuously (47.283 m, 47.916 m,
 …), so grouping by exact depth deduplicates almost nothing and the
 native-resolution profile is jagged with sensor precision rather than signal.
+Bins are \strong{floor bins labelled by their shallow edge} (\code{floor(depth / bin) * bin}: 0, 10, 20 …), the release's \code{depth_bin} convention and the grain of its
+\code{climatology} table, so \code{\link[=cc_anomaly]{cc_anomaly()}} joins exactly. 10 m, not 5: the released
+CTD series is \emph{thinned} (a 10 m grid plus the profile's inflection points), so
+finer bins are built only from where the profile happens to bend.
 }
 \concept{transect}

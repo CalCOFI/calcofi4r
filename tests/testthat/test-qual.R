@@ -27,12 +27,13 @@ test_that("cc_climatology() leaves flagged CTD values out of the mean", {
   DBI::dbWriteTable(con, "obs", data.frame(
     dataset_key = "calcofi_ctd-cast", measurement_type = "temperature_ave",
     grid_key = "st50-ln90", depth_min_m = c(10, 10, 10, 10),
+    cruise_key = c("2000-04-33XX", "2001-04-33XX", "2002-04-33XX", "2003-04-33XX"),
     datetime = as.POSIXct(c("2000-04-01", "2001-04-01", "2002-04-01", "2003-04-01"), tz = "UTC"),
     measurement_value = c(10, 10, 10, 100),
     measurement_qual = c(NA, "", "2", "8"),
     stringsAsFactors = FALSE))
   cl <- cc_climatology(con, variables = "temperature_ave", years = c(2000, 2003),
-                       depth_max = 20, min_n = 1)
+                       depth_max = 20, min_cruises = 1)
   expect_equal(nrow(cl), 1)
   expect_equal(cl$clim_n, 3)          # the 100 flagged "8" is not averaged in
   expect_equal(cl$clim_mean, 10)

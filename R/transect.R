@@ -165,6 +165,11 @@ cc_transect_stations <- function(
 #' Depth is binned because CTD sensors sample continuously (47.283 m, 47.916 m,
 #' …), so grouping by exact depth deduplicates almost nothing and the
 #' native-resolution profile is jagged with sensor precision rather than signal.
+#' Bins are **floor bins labelled by their shallow edge** (`floor(depth / bin) *
+#' bin`: 0, 10, 20 …), the release's `depth_bin` convention and the grain of its
+#' `climatology` table, so [cc_anomaly()] joins exactly. 10 m, not 5: the released
+#' CTD series is *thinned* (a 10 m grid plus the profile's inflection points), so
+#' finer bins are built only from where the profile happens to bend.
 #'
 #' @param con DuckDB connection to a release.
 #' @param line,cruise_key,dataset_key as in [cc_transect_stations()].
@@ -172,7 +177,7 @@ cc_transect_stations <- function(
 #' @param depth_max deepest bin, m (default 500 — a handful of casts reach
 #'   5000 m, and letting them set the axis squashes every standard cast into the
 #'   top tenth of the plot).
-#' @param depth_bin bin width, m (default 5).
+#' @param depth_bin bin width, m (default 10; floor bins).
 #' @param x passed to [cc_transect_stations()].
 #' @return Tibble: `cruise_key`, `sta`, `dist_km`, `depth_m`, `variable`, `value`.
 #' @export
@@ -184,7 +189,7 @@ cc_transect_section <- function(
   variables   = "temperature_ave",
   dataset_key = "calcofi_ctd-cast",
   depth_max   = 500,
-  depth_bin   = 5,
+  depth_bin   = 10,
   x           = c("occupied", "line")
 ) {
   sta <- cc_transect_stations(con, line, cruise_key, dataset_key, match.arg(x))
@@ -198,7 +203,8 @@ cc_transect_section <- function(
       measurement_type %in% !!variables,
       !is.na(measurement_value),
       !is.na(depth_min_m),
-      depth_min_m      <= !!(depth_max + depth_bin),
+      depth_min_m      >= 0,
+      depth_min_m      <  !!(depth_max + depth_bin),
       grid_key         %in% !!unique(sta$grid_key)) |>
     dplyr::select(cruise_key, grid_key, depth_min_m,
                   variable = measurement_type, value = measurement_value) |>
@@ -209,7 +215,7 @@ cc_transect_section <- function(
     dplyr::inner_join(
       dplyr::select(sta, cruise_key, grid_key, sta, dist_km),
       by = c("cruise_key", "grid_key")) |>
-    dplyr::mutate(depth_m = round(depth_min_m / depth_bin) * depth_bin) |>
+    dplyr::mutate(depth_m = floor(depth_min_m / depth_bin) * depth_bin) |>
     dplyr::filter(depth_m <= depth_max) |>
     dplyr::group_by(cruise_key, sta, dist_km, depth_m, variable) |>
     dplyr::summarize(value = mean(value, na.rm = TRUE), .groups = "drop") |>
@@ -218,25 +224,38 @@ cc_transect_section <- function(
 
 #' Seasonal climatology for one or more measurement types
 #'
-#' A baseline per (`grid_key`, depth bin, month), which is the finest grouping
-#' the CalCOFI sampling design supports: quarterly-ish cruises over decades give
-#' many years per calendar month at a station, but not many days.
+#' The baseline every CalCOFI anomaly is a departure from: a plain mean per
+#' (`grid_key`, calendar month, 10 m floor depth bin, measurement type) across a
+#' window of years, kept where at least `min_cruises` distinct cruises contribute.
+#' Calendar month is the finest season CalCOFI's design supports — quarterly-ish
+#' cruises over decades give many *years* per month at a station but only a
+#' handful of days — and the coarsest that works: a mean over all months is a map
+#' of the seasonal cycle, not an anomaly. A plain mean rather than harmonics:
+#' Rudnick et al. (2017) fit annual and semiannual harmonics for the CUGN glider
+#' climatology, which suits continuous glider sampling; CalCOFI's is episodic, and
+#' a monthly mean is something a reader can state exactly.
 #'
-#' Deliberately a **plain monthly mean**, not a harmonic fit. Rudnick et al.
-#' (2017) fit annual and semiannual harmonics for the CUGN glider climatology,
-#' which suits near-continuous glider sampling; CalCOFI's is episodic and
-#' unevenly spaced, and a monthly mean is both defensible and legible — someone
-#' reading an anomaly can say exactly what it is a departure from. `n` is
-#' returned so a thin cell can be filtered rather than silently trusted.
+#' **Since the releases of 2026-09 the database ships this table** — `climatology`,
+#' built by `calcofi4db::build_climatology()` at release time with exactly this
+#' definition, the window stamped on every row — and ctd-transects and the CalCOFI
+#' Explorer subtract it. When `con` holds that table and `years` is its window,
+#' this returns its cells (`source` attribute `"release"`), so an R user, the two
+#' apps and any notebook see one baseline. Otherwise (an older release, or another
+#' window) it computes the same thing from `obs` (`source` = `"computed"`).
 #'
-#' @param con DuckDB connection to a release.
+#' @param con DuckDB connection to a release ([cc_get_db()]).
 #' @param variables `measurement_type`s.
 #' @param years two-element baseline range, inclusive, e.g. `c(1993, 2013)`.
 #'   Recorded on the result as the `baseline` attribute so a plot can state it.
-#' @param dataset_key,depth_max,depth_bin as in [cc_transect_section()].
-#' @param min_n minimum observations for a cell to be returned (default 3).
+#' @param dataset_key,depth_max as in [cc_transect_section()].
+#' @param depth_bin bin width, m (default 10; floor bins, labelled by the shallow
+#'   edge). The release table is only used at 10.
+#' @param min_cruises minimum distinct cruises for a cell to be returned (default
+#'   3). A floor in cruises rather than observations because a nearshore grid cell
+#'   holds several stations' casts from one cruise.
 #' @return Tibble: `grid_key`, `month`, `depth_m`, `variable`, `clim_mean`,
-#'   `clim_sd`, `clim_n`; with attribute `baseline`.
+#'   `clim_sd`, `clim_n`, `n_cruises`; attributes `baseline` (the years) and
+#'   `source` (`"release"` or `"computed"`).
 #' @export
 #' @concept transect
 cc_climatology <- function(
@@ -245,23 +264,46 @@ cc_climatology <- function(
   years       = c(1993, 2013),
   dataset_key = "calcofi_ctd-cast",
   depth_max   = 500,
-  depth_bin   = 5,
-  min_n       = 3
+  depth_bin   = 10,
+  min_cruises = 3
 ) {
-  stopifnot(length(years) == 2, years[1] <= years[2])
+  stopifnot(length(years) == 2, years[1] <= years[2], min_cruises >= 1)
 
+  # the release's own table, when it is the window asked for
+  if (depth_bin == 10 && "climatology" %in% DBI::dbListTables(con)) {
+    win <- DBI::dbGetQuery(con, "SELECT DISTINCT clim_yr_min, clim_yr_max FROM climatology")
+    if (nrow(win) == 1 && win$clim_yr_min == years[1] && win$clim_yr_max == years[2]) {
+      out <- dplyr::tbl(con, "climatology") |>
+        dplyr::filter(
+          dataset_key      == !!dataset_key,
+          measurement_type %in% !!variables,
+          depth_bin        <= !!depth_max,
+          n_cruises        >= !!min_cruises) |>
+        dplyr::select(grid_key, month, depth_m = depth_bin, variable = measurement_type,
+                      clim_mean, clim_sd, clim_n, n_cruises) |>
+        dplyr::collect() |>
+        dplyr::mutate(month = as.integer(month), depth_m = as.numeric(depth_m),
+                      clim_n = as.integer(clim_n), n_cruises = as.integer(n_cruises))
+      attr(out, "baseline") <- years
+      attr(out, "source")   <- "release"
+      return(out)
+    }
+  }
+
+  # the same definition, computed (a mirror of calcofi4db::build_climatology())
   out <- dplyr::tbl(con, "obs") |>
     .filter_qual_ok() |>
     dplyr::filter(
       dataset_key      == !!dataset_key,
       measurement_type %in% !!variables,
       !is.na(measurement_value), !is.na(depth_min_m), !is.na(datetime),
-      depth_min_m      <= !!(depth_max + depth_bin)) |>
+      depth_min_m      >= 0,
+      depth_min_m      <  !!(depth_max + depth_bin)) |>
     dplyr::mutate(
       yr  = as.integer(strftime(datetime, "%Y")),
       mon = as.integer(strftime(datetime, "%m"))) |>
     dplyr::filter(yr >= !!years[1], yr <= !!years[2]) |>
-    dplyr::mutate(depth_m = round(depth_min_m / !!depth_bin) * !!depth_bin) |>
+    dplyr::mutate(depth_m = floor(depth_min_m / !!depth_bin) * !!depth_bin) |>
     dplyr::filter(depth_m <= !!depth_max) |>
     dplyr::group_by(grid_key, month = mon, depth_m,
                     variable = measurement_type) |>
@@ -269,11 +311,14 @@ cc_climatology <- function(
       clim_mean = mean(measurement_value, na.rm = TRUE),
       clim_sd   = stats::sd(measurement_value, na.rm = TRUE),
       clim_n    = dplyr::n(),
+      n_cruises = dplyr::n_distinct(cruise_key),
       .groups   = "drop") |>
     dplyr::collect() |>
-    dplyr::filter(clim_n >= min_n)
+    dplyr::filter(n_cruises >= min_cruises) |>
+    dplyr::mutate(clim_n = as.integer(clim_n), n_cruises = as.integer(n_cruises))
 
   attr(out, "baseline") <- years
+  attr(out, "source")   <- "computed"
   out
 }
 

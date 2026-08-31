@@ -2,7 +2,7 @@
 #
 # The DB-backed functions run against a synthetic in-memory DuckDB rather than a
 # release: the rules under test (station ordering, the two distance rulers, depth
-# binning, the min_n floor) are rules about SHAPE, and a fixture small enough to
+# binning, the cruise floor) are rules about SHAPE, and a fixture small enough to
 # assert exact numbers on catches a regression that "it ran on the release and
 # looked plausible" never would.
 
@@ -33,7 +33,7 @@ fixture_con <- function() {
 
   # temperature declining with depth; station 30 of cruise B is 3 degC warm
   obs <- do.call(rbind, lapply(seq_len(nrow(smp)), function(i) {
-    d <- c(1.2, 4.8, 9.9)  # -> bins 0, 5, 10 at depth_bin = 5
+    d <- c(1.2, 14.8, 29.9)  # -> floor bins 0, 10, 20 at depth_bin = 10
     data.frame(
       cruise_key        = smp$cruise_key[i],
       grid_key          = smp$grid_key[i],
@@ -104,33 +104,65 @@ test_that("a station missing from a cruise does not shift its neighbours' x", {
                b$dist_km[match(shared, b$sta)], tolerance = 1e-9)
 })
 
-test_that("section bins depth and respects depth_max", {
+test_that("section bins depth into 10 m floor bins and respects depth_max", {
   con <- fixture_con(); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
-  s <- cc_transect_section(con, 93.3, "2401XX", depth_bin = 5, depth_max = 500)
-  expect_setequal(unique(s$depth_m), c(0, 5, 10))   # 1.2 -> 0, 4.8 -> 5, 9.9 -> 10
-  expect_equal(nrow(cc_transect_section(con, 93.3, "2401XX", depth_max = 4)),
-               sum(s$depth_m <= 4))
+  s <- cc_transect_section(con, 93.3, "2401XX", depth_bin = 10, depth_max = 500)
+  expect_setequal(unique(s$depth_m), c(0, 10, 20))   # 1.2 -> 0, 14.8 -> 10, 29.9 -> 20 (floor, not round)
+  expect_equal(nrow(cc_transect_section(con, 93.3, "2401XX", depth_max = 10)),
+               sum(s$depth_m <= 10))
+  expect_setequal(unique(cc_transect_section(con, 93.3, "2401XX", depth_bin = 5)$depth_m), c(0, 10, 25))
   expect_true(all(c("cruise_key", "sta", "dist_km", "depth_m", "variable",
                     "value") %in% names(s)))
 })
 
-test_that("climatology honours the year window and the min_n floor", {
+test_that("climatology honours the year window and the cruise floor", {
   con <- fixture_con(); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
-  # every fixture cell has exactly one observation
-  expect_equal(nrow(cc_climatology(con, years = c(2024, 2024), min_n = 3)), 0)
-  cl <- cc_climatology(con, years = c(2024, 2024), min_n = 1)
-  expect_true(all(cl$clim_n == 1))
+  # every fixture cell has exactly one observation from one cruise
+  expect_equal(nrow(cc_climatology(con, years = c(2024, 2024), min_cruises = 3)), 0)
+  cl <- cc_climatology(con, years = c(2024, 2024), min_cruises = 1)
+  expect_true(all(cl$clim_n == 1L))
+  expect_true(all(cl$n_cruises == 1L))
   expect_setequal(unique(cl$month), c(1L, 7L))
+  expect_setequal(unique(cl$depth_m), c(0, 10, 20))
   expect_identical(attr(cl, "baseline"), c(2024, 2024))
-  expect_equal(nrow(cc_climatology(con, years = c(1990, 1995), min_n = 1)), 0)
+  expect_identical(attr(cl, "source"), "computed")
+  expect_equal(nrow(cc_climatology(con, years = c(1990, 1995), min_cruises = 1)), 0)
   expect_error(cc_climatology(con, years = c(2013, 1993)))
+})
+
+test_that("climatology reads the release's own table when the connection has it", {
+  con <- fixture_con(); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+  # a release table whose cell for (station 30, July, 0 m) differs from what computing would give
+  DBI::dbWriteTable(con, "climatology", data.frame(
+    dataset_key = c("calcofi_ctd-cast", "calcofi_ctd-cast", "calcofi_bottle"),
+    grid_key = "st030-ln93.3", month = 7L, depth_bin = c(0L, 600L, 0L),
+    measurement_type = "temperature_ave", clim_mean = c(15, 5, 99), clim_sd = c(0.5, 0.1, 1),
+    clim_n = 30L, n_cruises = c(10L, 10L, 2L), clim_yr_min = 1993L, clim_yr_max = 2013L))
+  cl <- cc_climatology(con)                     # the defaults are the table's window
+  expect_identical(attr(cl, "source"), "release")
+  expect_equal(nrow(cl), 1)                     # 600 m is past depth_max; the bottle row is another dataset
+  expect_equal(cl$clim_mean, 15)
+  expect_equal(cl$depth_m, 0)
+  expect_equal(cl$n_cruises, 10L)
+  expect_named(cl, c("grid_key", "month", "depth_m", "variable", "clim_mean", "clim_sd", "clim_n", "n_cruises"))
+  expect_equal(nrow(cc_climatology(con, min_cruises = 11)), 0)
+  # another window, or another bin, is not the table: computed from obs instead
+  expect_identical(attr(cc_climatology(con, years = c(2024, 2024), min_cruises = 1), "source"), "computed")
+  expect_identical(attr(cc_climatology(con, depth_bin = 5, min_cruises = 1), "source"), "computed")
+  # and cc_anomaly() joins the release cells: the July cruise at station 30 is (18 - 0.12 + 3) - 15 warm at 1.2 m
+  sta <- cc_transect_stations(con, 93.3, "2407XX")
+  sec <- cc_transect_section(con, 93.3, "2407XX")
+  an  <- cc_anomaly(sec, cl, sta)
+  a0  <- an[an$sta == 30 & an$depth_m == 0, ]
+  expect_equal(a0$anomaly, (18 - 0.12 + 3) - 15)
+  expect_true(all(is.na(an$anomaly[an$sta != 30 | an$depth_m != 0])))
 })
 
 test_that("an unsampled baseline yields NA, never a zero anomaly", {
   con <- fixture_con(); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
   # baseline from January only, then difference the JULY cruise against it:
   # month never matches, so every anomaly must be NA
-  cl  <- cc_climatology(con, years = c(2024, 2024), min_n = 1)
+  cl  <- cc_climatology(con, years = c(2024, 2024), min_cruises = 1)
   cl  <- cl[cl$month == 1L, ]
   sta <- cc_transect_stations(con, 93.3, "2407XX")
   sec <- cc_transect_section(con, 93.3, "2407XX")
@@ -142,7 +174,7 @@ test_that("an unsampled baseline yields NA, never a zero anomaly", {
 
 test_that("anomaly differences against the matching month and station", {
   con <- fixture_con(); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
-  cl  <- cc_climatology(con, years = c(2024, 2024), min_n = 1)
+  cl  <- cc_climatology(con, years = c(2024, 2024), min_cruises = 1)
   sta <- cc_transect_stations(con, 93.3, "2407XX")
   sec <- cc_transect_section(con, 93.3, "2407XX")
   an  <- cc_anomaly(sec, cl, sta)
@@ -157,7 +189,7 @@ test_that("matrix is z[[depth]][[station]] with station-ordered columns", {
   sec <- cc_transect_section(con, 93.3, "2401XX")
   m   <- cc_transect_matrix(sec)
   expect_identical(m$sta, seq(30, 90, by = 10))
-  expect_identical(m$y, c(0, 5, 10))
+  expect_identical(m$y, c(0, 10, 20))
   expect_length(m$z, length(m$y))
   expect_length(m$z[[1]], length(m$sta))
   expect_length(m$x, length(m$sta))
