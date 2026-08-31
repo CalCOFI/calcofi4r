@@ -250,12 +250,37 @@ test_that(".gc_interp walks the great circle, and survives coincident points", {
   expect_true(all(same[, 2] == 33))
 })
 
+test_that("cc_bathy_depth warns with the count and bbox of off-raster positions (D29)", {
+  b <- bathy_fixture()
+  expect_warning(
+    d <- cc_bathy_depth(c(-119, -150, -175), c(33, 30, 10), b),
+    "2 of 3 positions")
+  expect_equal(d[1], 1000, tolerance = 1e-6)
+  expect_true(all(is.na(d[2:3])))
+  # in-extent positions stay silent
+  expect_silent(cc_bathy_depth(-119, 33, b))
+})
+
+test_that("the published crop's bbox (gebco_2025.json) covers the far-field check positions", {
+  skip_if_offline("storage.googleapis.com")
+  j <- tryCatch(
+    jsonlite::fromJSON("https://storage.googleapis.com/calcofi-db/bathymetry/gebco_2025.json"),
+    error = function(e) skip("gebco_2025.json not published (yet)"))
+  bb <- j$crop$bbox                       # w, s, e, n
+  skip_if(is.null(bb), "gebco_2025.json carries no crop bbox")
+  inside <- function(lon, lat) lon >= bb[1] && lon <= bb[3] && lat >= bb[2] && lat <= bb[4]
+  expect_true(inside(-150, 30))           # NORPAC-era bottle, lon to -164
+  expect_true(inside(-131.5, 53.5))       # CUFES north (Hecate Strait)
+  expect_true(inside(-119.7, 33.9))       # Santa Cruz Basin
+  expect_false(inside(-175, 10))          # the genuine far field: cc_bathy_depth() warns there
+})
+
 test_that("cc_bathy_depth is NA off-grid and never negative on land", {
   b <- bathy_fixture()
   expect_equal(cc_bathy_depth(-119, 33, b), 1000, tolerance = 1e-6)
   expect_equal(cc_bathy_depth(RIDGE_LON, 33, b), 200, tolerance = 1)
   expect_identical(cc_bathy_depth(-117.1, 33, b), 0)      # land clamp
-  expect_true(is.na(cc_bathy_depth(-130, 33, b)))         # outside the extent
+  expect_true(is.na(suppressWarnings(cc_bathy_depth(-130, 33, b))))  # outside the extent (warns, D29)
   expect_identical(cc_bathy_depth(numeric(0), numeric(0), b), numeric(0))
   expect_error(cc_bathy_depth(c(-119, -118), 33, b))
 })

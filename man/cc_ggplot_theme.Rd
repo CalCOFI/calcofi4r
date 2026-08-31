@@ -9,13 +9,13 @@ cc_ggplot_theme(is_dark = TRUE, base_size = 11)
 \arguments{
 \item{is_dark}{logical}
 
-\item{base_size}{passed to \code{\link[ggplot2:ggtheme]{ggplot2::theme_minimal()}}}
+\item{base_size}{passed to \code{\link[ggplot2:theme_minimal]{ggplot2::theme_minimal()}}}
 }
 \value{
 a ggplot2 theme
 }
 \description{
-\code{\link[ggplot2:ggtheme]{ggplot2::theme_minimal()}} with transparent backgrounds and the brand text /
+\code{\link[ggplot2:theme_minimal]{ggplot2::theme_minimal()}} with transparent backgrounds and the brand text /
 grid colours, for a static or \code{ggplotly()}-converted plot on a themed page.
 }
 \concept{brand}

@@ -409,23 +409,53 @@ cc_transect_matrix <- function(section, value = "value", depths = NULL) {
 #' environment variable) to bypass the download — how an app that already ships
 #' its own crop, or a machine with no network, keeps working.
 #'
+#' @section The cache refreshes itself:
+#' When a cached copy exists, one cheap `HEAD` compares its size to the
+#' published object's and re-downloads on a mismatch (once per session per
+#' object) — so when the crop is re-cut nobody has to know to pass
+#' `refresh = TRUE`. Offline, the `HEAD` fails quietly and the cache is used
+#' as-is.
+#'
 #' @param path explicit raster to load; defaults to the option / env var above,
 #'   then to the cached download.
 #' @param cache_dir where to keep the download. Defaults to
 #'   `rappdirs::user_cache_dir("calcofi4r")`.
 #' @param refresh re-download even if cached (default `FALSE`).
+#' @param remote read the published object in place over
+#'   `/vsicurl/` instead of downloading it — GDAL then fetches only the blocks
+#'   a query touches, so sampling a handful of points costs no download at all.
+#'   Nothing is cached; the default stays download-and-cache (offline,
+#'   deterministic).
+#' @param extent `"calcofi"` (default) for the CalCOFI crop
+#'   (lon −165 → −100 × lat 15 → 56 — every released bottle / PIC / CUFES /
+#'   dungeness / DIC / euphausiid position; ~129 MB), or `"full"` for the whole
+#'   GEBCO source tile (lon −180 → −90 × lat 0 → 90; ~430 MB, so pair it with
+#'   `remote = TRUE`). The full tile is published as raw GEBCO **elevation**;
+#'   this function converts it on read to the same positive-down, land-0
+#'   `depth_m` convention as the crop, so callers never see the difference.
 #' @return A `terra::SpatRaster`, single layer `depth_m`.
 #' @source GEBCO Compilation Group (2025) GEBCO 2025 Grid,
 #'   <https://www.gebco.net/data_and_products/gridded_bathymetry_data/>.
 #' @export
 #' @concept transect
-cc_bathy <- function(path = NULL, cache_dir = NULL, refresh = FALSE) {
+cc_bathy <- function(path = NULL, cache_dir = NULL, refresh = FALSE,
+                     remote = FALSE, extent = c("calcofi", "full")) {
+  extent <- match.arg(extent)
   if (is.null(path))
     path <- getOption("calcofi4r.bathy", Sys.getenv("CALCOFI_BATHY", ""))
   if (nzchar(path)) {
     if (!file.exists(path))
       stop("bathymetry raster not found: ", path, call. = FALSE)
     return(terra::rast(path))
+  }
+  obj <- if (extent == "full") "gebco_2025_sub_ice_n90_w180_e90_cog.tif"
+         else                  "gebco_2025_calcofi.tif"
+  obj_url <- paste0("https://storage.googleapis.com/calcofi-db/bathymetry/", obj)
+  if (remote) {
+    r <- terra::rast(paste0("/vsicurl/", obj_url))
+    if (extent == "full") r <- -terra::clamp(r, upper = 0)  # elevation tile -> positive-down depth, land 0
+    names(r) <- "depth_m"
+    return(r)
   }
 
   if (is.null(cache_dir))
@@ -435,10 +465,21 @@ cc_bathy <- function(path = NULL, cache_dir = NULL, refresh = FALSE) {
   dir.create(file.path(cache_dir, "bathymetry"), recursive = TRUE,
              showWarnings = FALSE)
 
-  tif <- file.path(cache_dir, "bathymetry", "gebco_2025_calcofi.tif")
+  tif <- file.path(cache_dir, "bathymetry", obj)
+  # a cached copy whose size no longer matches the published object is stale —
+  # the crop was re-cut (2026-08-31: Float32 10°x9° -> Int16 65°x41°, D29) and a
+  # 4.3 MB cache would silently keep answering NA for a quarter of the released
+  # positions. One HEAD per session per object; any failure keeps the cache.
+  if (!refresh && file.exists(tif)) {
+    remote_bytes <- .bathy_remote_bytes(obj_url)
+    if (!is.na(remote_bytes) && remote_bytes != file.size(tif)) {
+      message("cc_bathy(): cached ", obj, " is ", file.size(tif),
+              " bytes but the published object is ", remote_bytes, " - refreshing")
+      refresh <- TRUE
+    }
+  }
   if (refresh || !file.exists(tif)) {
-    url <- paste0("https://storage.googleapis.com/calcofi-db/",
-                  "bathymetry/gebco_2025_calcofi.tif")
+    url <- obj_url
     # download to a temp path and rename, so an interrupted fetch cannot leave a
     # truncated GeoTIFF in the cache that every later session then trusts
     tmp <- paste0(tif, ".part")
@@ -452,7 +493,23 @@ cc_bathy <- function(path = NULL, cache_dir = NULL, refresh = FALSE) {
     }
     file.rename(tmp, tif)
   }
-  terra::rast(tif)
+  r <- terra::rast(tif)
+  if (extent == "full") r <- -terra::clamp(r, upper = 0)  # the full tile is published as elevation
+  names(r) <- "depth_m"
+  r
+}
+
+# content-length of a published object, memoized per session; NA on any failure
+# (offline stays usable). httr2 is already an Import.
+.bathy_head_cache <- new.env(parent = emptyenv())
+.bathy_remote_bytes <- function(url) {
+  if (!is.null(.bathy_head_cache[[url]])) return(.bathy_head_cache[[url]])
+  bytes <- tryCatch({
+    resp <- httr2::req_perform(httr2::req_method(httr2::request(url), "HEAD"))
+    as.numeric(httr2::resp_header(resp, "content-length"))
+  }, error = function(e) NA_real_)
+  .bathy_head_cache[[url]] <- if (length(bytes) == 1) bytes else NA_real_
+  .bathy_head_cache[[url]]
 }
 
 #' Seafloor depth at points
@@ -464,12 +521,27 @@ cc_bathy <- function(path = NULL, cache_dir = NULL, refresh = FALSE) {
 #' @param bathy raster from [cc_bathy()]; pass one explicitly to avoid re-reading
 #'   it per call.
 #' @return Numeric vector of depth in metres, `NA` outside the raster's extent.
-#'   Land reads 0, never negative.
+#'   Land reads 0, never negative. Positions outside the raster's extent
+#'   **warn** with their count and bounding box rather than returning `NA` in
+#'   silence — the behaviour that let a quarter of the released positions read
+#'   as "no depth" without a line of output anywhere (D29, 2026-08-31).
 #' @export
 #' @concept transect
 cc_bathy_depth <- function(lon, lat, bathy = cc_bathy()) {
   stopifnot(length(lon) == length(lat))
   if (!length(lon)) return(numeric(0))
+  e   <- terra::ext(bathy)
+  out <- !is.na(lon) & !is.na(lat) &
+    (lon < terra::xmin(e) | lon > terra::xmax(e) |
+     lat < terra::ymin(e) | lat > terra::ymax(e))
+  if (any(out))
+    warning(sprintf(paste0(
+      "%d of %d positions fall outside the bathymetry raster's extent ",
+      "(they span lon %.2f to %.2f, lat %.2f to %.2f) and read NA; ",
+      "cc_bathy(extent = \"full\", remote = TRUE) covers the whole GEBCO tile ",
+      "(lon -180 to -90, lat 0 to 90)"),
+      sum(out), length(lon), min(lon[out]), max(lon[out]),
+      min(lat[out]), max(lat[out])), call. = FALSE)
   d <- terra::extract(bathy, cbind(lon, lat), method = "bilinear")[, 1]
   pmax(d, 0)
 }
@@ -553,7 +625,10 @@ cc_transect_bathy <- function(
     dplyr::distinct(dist_km, .keep_all = TRUE) |>
     dplyr::arrange(dist_km)
 
-  out$depth_m <- cc_bathy_depth(out$lon, out$lat, bathy)
+  # no off-extent warning here: this function DOCUMENTS that positions outside
+  # the raster carry NA and the caller decides (a zigzag track clipping the
+  # edge is normal); cc_bathy_depth() alone warns (D29)
+  out$depth_m <- suppressWarnings(cc_bathy_depth(out$lon, out$lat, bathy))
   out$on_land <- !is.na(out$depth_m) & out$depth_m <= land_depth_m
   out
 }

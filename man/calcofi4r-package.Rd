@@ -6,6 +6,8 @@
 \alias{calcofi4r-package}
 \title{calcofi4r: CalCOFI R helper functions}
 \description{
+\if{html}{\figure{logo.svg}{options: style='float: right' alt='logo' width='120'}}
+
 The California Cooperative Oceanic Fisheries Investigations (CalCOFI) has been surveying the California Current since 1949. This R package provides helper functions to read, analyze and visualize the data.
 }
 \seealso{
@@ -18,6 +20,11 @@ Useful links:
 }
 \author{
 \strong{Maintainer}: Ben Best \email{ben@ecoquants.com} (\href{https://orcid.org/0000-0002-2686-0784}{ORCID})
+
+Authors:
+\itemize{
+  \item Ben Best \email{ben@ecoquants.com} (\href{https://orcid.org/0000-0002-2686-0784}{ORCID})
+}
 
 Other contributors:
 \itemize{

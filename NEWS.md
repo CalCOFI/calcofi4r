@@ -1,3 +1,21 @@
+# calcofi4r 1.16.0
+
+## The bathymetry every position is inside (D29)
+
+- **`cc_bathy()`**: the published crop `gebco_2025_calcofi.tif` was re-cut from lon −127 → −116.8 ×
+  lat 29.3 → 38.4 (Float32, 4.3 MB) to **lon −165 → −100 × lat 15 → 56** (Int16 COG, ~129 MB) so that
+  **every released bottle / PIC-zooplankton / CUFES / dungeness / DIC / euphausiid position samples a
+  real depth** — 360,568 positions (24.7 %) were outside the old crop and read `NA` in silence. A
+  cached copy now refreshes itself when its size no longer matches the published object (one `HEAD`
+  per session; offline keeps the cache), so **the first call after this release re-downloads ~129 MB**.
+- **`cc_bathy(remote = TRUE)`** reads the object in place over `/vsicurl/` — GDAL fetches only the
+  blocks a query touches, so sampling a few far-field points needs no download at all.
+- **`cc_bathy(extent = "full")`** answers the whole GEBCO source tile (lon −180 → −90 × lat 0 → 90,
+  published as `gebco_2025_sub_ice_n90_w180_e90_cog.tif`), converted on read to the same
+  positive-down / land-0 `depth_m` convention.
+- **`cc_bathy_depth()` warns** — count and bounding box — when positions fall outside the raster's
+  extent, instead of returning `NA` for them silently.
+
 # calcofi4r 1.15.0
 
 ## One climatology for every anomaly

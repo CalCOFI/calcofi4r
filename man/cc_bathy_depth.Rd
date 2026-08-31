@@ -14,7 +14,10 @@ it per call.}
 }
 \value{
 Numeric vector of depth in metres, \code{NA} outside the raster's extent.
-Land reads 0, never negative.
+Land reads 0, never negative. Positions outside the raster's extent
+\strong{warn} with their count and bounding box rather than returning \code{NA} in
+silence — the behaviour that let a quarter of the released positions read
+as "no depth" without a line of output anywhere (D29, 2026-08-31).
 }
 \description{
 Bilinear rather than nearest-cell, so a station on a steep slope is not

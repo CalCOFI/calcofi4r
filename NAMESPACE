@@ -123,122 +123,156 @@ import(leaflet)
 import(readr)
 import(sf)
 import(stringr)
-importFrom(DBI,dbConnect)
-importFrom(DBI,dbDisconnect)
-importFrom(DBI,dbExecute)
-importFrom(DBI,dbGetQuery)
-importFrom(DBI,dbListFields)
-importFrom(DBI,dbListTables)
+importFrom(DBI,
+  dbConnect,
+  dbDisconnect,
+  dbExecute,
+  dbGetQuery,
+  dbListFields,
+  dbListTables
+)
 importFrom(DT,datatable)
 importFrom(RPostgres,Postgres)
-importFrom(bslib,nav_panel)
-importFrom(bslib,navset_tab)
+importFrom(bslib,
+  nav_panel,
+  navset_tab
+)
 importFrom(classInt,classIntervals)
-importFrom(dplyr,arrange)
-importFrom(dplyr,between)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,collect)
-importFrom(dplyr,compute)
-importFrom(dplyr,distinct)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,group_split)
-importFrom(dplyr,if_else)
-importFrom(dplyr,join_by)
-importFrom(dplyr,lag)
-importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
-importFrom(dplyr,n)
-importFrom(dplyr,rename)
-importFrom(dplyr,row_number)
-importFrom(dplyr,select)
-importFrom(dplyr,slice_min)
-importFrom(dplyr,sql)
-importFrom(dplyr,starts_with)
-importFrom(dplyr,summarize)
-importFrom(dplyr,tbl)
-importFrom(dplyr,ungroup)
+importFrom(dplyr,
+  arrange,
+  between,
+  bind_rows,
+  collect,
+  compute,
+  distinct,
+  filter,
+  group_by,
+  group_split,
+  if_else,
+  join_by,
+  lag,
+  left_join,
+  mutate,
+  n,
+  rename,
+  row_number,
+  select,
+  slice_min,
+  sql,
+  starts_with,
+  summarize,
+  tbl,
+  ungroup
+)
 importFrom(fuzzyjoin,difference_inner_join)
 importFrom(glue,glue)
-importFrom(highcharter,datetime_to_timestamp)
-importFrom(highcharter,hc_add_series)
-importFrom(highcharter,hc_chart)
-importFrom(highcharter,hc_exporting)
-importFrom(highcharter,hc_legend)
-importFrom(highcharter,hc_plotOptions)
-importFrom(highcharter,hc_rangeSelector)
-importFrom(highcharter,hc_tooltip)
-importFrom(highcharter,hc_xAxis)
-importFrom(highcharter,hc_yAxis_multiples)
-importFrom(highcharter,highchart)
-importFrom(htmltools,HTML)
-importFrom(htmltools,div)
-importFrom(htmltools,em)
-importFrom(htmltools,span)
-importFrom(htmltools,strong)
-importFrom(isoband,iso_to_sfg)
-importFrom(isoband,isobands)
+importFrom(highcharter,
+  datetime_to_timestamp,
+  hc_add_series,
+  hc_chart,
+  hc_exporting,
+  hc_legend,
+  hc_plotOptions,
+  hc_rangeSelector,
+  hc_tooltip,
+  hc_xAxis,
+  hc_yAxis_multiples,
+  highchart
+)
+importFrom(htmltools,
+  HTML,
+  div,
+  em,
+  span,
+  strong
+)
+importFrom(isoband,
+  iso_to_sfg,
+  isobands
+)
 importFrom(jsonlite,fromJSON)
-importFrom(lifecycle,deprecate_warn)
-importFrom(lifecycle,deprecated)
+importFrom(lifecycle,
+  deprecate_warn,
+  deprecated
+)
 importFrom(lubridate,quarter)
-importFrom(mapgl,add_fill_layer)
-importFrom(mapgl,add_legend)
-importFrom(mapgl,add_scale_control)
-importFrom(mapgl,maplibre)
-importFrom(mapgl,maplibreOutput)
+importFrom(mapgl,
+  add_fill_layer,
+  add_legend,
+  add_scale_control,
+  maplibre,
+  maplibreOutput
+)
 importFrom(mapview,mapView)
 importFrom(markdown,mark)
 importFrom(mgcv,gam)
-importFrom(plotly,ggplotly)
-importFrom(plotly,highlight)
-importFrom(plotly,highlight_key)
-importFrom(plotly,layout)
-importFrom(purrr,map)
-importFrom(purrr,pmap_chr)
-importFrom(purrr,reduce)
-importFrom(raster,extent)
-importFrom(raster,projectExtent)
-importFrom(raster,raster)
-importFrom(raster,values)
-importFrom(rlang,"%||%")
-importFrom(rlang,enquos)
-importFrom(rlang,expr)
+importFrom(plotly,
+  ggplotly,
+  highlight,
+  highlight_key,
+  layout
+)
+importFrom(purrr,
+  map,
+  pmap_chr,
+  reduce
+)
+importFrom(raster,
+  extent,
+  projectExtent,
+  raster,
+  values
+)
+importFrom(rlang,
+  "%||%",
+  enquos,
+  expr
+)
 importFrom(scales,extended_breaks)
-importFrom(sf,read_sf)
-importFrom(sf,st_bbox)
-importFrom(sf,st_buffer)
-importFrom(sf,st_centroid)
-importFrom(sf,st_coordinates)
-importFrom(sf,st_drop_geometry)
-importFrom(sf,st_intersection)
-importFrom(sf,st_linestring)
-importFrom(sf,st_segmentize)
-importFrom(sf,st_set_crs)
-importFrom(sf,st_sf)
-importFrom(sf,st_sfc)
-importFrom(sf,st_transform)
-importFrom(sf,st_wrap_dateline)
-importFrom(shiny,dateRangeInput)
-importFrom(shiny,div)
-importFrom(shiny,h4)
-importFrom(shiny,modalButton)
-importFrom(shiny,modalDialog)
-importFrom(shiny,numericInput)
-importFrom(shiny,p)
-importFrom(shiny,selectInput)
-importFrom(shiny,selectizeInput)
-importFrom(shiny,tagList)
+importFrom(sf,
+  read_sf,
+  st_bbox,
+  st_buffer,
+  st_centroid,
+  st_coordinates,
+  st_drop_geometry,
+  st_intersection,
+  st_linestring,
+  st_segmentize,
+  st_set_crs,
+  st_sf,
+  st_sfc,
+  st_transform,
+  st_wrap_dateline
+)
+importFrom(shiny,
+  dateRangeInput,
+  div,
+  h4,
+  modalButton,
+  modalDialog,
+  numericInput,
+  p,
+  selectInput,
+  selectizeInput,
+  tagList
+)
 importFrom(shinyWidgets,numericRangeInput)
-importFrom(stars,st_as_stars)
-importFrom(stars,st_contour)
-importFrom(terra,interpIDW)
-importFrom(terra,mask)
-importFrom(terra,rast)
-importFrom(terra,trim)
-importFrom(terra,writeRaster)
-importFrom(tibble,as_tibble)
-importFrom(tibble,column_to_rownames)
-importFrom(tibble,tibble)
+importFrom(stars,
+  st_as_stars,
+  st_contour
+)
+importFrom(terra,
+  interpIDW,
+  mask,
+  rast,
+  trim,
+  writeRaster
+)
+importFrom(tibble,
+  as_tibble,
+  column_to_rownames,
+  tibble
+)
 importFrom(tidyr,pivot_wider)
 importFrom(units,set_units)

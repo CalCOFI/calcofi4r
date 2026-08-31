@@ -8,7 +8,13 @@ GEBCO Compilation Group (2025) GEBCO 2025 Grid,
 \url{https://www.gebco.net/data_and_products/gridded_bathymetry_data/}.
 }
 \usage{
-cc_bathy(path = NULL, cache_dir = NULL, refresh = FALSE)
+cc_bathy(
+  path = NULL,
+  cache_dir = NULL,
+  refresh = FALSE,
+  remote = FALSE,
+  extent = c("calcofi", "full")
+)
 }
 \arguments{
 \item{path}{explicit raster to load; defaults to the option / env var above,
@@ -18,6 +24,20 @@ then to the cached download.}
 \code{rappdirs::user_cache_dir("calcofi4r")}.}
 
 \item{refresh}{re-download even if cached (default \code{FALSE}).}
+
+\item{remote}{read the published object in place over
+\verb{/vsicurl/} instead of downloading it — GDAL then fetches only the blocks
+a query touches, so sampling a handful of points costs no download at all.
+Nothing is cached; the default stays download-and-cache (offline,
+deterministic).}
+
+\item{extent}{\code{"calcofi"} (default) for the CalCOFI crop
+(lon −165 → −100 × lat 15 → 56 — every released bottle / PIC / CUFES /
+dungeness / DIC / euphausiid position; ~129 MB), or \code{"full"} for the whole
+GEBCO source tile (lon −180 → −90 × lat 0 → 90; ~430 MB, so pair it with
+\code{remote = TRUE}). The full tile is published as raw GEBCO \strong{elevation};
+this function converts it on read to the same positive-down, land-0
+\code{depth_m} convention as the crop, so callers never see the difference.}
 }
 \value{
 A \code{terra::SpatRaster}, single layer \code{depth_m}.
@@ -38,6 +58,15 @@ land. Nothing downstream has to remember to negate an elevation.
 Set \code{options(calcofi4r.bathy = "/path/to.tif")} (or the \code{CALCOFI_BATHY}
 environment variable) to bypass the download — how an app that already ships
 its own crop, or a machine with no network, keeps working.
+}
+
+\section{The cache refreshes itself}{
+
+When a cached copy exists, one cheap \code{HEAD} compares its size to the
+published object's and re-downloads on a mismatch (once per session per
+object) — so when the crop is re-cut nobody has to know to pass
+\code{refresh = TRUE}. Offline, the \code{HEAD} fails quietly and the cache is used
+as-is.
 }
 
 \concept{transect}
