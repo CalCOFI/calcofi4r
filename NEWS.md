@@ -23,6 +23,30 @@
   catalogs (`tests/testthat/fixtures/catalog_canonical.json`, new `catalog_view_only.json`) are
   byte-identical with calcofi4py's and db-query's.
 
+## `cc_cite()` — the attribution contract's read side (plan 2026-09-03, WS-A2)
+
+- **`cc_cite(x = NULL, version = "latest", format = c("text", "bibtex", "csl"), con = NULL)`** reads a
+  release's `dataset` table (`citation_main`, `license`, `doi`, `acknowledgement` — calcofi4db ≥
+  3.30.0's attribution contract) and its `catalog.json` `citation`, and formats them for a paper, a
+  DMP or a `.bib` file: the release citation first, then one entry per dataset — every dataset in the
+  release (`x = NULL`, alphabetical `dataset_key`), a character vector of `dataset_key`, or a data
+  frame carrying one (so `cc_cite(cc_read_obs(...))` cites exactly what a query touched). An unknown
+  `dataset_key` errors naming it.
+- `format = "text"` appends a `License:` line (+ URL for a `custom` license), `DOI:` and
+  `Acknowledgement:` lines to each dataset's `citation_main`; `format = "bibtex"` builds one
+  `@misc{...}` per entry **offline**, from the same fields — `resolve = TRUE` is the only network
+  path, fetching a DOI's own BibTeX from `doi.org` (falling back to the offline entry on failure);
+  `format = "csl"` returns one CSL-JSON `"dataset"` item per entry.
+- A release frozen before the attribution contract carries no `catalog.json` `citation`;
+  `cc_cite()` computes the same wording `calcofi4db::release_citation()` would have written, and
+  says so on the result's `source` attribute (`"release"` vs `"computed"`, mirroring
+  [cc_climatology()]'s `source`) rather than erroring or citing nothing.
+- Software citation stays separate: `citation("calcofi4r")` (from `DESCRIPTION`). `cc_cite()` is for
+  the data. `calcofi4py.cc_cite()` mirrors this byte-for-byte
+  (`tests/testthat/fixtures/cite_text.txt` / `cite_bibtex.txt` / `cite_csl.json`, generated from a
+  synthetic three-dataset table — one with a DOI + CC-BY-4.0, one `custom` license, one with an
+  acknowledgement — copied byte-identical into calcofi4py).
+
 # calcofi4r 1.16.0
 
 ## The bathymetry every position is inside (D29)

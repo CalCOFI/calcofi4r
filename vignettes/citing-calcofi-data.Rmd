@@ -1,0 +1,137 @@
+---
+title: "Citing CalCOFI data"
+output:
+  rmarkdown::html_vignette:
+    fig_width: 7
+    fig_height: 4.6
+vignette: >
+  %\VignetteIndexEntry{Citing CalCOFI data}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  warning  = FALSE,
+  message  = FALSE,
+  comment  = "#>")
+```
+
+## The release cites itself; every dataset in it cites its own source
+
+CalCOFI's integrated database is not one thing to cite — it is a **release** (a
+specific, versioned snapshot) built from **datasets**, each contributed by its
+own program under its own license, and often its own DOI. Citing "CalCOFI" and
+citing the CTD-bottle time series and citing the Farallon seabird census are
+three different citations, and a paper that used all three owes all three.
+
+Every field involved — `citation_main`, `license`, `doi`,
+`acknowledgement` — is checked at release time
+(`calcofi4db::check_dataset_citation()`, the attribution contract): a citation
+with a year and a locator, a license registered in `metadata/license.csv`, a
+DOI that actually resolves. `cc_cite()` is the one place that reads those
+fields back out and formats them, so you never have to build a citation string
+by hand or guess whether a `license_url` is required.
+
+```{r cite-all}
+library(calcofi4r)
+
+REL <- cc_latest_version()
+cc_cite(version = REL)
+```
+
+The **first** entry is always the release itself — *CalCOFI Integrated
+Database, release `r REL`* — cited under the concept DOI once Zenodo has
+minted one for the tag, or a stable `db-schema` URL until then. Every entry
+after it is one dataset, in alphabetical `dataset_key` order by default.
+
+## Citing just what you used
+
+Pass the `dataset_key`(s) you actually queried — never everything, and never
+whichever ones you remember typing.
+
+```{r cite-some}
+cc_cite(c("calcofi_bottle", "calcofi_ctd-cast"), version = REL)
+```
+
+Better still, hand `cc_cite()` the **query result itself**. Any tibble
+carrying a `dataset_key` column (`cc_read_obs()`, `cc_read_sample()`, a
+`cc_match_*()` join, your own SQL) works directly — the distinct keys the
+query actually touched are what gets cited, in the order they first appear:
+
+```{r cite-query}
+library(dplyr)
+
+d <- cc_read_obs(
+  datasets = c("calcofi_dic", "calcofi_bottle"),
+  measurement_types = "temperature",
+  version = REL) |>
+  head(500)
+
+cc_cite(d, version = REL)
+```
+
+An unrecognized `dataset_key` is an error naming it, rather than a citation
+silently missing a dataset:
+
+```{r cite-unknown, error = TRUE}
+cc_cite("not_a_real_dataset", version = REL)
+```
+
+## Three formats
+
+`format = "text"` (the default, above) is meant for a methods section or an
+email. `format = "bibtex"` builds a `.bib`-ready entry per citation, and
+`format = "csl"` returns [CSL-JSON](https://citeproc-js.readthedocs.io/) items
+— what Zotero, Pandoc citations and most reference managers import directly.
+
+```{r cite-bibtex, results = "asis"}
+cat(cc_cite("calcofi_dic", version = REL, format = "bibtex"))
+```
+
+```{r cite-csl}
+str(cc_cite("calcofi_dic", version = REL, format = "csl")[[1]])
+```
+
+`format = "bibtex"` builds every entry **offline**, from the fields already on
+the release's `dataset` table and in its `catalog.json` — nothing here calls
+the network by default. `resolve = TRUE` is the only network path: for any
+entry with a DOI, it fetches the DOI's own BibTeX from `doi.org` instead
+(falling back to the offline entry if that fetch fails), which some reference
+managers format slightly differently.
+
+```{r cite-resolve, eval = FALSE}
+cc_cite("calcofi_dic", version = REL, format = "bibtex", resolve = TRUE)
+```
+
+## Citing an older release
+
+A release frozen before the attribution contract landed (2026-09-03) has no
+`citation` in its `catalog.json`. `cc_cite()` computes the same wording
+`calcofi4db::release_citation()` would have written rather than erroring, and
+marks the result so you can tell which happened:
+
+```{r cite-source}
+attr(cc_cite(character(0), version = REL), "source")
+```
+
+`"release"` means the catalog carried its own citation; `"computed"` means
+`cc_cite()` derived it.
+
+## Citing the software, separately
+
+`cc_cite()` is for the **data**. To cite the R package itself — appropriate
+alongside the data citation when `calcofi4r` did real analytical work, not
+just I/O — use base R's own mechanism, which reads `DESCRIPTION`:
+
+```{r cite-software}
+citation("calcofi4r")
+```
+
+The Python sibling, [`calcofi4py`](https://calcofi.io/calcofi4py/), mirrors
+every part of `cc_cite()` above byte-for-byte under the same name
+(`calcofi4py.cc_cite()`) — the same release and dataset citations, read the
+same way, for anyone working in a notebook instead of R.
