@@ -63,16 +63,27 @@
     source    = if (has_cit) "release" else "computed")
 }
 
+# the `dataset` columns cc_cite() reads; any one absent from a release is NA
+.CC_CITE_DATASET_COLS <- c("dataset_key", "dataset_name", "citation_main", "license",
+                           "license_url", "doi", "acknowledgement", "pi_names")
+
 # Resolve which dataset_key values to cite, in the order to cite them: NULL ->
 # every dataset in `con`'s `dataset` table, alphabetical dataset_key order; a
 # character vector or a data frame carrying dataset_key -> those keys,
 # de-duplicated, in first-occurrence order (so cc_cite(my_query_result) works). An
 # unmatched key is an error naming it — cc_cite() never silently drops one.
 .cc_cite_rows <- function(con, x) {
-  all <- DBI::dbGetQuery(con, "
-    SELECT dataset_key, dataset_name, citation_main, license, license_url,
-           doi, acknowledgement, pi_names
-    FROM dataset")
+  # select only the columns this release's `dataset` table has: a release frozen
+  # before the attribution contract (calcofi4db < 3.30.0, e.g. v2026.08.25) carries
+  # no license_url / doi / acknowledgement, and a fixed SELECT was a binder error
+  # on every call instead of a citation with fewer lines
+  want <- .CC_CITE_DATASET_COLS
+  have <- intersect(want, DBI::dbListFields(con, "dataset"))
+  if (!"dataset_key" %in% have)
+    stop("cc_cite(): the `dataset` table has no dataset_key column", call. = FALSE)
+  all <- DBI::dbGetQuery(con, sprintf("SELECT %s FROM dataset", paste(have, collapse = ", ")))
+  for (col in setdiff(want, have)) all[[col]] <- NA_character_
+  all <- all[, want, drop = FALSE]
   if (is.null(x)) {
     keys <- sort(all$dataset_key)
   } else if (is.data.frame(x)) {

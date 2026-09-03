@@ -46,6 +46,12 @@
   (`tests/testthat/fixtures/cite_text.txt` / `cite_bibtex.txt` / `cite_csl.json`, generated from a
   synthetic three-dataset table — one with a DOI + CC-BY-4.0, one `custom` license, one with an
   acknowledgement — copied byte-identical into calcofi4py).
+- **A release frozen before the attribution contract cites without erroring.** `.cc_cite_rows()`
+  selected `license_url`, `doi` and `acknowledgement` by name, so on v2026.08.25's 18-column
+  `dataset` table (calcofi4db < 3.30.0) every `cc_cite()` call was a DuckDB binder error instead
+  of a citation. It now reads the columns the table has (`DBI::dbListFields()`) and treats an
+  absent one as empty — the entry simply has no `DOI:` / `Acknowledgement:` line (found by WS-A4;
+  tested against a legacy-shaped `dataset` table, `test-cite-legacy.R`).
 
 # calcofi4r 1.16.0
 
