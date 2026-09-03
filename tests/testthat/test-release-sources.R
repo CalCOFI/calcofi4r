@@ -36,6 +36,55 @@ test_that("the simplified (data frame) catalog form resolves identically", {
     expect_equal(cc_release_sources(cat_s, tb), cc_release_sources(cat_l, tb))
 })
 
+test_that("a catalog's views: listed, their tables named, their SQL resolved through any reader (D-S1)", {
+  cat_ <- fx("catalog_canonical.json")
+  views <- cc_catalog_views(cat_)
+  expect_equal(names(views), "obs")
+  expect_equal(cc_view_tables(views$obs), c("obs_bio", "obs_env"))
+  expect_match(views$obs, "\\{\\{obs_bio\\}\\}"); expect_match(views$obs, "value AS measurement_value")
+  # default: quoted identifiers, as cc_get_db() binds them
+  sql <- cc_view_sql(cat_, "obs")
+  expect_false(grepl("{{", sql, fixed = TRUE))
+  expect_match(sql, 'FROM "obs_bio"\nUNION ALL\n'); expect_match(sql, 'FROM "obs_env"$')
+  # any reader: the catalog's own objects
+  rp <- function(t) cc_read_parquet_sql(cc_release_sources(cat_, t))
+  sql <- cc_view_sql(cat_, "obs", rp)
+  expect_match(sql, "FROM read_parquet\\('https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_bio/b19def67a5bcfe2713624ebb/obs_bio.parquet'\\)")
+  expect_match(sql, "FROM read_parquet\\(\\['https.*measurement_type=salinity.*', 'https.*measurement_type=temperature.*'\\], hive_partitioning = true\\)")
+  expect_equal(calcofi4r:::.cc_extract_source_urls(sql), sort(c(cc_release_sources(cat_, "obs_bio")$urls, cc_release_sources(cat_, "obs_env")$urls)))
+  expect_error(cc_view_sql(cat_, "nope"), "not a view.*views: obs")
+  # the same in the data-frame form, and nothing for a catalog without views
+  expect_equal(cc_catalog_views(jsonlite::fromJSON(test_path("fixtures", "catalog_canonical.json"))), views)
+  expect_equal(cc_catalog_views(fx("catalog_legacy.json")), list())
+  expect_error(cc_view_sql(fx("catalog_legacy.json"), "obs"), "not a view")
+})
+
+test_that("a deprecated table still resolves and says so; a view-only name errors clearly", {
+  cat_ <- fx("catalog_canonical.json")
+  s <- cc_release_sources(cat_, "obs")
+  expect_true(s$deprecated); expect_equal(s$replaced_by, c("obs_bio", "obs_env")); expect_equal(s$removed_in, "next")
+  expect_length(s$urls, 2)                      # its objects ship through the window
+  c_ <- cc_release_sources(cat_, "cruise")
+  expect_false(c_$deprecated); expect_equal(c_$replaced_by, character(0)); expect_true(is.na(c_$removed_in))
+  b <- cc_release_sources(cat_, "obs_bio")
+  expect_equal(b$urls, "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_bio/b19def67a5bcfe2713624ebb/obs_bio.parquet")
+  expect_false(b$hive); expect_false(b$deprecated)
+  e <- cc_release_sources(cat_, "obs_env")
+  expect_true(e$hive); expect_length(e$urls, 2); expect_true(is.na(e$single_file))
+  # the release after the window: obs is a view alone
+  nxt <- fx("catalog_view_only.json")
+  expect_false("obs" %in% vapply(nxt$tables, `[[`, "", "name"))
+  expect_error(cc_release_sources(nxt, "obs"), "'obs' is a view in the catalog for v2026.10.01 \\(over obs_bio, obs_env\\).*cc_get_db\\(\\).*cc_view_sql")
+  expect_error(cc_release_sources(nxt, "casts"), "not in the catalog")
+  # data-frame form agrees, deprecation fields included
+  cat_s <- jsonlite::fromJSON(test_path("fixtures", "catalog_canonical.json"))
+  for (tb in c("obs", "obs_bio", "obs_env", "cruise"))
+    expect_equal(cc_release_sources(cat_s, tb), cc_release_sources(cat_, tb))
+  # a legacy catalog has no deprecation fields: FALSE / none / NA
+  l <- cc_release_sources(fx("catalog_legacy.json"), "obs")
+  expect_false(l$deprecated); expect_equal(l$replaced_by, character(0)); expect_true(is.na(l$removed_in))
+})
+
 test_that("a legacy catalog (no objects[]) resolves to per-release paths", {
   cat_ <- fx("catalog_legacy.json")
   s <- cc_release_sources(cat_, "cruise")

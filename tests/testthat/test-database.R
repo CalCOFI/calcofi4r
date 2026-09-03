@@ -60,6 +60,105 @@ test_that("a table whose object cannot be read fails cc_get_db() outright: no wa
   expect_equal(DBI::dbListTables(con), character(0))
 })
 
+# the obs_bio / obs_env pair as tiny local parquet at the fixture catalog's object
+# paths under `root`, so cc_get_db() runs offline against a catalog with views.
+# The pair's columns are the released ones (calcofi4db build_obs_slim(), 3.31.0).
+write_pair_fixture <- function(root, version = "v2026.09.01") {
+  mk <- function(rel) { p <- file.path(root, rel); dir.create(dirname(p), recursive = TRUE, showWarnings = FALSE); p }
+  con0 <- DBI::dbConnect(duckdb::duckdb())
+  withr::defer(DBI::dbDisconnect(con0, shutdown = TRUE))
+  pair_cols <- "obs_id, dataset_key, root_id, sample_key, grid_key, cruise_key, latitude, longitude, datetime, year, quarter,
+    depth_min_m, depth_max_m, depth_bin, taxon_key, life_stage, measurement_type, units, value, measurement_qual,
+    measurement_prec, qual_ok, tow_type, std_haul_factor, prop_sorted, volume_sampled_m3, density_per_10m2,
+    density_per_1000m3, effort_class, hex_id, hex7"
+  DBI::dbExecute(con0, glue::glue("CREATE TABLE obs_bio AS SELECT * FROM (VALUES
+    (1::BIGINT, 'swfsc_ichthyo', 1, 'ich:net:1', 'st90-ln90', '2019-04-33UD', 32.9, -117.3, TIMESTAMP '2019-04-02 22:10', 2019::SMALLINT, 2::TINYINT,
+     0.0, 210.0, 0, 'worms:217452', 'larva', 'abundance', 'count', 10.0, NULL::VARCHAR, NULL::DOUBLE, TRUE, 'CB', 2.0, 0.5, 100.0, 40.0, 200.0, 'count_with_effort',
+     623333527607443455::UBIGINT, 608870215845019647::UBIGINT)) t({pair_cols})"))
+  DBI::dbExecute(con0, glue::glue("CREATE TABLE obs_env AS SELECT * FROM (VALUES
+    (2::BIGINT, 'calcofi_bottle', 2, 'btl:b:1', 'st90-ln90', '2019-04-33UD', 32.9, -117.3, TIMESTAMP '2019-04-02 23:00', 2019::SMALLINT, 2::TINYINT,
+     10.0, 10.0, 10, NULL::VARCHAR, NULL::VARCHAR, 'temperature', 'degC', 15.5, '6', NULL::DOUBLE, TRUE, NULL::VARCHAR, NULL::DOUBLE, NULL::DOUBLE, NULL::DOUBLE, NULL::DOUBLE, NULL::DOUBLE, 'other_unit',
+     623333527607443455::UBIGINT, 608870215845019647::UBIGINT),
+    (3::BIGINT, 'calcofi_bottle', 2, 'btl:b:1', 'st90-ln90', '2019-04-33UD', 32.9, -117.3, TIMESTAMP '2019-04-02 23:00', 2019::SMALLINT, 2::TINYINT,
+     10.0, 10.0, 10, NULL::VARCHAR, NULL::VARCHAR, 'salinity', 'psu', 33.4, '6', NULL::DOUBLE, TRUE, NULL::VARCHAR, NULL::DOUBLE, NULL::DOUBLE, NULL::DOUBLE, NULL::DOUBLE, NULL::DOUBLE, 'other_unit',
+     623333527607443455::UBIGINT, 608870215845019647::UBIGINT)) t({pair_cols})"))
+  DBI::dbExecute(con0, sprintf("COPY obs_bio TO '%s' (FORMAT parquet)",
+    mk("ducklake/tables/obs_bio/b19def67a5bcfe2713624ebb/obs_bio.parquet")))
+  # the env partitions are written WITHOUT the partition column, as the release writer does
+  DBI::dbExecute(con0, sprintf("COPY (SELECT * EXCLUDE (measurement_type) FROM obs_env WHERE measurement_type = 'salinity') TO '%s' (FORMAT parquet)",
+    mk("ducklake/tables/obs_env/measurement_type=salinity/4444444444444444444444dd/data_0.parquet")))
+  DBI::dbExecute(con0, sprintf("COPY (SELECT * EXCLUDE (measurement_type) FROM obs_env WHERE measurement_type = 'temperature') TO '%s' (FORMAT parquet)",
+    mk("ducklake/tables/obs_env/measurement_type=temperature/5555555555555555555555ee/data_0.parquet")))
+  # cruise, and the deprecated obs's own objects (a different shape on purpose: they must not be read)
+  DBI::dbExecute(con0, sprintf("COPY (SELECT 'x' AS cruise_key UNION ALL SELECT 'y') TO '%s' (FORMAT parquet)",
+    mk("ducklake/tables/cruise/a1b2c3d4e5f60718293a4b5c/cruise.parquet")))
+  for (rel in c("ducklake/tables/obs/year=2019/1111111111111111111111aa/data_0.parquet",
+                "ducklake/tables/obs/year=2020/2222222222222222222222bb/data_0.parquet",
+                "ducklake/tables/obs/9999999999999999999999ff/obs.parquet"))
+    DBI::dbExecute(con0, sprintf("COPY (SELECT 1 AS legacy_obs) TO '%s' (FORMAT parquet)", mk(rel)))
+  invisible(root)
+}
+
+test_that("cc_get_db() serves obs as the catalog view over obs_bio + obs_env, offline (D-S1)", {
+  skip_if_not_installed("duckdb")
+  root  <- withr::local_tempdir(); write_pair_fixture(root)
+  cache <- withr::local_tempdir()
+  mock_release_fetches("catalog_canonical.json")
+  orig_sources <- cc_release_sources
+  local_mocked_bindings(
+    cc_release_sources = function(catalog, table, base_https = NULL) orig_sources(catalog, table, base_https = root),
+    .cc_load_httpfs = function(con) invisible(con))
+  expect_message(con <- cc_get_db(version = "v2026.09.01", cache_dir = cache),
+                 "obs: served as the catalog view over obs_bio \\+ obs_env — the obs table is deprecated in v2026.09.01")
+  withr::defer(DBI::dbDisconnect(con, shutdown = TRUE))
+  # the default set: obs_bio and obs_env are core, obs_ctd_full is supplemental, obs is the view
+  expect_setequal(DBI::dbListTables(con), c("cruise", "obs", "obs_bio", "obs_env"))
+  v <- DBI::dbGetQuery(con, "SELECT view_name FROM duckdb_views() WHERE NOT internal")$view_name
+  expect_true("obs" %in% v)
+  o <- DBI::dbGetQuery(con, "SELECT * FROM obs ORDER BY obs_id")
+  expect_equal(nrow(o), 3)
+  expect_identical(names(o), c("obs_id", "realm", "dataset_key", "sample_key", "grid_key", "cruise_key",
+                               "latitude", "longitude", "datetime", "depth_min_m", "depth_max_m", "taxon_key",
+                               "life_stage", "measurement_type", "measurement_value", "measurement_qual",
+                               "measurement_prec", "hex_id"))
+  expect_equal(o$realm, c("bio", "env", "env")); expect_equal(o$measurement_value, c(10, 15.5, 33.4))
+  expect_equal(o$measurement_type, c("abundance", "temperature", "salinity"))   # env's from the hive path
+  expect_equal(o$sample_key, c("ich:net:1", "btl:b:1", "btl:b:1"))
+  # the deprecated table's own objects were never bound (they hold a `legacy_obs` column)
+  expect_false("legacy_obs" %in% names(o))
+  # cached path: the persisted view is what the next connection finds
+  con2 <- cc_get_db(version = "v2026.09.01", cache_dir = cache)
+  withr::defer(DBI::dbDisconnect(con2, shutdown = TRUE))
+  expect_equal(DBI::dbGetQuery(con2, "SELECT count(*) AS n FROM obs")$n, 3)
+})
+
+test_that("cc_get_db(tables = 'obs') pulls in the view's tables; without them, the deprecated objects", {
+  skip_if_not_installed("duckdb")
+  root <- withr::local_tempdir(); write_pair_fixture(root)
+  mock_release_fetches("catalog_canonical.json")
+  orig_sources <- cc_release_sources
+  local_mocked_bindings(
+    cc_release_sources = function(catalog, table, base_https = NULL) orig_sources(catalog, table, base_https = root),
+    .cc_load_httpfs = function(con) invisible(con))
+  con <- cc_get_db(version = "v2026.09.01", local_cache = FALSE, cache_dir = withr::local_tempdir(), tables = "obs")
+  withr::defer(DBI::dbDisconnect(con, shutdown = TRUE))
+  expect_setequal(DBI::dbListTables(con), c("obs", "obs_bio", "obs_env"))
+  expect_equal(DBI::dbGetQuery(con, "SELECT count(*) AS n FROM obs")$n, 3)
+  # naming obs beside other tables pulls the pair in too — a requested view is never served from
+  # the deprecated objects (those are read only when the catalog cannot build the view)
+  con3 <- cc_get_db(version = "v2026.09.01", local_cache = FALSE, cache_dir = withr::local_tempdir(),
+                    tables = c("obs", "cruise"))
+  withr::defer(DBI::dbDisconnect(con3, shutdown = TRUE))
+  expect_setequal(DBI::dbListTables(con3), c("obs", "obs_bio", "obs_env", "cruise"))
+  expect_equal(DBI::dbGetQuery(con3, "SELECT count(*) AS n FROM cruise")$n, 2)
+  # the release after the window: no obs table at all, the view still answers
+  mock_release_fetches("catalog_view_only.json")
+  con4 <- cc_get_db(version = "v2026.10.01", local_cache = FALSE, cache_dir = withr::local_tempdir())
+  withr::defer(DBI::dbDisconnect(con4, shutdown = TRUE))
+  expect_setequal(DBI::dbListTables(con4), c("cruise", "obs", "obs_bio", "obs_env"))
+  expect_equal(DBI::dbGetQuery(con4, "SELECT count(*) AS n FROM obs WHERE realm = 'env'")$n, 2)
+})
+
 test_that("a tables= selection that matches nothing is an error, not an empty database", {
   skip_if_not_installed("duckdb")
   mock_release_fetches("catalog_bad_object.json")

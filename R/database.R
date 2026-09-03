@@ -20,7 +20,9 @@
 #'   queries without network overhead.
 #' @param tables Character vector of table names to include. NULL (default)
 #'   includes all (non-supplemental) tables. Use to exclude large tables, or to
-#'   explicitly include a supplemental table by name.
+#'   explicitly include a supplemental table by name. Naming a catalog **view**
+#'   (`obs` since the v2026.09 releases — the UNION ALL over `obs_bio` +
+#'   `obs_env`, see [cc_catalog_views()]) pulls in the tables it reads.
 #' @param supplemental Logical; include supplemental tables (e.g. `obs_ctd_full`,
 #'   the 216M full-resolution CTD scans) that are hosted + cataloged but hidden by
 #'   default. Default `FALSE`. Ignored when `tables` names them explicitly.
@@ -45,6 +47,14 @@
 #' the v2026.09 releases each table's bytes are content-addressed objects under
 #' \code{ducklake/tables/} that the release catalog points at — see
 #' \code{\link{cc_release_sources}}, which is how every table here is resolved.
+#'
+#' A catalog may also carry \strong{views} (\code{\link{cc_catalog_views}}):
+#' \code{obs} is one since the v2026.09 releases, the UNION ALL over the
+#' observation tables \code{obs_bio} + \code{obs_env} that reconstructs its 18
+#' columns under their original names. Every view whose source tables load is
+#' created after them, so \code{FROM obs} keeps working; the deprecated
+#' \code{obs} table's own objects are read only when those sources are not
+#' loaded (\code{tables = "obs"} pulls them in).
 #'
 #' @examples
 #' \dontrun{
@@ -187,6 +197,14 @@ cc_get_db <- function(
     return(con)
   }
 
+  # views the catalog carries beside its tables (calcofi4db 3.31.0, plan D-S1):
+  # `obs` is the UNION ALL over obs_bio + obs_env. A requested view pulls in the
+  # tables it reads, so `tables = "obs"` keeps working once obs is a view alone.
+  views <- cc_catalog_views(catalog)
+  if (!is.null(tables))
+    for (vn in intersect(tables, names(views)))
+      tables <- union(tables, cc_view_tables(views[[vn]]))
+
   # filter catalog to requested tables. Supplemental tables (e.g. obs_ctd_full,
   # 216M full-resolution CTD scans) are hosted + cataloged but excluded by
   # default; opt in with supplemental = TRUE, or name them explicitly in `tables`.
@@ -197,7 +215,14 @@ cc_get_db <- function(
     tbl_catalog <- tbl_catalog[!(tbl_catalog$supplemental %in% TRUE), ]
   }
 
-  if (nrow(tbl_catalog) == 0) {
+  # a view whose source tables are all loading is served as that view; the
+  # objects of the table it replaces (deprecated, still shipped through the
+  # window) are read only when its sources are not here
+  served_by_view <- names(views)[vapply(names(views), function(vn)
+    all(cc_view_tables(views[[vn]]) %in% tbl_catalog$name), TRUE)]
+  tbl_physical <- tbl_catalog[!(tbl_catalog$name %in% served_by_view), ]
+
+  if (nrow(tbl_physical) == 0) {
     try(DBI::dbDisconnect(con), silent = TRUE)
     stop(glue::glue(
       "cc_get_db(): none of the requested tables are in release {version} ",
@@ -206,8 +231,9 @@ cc_get_db <- function(
   }
 
   message(glue::glue(
-    "Loading {nrow(tbl_catalog)} tables from {version}",
+    "Loading {nrow(tbl_physical)} tables from {version}",
     if (local_data) " (local data)" else " (remote views)",
+    if (length(served_by_view)) glue::glue(" + {length(served_by_view)} catalog view(s)") else "",
     "..."))
 
   # local parquet cache, laid out like the bucket: content-addressed objects
@@ -231,8 +257,8 @@ cc_get_db <- function(
       "{conditionMessage(e)}"), call. = FALSE)
   }
 
-  for (i in seq_len(nrow(tbl_catalog))) {
-    tbl_name <- tbl_catalog$name[i]
+  for (i in seq_len(nrow(tbl_physical))) {
+    tbl_name <- tbl_physical$name[i]
     src      <- srcs[[tbl_name]]
     # only SINGLE-FILE tables are downloaded under local_data. A partitioned
     # table stays a remote view: downloading every partition (obs is all 16
@@ -259,6 +285,23 @@ cc_get_db <- function(
     }
     how <- if (local_data && can_download) "local table" else "remote view"
     tryCatch(DBI::dbExecute(con, stmt), error = function(e) load_failed(tbl_name, how, e))
+  }
+  # the catalog's views, after the tables they read (same transaction, same
+  # all-or-nothing rule). `{{table}}` tokens resolve to the identifiers bound
+  # above — a downloaded local table serves the view as readily as a remote one.
+  for (vn in served_by_view) {
+    stmt <- glue::glue("CREATE OR REPLACE VIEW \"{vn}\" AS {cc_view_sql(catalog, vn)}")
+    tryCatch(DBI::dbExecute(con, stmt), error = function(e) load_failed(vn, "catalog view", e))
+    entry <- tbl_catalog[tbl_catalog$name == vn, ]
+    over  <- paste(cc_view_tables(views[[vn]]), collapse = " + ")
+    if (nrow(entry) && isTRUE(entry$deprecated[1]))
+      message(glue::glue(
+        "  {vn}: served as the catalog view over {over} — the {vn} table is deprecated in ",
+        "{version} and its objects are removed in ",
+        "{if (is.null(entry$removed_in) || is.na(entry$removed_in[1])) 'a later release' else entry$removed_in[1]}; ",
+        "read {over} directly"))
+    else
+      message(glue::glue("  {vn}: catalog view over {over}"))
   }
   DBI::dbCommit(con)
 

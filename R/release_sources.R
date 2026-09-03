@@ -46,11 +46,26 @@ cc_release_sources <- function(catalog, table,
                                base_https = "https://storage.googleapis.com/calcofi-db") {
   tbls <- .cc_catalog_tables(catalog)
   entry <- Filter(function(t) identical(as.character(t$name), table), tbls)
-  if (!length(entry))
+  if (!length(entry)) {
+    views <- cc_catalog_views(catalog)
+    if (table %in% names(views))
+      stop(glue::glue(
+        "'{table}' is a view in the catalog for {catalog$version} (over ",
+        "{paste(cc_view_tables(views[[table]]), collapse = ', ')}), not a table with parquet ",
+        "objects: cc_get_db() creates it, and cc_view_sql(catalog, '{table}', rp) is its SQL over ",
+        "however you read those tables"), call. = FALSE)
     stop(glue::glue("table '{table}' is not in the catalog for {catalog$version}"))
+  }
   entry <- entry[[1]]
   partitioned <- isTRUE(entry$partitioned)
   version <- as.character(catalog$version)
+  # a table the catalog deprecates still resolves — its objects ship through the
+  # deprecation window — but says so, so a caller can warn or migrate
+  dep <- list(
+    deprecated  = isTRUE(entry$deprecated),
+    replaced_by = as.character(unlist(entry$replaced_by)),
+    removed_in  = if (is.null(entry$removed_in)) NA_character_ else as.character(entry$removed_in))
+  dep$replaced_by <- dep$replaced_by[!is.na(dep$replaced_by)]
 
   if (length(entry$objects)) {
     objs <- entry$objects
@@ -67,29 +82,92 @@ cc_release_sources <- function(catalog, table,
     }
     paths  <- vapply(objs, function(o) as.character(o$path), "")
     hashes <- vapply(objs, function(o) as.character(o$content_hash %||% NA), "")
-    return(list(
+    return(c(list(
       urls        = paste0(base_https, "/", paths),
       hive        = partitioned,
       canonical   = TRUE,
       hashes      = hashes,
       # local mirror of the canonical layout: tables/{table}/[{key}={value}/]{hash}/file
       local_paths = sub("^ducklake/", "", paths),
-      single_file = single_file))
+      single_file = single_file), dep))
   }
 
   if (partitioned) {
-    list(urls = glue::glue("s3://calcofi-db/ducklake/releases/{version}/parquet/{table}/**/*.parquet"),
-         hive = TRUE, canonical = FALSE, hashes = NA_character_,
-         local_paths = NA_character_,
-         # obs is the one legacy partitioned table with a single-file twin
-         single_file = if (table == "obs")
-           glue::glue("{base_https}/ducklake/releases/{version}/parquet/obs.parquet") else NA_character_)
+    c(list(urls = glue::glue("s3://calcofi-db/ducklake/releases/{version}/parquet/{table}/**/*.parquet"),
+           hive = TRUE, canonical = FALSE, hashes = NA_character_,
+           local_paths = NA_character_,
+           # obs is the one legacy partitioned table with a single-file twin
+           single_file = if (table == "obs")
+             glue::glue("{base_https}/ducklake/releases/{version}/parquet/obs.parquet") else NA_character_),
+      dep)
   } else {
-    list(urls = glue::glue("{base_https}/ducklake/releases/{version}/parquet/{table}.parquet"),
-         hive = FALSE, canonical = FALSE, hashes = NA_character_,
-         local_paths = glue::glue("releases/{version}/parquet/{table}.parquet"),
-         single_file = NA_character_)
+    c(list(urls = glue::glue("{base_https}/ducklake/releases/{version}/parquet/{table}.parquet"),
+           hive = FALSE, canonical = FALSE, hashes = NA_character_,
+           local_paths = glue::glue("releases/{version}/parquet/{table}.parquet"),
+           single_file = NA_character_),
+      dep)
   }
+}
+
+#' Views a release catalog carries beside its tables
+#'
+#' Since the v2026.09 releases (calcofi4db 3.31.0, pre-release plan D-S1) `catalog.json` may carry a
+#' top-level `views` map: view name → SQL over `{{table}}` tokens, one token per table the view
+#' reads. `obs` is the first: the UNION ALL over `obs_bio` and `obs_env` that reconstructs its 18
+#' columns under their original names, so `FROM obs` keeps working while the observation rows ship
+#' once, as the pair. The table a view replaces is marked `deprecated` in `tables[]` (with
+#' `replaced_by` and `removed_in`) for the release it still ships in.
+#'
+#' `cc_catalog_views()` lists the views (an empty list for a catalog without any);
+#' `cc_view_tables()` the tables one reads; `cc_view_sql()` its SQL with every token replaced by
+#' `rp(table)` — a quoted identifier by default (the tables exist in the connection, as
+#' [cc_get_db()] arranges), or a `read_parquet(...)` from [cc_release_sources()] +
+#' [cc_read_parquet_sql()] for a connection that has none. Wrap the result in parentheses to use
+#' it in a `FROM`.
+#'
+#' @param catalog a release catalog as returned by [cc_catalog()] (either jsonlite form)
+#' @param name the view's name
+#' @param sql a view's SQL carrying `{{table}}` tokens
+#' @param rp `function(table) -> character(1)`
+#' @return `cc_catalog_views()`: a named list of SQL strings; `cc_view_tables()`: the distinct
+#'   table names in order of first appearance; `cc_view_sql()`: a length-one SQL string.
+#' @concept database
+#' @export
+#' @examples
+#' \dontrun{
+#' cat_ <- cc_catalog("latest")
+#' names(cc_catalog_views(cat_))
+#' rp  <- function(t) cc_read_parquet_sql(cc_release_sources(cat_, t))
+#' sql <- paste0("SELECT count(*) FROM (", cc_view_sql(cat_, "obs", rp), ")")
+#' }
+cc_catalog_views <- function(catalog) {
+  v <- catalog$views
+  if (is.null(v) || !length(v)) return(list())
+  if (is.data.frame(v)) v <- as.list(v[1, , drop = FALSE])
+  out <- lapply(v, function(s) as.character(unlist(s))[1])
+  out[!is.na(names(out)) & nzchar(names(out))]
+}
+
+#' @rdname cc_catalog_views
+#' @export
+cc_view_tables <- function(sql) {
+  m <- regmatches(sql, gregexpr("\\{\\{([A-Za-z0-9_]+)\\}\\}", sql))[[1]]
+  unique(gsub("^\\{\\{|\\}\\}$", "", m))
+}
+
+#' @rdname cc_catalog_views
+#' @export
+cc_view_sql <- function(catalog, name, rp = function(table) paste0('"', table, '"')) {
+  stopifnot(is.function(rp))
+  views <- cc_catalog_views(catalog)
+  if (!name %in% names(views))
+    stop(glue::glue("'{name}' is not a view in the catalog for {catalog$version}",
+                    if (length(views)) " (views: {paste(names(views), collapse = ', ')})" else ""),
+         call. = FALSE)
+  sql <- views[[name]]
+  for (t in cc_view_tables(sql))
+    sql <- gsub(paste0("{{", t, "}}"), rp(t), sql, fixed = TRUE)
+  sql
 }
 
 #' The `read_parquet(...)` SQL for a resolved source

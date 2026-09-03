@@ -31,7 +31,9 @@ queries without network overhead.}
 
 \item{tables}{Character vector of table names to include. NULL (default)
 includes all (non-supplemental) tables. Use to exclude large tables, or to
-explicitly include a supplemental table by name.}
+explicitly include a supplemental table by name. Naming a catalog \strong{view}
+(\code{obs} since the v2026.09 releases — the UNION ALL over \code{obs_bio} +
+\code{obs_env}, see \code{\link[=cc_catalog_views]{cc_catalog_views()}}) pulls in the tables it reads.}
 
 \item{supplemental}{Logical; include supplemental tables (e.g. \code{obs_ctd_full},
 the 216M full-resolution CTD scans) that are hosted + cataloged but hidden by
@@ -64,6 +66,14 @@ Data is stored at \code{gs://calcofi-db/ducklake/releases/{version}/}; since
 the v2026.09 releases each table's bytes are content-addressed objects under
 \code{ducklake/tables/} that the release catalog points at — see
 \code{\link{cc_release_sources}}, which is how every table here is resolved.
+
+A catalog may also carry \strong{views} (\code{\link{cc_catalog_views}}):
+\code{obs} is one since the v2026.09 releases, the UNION ALL over the
+observation tables \code{obs_bio} + \code{obs_env} that reconstructs its 18
+columns under their original names. Every view whose source tables load is
+created after them, so \code{FROM obs} keeps working; the deprecated
+\code{obs} table's own objects are read only when those sources are not
+loaded (\code{tables = "obs"} pulls them in).
 }
 \examples{
 \dontrun{

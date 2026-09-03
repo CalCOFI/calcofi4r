@@ -1,3 +1,28 @@
+# calcofi4r 1.17.0
+
+## `obs` is a catalog view over `obs_bio` + `obs_env` (pre-release plan D-S1)
+
+- **`cc_get_db()` creates every view a release's `catalog.json` carries** (`views`: name → SQL over
+  `{{table}}` tokens; calcofi4db 3.31.0) after the tables it reads, in the same transaction. `obs` is
+  the first: the UNION ALL over `obs_bio` + `obs_env` that reconstructs its 18 columns under their
+  original names, so `FROM obs` keeps working while the observation rows ship once, as the pair.
+  A deprecated table's own objects (`obs` still ships them this release) are read only when the
+  view's sources are not loaded; naming a view in `tables =` pulls in the tables it reads
+  (`tables = "obs"` loads `obs_bio`, `obs_env` and the view). The connect message says which.
+- **`cc_catalog_views(catalog)`**, **`cc_view_tables(sql)`**, **`cc_view_sql(catalog, name, rp)`** —
+  the view map, a view's source tables, and its SQL with every token replaced by `rp(table)` (a
+  quoted identifier by default, or a `read_parquet(...)` for a connection without the tables).
+- **`cc_release_sources()` errors clearly for a view** (`'obs' is a view … not a table with parquet
+  objects`) and reports `deprecated` / `replaced_by` / `removed_in` for a table the catalog
+  deprecates. `cc_match_*()` SQL (`.cc_read_parquet()`) expands a view to its parenthesised SQL over
+  the objects it reads — 1:1 with db-query `lib/release.js`.
+- **Consumers:** `SELECT * FROM obs` through `cc_get_db()` now returns the columns in `obs`'s table
+  order (`dataset_key` third), where a remote view over the hive partitions returned it last;
+  `obs.depth_min_m` / `depth_max_m` of an ichthyoplankton row is its tow's span (482,250 rows that were
+  NULL); `obs_bio` / `obs_env` are default tables (`sample_root` stays supplemental). Fixture
+  catalogs (`tests/testthat/fixtures/catalog_canonical.json`, new `catalog_view_only.json`) are
+  byte-identical with calcofi4py's and db-query's.
+
 # calcofi4r 1.16.0
 
 ## The bathymetry every position is inside (D29)
