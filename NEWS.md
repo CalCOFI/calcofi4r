@@ -1,3 +1,21 @@
+# calcofi4r 1.18.0
+
+## Brand v2 — the SIO look, light by default (flipped fleet-wide 2026-09-04)
+
+- **`cc_brand_head()` / `cc_brand_header()` emit brand v2** (`https://calcofi.io/brand/v2/`): the
+  font preloads + `fonts.css` (Source Sans 3, Teko), v2's pre-paint snippet, and the horizontal
+  lockup (`logo_calcofi_h*.svg`, sized by `theme.css`) in place of the 32 px mark. New
+  `cc_brand_head(scale = "app" | "page")` emits `<meta name="cc-scale" content="app">` (the
+  default — the compact scale a Shiny app wants); `cc_brand_header()`'s `mode` defaults to
+  `"light"`.
+- **`cc_theme()` defaults to `"light"`** and honours the `cc_theme` cookie only beside its
+  `cc_theme_src=user` marker (v2's persistence rule: a v1 page's dark default can never leak in).
+  **`cc_is_dark()` defaults to `FALSE`** before the switch reports.
+- **`cc_plot_colors()` carries v2's tokens** (navy `#182b49` type / `#00629b` accent on white;
+  `#e9edf3` / `#4fb6e6` on the navy dark ground); `cc_plot_colors()`, `cc_plotly_theme()` and
+  `cc_ggplot_theme()` default to `is_dark = FALSE`.
+- pkgdown site on brand v2 (light first, the lockup in the navbar).
+
 # calcofi4r 1.17.0
 
 ## `obs` is a catalog view over `obs_bio` + `obs_env` (pre-release plan D-S1)

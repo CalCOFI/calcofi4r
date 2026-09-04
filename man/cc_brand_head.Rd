@@ -4,7 +4,13 @@
 \alias{cc_brand_head}
 \title{Brand \verb{<head>} tags for a Shiny app}
 \usage{
-cc_brand_head(title = NULL, ga_app = NULL, ..., brand_url = .CC_BRAND_URL)
+cc_brand_head(
+  title = NULL,
+  ga_app = NULL,
+  ...,
+  brand_url = .CC_BRAND_URL,
+  scale = c("app", "page")
+)
 }
 \arguments{
 \item{title}{the browser-tab title (\code{NULL} to leave the app's own)}
@@ -15,15 +21,19 @@ cc_brand_head(title = NULL, ga_app = NULL, ..., brand_url = .CC_BRAND_URL)
 
 \item{brand_url}{where the assets live; the default is the only value a
 published app should use}
+
+\item{scale}{\code{"app"} (the default for a Shiny app) or \code{"page"} (the reading
+scale: larger type and spacing)}
 }
 \value{
 a \code{\link[htmltools:tagList]{htmltools::tagList()}} for \code{tags$head()}
 }
 \description{
-Everything the contract puts in \verb{<head>}: the page \verb{<title>}, the CalCOFI
-favicon set, the inline pre-paint theme snippet, \code{theme.css}, \code{theme.js}, the
-bslib bridge (see the source header), and — if \code{ga_app} is given — the
-analytics snippet via \code{\link[=cc_ga_head]{cc_ga_head()}}.
+Everything the contract puts in \verb{<head>}: the page \verb{<title>}, the app-scale
+meta (\verb{<meta name="cc-scale" content="app">} — brand v2's compact scale), the
+CalCOFI favicon set, the font preloads, the inline pre-paint theme snippet,
+\code{fonts.css}, \code{theme.css}, \code{theme.js}, the bslib bridge (see the source
+header), and — if \code{ga_app} is given — the analytics snippet via \code{\link[=cc_ga_head]{cc_ga_head()}}.
 }
 \examples{
 \dontrun{

@@ -1,7 +1,9 @@
 # ─── brand: the theme + header + favicon contract every CalCOFI product wears ──
 #
-# The contract lives at https://calcofi.io/brand/v1/ (source:
-# CalCOFI.github.io/brand/v1/README.md). These helpers are its R half, so a
+# The contract lives at https://calcofi.io/brand/v2/ (source:
+# CalCOFI.github.io/brand/v2/README.md; v2 — the SIO look, light by default,
+# the horizontal lockup, the app scale — in force since 2026-09-04; v1 is
+# superseded and still served). These helpers are its R half, so a
 # Shiny app declares against it instead of re-implementing it — before this,
 # three apps carried the same 30 lines (logo pair, `[data-bs-theme]` CSS block,
 # `input_dark_mode()`), only one had a favicon, and none could be put into a
@@ -9,7 +11,7 @@
 #
 # HOW THE THEME REACHES A SHINY APP, without a flash of the wrong colour:
 #   1. `ui <- function(request)` resolves it SERVER-SIDE with [cc_theme()]
-#      (`?theme=` → `cc_theme` cookie → dark) and hands it to
+#      (`?theme=` → `cc_theme` cookie, if the visitor chose it → light) and hands it to
 #      [cc_brand_header()] as the initial `mode` of bslib's dark-mode switch —
 #      the same resolution theme.js does in the browser, so the two agree.
 #   2. [cc_brand_head()] emits the inline pre-paint snippet (first paint is the
@@ -21,17 +23,23 @@
 #      `data-bs-theme`, and the component observes it.
 
 # where the assets are served from; a consumer never vendors them
-.CC_BRAND_URL <- "https://calcofi.io/brand/v1"
+.CC_BRAND_URL <- "https://calcofi.io/brand/v2"
 
-# brand/v1/head.html's inline pre-paint, verbatim: resolves the theme before the
-# first paint. Must be inline (a deferred script is too late).
+# brand/v2/head.html's inline pre-paint, verbatim: resolves the theme before the
+# first paint (light unless the visitor chose otherwise — a stored choice counts
+# only beside the `cc_theme_src=user` marker, so a v1 default never leaks in) and
+# copies <meta name="cc-scale"> onto <html data-cc-scale>. Must be inline (a
+# deferred script is too late).
 .CC_BRAND_PREPAINT <- paste0(
-  '(function(){var m=/[?&]theme=(dark|light)\\b/.exec(location.search),',
-  'c=/(?:^|;\\s*)cc_theme=(dark|light)/.exec(document.cookie),s=null;',
-  'try{s=localStorage.getItem("theme")}catch(e){}',
-  'var t=(m&&m[1])||(c&&c[1])||(s==="light"||s==="dark"?s:null)||"dark",d=document.documentElement;',
+  '(function(){var d=document.documentElement,m=/[?&]theme=(dark|light)\\b/.exec(location.search),',
+  'k=/(?:^|;\\s*)cc_theme_src=user\\b/.test(document.cookie),',
+  'c=k&&/(?:^|;\\s*)cc_theme=(dark|light)\\b/.exec(document.cookie),s=null;',
+  'try{if(localStorage.getItem("cc_theme_src")==="user")s=localStorage.getItem("cc_theme")}catch(e){}',
+  'var t=(m&&m[1])||(c&&c[1])||(s==="dark"||s==="light"?s:null)||"light";',
   'd.dataset.theme=t;d.setAttribute("data-bs-theme",t);',
-  'd.setAttribute("data-md-color-scheme",t==="dark"?"slate":"default");d.style.colorScheme=t})();')
+  'd.setAttribute("data-md-color-scheme",t==="dark"?"slate":"default");d.style.colorScheme=t;',
+  'var sc=document.querySelector(\'meta[name="cc-scale"]\');',
+  'if(sc&&sc.content)d.setAttribute("data-cc-scale",sc.content)})();')
 
 # bslib's dark-mode switch → the site-wide choice (see the header comment)
 .CC_BRAND_BSLIB_BRIDGE <- paste0(
@@ -41,10 +49,9 @@
   'if(window.ccTheme&&ccTheme.get()!==t)ccTheme.set(t)})',
   '.observe(r,{attributes:true,attributeFilter:["data-bs-theme"]})})();')
 
-# the `.cc-header` inside a bslib page: the page's own font sizing must not
-# shrink the bar, and bslib's switch should sit on the bar's colours
+# the `.cc-header` inside a bslib page: v2's bar is self-contained (its own font,
+# size and colours), so only bslib's switch and controls need dressing
 .CC_BRAND_SHINY_CSS <- paste(
-  ".cc-header { font-size: 0.9rem; }",
   ".cc-header bslib-input-dark-mode { --text-1: var(--fg); --text-2: var(--muted); }",
   ".cc-header .form-select, .cc-header .btn { font-size: 0.85rem; }",
   sep = "\n")
@@ -53,21 +60,23 @@
 #'
 #' The server-side twin of `theme.js`'s resolution, for `ui <- function(request)`:
 #' `?theme=dark|light` in the query string, else the `cc_theme` cookie
-#' (`Domain=.calcofi.io`, set by any CalCOFI site's toggle), else `default`.
+#' (`Domain=.calcofi.io`, set by any CalCOFI site's toggle) — honoured only
+#' beside its `cc_theme_src=user` marker, i.e. when the visitor chose it (brand
+#' v2's persistence rule: a v1 page's default can never leak in) — else `default`.
 #' Pass the result as `mode` to [cc_brand_header()] so bslib's switch starts in
 #' the right state and the page never flashes the other colour.
 #'
 #' @param request the Rook request Shiny hands a `ui` function (`NULL` → `default`)
-#' @param default theme when neither the URL nor a cookie says: `"dark"`, the
-#'   calcofi.io convention
+#' @param default theme when neither the URL nor a cookie says: `"light"`, the
+#'   calcofi.io convention since brand v2 (2026-09-04)
 #' @return `"dark"` or `"light"`
 #' @examples
 #' cc_theme(list(QUERY_STRING = "?theme=light"))
-#' cc_theme(list(HTTP_COOKIE = "theme=x; cc_theme=light"))
+#' cc_theme(list(HTTP_COOKIE = "cc_theme=dark; cc_theme_src=user"))
 #' cc_theme(NULL)
 #' @export
 #' @concept brand
-cc_theme <- function(request = NULL, default = c("dark", "light")) {
+cc_theme <- function(request = NULL, default = c("light", "dark")) {
   default <- match.arg(default)
   if (is.null(request)) return(default)
 
@@ -75,10 +84,10 @@ cc_theme <- function(request = NULL, default = c("dark", "light")) {
   t <- q[["theme"]]
   if (!is.null(t) && t %in% c("dark", "light")) return(t)
 
-  m <- regmatches(
-    request$HTTP_COOKIE %||% "",
-    regexpr("(^|;\\s*)cc_theme=(dark|light)", request$HTTP_COOKIE %||% "", perl = TRUE))
-  if (length(m) && nzchar(m)) return(sub(".*cc_theme=", "", m))
+  ck <- request$HTTP_COOKIE %||% ""
+  m  <- regmatches(ck, regexpr("(^|;\\s*)cc_theme=(dark|light)\\b", ck, perl = TRUE))
+  if (length(m) && nzchar(m) && grepl("(^|;\\s*)cc_theme_src=user\\b", ck, perl = TRUE))
+    return(sub(".*cc_theme=", "", m))
 
   default
 }
@@ -95,7 +104,7 @@ cc_theme <- function(request = NULL, default = c("dark", "light")) {
 #' @return logical scalar
 #' @export
 #' @concept brand
-cc_is_dark <- function(input, id = "dark_toggle", default = TRUE) {
+cc_is_dark <- function(input, id = "dark_toggle", default = FALSE) {
   v <- input[[id]]
   if (is.null(v)) default else identical(v, "dark")
 }
@@ -176,16 +185,19 @@ cc_release_chip <- function(version, href = cc_release_url(version)) {
 
 #' Brand `<head>` tags for a Shiny app
 #'
-#' Everything the contract puts in `<head>`: the page `<title>`, the CalCOFI
-#' favicon set, the inline pre-paint theme snippet, `theme.css`, `theme.js`, the
-#' bslib bridge (see the source header), and — if `ga_app` is given — the
-#' analytics snippet via [cc_ga_head()].
+#' Everything the contract puts in `<head>`: the page `<title>`, the app-scale
+#' meta (`<meta name="cc-scale" content="app">` — brand v2's compact scale), the
+#' CalCOFI favicon set, the font preloads, the inline pre-paint theme snippet,
+#' `fonts.css`, `theme.css`, `theme.js`, the bslib bridge (see the source
+#' header), and — if `ga_app` is given — the analytics snippet via [cc_ga_head()].
 #'
 #' @param title the browser-tab title (`NULL` to leave the app's own)
 #' @param ga_app app slug for [cc_ga_head()]; `NULL` for no analytics
 #' @param ... passed to [cc_ga_head()]
 #' @param brand_url where the assets live; the default is the only value a
 #'   published app should use
+#' @param scale `"app"` (the default for a Shiny app) or `"page"` (the reading
+#'   scale: larger type and spacing)
 #' @return a [htmltools::tagList()] for `tags$head()`
 #' @examples
 #' \dontrun{
@@ -196,15 +208,21 @@ cc_release_chip <- function(version, href = cc_release_url(version)) {
 #' }
 #' @export
 #' @concept brand
-cc_brand_head <- function(title = NULL, ga_app = NULL, ..., brand_url = .CC_BRAND_URL) {
+cc_brand_head <- function(title = NULL, ga_app = NULL, ..., brand_url = .CC_BRAND_URL,
+                          scale = c("app", "page")) {
+  scale <- match.arg(scale)
   u <- function(f) paste0(brand_url, "/", f)
   htmltools::tagList(
     if (!is.null(title)) htmltools::tags$title(title),
+    if (scale == "app") htmltools::tags$meta(name = "cc-scale", content = "app"),
     htmltools::tags$link(rel = "icon", type = "image/x-icon", href = u("favicon.ico")),
     htmltools::tags$link(rel = "icon", type = "image/png", sizes = "32x32", href = u("favicon-32x32.png")),
     htmltools::tags$link(rel = "icon", type = "image/png", sizes = "16x16", href = u("favicon-16x16.png")),
     htmltools::tags$link(rel = "apple-touch-icon", sizes = "180x180", href = u("apple-touch-icon.png")),
+    htmltools::tags$link(rel = "preload", href = u("fonts/SourceSans3-VF.woff2"), as = "font", type = "font/woff2", crossorigin = NA),
+    htmltools::tags$link(rel = "preload", href = u("fonts/Teko-VF.woff2"), as = "font", type = "font/woff2", crossorigin = NA),
     htmltools::tags$script(htmltools::HTML(.CC_BRAND_PREPAINT)),
+    htmltools::tags$link(rel = "stylesheet", href = u("fonts.css")),
     htmltools::tags$link(rel = "stylesheet", href = u("theme.css")),
     htmltools::tags$script(defer = NA, src = u("theme.js")),
     htmltools::tags$script(htmltools::HTML(.CC_BRAND_BSLIB_BRIDGE)),
@@ -214,8 +232,8 @@ cc_brand_head <- function(title = NULL, ga_app = NULL, ..., brand_url = .CC_BRAN
 
 #' The brand header bar for a Shiny app
 #'
-#' The `.cc-header` chrome: CalCOFI logo far left linking to
-#' <https://calcofi.io>, the app's `title` (linking to `href`, its own root),
+#' The `.cc-header` chrome: the CalCOFI lockup (brand v2's horizontal mark +
+#' wordmark) far left linking to <https://calcofi.io>, the app's `title` (linking to `href`, its own root),
 #' a spacer, the app's own controls in `...`, and bslib's dark-mode switch.
 #'
 #' @param title the app's name, shown beside the logo
@@ -232,7 +250,7 @@ cc_brand_head <- function(title = NULL, ga_app = NULL, ..., brand_url = .CC_BRAN
 #' @export
 #' @concept brand
 cc_brand_header <- function(title, ..., subtitle = NULL, release = NULL, href = "./",
-                            toggle_id = "dark_toggle", mode = c("dark", "light"),
+                            toggle_id = "dark_toggle", mode = c("light", "dark"),
                             brand_url = .CC_BRAND_URL) {
   mode <- match.arg(mode)
   u <- function(f) paste0(brand_url, "/", f)
@@ -240,8 +258,8 @@ cc_brand_header <- function(title, ..., subtitle = NULL, release = NULL, href = 
     class = "cc-header",
     htmltools::tags$a(
       class = "cc-home", href = "https://calcofi.io", `aria-label` = "CalCOFI.io home",
-      htmltools::tags$img(class = "cc-logo-dark",  src = u("logo_calcofi.svg"),       alt = "CalCOFI", width = 32, height = 32),
-      htmltools::tags$img(class = "cc-logo-light", src = u("logo_calcofi_light.svg"), alt = "CalCOFI", width = 32, height = 32)),
+      htmltools::tags$img(class = "cc-logo-dark",  src = u("logo_calcofi_h.svg"),       alt = "CalCOFI"),
+      htmltools::tags$img(class = "cc-logo-light", src = u("logo_calcofi_h_light.svg"), alt = "CalCOFI")),
     htmltools::tags$a(
       class = "cc-title", href = href, title,
       if (!is.null(subtitle)) htmltools::tags$small(subtitle)),
@@ -255,21 +273,22 @@ cc_brand_header <- function(title, ..., subtitle = NULL, release = NULL, href = 
 #'
 #' The brand tokens a chart needs, so a plot on a dark page is not drawn with
 #' black axis text: `fg` (text), `muted` (axis labels), `grid`, `panel`, and a
-#' transparent `bg` so the plot inherits the page.
+#' transparent `bg` so the plot inherits the page. The values are brand v2's
+#' (UCSD navy on white; navy ground in dark) since calcofi4r 1.18.0.
 #'
 #' @param is_dark logical
 #' @return named list of colour strings
 #' @examples
-#' cc_plot_colors(TRUE)$fg
+#' cc_plot_colors(FALSE)$fg
 #' @export
 #' @concept brand
-cc_plot_colors <- function(is_dark = TRUE) {
+cc_plot_colors <- function(is_dark = FALSE) {
   if (is_dark)
-    list(fg = "#e6e9ed", muted = "#9aa0a6", grid = "#3a3f44", panel = "#24272b",
-         accent = "#4dabf7", bg = "rgba(0,0,0,0)")
+    list(fg = "#e9edf3", muted = "#9fb0c8", grid = "#34486b", panel = "#182b49",
+         accent = "#4fb6e6", bg = "rgba(0,0,0,0)")
   else
-    list(fg = "#212529", muted = "#6c757d", grid = "#dee2e6", panel = "#f8f9fa",
-         accent = "#2780e3", bg = "rgba(0,0,0,0)")
+    list(fg = "#182b49", muted = "#66686a", grid = "#dddddd", panel = "#f5f5f5",
+         accent = "#00629b", bg = "rgba(0,0,0,0)")
 }
 
 #' Theme a plotly figure for the current theme
@@ -284,7 +303,7 @@ cc_plot_colors <- function(is_dark = TRUE) {
 #' @export
 #' @concept brand
 #' @importFrom plotly layout
-cc_plotly_theme <- function(p, is_dark = TRUE) {
+cc_plotly_theme <- function(p, is_dark = FALSE) {
   k <- cc_plot_colors(is_dark)
   ax <- list(gridcolor = k$grid, zerolinecolor = k$grid, linecolor = k$grid,
              tickcolor = k$muted, tickfont = list(color = k$muted),
@@ -308,7 +327,7 @@ cc_plotly_theme <- function(p, is_dark = TRUE) {
 #' @return a ggplot2 theme
 #' @export
 #' @concept brand
-cc_ggplot_theme <- function(is_dark = TRUE, base_size = 11) {
+cc_ggplot_theme <- function(is_dark = FALSE, base_size = 11) {
   k <- cc_plot_colors(is_dark)
   ggplot2::theme_minimal(base_size = base_size) +
     ggplot2::theme(

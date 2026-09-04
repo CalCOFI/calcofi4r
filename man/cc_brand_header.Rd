@@ -11,7 +11,7 @@ cc_brand_header(
   release = NULL,
   href = "./",
   toggle_id = "dark_toggle",
-  mode = c("dark", "light"),
+  mode = c("light", "dark"),
   brand_url = .CC_BRAND_URL
 )
 }
@@ -39,8 +39,8 @@ published app should use}
 a \verb{<header class="cc-header">} tag
 }
 \description{
-The \code{.cc-header} chrome: CalCOFI logo far left linking to
-\url{https://calcofi.io}, the app's \code{title} (linking to \code{href}, its own root),
+The \code{.cc-header} chrome: the CalCOFI lockup (brand v2's horizontal mark +
+wordmark) far left linking to \url{https://calcofi.io}, the app's \code{title} (linking to \code{href}, its own root),
 a spacer, the app's own controls in \code{...}, and bslib's dark-mode switch.
 }
 \concept{brand}

@@ -4,7 +4,7 @@
 \alias{cc_plot_colors}
 \title{Plot colours for the current theme}
 \usage{
-cc_plot_colors(is_dark = TRUE)
+cc_plot_colors(is_dark = FALSE)
 }
 \arguments{
 \item{is_dark}{logical}
@@ -15,9 +15,10 @@ named list of colour strings
 \description{
 The brand tokens a chart needs, so a plot on a dark page is not drawn with
 black axis text: \code{fg} (text), \code{muted} (axis labels), \code{grid}, \code{panel}, and a
-transparent \code{bg} so the plot inherits the page.
+transparent \code{bg} so the plot inherits the page. The values are brand v2's
+(UCSD navy on white; navy ground in dark) since calcofi4r 1.18.0.
 }
 \examples{
-cc_plot_colors(TRUE)$fg
+cc_plot_colors(FALSE)$fg
 }
 \concept{brand}

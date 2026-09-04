@@ -4,7 +4,7 @@
 \alias{cc_ggplot_theme}
 \title{A ggplot2 theme for the current theme}
 \usage{
-cc_ggplot_theme(is_dark = TRUE, base_size = 11)
+cc_ggplot_theme(is_dark = FALSE, base_size = 11)
 }
 \arguments{
 \item{is_dark}{logical}

@@ -4,7 +4,7 @@
 \alias{cc_is_dark}
 \title{Is the app currently in dark mode?}
 \usage{
-cc_is_dark(input, id = "dark_toggle", default = TRUE)
+cc_is_dark(input, id = "dark_toggle", default = FALSE)
 }
 \arguments{
 \item{input}{the Shiny \code{input} object}

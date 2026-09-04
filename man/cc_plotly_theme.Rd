@@ -4,7 +4,7 @@
 \alias{cc_plotly_theme}
 \title{Theme a plotly figure for the current theme}
 \usage{
-cc_plotly_theme(p, is_dark = TRUE)
+cc_plotly_theme(p, is_dark = FALSE)
 }
 \arguments{
 \item{p}{a plotly object}

@@ -4,13 +4,13 @@
 \alias{cc_theme}
 \title{Resolve the theme a Shiny request asks for}
 \usage{
-cc_theme(request = NULL, default = c("dark", "light"))
+cc_theme(request = NULL, default = c("light", "dark"))
 }
 \arguments{
 \item{request}{the Rook request Shiny hands a \code{ui} function (\code{NULL} → \code{default})}
 
-\item{default}{theme when neither the URL nor a cookie says: \code{"dark"}, the
-calcofi.io convention}
+\item{default}{theme when neither the URL nor a cookie says: \code{"light"}, the
+calcofi.io convention since brand v2 (2026-09-04)}
 }
 \value{
 \code{"dark"} or \code{"light"}
@@ -18,13 +18,15 @@ calcofi.io convention}
 \description{
 The server-side twin of \code{theme.js}'s resolution, for \verb{ui <- function(request)}:
 \code{?theme=dark|light} in the query string, else the \code{cc_theme} cookie
-(\code{Domain=.calcofi.io}, set by any CalCOFI site's toggle), else \code{default}.
+(\code{Domain=.calcofi.io}, set by any CalCOFI site's toggle) — honoured only
+beside its \code{cc_theme_src=user} marker, i.e. when the visitor chose it (brand
+v2's persistence rule: a v1 page's default can never leak in) — else \code{default}.
 Pass the result as \code{mode} to \code{\link[=cc_brand_header]{cc_brand_header()}} so bslib's switch starts in
 the right state and the page never flashes the other colour.
 }
 \examples{
 cc_theme(list(QUERY_STRING = "?theme=light"))
-cc_theme(list(HTTP_COOKIE = "theme=x; cc_theme=light"))
+cc_theme(list(HTTP_COOKIE = "cc_theme=dark; cc_theme_src=user"))
 cc_theme(NULL)
 }
 \concept{brand}
