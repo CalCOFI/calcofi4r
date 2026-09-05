@@ -105,7 +105,8 @@ test_that("a pre-A0 catalog with no `citation` falls back to the computed releas
   expect_identical(out[1], paste0(
     "CalCOFI (2026). CalCOFI Integrated Database, release v2026.08.14 [Data set]. ",
     "Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife. ",
-    "https://calcofi.io/db-schema/?v=v2026.08.14"))
+    "https://calcofi.io/db-schema/?v=v2026.08.14",
+    "\nPage: https://calcofi.io/datasets/release/"))
   expect_length(out, 1)  # no datasets requested
 })
 

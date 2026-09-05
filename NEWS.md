@@ -1,3 +1,23 @@
+# calcofi4r 1.19.0
+
+## `cc_datasets()` reads the dataset-catalog record (plan 2026-09-05, WS-P2)
+
+- **New `cc_datasets(version, what, base_https)`** reads a release's `datasets.json`
+  (`calcofi4db::build_dataset_catalog()`, calcofi4db >= 4.1.0) into a tibble, one row per record —
+  `what = "datasets"` (default, the integrated datasets), `"holdings"` (known but not yet in the
+  database) or `"reference"` (cruises, stations, spatial layers). `distributions`, `registrations`,
+  `keywords`, `tables`, `objects` arrive as list-columns; `provider`, `category`, `attribution`,
+  `links`, `coverage`, `status` as nested data frames. Errors naming the version when a release
+  predates the catalog, rather than returning an empty table.
+- **New `cc_dataset_page_url(dataset_key)`** — the one place a `https://calcofi.io/datasets/{key}/`
+  URL is built from a key; every consumer that names a dataset should call this instead of
+  hard-coding the pattern.
+- **`cc_cite(format = "text")` gains a `Page:` line** on every entry — the dataset's own catalog
+  page, or `https://calcofi.io/datasets/release/` for the release citation. `format = "bibtex"` /
+  `"csl"` are unchanged.
+- Mirrors `calcofi4py.cc_datasets()` / `catalog.cc_dataset_page_url()` (calcofi4py 0.7.0)
+  byte-for-byte over the shared fixture `tests/testthat/fixtures/datasets_sample.json`.
+
 # calcofi4r 1.18.0
 
 ## Brand v2 — the SIO look, light by default (flipped fleet-wide 2026-09-04)
