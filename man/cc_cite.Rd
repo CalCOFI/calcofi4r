@@ -57,10 +57,13 @@ naming it.
 
 Each dataset entry always carries its \code{citation_main}; \code{format = "text"}
 appends a \verb{License: <id>} line (plus the URL, for a \code{custom} license), a
-\verb{DOI:} line when the dataset has one, and an \verb{Acknowledgement:} line when the
-source requires one. \code{format = "bibtex"} and \code{format = "csl"} fold license
-and acknowledgement into one \code{note}/\code{note} field instead, since neither
-format has a natural place for more than one.
+\verb{DOI:} line when the dataset has one, an \verb{Acknowledgement:} line when the
+source requires one, and (2026-09-05) always a \verb{Page:} line linking
+\verb{https://calcofi.io/datasets/\{dataset_key\}/} — the dataset-catalog record's
+own page (\code{\link[=cc_datasets]{cc_datasets()}}); the release citation gets the same line for
+\verb{https://calcofi.io/datasets/release/}. \code{format = "bibtex"} and \code{format = "csl"} fold license and acknowledgement into one \code{note}/\code{note} field
+instead, since neither format has a natural place for more than one, and do
+not carry the page line.
 
 \code{format = "bibtex"} builds every \verb{@misc\{...\}} entry \strong{offline}, from the
 fields already on \code{dataset} and in the catalog — nothing here calls the

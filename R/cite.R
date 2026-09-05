@@ -51,6 +51,9 @@
     sprintf("%s?v=%s", .CC_CITE_DB_SCHEMA_URL, version)
   citation <- if (has_cit) catalog$citation else
     .cc_cite_release_computed(version, catalog$release_date, doi)
+  # the record's own page for the release (plan 2026-09-05 D-4); appended to the
+  # citation text only, so bibtex/csl (which do not use `citation`) are unaffected
+  citation <- paste0(citation, "\nPage: https://calcofi.io/datasets/release/")
   list(
     id        = paste0("calcofi_release_", gsub("[^A-Za-z0-9]+", "_", version)),
     citation  = citation,
@@ -140,7 +143,8 @@
   cit <- .s0(row$citation_main)
   first <- if (nzchar(cit)) cit else
     sprintf("%s [dataset].", if (nzchar(.s0(row$dataset_name))) row$dataset_name else row$dataset_key)
-  lines <- c(first, .cc_cite_license_line(row), .cc_cite_doi_line(row), .cc_cite_ack_line(row))
+  page <- sprintf("Page: %s", cc_dataset_page_url(row$dataset_key))
+  lines <- c(first, .cc_cite_license_line(row), .cc_cite_doi_line(row), .cc_cite_ack_line(row), page)
   paste(stats::na.omit(lines), collapse = "\n")
 }
 
@@ -225,10 +229,14 @@
 #'
 #' Each dataset entry always carries its `citation_main`; `format = "text"`
 #' appends a `License: <id>` line (plus the URL, for a `custom` license), a
-#' `DOI:` line when the dataset has one, and an `Acknowledgement:` line when the
-#' source requires one. `format = "bibtex"` and `format = "csl"` fold license
-#' and acknowledgement into one `note`/`note` field instead, since neither
-#' format has a natural place for more than one.
+#' `DOI:` line when the dataset has one, an `Acknowledgement:` line when the
+#' source requires one, and (2026-09-05) always a `Page:` line linking
+#' `https://calcofi.io/datasets/{dataset_key}/` — the dataset-catalog record's
+#' own page ([cc_datasets()]); the release citation gets the same line for
+#' `https://calcofi.io/datasets/release/`. `format = "bibtex"` and `format =
+#' "csl"` fold license and acknowledgement into one `note`/`note` field
+#' instead, since neither format has a natural place for more than one, and do
+#' not carry the page line.
 #'
 #' `format = "bibtex"` builds every `@misc{...}` entry **offline**, from the
 #' fields already on `dataset` and in the catalog — nothing here calls the

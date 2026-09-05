@@ -42,18 +42,22 @@ test_that("a pre-contract `dataset` table (v2026.08.25's 18 columns) cites witho
   expect_length(flds, 18L)
   expect_false(any(c("doi", "license_url", "acknowledgement") %in% flds))
 
-  # text: the release citation, then citation_main + its License line — and nothing
-  # the table cannot supply (no DOI: / Acknowledgement: line, no URL after `custom`)
+  # text: the release citation, then citation_main + its License line, always a
+  # trailing Page: line (2026-09-05, plan D-4) — and nothing else the table cannot
+  # supply (no DOI: / Acknowledgement: line, no URL after `custom`)
   txt <- cc_cite(con = con, version = "v2026.09.03")
   expect_length(txt, 4)
-  expect_identical(txt[[1]], .cite_legacy_catalog()$citation)
+  expect_identical(txt[[1]], paste0(
+    .cite_legacy_catalog()$citation, "\nPage: https://calcofi.io/datasets/release/"))
   expect_identical(attr(txt, "source"), "release")
   expect_identical(txt[[2]], paste0(
     "Wang, X.J. et al. (2021). CalCOFI Dissolved Inorganic Carbon Data. ",
-    "NOAA National Centers for Environmental Information.\nLicense: CC-BY-4.0"))
+    "NOAA National Centers for Environmental Information.\nLicense: CC-BY-4.0",
+    "\nPage: https://calcofi.io/datasets/calcofi_dic/"))
   expect_identical(txt[[3]], paste0(
     "CCE LTER (2019). Zooplankton biomass and net sampling data. oceaninformatics.ucsd.edu.",
-    "\nLicense: custom"))
+    "\nLicense: custom",
+    "\nPage: https://calcofi.io/datasets/cce-lter_zoodb/"))
   expect_false(any(grepl("DOI: |Acknowledgement: |License: custom \\(", txt)))
 
   # bibtex: the dataset entries carry no doi / url field (the release entry keeps its DOI)
