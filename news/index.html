@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.21.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.22.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,15 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.22.0" id="calcofi4r-1220">calcofi4r 1.22.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1220"></a></h2>
+<div class="section level3">
+<h3 id="cc_interpolate-gains-the-explorers-site-grain-1-22-0">
+<code>cc_interpolate()</code> gains the Explorer’s site grain<a class="anchor" aria-label="anchor" href="#cc_interpolate-gains-the-explorers-site-grain-1-22-0"></a></h3>
+<ul><li>
+<code>cc_interpolate(nmax = 0)</code> — <code>nmax &gt; 0</code> (the Explorer’s <em>every site</em> grain uses 24) fits the <code>nmax</code> nearest points within <code>3 * mask_km</code> per cell instead of one global system: one small solve each, which returns the value and its error together; the variogram then fits on at most 2,000 points and the leave-one-out error runs on at most 500, both drawn by a seeded generator shared byte-for-byte with the browser and <code>calcofi4py</code>. <code>$fit</code> carries <code>nmax</code>, <code>n_loo</code> and <code>n_fit</code>. Not for <code>"tps"</code>. The shared fixture gained the two local cases.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.21.0" id="calcofi4r-1210">calcofi4r 1.21.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1210"></a></h2>
 <div class="section level3">

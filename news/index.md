@@ -1,5 +1,18 @@
 # Changelog
 
+## calcofi4r 1.22.0
+
+### `cc_interpolate()` gains the Explorer’s site grain
+
+- `cc_interpolate(nmax = 0)` — `nmax > 0` (the Explorer’s *every site*
+  grain uses 24) fits the `nmax` nearest points within `3 * mask_km` per
+  cell instead of one global system: one small solve each, which returns
+  the value and its error together; the variogram then fits on at most
+  2,000 points and the leave-one-out error runs on at most 500, both
+  drawn by a seeded generator shared byte-for-byte with the browser and
+  `calcofi4py`. `$fit` carries `nmax`, `n_loo` and `n_fit`. Not for
+  `"tps"`. The shared fixture gained the two local cases.
+
 ## calcofi4r 1.21.0
 
 ### The Explorer’s Contours lens, as a function

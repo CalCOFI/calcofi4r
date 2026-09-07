@@ -18,7 +18,8 @@ cc_interpolate(
   method = c("ok", "idw", "tps"),
   cell_deg = 0.06,
   mask_km = 60,
-  se = TRUE
+  se = TRUE,
+  nmax = 0
 )
 ```
 
@@ -49,7 +50,17 @@ cc_interpolate(
 - se:
 
   compute the error surface (`ok`, `tps`; always `NULL` for `idw`). It
-  is the slow part.
+  is the slow part in the global mode.
+
+- nmax:
+
+  `0` (the station grid): every point in one system. `> 0` (the cast
+  grain; the Explorer uses 32): the `nmax` nearest points per cell — one
+  small solve each, which gives the value and its error together; the
+  variogram then fits on at most 2,000 points and the leave-one-out
+  error runs on at most 500, both drawn by a seeded generator shared
+  with the browser; a neighbour is never farther than `3 * mask_km`. Not
+  for `"tps"`.
 
 ## Value
 
