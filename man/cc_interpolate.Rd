@@ -9,7 +9,8 @@ cc_interpolate(
   method = c("ok", "idw", "tps"),
   cell_deg = 0.06,
   mask_km = 60,
-  se = TRUE
+  se = TRUE,
+  nmax = 0
 )
 }
 \arguments{
@@ -23,7 +24,12 @@ a thin-plate spline with the smoothing chosen by GCV (its standard error is the 
 
 \item{mask_km}{cells farther than this from every point are \code{NA} (the Explorer uses 60).}
 
-\item{se}{compute the error surface (\code{ok}, \code{tps}; always \code{NULL} for \code{idw}). It is the slow part.}
+\item{se}{compute the error surface (\code{ok}, \code{tps}; always \code{NULL} for \code{idw}). It is the slow part in the global mode.}
+
+\item{nmax}{\code{0} (the station grid): every point in one system. \verb{> 0} (the cast grain; the Explorer uses 32):
+the \code{nmax} nearest points per cell — one small solve each, which gives the value and its error together;
+the variogram then fits on at most 2,000 points and the leave-one-out error runs on at most 500, both drawn by
+a seeded generator shared with the browser; a neighbour is never farther than \code{3 * mask_km}. Not for \code{"tps"}.}
 }
 \value{
 A list: \code{grid} (\code{lon0}, \code{lon1}, \code{lat_s}, \code{lat_n}, \code{nx}, \code{ny}, \code{cell_deg}), \code{values} (an \verb{ny x nx}

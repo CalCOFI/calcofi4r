@@ -15,9 +15,10 @@ test_that("cc_interpolate() lays the grid out exactly as the browser does", {
   expect_identical(is.na(s$values), is.na(as_mat(fx$methods$idw$values, fx$grid)))
 })
 
-for (m in c("idw", "ok", "tps")) test_that(sprintf("cc_interpolate('%s') reproduces the browser's surface cell for cell", m), {
-  f <- fx$methods[[m]]
-  s <- cc_interpolate(pts, m, cell_deg = fx$params$cellDeg, mask_km = fx$params$maskKm, se = TRUE)
+for (key in names(fx$methods)) test_that(sprintf("cc_interpolate() case '%s' reproduces the browser's surface cell for cell", key), {
+  f <- fx$methods[[key]]; m <- f$method
+  s <- cc_interpolate(pts, m, cell_deg = fx$params$cellDeg, mask_km = fx$params$maskKm, se = TRUE, nmax = f$nmax)
+  expect_equal(s$fit$nmax, f$nmax)
   expect_equal(s$fit$n, f$fit$n); expect_equal(s$fit$n_cells, f$fit$nCells)
   expect_equal(s$fit$loo, f$fit$loo, tolerance = 1e-5)
   expect_equal(s$values, as_mat(f$values, fx$grid), tolerance = 1e-5)        # the fixture is rounded to 6 dp
@@ -31,6 +32,9 @@ test_that("cc_interpolate() never extrapolates past the mask, and idw has no err
   expect_true(anyNA(s$values)); expect_null(s$se)
   expect_lt(s$fit$n_cells, fx$methods$ok$fit$nCells)   # a tighter mask keeps fewer cells
   expect_error(cc_interpolate(pts[1:3, ], "ok"), "n >= 4")
+  expect_error(cc_interpolate(pts, "tps", nmax = 8), "every point in one system")
+  # the seeded draw is the browser's: the first five of a 30-of-100 partial Fisher-Yates at seed 2
+  expect_identical(calcofi4r:::.cc_lcg_sample(100, 30, 2)[1:5], c(24L, 47L, 21L, 75L, 73L))
 })
 
 test_that("cc_interpolate_rast() is a Web-Mercator raster with the grid's shape", {
