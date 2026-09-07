@@ -1,4 +1,17 @@
-# calcofi4r 1.19.0
+# calcofi4r 1.20.0
+
+## Brand v2 reaches the body of a bslib app, not just its header
+
+- **`cc_brand_head()` now maps bslib's `--bs-*` tokens onto the brand's** for both themes
+  (ground, panels, border, type, muted, UCSD Blue accent and the brand type family), plus the
+  navbar / card / sidebar grounds and `.btn-primary`. `theme.css` paints the `.cc-header`, but
+  Bootstrap paints everything else from its own variables, and nothing had bridged them: every
+  bslib app's dark mode was Bootstrap's `#1d1f21` near-black under a navy header, in Open Sans.
+  An app's own later `<style>` on the same selector still wins.
+- The `ctd-temperature-anomalies` vignette calls `cc_climatology(min_cruises =)` — it still passed
+  `min_n`, removed in 1.14.0, so the pkgdown site had not rebuilt since 2026-09-04 and was
+  serving brand v1.
+
 
 ## `cc_datasets()` reads the dataset-catalog record (plan 2026-09-05, WS-P2)
 

@@ -49,11 +49,45 @@
   'if(window.ccTheme&&ccTheme.get()!==t)ccTheme.set(t)})',
   '.observe(r,{attributes:true,attributeFilter:["data-bs-theme"]})})();')
 
-# the `.cc-header` inside a bslib page: v2's bar is self-contained (its own font,
-# size and colours), so only bslib's switch and controls need dressing
+# bslib's tokens → the brand's. theme.css paints the `.cc-header` (self-contained)
+# but Bootstrap paints everything else from its own `--bs-*` variables, and
+# nothing mapped one onto the other: until 2026-09-07 every bslib app's dark
+# mode was Bootstrap's #1d1f21 near-black under a navy brand header (hex, CTD,
+# Pollutants, Cruise), and its type was Open Sans. The values are the
+# contract's (`brand/v2/theme.css` `:root` / `:root[data-theme="dark"]`), stated
+# here rather than as `var(--bg)` because bslib evaluates its palette from these
+# literals at build time too (`.btn-primary`, `.form-control`, …). An app's own
+# later `<style>` still wins on the same selector, so a tuned ground (db-viz-hex's
+# light #eef2f7) survives.
 .CC_BRAND_SHINY_CSS <- paste(
   ".cc-header bslib-input-dark-mode { --text-1: var(--fg); --text-2: var(--muted); }",
   ".cc-header .form-select, .cc-header .btn { font-size: 0.85rem; }",
+  # light: white ground, navy type, UCSD Blue accent
+  "[data-bs-theme='light'] {",
+  "  --bs-body-bg: #ffffff; --bs-body-color: #182b49;",
+  "  --bs-tertiary-bg: #f5f5f5; --bs-secondary-bg: #f5f5f5;",
+  "  --bs-border-color: #dddddd; --bs-secondary-color: #66686a;",
+  "  --bs-primary: #00629b; --bs-primary-rgb: 0, 98, 155;",
+  "  --bs-link-color: #00629b; --bs-link-color-rgb: 0, 98, 155;",
+  "  --bs-link-hover-color: #004663; --bs-link-hover-color-rgb: 0, 70, 99;",
+  "}",
+  # dark: the navy ground, UCSD Navy panels, the accent lifted for the ground
+  "[data-bs-theme='dark'] {",
+  "  --bs-body-bg: #0f1a2e; --bs-body-color: #e9edf3;",
+  "  --bs-tertiary-bg: #182b49; --bs-secondary-bg: #21375c;",
+  "  --bs-border-color: #34486b; --bs-secondary-color: #9fb0c8;",
+  "  --bs-primary: #4fb6e6; --bs-primary-rgb: 79, 182, 230;",
+  "  --bs-link-color: #4fb6e6; --bs-link-color-rgb: 79, 182, 230;",
+  "  --bs-link-hover-color: #8ad0f0; --bs-link-hover-color-rgb: 138, 208, 240;",
+  "}",
+  # the page ground and the brand type, whichever bslib page function built the app
+  "body { background-color: var(--bs-body-bg); color: var(--bs-body-color);",
+  "  font-family: var(--sans, 'Source Sans 3', system-ui, sans-serif); }",
+  "[data-bs-theme='dark'] .navbar, [data-bs-theme='dark'] .card,",
+  "[data-bs-theme='dark'] .bslib-sidebar-layout > .sidebar { background-color: var(--bs-tertiary-bg); }",
+  ".btn-primary { --bs-btn-bg: var(--bs-primary); --bs-btn-border-color: var(--bs-primary);",
+  "  --bs-btn-hover-bg: var(--bs-link-hover-color); --bs-btn-hover-border-color: var(--bs-link-hover-color); }",
+  "[data-bs-theme='dark'] .btn-primary { --bs-btn-color: #0f1a2e; --bs-btn-hover-color: #0f1a2e; }",
   sep = "\n")
 
 #' Resolve the theme a Shiny request asks for

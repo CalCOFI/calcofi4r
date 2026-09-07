@@ -60,7 +60,7 @@ SUMMER    <- 7:8             # CalCOFI's summer occupation runs Jul-Aug
 LINE      <- 93.3            # the line off San Diego; every core line works
 VAR       <- "temperature_ave"
 DEPTH_MAX <- 500
-MIN_N     <- 3               # baseline cells thinner than this are dropped
+MIN_CRUISES <- 3             # baseline cells fed by fewer distinct cruises are dropped
 ```
 
 ## One transect
@@ -108,7 +108,7 @@ c(occupied_km = max(occ$dist_km), along_line_km = max(lin$dist_km))
 
 ```{r clim}
 clim <- cc_climatology(
-  con, variables = VAR, years = BASELINE, depth_max = DEPTH_MAX, min_n = MIN_N)
+  con, variables = VAR, years = BASELINE, depth_max = DEPTH_MAX, min_cruises = MIN_CRUISES)
 
 attr(clim, "baseline")
 nrow(clim)
@@ -174,7 +174,7 @@ screen <- function(d, col = "measurement_value")
 
 clim_screened <- cc_climatology(
   con, variables = VAR, years = BASELINE,
-  depth_max = DEPTH_MAX, min_n = MIN_N) |>
+  depth_max = DEPTH_MAX, min_cruises = MIN_CRUISES) |>
   filter(clim_mean >= TEMP_RANGE_REGIONAL[1],
          clim_mean <= TEMP_RANGE_REGIONAL[2])
 
@@ -295,7 +295,7 @@ before the 1993–2002 cruises were ingested.
 ```{r sensitivity}
 clim_98 <- cc_climatology(
   con, variables = VAR, years = c(1998, 2013),
-  depth_max = DEPTH_MAX, min_n = MIN_N) |>
+  depth_max = DEPTH_MAX, min_cruises = MIN_CRUISES) |>
   filter(clim_mean >= TEMP_RANGE_REGIONAL[1],
          clim_mean <= TEMP_RANGE_REGIONAL[2])
 
