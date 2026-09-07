@@ -10,7 +10,7 @@ Before the switch has reported (first flush) it is `default`.
 ## Usage
 
 ``` r
-cc_is_dark(input, id = "dark_toggle", default = TRUE)
+cc_is_dark(input, id = "dark_toggle", default = FALSE)
 ```
 
 ## Arguments

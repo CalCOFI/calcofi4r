@@ -1,9 +1,16 @@
 # Seasonal climatology for one or more measurement types
 
-A baseline per (`grid_key`, depth bin, month), which is the finest
-grouping the CalCOFI sampling design supports: quarterly-ish cruises
-over decades give many years per calendar month at a station, but not
-many days.
+The baseline every CalCOFI anomaly is a departure from: a plain mean per
+(`grid_key`, calendar month, 10 m floor depth bin, measurement type)
+across a window of years, kept where at least `min_cruises` distinct
+cruises contribute. Calendar month is the finest season CalCOFI's design
+supports — quarterly-ish cruises over decades give many *years* per
+month at a station but only a handful of days — and the coarsest that
+works: a mean over all months is a map of the seasonal cycle, not an
+anomaly. A plain mean rather than harmonics: Rudnick et al. (2017) fit
+annual and semiannual harmonics for the CUGN glider climatology, which
+suits continuous glider sampling; CalCOFI's is episodic, and a monthly
+mean is something a reader can state exactly.
 
 ## Usage
 
@@ -14,8 +21,8 @@ cc_climatology(
   years = c(1993, 2013),
   dataset_key = "calcofi_ctd-cast",
   depth_max = 500,
-  depth_bin = 5,
-  min_n = 3
+  depth_bin = 10,
+  min_cruises = 3
 )
 ```
 
@@ -23,7 +30,8 @@ cc_climatology(
 
 - con:
 
-  DuckDB connection to a release.
+  DuckDB connection to a release
+  ([`cc_get_db()`](https://calcofi.io/calcofi4r/reference/cc_get_db.md)).
 
 - variables:
 
@@ -34,26 +42,35 @@ cc_climatology(
   two-element baseline range, inclusive, e.g. `c(1993, 2013)`. Recorded
   on the result as the `baseline` attribute so a plot can state it.
 
-- dataset_key, depth_max, depth_bin:
+- dataset_key, depth_max:
 
   as in
   [`cc_transect_section()`](https://calcofi.io/calcofi4r/reference/cc_transect_section.md).
 
-- min_n:
+- depth_bin:
 
-  minimum observations for a cell to be returned (default 3).
+  bin width, m (default 10; floor bins, labelled by the shallow edge).
+  The release table is only used at 10.
+
+- min_cruises:
+
+  minimum distinct cruises for a cell to be returned (default 3). A
+  floor in cruises rather than observations because a nearshore grid
+  cell holds several stations' casts from one cruise.
 
 ## Value
 
 Tibble: `grid_key`, `month`, `depth_m`, `variable`, `clim_mean`,
-`clim_sd`, `clim_n`; with attribute `baseline`.
+`clim_sd`, `clim_n`, `n_cruises`; attributes `baseline` (the years) and
+`source` (`"release"` or `"computed"`).
 
 ## Details
 
-Deliberately a **plain monthly mean**, not a harmonic fit. Rudnick et
-al. (2017) fit annual and semiannual harmonics for the CUGN glider
-climatology, which suits near-continuous glider sampling; CalCOFI's is
-episodic and unevenly spaced, and a monthly mean is both defensible and
-legible — someone reading an anomaly can say exactly what it is a
-departure from. `n` is returned so a thin cell can be filtered rather
-than silently trusted.
+**Since the releases of 2026-09 the database ships this table** —
+`climatology`, built by `calcofi4db::build_climatology()` at release
+time with exactly this definition, the window stamped on every row — and
+ctd-transects and the CalCOFI Explorer subtract it. When `con` holds
+that table and `years` is its window, this returns its cells (`source`
+attribute `"release"`), so an R user, the two apps and any notebook see
+one baseline. Otherwise (an older release, or another window) it
+computes the same thing from `obs` (`source` = `"computed"`).

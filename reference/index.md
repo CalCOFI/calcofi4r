@@ -167,6 +167,23 @@ functions specific to database (Admin only)
 - [`cc_catalog()`](https://calcofi.io/calcofi4r/reference/cc_catalog.md)
   : Read a release catalog
 
+- [`cc_catalog_views()`](https://calcofi.io/calcofi4r/reference/cc_catalog_views.md)
+  [`cc_view_tables()`](https://calcofi.io/calcofi4r/reference/cc_catalog_views.md)
+  [`cc_view_sql()`](https://calcofi.io/calcofi4r/reference/cc_catalog_views.md)
+  : Views a release catalog carries beside its tables
+
+- [`cc_cite()`](https://calcofi.io/calcofi4r/reference/cc_cite.md) :
+  Cite CalCOFI data
+
+- [`cc_dataset_page_url()`](https://calcofi.io/calcofi4r/reference/cc_dataset_page_url.md)
+  :
+
+  The `https://calcofi.io/datasets/{dataset_key}/` page URL for a
+  dataset
+
+- [`cc_datasets()`](https://calcofi.io/calcofi4r/reference/cc_datasets.md)
+  : List CalCOFI datasets (the dataset-catalog record)
+
 - [`cc_db_catalog()`](https://calcofi.io/calcofi4r/reference/cc_db_catalog.md)
   : Show CalCOFI database catalog as interactive table
 

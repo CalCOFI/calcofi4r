@@ -46,7 +46,7 @@ SUMMER    <- 7:8             # CalCOFI's summer occupation runs Jul-Aug
 LINE      <- 93.3            # the line off San Diego; every core line works
 VAR       <- "temperature_ave"
 DEPTH_MAX <- 500
-MIN_N     <- 3               # baseline cells thinner than this are dropped
+MIN_CRUISES <- 3             # baseline cells fed by fewer distinct cruises are dropped
 ```
 
 ## One transect
@@ -78,12 +78,12 @@ head(sec)
 #> # A tibble: 6 × 6
 #>   cruise_key     sta dist_km depth_m variable        value
 #>   <chr>        <dbl>   <dbl>   <dbl> <chr>           <dbl>
-#> 1 2026-07-3322    25       0       0 temperature_ave  20.3
-#> 2 2026-07-3322    25       0       5 temperature_ave  20.3
-#> 3 2026-07-3322    25       0      10 temperature_ave  19.4
-#> 4 2026-07-3322    25       0      15 temperature_ave  16.1
-#> 5 2026-07-3322    25       0      20 temperature_ave  13.7
-#> 6 2026-07-3322    25       0      25 temperature_ave  11.8
+#> 1 2026-07-3322    25       0       0 temperature_ave  20.0
+#> 2 2026-07-3322    25       0      10 temperature_ave  17.1
+#> 3 2026-07-3322    25       0      20 temperature_ave  13.5
+#> 4 2026-07-3322    25       0      30 temperature_ave  11.3
+#> 5 2026-07-3322    25       0      40 temperature_ave  11.2
+#> 6 2026-07-3322    25       0      50 temperature_ave  11.1
 ```
 
 [`cc_transect_stations()`](https://calcofi.io/calcofi4r/reference/cc_transect_stations.md)
@@ -111,12 +111,12 @@ c(occupied_km = max(occ$dist_km), along_line_km = max(lin$dist_km))
 ``` r
 
 clim <- cc_climatology(
-  con, variables = VAR, years = BASELINE, depth_max = DEPTH_MAX, min_n = MIN_N)
+  con, variables = VAR, years = BASELINE, depth_max = DEPTH_MAX, min_cruises = MIN_CRUISES)
 
 attr(clim, "baseline")
 #> [1] 1993 2013
 nrow(clim)
-#> [1] 34978
+#> [1] 23320
 ```
 
 [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
@@ -191,12 +191,12 @@ screen <- function(d, col = "measurement_value")
 
 clim_screened <- cc_climatology(
   con, variables = VAR, years = BASELINE,
-  depth_max = DEPTH_MAX, min_n = MIN_N) |>
+  depth_max = DEPTH_MAX, min_cruises = MIN_CRUISES) |>
   filter(clim_mean >= TEMP_RANGE_REGIONAL[1],
          clim_mean <= TEMP_RANGE_REGIONAL[2])
 
 nrow(clim) - nrow(clim_screened)   # baseline cells the screen removes
-#> [1] 1
+#> [1] 0
 ```
 
 ## Anomalies for one section
@@ -213,9 +213,9 @@ never measured.
 anom <- cc_anomaly(sec, clim_screened, sta)
 
 round(100 * mean(!is.na(anom$anomaly)))   # % of this section with a baseline
-#> [1] 75
+#> [1] 59
 range(anom$anomaly, na.rm = TRUE)
-#> [1] -3.140529  5.376190
+#> [1] -1.411423  4.709667
 ```
 
 ``` r
@@ -251,8 +251,8 @@ str(m, max.level = 1)
 #> List of 4
 #>  $ x  : num [1:11] 0 11.3 62.7 99.8 135.6 ...
 #>  $ sta: num [1:11] 25 30 35 40 45 50 55 60 70 80 ...
-#>  $ y  : num [1:88] 0 5 10 15 20 25 30 35 40 45 ...
-#>  $ z  :List of 88
+#>  $ y  : num [1:51] 0 10 20 30 40 50 60 70 80 90 ...
+#>  $ z  :List of 51
 ```
 
 ## All summer cruises: an anomaly time series
@@ -300,14 +300,14 @@ series <- anom_summer |>
 
 head(series)
 #> # A tibble: 6 × 4
-#>      yr layer  anomaly     n
-#>   <int> <fct>    <dbl> <int>
-#> 1  1993 0-50 m   0.766   925
-#> 2  1997 0-50 m   0.775   973
-#> 3  1998 0-50 m  -0.631  1005
-#> 4  2001 0-50 m   0.310   954
-#> 5  2004 0-50 m   0.134  1148
-#> 6  2006 0-50 m   0.363  1088
+#>      yr layer     anomaly     n
+#>   <int> <fct>       <dbl> <int>
+#> 1  2000 0-50 m     0.543    582
+#> 2  2000 50-100 m  -0.0248   411
+#> 3  2000 100-200 m -0.0721   706
+#> 4  2000 200-500 m -0.0117  1649
+#> 5  2001 0-50 m     0.629    646
+#> 6  2001 50-100 m  -0.0186   452
 ```
 
 A sanity check before reading anything into it: the baseline years must
@@ -347,7 +347,7 @@ possible before the 1993–2002 cruises were ingested.
 
 clim_98 <- cc_climatology(
   con, variables = VAR, years = c(1998, 2013),
-  depth_max = DEPTH_MAX, min_n = MIN_N) |>
+  depth_max = DEPTH_MAX, min_cruises = MIN_CRUISES) |>
   filter(clim_mean >= TEMP_RANGE_REGIONAL[1],
          clim_mean <= TEMP_RANGE_REGIONAL[2])
 
@@ -365,7 +365,7 @@ comparison <- series |>
 
 summary(abs(comparison$difference))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#> 0.04182 0.06830 0.07321 0.16890 0.31969 0.50233
+#> 0.04528 0.07534 0.07884 0.17224 0.29630 0.52030
 ```
 
 ## Reading it honestly

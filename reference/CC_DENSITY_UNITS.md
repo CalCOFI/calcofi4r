@@ -8,7 +8,3 @@ volume)
 ``` r
 CC_DENSITY_UNITS
 ```
-
-## Format
-
-An object of class `list` of length 2.

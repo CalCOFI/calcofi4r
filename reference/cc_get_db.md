@@ -47,7 +47,11 @@ cc_get_db(
 
   Character vector of table names to include. NULL (default) includes
   all (non-supplemental) tables. Use to exclude large tables, or to
-  explicitly include a supplemental table by name.
+  explicitly include a supplemental table by name. Naming a catalog
+  **view** (`obs` since the v2026.09 releases — the UNION ALL over
+  `obs_bio` + `obs_env`, see
+  [`cc_catalog_views()`](https://calcofi.io/calcofi4r/reference/cc_catalog_views.md))
+  pulls in the tables it reads.
 
 - supplemental:
 
@@ -82,6 +86,15 @@ the v2026.09 releases each table's bytes are content-addressed objects
 under `ducklake/tables/` that the release catalog points at — see
 [`cc_release_sources`](https://calcofi.io/calcofi4r/reference/cc_release_sources.md),
 which is how every table here is resolved.
+
+A catalog may also carry **views**
+([`cc_catalog_views`](https://calcofi.io/calcofi4r/reference/cc_catalog_views.md)):
+`obs` is one since the v2026.09 releases, the UNION ALL over the
+observation tables `obs_bio` + `obs_env` that reconstructs its 18
+columns under their original names. Every view whose source tables load
+is created after them, so `FROM obs` keeps working; the deprecated `obs`
+table's own objects are read only when those sources are not loaded
+(`tables = "obs"` pulls them in).
 
 ## Examples
 

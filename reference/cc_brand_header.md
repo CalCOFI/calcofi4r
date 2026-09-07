@@ -1,9 +1,9 @@
 # The brand header bar for a Shiny app
 
-The `.cc-header` chrome: CalCOFI logo far left linking to
-<https://calcofi.io>, the app's `title` (linking to `href`, its own
-root), a spacer, the app's own controls in `...`, and bslib's dark-mode
-switch.
+The `.cc-header` chrome: the CalCOFI lockup (brand v2's horizontal
+mark + wordmark) far left linking to <https://calcofi.io>, the app's
+`title` (linking to `href`, its own root), a spacer, the app's own
+controls in `...`, and bslib's dark-mode switch.
 
 ## Usage
 
@@ -15,7 +15,7 @@ cc_brand_header(
   release = NULL,
   href = "./",
   toggle_id = "dark_toggle",
-  mode = c("dark", "light"),
+  mode = c("light", "dark"),
   brand_url = .CC_BRAND_URL
 )
 ```

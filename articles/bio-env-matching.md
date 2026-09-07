@@ -55,7 +55,7 @@ d <- cc_match_ichthyo_by_name(
   version         = REL)
 
 REL
-#> [1] "v2026.08.25"
+#> [1] "v2026.09.06"
 dim(d)
 #> [1] 310  19
 ```
@@ -73,10 +73,10 @@ d |>
 #>   <chr>           <chr>      <dttm>                <dbl>   <dbl>     <dbl>
 #> 1 Sardinops sagax larva      2017-04-12 07:32:00   -124.    33.4     10.2 
 #> 2 Sardinops sagax larva      2018-04-19 08:15:00   -124.    32.8     24.6 
-#> 3 Sardinops sagax larva      2018-04-15 04:33:00   -123.    31.7      4.91
-#> 4 Sardinops sagax larva      2017-04-07 12:48:00   -123.    31.7      5.02
+#> 3 Sardinops sagax larva      2017-04-07 12:48:00   -123.    31.7      5.02
+#> 4 Sardinops sagax larva      2018-04-15 04:33:00   -123.    31.7      4.91
 #> 5 Sardinops sagax larva      2018-04-08 03:38:00   -122.    30.5     42.2 
-#> 6 Sardinops sagax larva      2018-04-15 14:46:00   -124.    31.9     19.9 
+#> 6 Sardinops sagax egg        2018-04-15 14:46:00   -124.    31.9     14.9 
 #> # ℹ 5 more variables: env_value <dbl>, env_depth_m <dbl>, n_env <dbl>,
 #> #   dist_km <dbl>, time_diff_hr <dbl>
 ```
@@ -248,19 +248,19 @@ data. That is the package’s reproducibility contract:
 meta <- attr(d, "query_meta")
 str(meta)
 #> List of 6
-#>  $ package_version: chr "1.14.1"
-#>  $ release_version: chr "v2026.08.25"
+#>  $ package_version: chr "1.20.0"
+#>  $ release_version: chr "v2026.09.06"
 #>  $ params         :List of 3
 #>   ..$ max_dist_km: num 5
 #>   ..$ max_time_hr: num 72
 #>   ..$ join_method: chr "nearest_time"
-#>  $ source_urls    : chr [1:3] "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs/cab10a850ca898f3ec386de7/obs.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/tables/sample_measurement/3ca15d80943300a06e48d290/sample_me"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/taxon/45ae7f809e5971112fa7df0c/taxon.parquet"
-#>  $ generated_at   : chr "2026-08-29 13:48:43 UTC"
+#>  $ source_urls    : chr [1:87] "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_bio/d0c1299adc3a9c2786de6144/obs_bio.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=air_temp_c/a002495adbbcbf98e"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity_rep1/ed4b235e8132"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity/49874a63b622aa020"| __truncated__ ...
+#>  $ generated_at   : chr "2026-09-07 12:27:32 UTC"
 #>  $ n_rows         : int 310
 ```
 
 `meta$release_version` pins which release the result came from
-(v2026.08.25 here). `meta$source_urls` is the full list of public GCS
+(v2026.09.06 here). `meta$source_urls` is the full list of public GCS
 parquet files the query reads. And `attr(d, "sql")` is the literal query
 — no `dplyr` translation, no hidden state, ~90 lines of plain DuckDB
 SQL:
@@ -269,7 +269,7 @@ SQL:
 
 sql <- attr(d, "sql")
 length(strsplit(sql, "\n")[[1]])
-#> [1] 92
+#> [1] 112
 ```
 
 ``` r
@@ -287,8 +287,11 @@ cat(substr(sql, 1, 600), "\n…\n")
 #>   t.scientific_name,
 #>   t.worms_id,
 #>   o.life_stage
-#> FROM read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/tables/obs/cab10a850ca898f3ec386de7/obs.parquet') o
-#> JOIN read_parquet('https://storage.googleapis.com/calcofi-db/ducklake/tables/taxon/45ae7f809e5971112fa7df0c/taxon.parquet') t ON t.taxon_key = o.taxon_key 
+#> FROM (SELECT obs_id, 'bio' AS realm, dataset_key, sample_key, grid_key, cruise_key,
+#>        latitude, longitude, datetime, depth_min_m, depth_max_m,
+#>        taxon_key, life_stage, measurement_type, value AS measurement_value,
+#>        measurement_qual, measurement_prec, hex_id
+#> FR 
 #> …
 ```
 

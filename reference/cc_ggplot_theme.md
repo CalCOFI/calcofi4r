@@ -7,7 +7,7 @@ static or `ggplotly()`-converted plot on a themed page.
 ## Usage
 
 ``` r
-cc_ggplot_theme(is_dark = TRUE, base_size = 11)
+cc_ggplot_theme(is_dark = FALSE, base_size = 11)
 ```
 
 ## Arguments

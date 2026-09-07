@@ -6,6 +6,7 @@
 <url><loc>https://calcofi.io/calcofi4r/LICENSE.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/articles/bio-env-matching.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/articles/calcofi4r.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/articles/citing-calcofi-data.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/articles/ctd-temperature-anomalies.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/articles/index.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/authors.html</loc></url>
@@ -27,8 +28,12 @@
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_brand_head.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_brand_header.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_catalog.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_catalog_views.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_cite.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_client_ip.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_climatology.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_dataset_page_url.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_datasets.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_db_catalog.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_db_connect.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_db_info.html</loc></url>

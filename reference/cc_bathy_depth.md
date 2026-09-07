@@ -24,4 +24,7 @@ cc_bathy_depth(lon, lat, bathy = cc_bathy())
 ## Value
 
 Numeric vector of depth in metres, `NA` outside the raster's extent.
-Land reads 0, never negative.
+Land reads 0, never negative. Positions outside the raster's extent
+**warn** with their count and bounding box rather than returning `NA` in
+silence — the behaviour that let a quarter of the released positions
+read as "no depth" without a line of output anywhere (D29, 2026-08-31).

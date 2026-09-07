@@ -9,7 +9,3 @@ listed carry no usable flag and are never excluded.
 ``` r
 CC_QUAL_EXCLUDE
 ```
-
-## Format
-
-An object of class `list` of length 3.

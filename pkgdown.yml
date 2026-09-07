@@ -4,8 +4,9 @@ pkgdown_sha: ~
 articles:
   bio-env-matching: bio-env-matching.html
   calcofi4r: calcofi4r.html
+  citing-calcofi-data: citing-calcofi-data.html
   ctd-temperature-anomalies: ctd-temperature-anomalies.html
-last_built: 2026-08-29T13:47Z
+last_built: 2026-09-07T12:26Z
 urls:
   reference: https://calcofi.io/calcofi4r/reference
   article: https://calcofi.io/calcofi4r/articles

@@ -17,15 +17,17 @@
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="Summer CTD temperature anomalies against a 1993-2013 baseline">
-<!-- calcofi.io brand contract (https://calcofi.io/brand/v1/): pkgdown's own
-     light-switch stays as the toggle (its key is localStorage.theme, the
-     same one theme.js reads); the pre-paint below also writes that key so
+<!-- calcofi.io brand contract v2 (https://calcofi.io/brand/v2/; light default,
+     in force 2026-09-04): pkgdown's own light-switch stays as the toggle (its
+     key is localStorage.theme); the pre-paint below also writes that key so
      the switch and the cross-site cookie agree, and the observer pushes a
      switch click back into the cookie. The favicon set is the calcofi4r
-     hex (pkgdown/favicon/), one of the two designed exceptions. --><script>(function(){var m=/[?&]theme=(dark|light)\b/.exec(location.search),c=/(?:^|;\s*)cc_theme=(dark|light)/.exec(document.cookie),s=null;try{s=localStorage.getItem("theme")}catch(e){}var t=(m&&m[1])||(c&&c[1])||(s==="light"||s==="dark"?s:null)||"dark",d=document.documentElement;d.dataset.theme=t;d.setAttribute("data-bs-theme",t);d.style.colorScheme=t;try{localStorage.setItem("theme",t)}catch(e){}})();</script><link rel="stylesheet" href="https://calcofi.io/brand/v1/theme.css">
-<script defer src="https://calcofi.io/brand/v1/theme.js"></script><script>(function(){var r=document.documentElement,last=r.getAttribute("data-bs-theme");new MutationObserver(function(){var t=r.getAttribute("data-bs-theme");if(t===last||(t!=="dark"&&t!=="light"))return;last=t;if(window.ccTheme&&ccTheme.get()!==t)ccTheme.set(t)}).observe(r,{attributes:true,attributeFilter:["data-bs-theme"]})})();</script><style>
-  .navbar .cc-home .cc-logo{display:inline-block;width:28px;height:28px;vertical-align:middle;background:url(https://calcofi.io/brand/v1/logo_calcofi.svg) center/contain no-repeat}
-  [data-bs-theme=light] .navbar .cc-home .cc-logo{background-image:url(https://calcofi.io/brand/v1/logo_calcofi_light.svg)}
+     hex (pkgdown/favicon/), one of the two designed exceptions. --><script>(function(){var d=document.documentElement,m=/[?&]theme=(dark|light)\b/.exec(location.search),k=/(?:^|;\s*)cc_theme_src=user\b/.test(document.cookie),c=k&&/(?:^|;\s*)cc_theme=(dark|light)\b/.exec(document.cookie),s=null;try{if(localStorage.getItem("cc_theme_src")==="user")s=localStorage.getItem("cc_theme")}catch(e){}var t=(m&&m[1])||(c&&c[1])||(s==="dark"||s==="light"?s:null)||"light";d.dataset.theme=t;d.setAttribute("data-bs-theme",t);d.style.colorScheme=t;try{localStorage.setItem("theme",t)}catch(e){}})();</script><link rel="preload" href="https://calcofi.io/brand/v2/fonts/SourceSans3-VF.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="https://calcofi.io/brand/v2/fonts.css">
+<link rel="stylesheet" href="https://calcofi.io/brand/v2/theme.css">
+<script defer src="https://calcofi.io/brand/v2/theme.js"></script><script>(function(){var r=document.documentElement,last=r.getAttribute("data-bs-theme");new MutationObserver(function(){var t=r.getAttribute("data-bs-theme");if(t===last||(t!=="dark"&&t!=="light"))return;last=t;if(window.ccTheme&&ccTheme.get()!==t)ccTheme.set(t)}).observe(r,{attributes:true,attributeFilter:["data-bs-theme"]})})();</script><style>
+  .navbar .cc-home .cc-logo{display:inline-block;width:118px;height:28px;vertical-align:middle;background:url(https://calcofi.io/brand/v2/logo_calcofi_h.svg) left center/contain no-repeat}
+  [data-bs-theme=light] .navbar .cc-home .cc-logo{background-image:url(https://calcofi.io/brand/v2/logo_calcofi_h_light.svg)}
   /* the light-switch button wears the brand pair (theme.css exports the masks): the sun while
      the page is dark, the moon-in-sun while it is light — what a click moves toward, as on
      calcofi4py — in place of Font Awesome's current-mode sun/moon. The menu's own
@@ -53,7 +55,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.14.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.20.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,6 +71,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/bio-env-matching.html">Matching biology to environment: query 75 years of ocean data, anywhere</a></li>
+    <li><a class="dropdown-item" href="../articles/citing-calcofi-data.html">Citing CalCOFI data</a></li>
     <li><a class="dropdown-item" href="../articles/ctd-temperature-anomalies.html">Summer CTD temperature anomalies against a 1993-2013 baseline</a></li>
   </ul>
 </li>
@@ -149,7 +152,7 @@ inside a call.</p>
 <span><span class="va">LINE</span>      <span class="op">&lt;-</span> <span class="fl">93.3</span>            <span class="co"># the line off San Diego; every core line works</span></span>
 <span><span class="va">VAR</span>       <span class="op">&lt;-</span> <span class="st">"temperature_ave"</span></span>
 <span><span class="va">DEPTH_MAX</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
-<span><span class="va">MIN_N</span>     <span class="op">&lt;-</span> <span class="fl">3</span>               <span class="co"># baseline cells thinner than this are dropped</span></span></code></pre></div>
+<span><span class="va">MIN_CRUISES</span> <span class="op">&lt;-</span> <span class="fl">3</span>             <span class="co"># baseline cells fed by fewer distinct cruises are dropped</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -181,12 +184,12 @@ cast rows.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 6</span></span></span>
 <span><span class="co">#&gt;   cruise_key     sta dist_km depth_m variable        value</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2026-07-3322    25       0       0 temperature_ave  20.3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2026-07-3322    25       0       5 temperature_ave  20.3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2026-07-3322    25       0      10 temperature_ave  19.4</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2026-07-3322    25       0      15 temperature_ave  16.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2026-07-3322    25       0      20 temperature_ave  13.7</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 2026-07-3322    25       0      25 temperature_ave  11.8</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2026-07-3322    25       0       0 temperature_ave  20.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2026-07-3322    25       0      10 temperature_ave  17.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2026-07-3322    25       0      20 temperature_ave  13.5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2026-07-3322    25       0      30 temperature_ave  11.3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2026-07-3322    25       0      40 temperature_ave  11.2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 2026-07-3322    25       0      50 temperature_ave  11.1</span></span></code></pre></div>
 <p><code><a href="../reference/cc_transect_stations.html">cc_transect_stations()</a></code> also decides the horizontal
 ruler. <code>x = "occupied"</code> (the default) measures between the
 stations this cruise actually occupied, so the section fills the plot;
@@ -208,12 +211,12 @@ station 120:</p>
 </h2>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">clim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cc_climatology.html">cc_climatology</a></span><span class="op">(</span></span>
-<span>  <span class="va">con</span>, variables <span class="op">=</span> <span class="va">VAR</span>, years <span class="op">=</span> <span class="va">BASELINE</span>, depth_max <span class="op">=</span> <span class="va">DEPTH_MAX</span>, min_n <span class="op">=</span> <span class="va">MIN_N</span><span class="op">)</span></span>
+<span>  <span class="va">con</span>, variables <span class="op">=</span> <span class="va">VAR</span>, years <span class="op">=</span> <span class="va">BASELINE</span>, depth_max <span class="op">=</span> <span class="va">DEPTH_MAX</span>, min_cruises <span class="op">=</span> <span class="va">MIN_CRUISES</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">clim</span>, <span class="st">"baseline"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1993 2013</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">clim</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 34978</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 23320</span></span></code></pre></div>
 <p><code><a href="../reference/cc_climatology.html">cc_climatology()</a></code> is a plain mean per (station, 5 m depth
 bin, calendar month) — the finest grouping CalCOFI’s design supports,
 since quarterly-ish cruises over decades give many <em>years</em> per
@@ -278,12 +281,12 @@ downstream user in their own way.</p>
 <span></span>
 <span><span class="va">clim_screened</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cc_climatology.html">cc_climatology</a></span><span class="op">(</span></span>
 <span>  <span class="va">con</span>, variables <span class="op">=</span> <span class="va">VAR</span>, years <span class="op">=</span> <span class="va">BASELINE</span>,</span>
-<span>  depth_max <span class="op">=</span> <span class="va">DEPTH_MAX</span>, min_n <span class="op">=</span> <span class="va">MIN_N</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  depth_max <span class="op">=</span> <span class="va">DEPTH_MAX</span>, min_cruises <span class="op">=</span> <span class="va">MIN_CRUISES</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">clim_mean</span> <span class="op">&gt;=</span> <span class="va">TEMP_RANGE_REGIONAL</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
 <span>         <span class="va">clim_mean</span> <span class="op">&lt;=</span> <span class="va">TEMP_RANGE_REGIONAL</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">clim</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">clim_screened</span><span class="op">)</span>   <span class="co"># baseline cells the screen removes</span></span>
-<span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -298,9 +301,9 @@ how a plot ends up colouring “normal” somewhere never measured.</p>
 <code class="sourceCode R"><span><span class="va">anom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cc_anomaly.html">cc_anomaly</a></span><span class="op">(</span><span class="va">sec</span>, <span class="va">clim_screened</span>, <span class="va">sta</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">anom</span><span class="op">$</span><span class="va">anomaly</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>   <span class="co"># % of this section with a baseline</span></span>
-<span><span class="co">#&gt; [1] 75</span></span>
+<span><span class="co">#&gt; [1] 59</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">anom</span><span class="op">$</span><span class="va">anomaly</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] -3.140529  5.376190</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] -1.411423  4.709667</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">anom</span><span class="op">$</span><span class="va">anomaly</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -327,8 +330,8 @@ distances — the shape a Plotly or ODV-style section takes directly.</p>
 <span><span class="co">#&gt; List of 4</span></span>
 <span><span class="co">#&gt;  $ x  : num [1:11] 0 11.3 62.7 99.8 135.6 ...</span></span>
 <span><span class="co">#&gt;  $ sta: num [1:11] 25 30 35 40 45 50 55 60 70 80 ...</span></span>
-<span><span class="co">#&gt;  $ y  : num [1:88] 0 5 10 15 20 25 30 35 40 45 ...</span></span>
-<span><span class="co">#&gt;  $ z  :List of 88</span></span></code></pre></div>
+<span><span class="co">#&gt;  $ y  : num [1:51] 0 10 20 30 40 50 60 70 80 90 ...</span></span>
+<span><span class="co">#&gt;  $ z  :List of 51</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="all-summer-cruises-an-anomaly-time-series">All summer cruises: an anomaly time series<a class="anchor" aria-label="anchor" href="#all-summer-cruises-an-anomaly-time-series"></a>
@@ -378,14 +381,14 @@ see.</li>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">series</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 4</span></span></span>
-<span><span class="co">#&gt;      yr layer  anomaly     n</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  <span style="text-decoration: underline;">1</span>993 0-50 m   0.766   925</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  <span style="text-decoration: underline;">1</span>997 0-50 m   0.775   973</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  <span style="text-decoration: underline;">1</span>998 0-50 m  -<span style="color: #BB0000;">0.631</span>  <span style="text-decoration: underline;">1</span>005</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>  <span style="text-decoration: underline;">2</span>001 0-50 m   0.310   954</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>  <span style="text-decoration: underline;">2</span>004 0-50 m   0.134  <span style="text-decoration: underline;">1</span>148</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>  <span style="text-decoration: underline;">2</span>006 0-50 m   0.363  <span style="text-decoration: underline;">1</span>088</span></span></code></pre></div>
+<span><span class="co">#&gt;      yr layer     anomaly     n</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  <span style="text-decoration: underline;">2</span>000 0-50 m     0.543    582</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  <span style="text-decoration: underline;">2</span>000 50-100 m  -<span style="color: #BB0000;">0.024</span><span style="color: #BB0000; text-decoration: underline;">8</span>   411</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  <span style="text-decoration: underline;">2</span>000 100-200 m -<span style="color: #BB0000;">0.072</span><span style="color: #BB0000; text-decoration: underline;">1</span>   706</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>  <span style="text-decoration: underline;">2</span>000 200-500 m -<span style="color: #BB0000;">0.011</span><span style="color: #BB0000; text-decoration: underline;">7</span>  <span style="text-decoration: underline;">1</span>649</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>  <span style="text-decoration: underline;">2</span>001 0-50 m     0.629    646</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>  <span style="text-decoration: underline;">2</span>001 50-100 m  -<span style="color: #BB0000;">0.018</span><span style="color: #BB0000; text-decoration: underline;">6</span>   452</span></span></code></pre></div>
 <p>A sanity check before reading anything into it: the baseline years
 must sit near zero by construction, and the series should reproduce
 events we already know happened. It does — 2014-15 is the marine
@@ -417,7 +420,7 @@ possible before the 1993–2002 cruises were ingested.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">clim_98</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cc_climatology.html">cc_climatology</a></span><span class="op">(</span></span>
 <span>  <span class="va">con</span>, variables <span class="op">=</span> <span class="va">VAR</span>, years <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1998</span>, <span class="fl">2013</span><span class="op">)</span>,</span>
-<span>  depth_max <span class="op">=</span> <span class="va">DEPTH_MAX</span>, min_n <span class="op">=</span> <span class="va">MIN_N</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  depth_max <span class="op">=</span> <span class="va">DEPTH_MAX</span>, min_cruises <span class="op">=</span> <span class="va">MIN_CRUISES</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">clim_mean</span> <span class="op">&gt;=</span> <span class="va">TEMP_RANGE_REGIONAL</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
 <span>         <span class="va">clim_mean</span> <span class="op">&lt;=</span> <span class="va">TEMP_RANGE_REGIONAL</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
@@ -435,7 +438,7 @@ possible before the 1993–2002 cruises were ingested.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">comparison</span><span class="op">$</span><span class="va">difference</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span><span class="co">#&gt; 0.04182 0.06830 0.07321 0.16890 0.31969 0.50233</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.04528 0.07534 0.07884 0.17224 0.29630 0.52030</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="reading-it-honestly">Reading it honestly<a class="anchor" aria-label="anchor" href="#reading-it-honestly"></a>

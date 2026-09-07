@@ -9,7 +9,7 @@ replaces axis settings.
 ## Usage
 
 ``` r
-cc_plotly_theme(p, is_dark = TRUE)
+cc_plotly_theme(p, is_dark = FALSE)
 ```
 
 ## Arguments

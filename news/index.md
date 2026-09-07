@@ -1,5 +1,218 @@
 # Changelog
 
+## calcofi4r 1.20.0
+
+### Brand v2 reaches the body of a bslib app, not just its header
+
+- **[`cc_brand_head()`](https://calcofi.io/calcofi4r/reference/cc_brand_head.md)
+  now maps bslib’s `--bs-*` tokens onto the brand’s** for both themes
+  (ground, panels, border, type, muted, UCSD Blue accent and the brand
+  type family), plus the navbar / card / sidebar grounds and
+  `.btn-primary`. `theme.css` paints the `.cc-header`, but Bootstrap
+  paints everything else from its own variables, and nothing had bridged
+  them: every bslib app’s dark mode was Bootstrap’s `#1d1f21` near-black
+  under a navy header, in Open Sans. An app’s own later `<style>` on the
+  same selector still wins.
+- The `ctd-temperature-anomalies` vignette calls
+  `cc_climatology(min_cruises =)` — it still passed `min_n`, removed in
+  1.14.0, so the pkgdown site had not rebuilt since 2026-09-04 and was
+  serving brand v1.
+
+### `cc_datasets()` reads the dataset-catalog record (plan 2026-09-05, WS-P2)
+
+- **New `cc_datasets(version, what, base_https)`** reads a release’s
+  `datasets.json` (`calcofi4db::build_dataset_catalog()`, calcofi4db \>=
+  4.1.0) into a tibble, one row per record — `what = "datasets"`
+  (default, the integrated datasets), `"holdings"` (known but not yet in
+  the database) or `"reference"` (cruises, stations, spatial layers).
+  `distributions`, `registrations`, `keywords`, `tables`, `objects`
+  arrive as list-columns; `provider`, `category`, `attribution`,
+  `links`, `coverage`, `status` as nested data frames. Errors naming the
+  version when a release predates the catalog, rather than returning an
+  empty table.
+- **New `cc_dataset_page_url(dataset_key)`** — the one place a
+  `https://calcofi.io/datasets/{key}/` URL is built from a key; every
+  consumer that names a dataset should call this instead of hard-coding
+  the pattern.
+- **`cc_cite(format = "text")` gains a `Page:` line** on every entry —
+  the dataset’s own catalog page, or
+  `https://calcofi.io/datasets/release/` for the release citation.
+  `format = "bibtex"` / `"csl"` are unchanged.
+- Mirrors `calcofi4py.cc_datasets()` / `catalog.cc_dataset_page_url()`
+  (calcofi4py 0.7.0) byte-for-byte over the shared fixture
+  `tests/testthat/fixtures/datasets_sample.json`.
+
+## calcofi4r 1.18.0
+
+### Brand v2 — the SIO look, light by default (flipped fleet-wide 2026-09-04)
+
+- **[`cc_brand_head()`](https://calcofi.io/calcofi4r/reference/cc_brand_head.md)
+  /
+  [`cc_brand_header()`](https://calcofi.io/calcofi4r/reference/cc_brand_header.md)
+  emit brand v2** (`https://calcofi.io/brand/v2/`): the font preloads +
+  `fonts.css` (Source Sans 3, Teko), v2’s pre-paint snippet, and the
+  horizontal lockup (`logo_calcofi_h*.svg`, sized by `theme.css`) in
+  place of the 32 px mark. New `cc_brand_head(scale = "app" | "page")`
+  emits `<meta name="cc-scale" content="app">` (the default — the
+  compact scale a Shiny app wants);
+  [`cc_brand_header()`](https://calcofi.io/calcofi4r/reference/cc_brand_header.md)’s
+  `mode` defaults to `"light"`.
+- **[`cc_theme()`](https://calcofi.io/calcofi4r/reference/cc_theme.md)
+  defaults to `"light"`** and honours the `cc_theme` cookie only beside
+  its `cc_theme_src=user` marker (v2’s persistence rule: a v1 page’s
+  dark default can never leak in).
+  **[`cc_is_dark()`](https://calcofi.io/calcofi4r/reference/cc_is_dark.md)
+  defaults to `FALSE`** before the switch reports.
+- **[`cc_plot_colors()`](https://calcofi.io/calcofi4r/reference/cc_plot_colors.md)
+  carries v2’s tokens** (navy `#182b49` type / `#00629b` accent on
+  white; `#e9edf3` / `#4fb6e6` on the navy dark ground);
+  [`cc_plot_colors()`](https://calcofi.io/calcofi4r/reference/cc_plot_colors.md),
+  [`cc_plotly_theme()`](https://calcofi.io/calcofi4r/reference/cc_plotly_theme.md)
+  and
+  [`cc_ggplot_theme()`](https://calcofi.io/calcofi4r/reference/cc_ggplot_theme.md)
+  default to `is_dark = FALSE`.
+- pkgdown site on brand v2 (light first, the lockup in the navbar).
+
+## calcofi4r 1.17.0
+
+### `obs` is a catalog view over `obs_bio` + `obs_env` (pre-release plan D-S1)
+
+- **[`cc_get_db()`](https://calcofi.io/calcofi4r/reference/cc_get_db.md)
+  creates every view a release’s `catalog.json` carries** (`views`: name
+  → SQL over `{{table}}` tokens; calcofi4db 3.31.0) after the tables it
+  reads, in the same transaction. `obs` is the first: the UNION ALL over
+  `obs_bio` + `obs_env` that reconstructs its 18 columns under their
+  original names, so `FROM obs` keeps working while the observation rows
+  ship once, as the pair. A deprecated table’s own objects (`obs` still
+  ships them this release) are read only when the view’s sources are not
+  loaded; naming a view in `tables =` pulls in the tables it reads
+  (`tables = "obs"` loads `obs_bio`, `obs_env` and the view). The
+  connect message says which.
+- **`cc_catalog_views(catalog)`**, **`cc_view_tables(sql)`**,
+  **`cc_view_sql(catalog, name, rp)`** — the view map, a view’s source
+  tables, and its SQL with every token replaced by `rp(table)` (a quoted
+  identifier by default, or a `read_parquet(...)` for a connection
+  without the tables).
+- **[`cc_release_sources()`](https://calcofi.io/calcofi4r/reference/cc_release_sources.md)
+  errors clearly for a view**
+  (`'obs' is a view … not a table with parquet objects`) and reports
+  `deprecated` / `replaced_by` / `removed_in` for a table the catalog
+  deprecates. `cc_match_*()` SQL (`.cc_read_parquet()`) expands a view
+  to its parenthesised SQL over the objects it reads — 1:1 with db-query
+  `lib/release.js`.
+- **Consumers:** `SELECT * FROM obs` through
+  [`cc_get_db()`](https://calcofi.io/calcofi4r/reference/cc_get_db.md)
+  now returns the columns in `obs`’s table order (`dataset_key` third),
+  where a remote view over the hive partitions returned it last;
+  `obs.depth_min_m` / `depth_max_m` of an ichthyoplankton row is its
+  tow’s span (482,250 rows that were NULL); `obs_bio` / `obs_env` are
+  default tables (`sample_root` stays supplemental). Fixture catalogs
+  (`tests/testthat/fixtures/catalog_canonical.json`, new
+  `catalog_view_only.json`) are byte-identical with calcofi4py’s and
+  db-query’s.
+
+### `cc_cite()` — the attribution contract’s read side (plan 2026-09-03, WS-A2)
+
+- **`cc_cite(x = NULL, version = "latest", format = c("text", "bibtex", "csl"), con = NULL)`**
+  reads a release’s `dataset` table (`citation_main`, `license`, `doi`,
+  `acknowledgement` — calcofi4db ≥ 3.30.0’s attribution contract) and
+  its `catalog.json` `citation`, and formats them for a paper, a DMP or
+  a `.bib` file: the release citation first, then one entry per dataset
+  — every dataset in the release (`x = NULL`, alphabetical
+  `dataset_key`), a character vector of `dataset_key`, or a data frame
+  carrying one (so `cc_cite(cc_read_obs(...))` cites exactly what a
+  query touched). An unknown `dataset_key` errors naming it.
+- `format = "text"` appends a `License:` line (+ URL for a `custom`
+  license), `DOI:` and `Acknowledgement:` lines to each dataset’s
+  `citation_main`; `format = "bibtex"` builds one `@misc{...}` per entry
+  **offline**, from the same fields — `resolve = TRUE` is the only
+  network path, fetching a DOI’s own BibTeX from `doi.org` (falling back
+  to the offline entry on failure); `format = "csl"` returns one
+  CSL-JSON `"dataset"` item per entry.
+- A release frozen before the attribution contract carries no
+  `catalog.json` `citation`;
+  [`cc_cite()`](https://calcofi.io/calcofi4r/reference/cc_cite.md)
+  computes the same wording `calcofi4db::release_citation()` would have
+  written, and says so on the result’s `source` attribute (`"release"`
+  vs `"computed"`, mirroring \[cc_climatology()\]’s `source`) rather
+  than erroring or citing nothing.
+- Software citation stays separate: `citation("calcofi4r")` (from
+  `DESCRIPTION`).
+  [`cc_cite()`](https://calcofi.io/calcofi4r/reference/cc_cite.md) is
+  for the data. `calcofi4py.cc_cite()` mirrors this byte-for-byte
+  (`tests/testthat/fixtures/cite_text.txt` / `cite_bibtex.txt` /
+  `cite_csl.json`, generated from a synthetic three-dataset table — one
+  with a DOI + CC-BY-4.0, one `custom` license, one with an
+  acknowledgement — copied byte-identical into calcofi4py).
+- **A release frozen before the attribution contract cites without
+  erroring.** `.cc_cite_rows()` selected `license_url`, `doi` and
+  `acknowledgement` by name, so on v2026.08.25’s 18-column `dataset`
+  table (calcofi4db \< 3.30.0) every
+  [`cc_cite()`](https://calcofi.io/calcofi4r/reference/cc_cite.md) call
+  was a DuckDB binder error instead of a citation. It now reads the
+  columns the table has
+  ([`DBI::dbListFields()`](https://dbi.r-dbi.org/reference/dbListFields.html))
+  and treats an absent one as empty — the entry simply has no `DOI:` /
+  `Acknowledgement:` line (found by WS-A4; tested against a
+  legacy-shaped `dataset` table, `test-cite-legacy.R`).
+
+## calcofi4r 1.16.0
+
+### The bathymetry every position is inside (D29)
+
+- **[`cc_bathy()`](https://calcofi.io/calcofi4r/reference/cc_bathy.md)**:
+  the published crop `gebco_2025_calcofi.tif` was re-cut from lon −127 →
+  −116.8 × lat 29.3 → 38.4 (Float32, 4.3 MB) to **lon −165 → −100 × lat
+  15 → 56** (Int16 COG, ~129 MB) so that **every released bottle /
+  PIC-zooplankton / CUFES / dungeness / DIC / euphausiid position
+  samples a real depth** — 360,568 positions (24.7 %) were outside the
+  old crop and read `NA` in silence. A cached copy now refreshes itself
+  when its size no longer matches the published object (one `HEAD` per
+  session; offline keeps the cache), so **the first call after this
+  release re-downloads ~129 MB**.
+- **`cc_bathy(remote = TRUE)`** reads the object in place over
+  `/vsicurl/` — GDAL fetches only the blocks a query touches, so
+  sampling a few far-field points needs no download at all.
+- **`cc_bathy(extent = "full")`** answers the whole GEBCO source tile
+  (lon −180 → −90 × lat 0 → 90, published as
+  `gebco_2025_sub_ice_n90_w180_e90_cog.tif`), converted on read to the
+  same positive-down / land-0 `depth_m` convention.
+- **[`cc_bathy_depth()`](https://calcofi.io/calcofi4r/reference/cc_bathy_depth.md)
+  warns** — count and bounding box — when positions fall outside the
+  raster’s extent, instead of returning `NA` for them silently.
+
+## calcofi4r 1.15.0
+
+### One climatology for every anomaly
+
+- **[`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)**
+  returns the release’s own **`climatology`** table when the connection
+  has one and `years` is its window (attribute `source = "release"`;
+  `calcofi4db::build_climatology()` ≥ 3.26.0, shipped from the 2026-09
+  releases) — the same cells ctd-transects and the CalCOFI Explorer
+  subtract — and otherwise computes the identical definition from `obs`
+  (`source = "computed"`). The definition changed with it: **10 m floor
+  depth bins** (was 5 m rounded; the released CTD series is thinned to a
+  10 m grid, so 5 m off-grid bins sampled only the profile’s inflection
+  points), and the floor is **`min_cruises` distinct cruises** (default
+  3; was `min_n` observations — a nearshore grid cell holds several
+  stations’ casts from one cruise). Returns `n_cruises` too.
+- **[`cc_transect_section()`](https://calcofi.io/calcofi4r/reference/cc_transect_section.md)**
+  bins depth by the same 10 m floor bins (`depth_bin = 10`, labelled by
+  the shallow edge), so
+  [`cc_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_anomaly.md)
+  joins the release’s cells exactly. Pass `depth_bin = 5` for the old
+  width (still floor, not round).
+
+## calcofi4r 1.14.2
+
+- **[`cc_feedback_script()`](https://calcofi.io/calcofi4r/reference/cc_feedback_script.md)**
+  also mails the **submitter** a copy of their report when they gave an
+  email — the same text, screenshot inline and view link, with a
+  thank-you line and the public issue URL — as a separate message, so
+  the team’s recipient list is never exposed. Redeploy the Apps Script
+  to pick it up.
+
 ## calcofi4r 1.14.1
 
 - **[`cc_feedback_script()`](https://calcofi.io/calcofi4r/reference/cc_feedback_script.md)**
