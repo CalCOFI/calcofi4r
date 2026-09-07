@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.20.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.21.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,14 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.21.0" id="calcofi4r-1210">calcofi4r 1.21.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1210"></a></h2>
+<div class="section level3">
+<h3 id="the-explorers-contours-lens-as-a-function-1-21-0">The Explorer’s Contours lens, as a function<a class="anchor" aria-label="anchor" href="#the-explorers-contours-lens-as-a-function-1-21-0"></a></h3>
+<ul><li>New <code>cc_interpolate(pts, method = c("ok", "idw", "tps"), cell_deg = 0.06, mask_km = 60, se = TRUE)</code> — the <strong>same algorithm as <code>calcofi.io/explore</code>’s Contours lens</strong> (and <code>calcofi4py.interpolate()</code>), so a surface made in R matches the map cell for cell: ordinary kriging with a fitted exponential variogram and the kriging SD as its error, inverse-distance weighting (the superseded Contour Explorer’s parameters, no error), or a thin-plate spline with GCV smoothing and its standard error; a grid whose rows are evenly spaced in Web-Mercator y, blank beyond <code>mask_km</code> of every point; the leave-one-out RMSE and the fit in <code>$fit</code>. Pinned by the shared fixture <code>tests/testthat/fixtures/contour_fixture.json</code>, written by the browser’s own code.</li>
+<li>New <code>cc_interpolate_rast(s)</code> — that surface as a <code>terra</code> raster in EPSG:3857 (<code>value</code> + <code>se</code>).</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.20.0" id="calcofi4r-1200">calcofi4r 1.20.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1200"></a></h2>
 <div class="section level3">

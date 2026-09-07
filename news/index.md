@@ -1,5 +1,24 @@
 # Changelog
 
+## calcofi4r 1.21.0
+
+### The Explorer’s Contours lens, as a function
+
+- New
+  `cc_interpolate(pts, method = c("ok", "idw", "tps"), cell_deg = 0.06, mask_km = 60, se = TRUE)`
+  — the **same algorithm as `calcofi.io/explore`’s Contours lens** (and
+  `calcofi4py.interpolate()`), so a surface made in R matches the map
+  cell for cell: ordinary kriging with a fitted exponential variogram
+  and the kriging SD as its error, inverse-distance weighting (the
+  superseded Contour Explorer’s parameters, no error), or a thin-plate
+  spline with GCV smoothing and its standard error; a grid whose rows
+  are evenly spaced in Web-Mercator y, blank beyond `mask_km` of every
+  point; the leave-one-out RMSE and the fit in `$fit`. Pinned by the
+  shared fixture `tests/testthat/fixtures/contour_fixture.json`, written
+  by the browser’s own code.
+- New `cc_interpolate_rast(s)` — that surface as a `terra` raster in
+  EPSG:3857 (`value` + `se`).
+
 ## calcofi4r 1.20.0
 
 ### Brand v2 reaches the body of a bslib app, not just its header

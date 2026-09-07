@@ -299,27 +299,49 @@ functions for analyzing data
 
 - [`buffer_transect()`](https://calcofi.io/calcofi4r/reference/buffer_transect.md)
   : Create Buffer Around Line Segment with Dateline Handling
+
+- [`cc_interpolate()`](https://calcofi.io/calcofi4r/reference/cc_interpolate.md)
+  : Interpolate point values to a surface, exactly as the Explorer's
+  Contours lens does
+
+- [`cc_interpolate_rast()`](https://calcofi.io/calcofi4r/reference/cc_interpolate_rast.md)
+  :
+
+  The surface from
+  [`cc_interpolate()`](https://calcofi.io/calcofi4r/reference/cc_interpolate.md)
+  as a `terra` raster in Web Mercator
+
 - [`cc_ts_gaps()`](https://calcofi.io/calcofi4r/reference/cc_ts_gaps.md)
   : Insert NA rows at time steps with no observations
+
 - [`get_oceano_var_aoi()`](https://calcofi.io/calcofi4r/reference/get_oceano_var_aoi.md)
   **\[deprecated\]** : Get oceanographic variable for area of interest
+
 - [`prep_env_hex()`](https://calcofi.io/calcofi4r/reference/prep_env_hex.md)
   : Aggregate Environmental Data into H3 Hexagons
+
 - [`prep_filter_summary()`](https://calcofi.io/calcofi4r/reference/prep_filter_summary.md)
   : Build Filter Summary for Display
+
 - [`prep_sp_hex()`](https://calcofi.io/calcofi4r/reference/prep_sp_hex.md)
   : Aggregate Species Data into H3 Hexagons
+
 - [`prep_splot()`](https://calcofi.io/calcofi4r/reference/prep_splot.md)
   : Prepare Data for Species-Environment Scatterplot
+
 - [`prep_ts_env()`](https://calcofi.io/calcofi4r/reference/prep_ts_env.md)
   : Build Environmental Time Series Data
+
 - [`prep_ts_sp()`](https://calcofi.io/calcofi4r/reference/prep_ts_sp.md)
   : Build Species Time Series Data
+
 - [`pts_to_contours_gam()`](https://calcofi.io/calcofi4r/reference/pts_to_contours_gam.md)
   : Interpolate points to contours using a Generalized Additive Model
   (GAM)
+
 - [`pts_to_rast_idw()`](https://calcofi.io/calcofi4r/reference/pts_to_rast_idw.md)
   : Interpolate points to raster using Inverse-Distance Weighting (IDW)
+
 - [`rast_to_contours()`](https://calcofi.io/calcofi4r/reference/rast_to_contours.md)
   : Raster to contour polygons
 
