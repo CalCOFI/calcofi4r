@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.23.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.24.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,18 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.24.0" id="calcofi4r-1240">calcofi4r 1.24.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1240"></a></h2>
+<div class="section level3">
+<h3 id="the-readmes-examples-are-tests-1-24-0">The README’s examples are tests<a class="anchor" aria-label="anchor" href="#the-readmes-examples-are-tests-1-24-0"></a></h3>
+<ul><li>
+<code>README.Rmd</code> is knit for real — every chunk executes against the promoted release — by <code>tests/testthat/test-readme.R</code>, and the CalCOFI database release pipeline (<code>CalCOFI/workflows</code> <code>test_release.qmd</code>) knits it against each new release <em>before</em> promoting it. The README had drifted to a schema no release has had since the core consolidation (<code>ichthyo</code>, <code>casts</code>, <code>bottle_measurement</code>, <code>species_id</code>, <code>datetime_utc</code>) because its chunks were <code>eval = FALSE</code>; the Python sibling’s first example failed the same way in a researcher’s hands on 2026-09-09. The rewritten README covers connect, <code><a href="../reference/cc_query.html">cc_query()</a></code>, dbplyr, the readers, quality flags, bio–env matching, versions, citation and the content-addressed layout; the deprecated <code>get_*()</code> API section is gone (the API is being phased out; the functions remain).</li>
+<li>
+<code>CALCOFI_RELEASE_VERSION</code> and <code>CALCOFI_RELEASE_PREFIX</code> environment variables redirect what <code>"latest"</code> resolves to and the releases prefix (<code>ducklake/releases</code>), for that pipeline (a not-yet-promoted release, a staging bucket). Every release path in the package now goes through them; users never set them.</li>
+<li>The view template <code>casts_extra</code> (on the retired <code>casts</code> table, <code>datetime_utc</code>, <code>lat_dec</code>) is replaced by <code>sample_extra</code>, the same derived calendar and degree–minute columns on <code>sample</code> (<code>datetime</code>, <code>latitude</code>, <code>longitude</code>). <code><a href="../reference/cc_list_view_templates.html">cc_list_view_templates()</a></code> reports the new name.</li>
+<li>Reference examples that still named the retired tables (<code><a href="../reference/get_raster.html">get_raster()</a></code>, <code><a href="../reference/get_timeseries.html">get_timeseries()</a></code>, <code><a href="../reference/get_oceano_var_aoi.html">get_oceano_var_aoi()</a></code>, <code><a href="../reference/cc_query.html">cc_query()</a></code>, <code><a href="../reference/cc_read_ichthyo.html">cc_read_ichthyo()</a></code>, <code><a href="../reference/cc_erd.html">cc_erd()</a></code>, <code><a href="../reference/cc_erd_color_map.html">cc_erd_color_map()</a></code>) now read <code>obs_env</code> / <code>obs_bio</code> / <code>sample</code>.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.23.0" id="calcofi4r-1230">calcofi4r 1.23.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1230"></a></h2>
 <div class="section level3">

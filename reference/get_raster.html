@@ -39,7 +39,7 @@ pts_to_rast_idw() for spatial interpolation."><meta property="og:image" content=
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.23.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.24.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -137,11 +137,11 @@ Default is the first cruise "1949-03-01-C-31CR".</p></dd>
 <span class="r-in"><span><span class="co"># deprecated - use DuckDB queries + pts_to_rast_idw() instead:</span></span></span>
 <span class="r-in"><span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu"><a href="cc_get_db.html">cc_get_db</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="st">"</span></span></span>
-<span class="r-in"><span><span class="st">  SELECT c.lon_dec, c.lat_dec, bm.measurement_value</span></span></span>
-<span class="r-in"><span><span class="st">  FROM bottle_measurement bm</span></span></span>
-<span class="r-in"><span><span class="st">  JOIN bottle b ON bm.bottle_id = b.bottle_id</span></span></span>
-<span class="r-in"><span><span class="st">  JOIN casts c ON b.cast_id = c.cast_id</span></span></span>
-<span class="r-in"><span><span class="st">  WHERE bm.measurement_type = 'temperature'"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="st">  SELECT s.longitude, s.latitude, o.measurement_value</span></span></span>
+<span class="r-in"><span><span class="st">  FROM obs_env o</span></span></span>
+<span class="r-in"><span><span class="st">  JOIN sample s USING (sample_key)</span></span></span>
+<span class="r-in"><span><span class="st">  WHERE o.dataset_key = 'calcofi_bottle' AND o.measurement_type = 'temperature'</span></span></span>
+<span class="r-in"><span><span class="st">    AND o.depth_min_m &lt;= 10"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

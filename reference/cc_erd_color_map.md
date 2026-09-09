@@ -53,8 +53,8 @@ suitable for `cc_erd(colors = ...)`.
 if (FALSE) { # \dontrun{
 color_map <- cc_erd_color_map(
   table_dataset  = list(
-    casts            = "calcofi_bottle",
-    ctd_thin         = "calcofi_ctd-cast",
+    obs_env          = c("calcofi_bottle", "calcofi_ctd-cast", "calcofi_dic"),
+    climatology      = "calcofi_ctd-cast",
     measurement_type = c("calcofi_bottle", "calcofi_ctd-cast", "calcofi_dic")),
   dataset_colors = list(
     calcofi_bottle   = "#cfe3f7",

@@ -64,10 +64,10 @@ if (FALSE) { # \dontrun{
 # deprecated - use DuckDB queries + pts_to_rast_idw() instead:
 con <- cc_get_db()
 d <- DBI::dbGetQuery(con, "
-  SELECT c.lon_dec, c.lat_dec, bm.measurement_value
-  FROM bottle_measurement bm
-  JOIN bottle b ON bm.bottle_id = b.bottle_id
-  JOIN casts c ON b.cast_id = c.cast_id
-  WHERE bm.measurement_type = 'temperature'")
+  SELECT s.longitude, s.latitude, o.measurement_value
+  FROM obs_env o
+  JOIN sample s USING (sample_key)
+  WHERE o.dataset_key = 'calcofi_bottle' AND o.measurement_type = 'temperature'
+    AND o.depth_min_m <= 10")
 } # }
 ```

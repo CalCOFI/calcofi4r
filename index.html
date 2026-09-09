@@ -58,7 +58,7 @@
 
     <a class="navbar-brand me-2" href="index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.23.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.24.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,189 +108,333 @@
 <img src="logo.svg" class="logo" alt=""><h1 id="calcofi4r-">calcofi4r <a class="anchor" aria-label="anchor" href="#calcofi4r-"></a>
 </h1>
 </div>
-<p>R package for accessing and visualizing CalCOFI data. Connect directly to the CalCOFI database via DuckDB or use the CalCOFI API.</p>
+<p>R package for accessing and visualizing CalCOFI data: the public, versioned database releases (DuckDB over Parquet on Google Cloud Storage, no account needed) and the CTD team’s PostgreSQL working database (account required). The Python sibling is <a href="https://calcofi.io/calcofi4py/" class="external-link">calcofi4py</a> — same verbs, same defaults.</p>
+<p><strong>These examples are tests.</strong> <code>tests/testthat/test-readme.R</code> knits this file against the promoted release, and the CalCOFI database release pipeline (<a href="https://github.com/CalCOFI/workflows/blob/main/test_release.qmd" class="external-link"><code>test_release.qmd</code></a>) knits it against every new release <em>before</em> promoting it — so a column the release renames fails the release, not you. The outputs below are from the release named in <a href="#versions">Versions</a>, with calcofi4r 1.24.0.</p>
 <div class="section level2">
 <h2 id="install">Install<a class="anchor" aria-label="anchor" href="#install"></a>
 </h2>
-<p>This package lives on Github, not yet CRAN, so you’ll need to run the following to install or update the package:</p>
+<p>This package lives on GitHub, not CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"calcofi/calcofi4r"</span><span class="op">)</span></span></code></pre></div>
-<p>Then load the package:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://calcofi.io/calcofi4r">calcofi4r</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="system-requirements">System requirements<a class="anchor" aria-label="anchor" href="#system-requirements"></a>
 </h3>
 <p><code>calcofi4r</code> pulls in <code>sf</code>, and <code>sf</code> pulls in <a href="https://r-spatial.github.io/s2/" class="external-link"><code>s2</code></a>, which is C++ and must compile. CRAN publishes no macOS arm64 binaries for R 4.6 yet, so on Apple Silicon that compile is not optional and it needs <strong><code>cmake</code></strong>:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">brew</span> install cmake</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">brew</span> install cmake</span></code></pre></div>
 <p><code>brew install abseil</code> does <em>not</em> substitute for this, despite what s2’s own error message suggests. Its <code>configure</code> defaults <code>S2_FORCE_BUNDLED_ABSEIL=true</code> and so always builds its vendored copy of Abseil with cmake, never consulting <code>pkg-config</code> for a system one.</p>
 <p>To skip the compile altogether, point R at Posit Package Manager, which serves prebuilt macOS arm64 and Linux binaries for R 4.6. Put this in your <code>~/.Rprofile</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>P3M <span class="op">=</span> <span class="st">"https://packagemanager.posit.co/cran/latest"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
-<h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+<h2 id="the-public-database-releases-no-account-needed">The public database releases (no account needed)<a class="anchor" aria-label="anchor" href="#the-public-database-releases-no-account-needed"></a>
 </h2>
-<div class="section level3">
-<h3 id="connect-to-calcofi-database">Connect to CalCOFI Database<a class="anchor" aria-label="anchor" href="#connect-to-calcofi-database"></a>
-</h3>
-<p>Access the CalCOFI integrated database directly via DuckDB:</p>
+<p>Immutable, versioned Parquet on a public bucket; DuckDB reads only what a query touches, straight over HTTPS. <code><a href="reference/cc_get_db.html">cc_get_db()</a></code> registers every release table as a view, so you query by bare table name:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://calcofi.io/calcofi4r">calcofi4r</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_get_db.html">cc_get_db</a></span><span class="op">(</span><span class="op">)</span>                       <span class="co"># latest release, every table as a view</span></span>
+<span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbListTables.html" class="external-link">dbListTables</a></span><span class="op">(</span><span class="va">con</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  [1] "climatology"        "cruise"             "dataset"            "dataset_taxon"     </span></span>
+<span><span class="co">#&gt;  [5] "grid"               "lookup"             "measurement_type"   "obs"               </span></span>
+<span><span class="co">#&gt;  [9] "obs_attribute"      "obs_bio"            "obs_env"            "region"            </span></span>
+<span><span class="co">#&gt; [13] "sample"             "sample_measurement" "sample_spatial"     "ship"              </span></span>
+<span><span class="co">#&gt; [17] "spatial"            "spatial_attribute"  "taxon"              "taxon_group"</span></span>
+<span></span>
+<span><span class="co"># CTD casts per year: sample is one row per sampling event; datetime is UTC</span></span>
+<span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="st">"</span></span>
+<span><span class="st">  SELECT date_trunc('year', s.datetime) AS year, count(*) AS casts</span></span>
+<span><span class="st">  FROM sample s WHERE s.dataset_key = 'calcofi_ctd-cast'</span></span>
+<span><span class="st">  GROUP BY 1 ORDER BY 1 DESC LIMIT 5"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         year casts</span></span>
+<span><span class="co">#&gt; 1 2026-01-01   534</span></span>
+<span><span class="co">#&gt; 2 2025-01-01   638</span></span>
+<span><span class="co">#&gt; 3 2024-01-01   539</span></span>
+<span><span class="co">#&gt; 4 2023-01-01   646</span></span>
+<span><span class="co">#&gt; 5 2022-01-01   454</span></span>
+<span></span>
+<span><span class="co"># one-shot, without keeping a connection</span></span>
+<span><span class="fu"><a href="reference/cc_query.html">cc_query</a></span><span class="op">(</span><span class="st">"SELECT dataset_key, count(*) AS n FROM obs_env GROUP BY 1 ORDER BY 2 DESC"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 5 × 2</span></span>
+<span><span class="co">#&gt;   dataset_key                           n</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;                             &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 calcofi_ctd-cast               13295014</span></span>
+<span><span class="co">#&gt; 2 calcofi_bottle                 11135600</span></span>
+<span><span class="co">#&gt; 3 calcofi_mets                     511459</span></span>
+<span><span class="co">#&gt; 4 cce-lter_picoplankton-bacteria    60802</span></span>
+<span><span class="co">#&gt; 5 calcofi_dic                        3708</span></span>
+<span></span>
+<span><span class="co"># lazy dbplyr over a view</span></span>
+<span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/tbl.html" class="external-link">tbl</a></span><span class="op">(</span><span class="va">con</span>, <span class="st">"taxon"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">scientific_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sardinops sagax"</span>, <span class="st">"Engraulis mordax"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">taxon_key</span>, <span class="va">scientific_name</span>, <span class="va">common_name</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 2 × 3</span></span>
+<span><span class="co">#&gt;   taxon_key    scientific_name  common_name               </span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;        &lt;chr&gt;            &lt;chr&gt;                     </span></span>
+<span><span class="co">#&gt; 1 worms:217452 Sardinops sagax  Pacific sardine (pilchard)</span></span>
+<span><span class="co">#&gt; 2 worms:272286 Engraulis mordax Northern anchovy</span></span></code></pre></div>
+<p>Every dataset projects into one small <strong>core</strong> family — <code>sample</code> (the event: cast, tow, net, bottle) and the observation pair <code>obs_bio</code> / <code>obs_env</code> (one scalar per row; <code>obs</code> is a view over both) — so a query written against ichthyoplankton works unchanged against CTD, zooplankton or seabirds. To see what’s in each table first: the <a href="https://calcofi.io/db-schema/" class="external-link">Schema explorer</a>, or from R:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># connect to latest frozen release</span></span>
-<span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_get_db.html">cc_get_db</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># list available tables</span></span>
-<span><span class="fu"><a href="reference/cc_list_tables.html">cc_list_tables</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "bottle"             "bottle_measurement" "cast_condition"</span></span>
-<span><span class="co">#&gt; [4] "casts"              "cruise"             "grid"</span></span>
-<span><span class="co">#&gt; [7] "ichthyo"            "lookup"             "measurement_type"</span></span>
-<span><span class="co">#&gt; ...</span></span>
-<span></span>
-<span><span class="co"># query with SQL</span></span>
-<span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="st">"SELECT COUNT(*) FROM ichthyo"</span><span class="op">)</span></span></code></pre></div>
-</div>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/cc_describe_table.html">cc_describe_table</a></span><span class="op">(</span><span class="st">"sample"</span>, con <span class="op">=</span> <span class="va">con</span><span class="op">)</span>   <span class="co"># columns, units, descriptions from metadata.json</span></span>
+<span><span class="co">#&gt; # A tibble: 21 × 6</span></span>
+<span><span class="co">#&gt;    column_name       data_type is_nullable name_long           units           description_md       </span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;             &lt;chr&gt;     &lt;chr&gt;       &lt;chr&gt;               &lt;chr&gt;           &lt;chr&gt;                </span></span>
+<span><span class="co">#&gt;  1 sample_key        VARCHAR   YES         Sample Key          &lt;NA&gt;            Globally unique even…</span></span>
+<span><span class="co">#&gt;  2 sample_type       VARCHAR   YES         Sample Type         &lt;NA&gt;            Event grain: `site`,…</span></span>
+<span><span class="co">#&gt;  3 parent_sample_key VARCHAR   YES         Parent Sample Key   &lt;NA&gt;            The containing event…</span></span>
+<span><span class="co">#&gt;  4 root_sample_key   VARCHAR   YES         Root Sample Key     &lt;NA&gt;            Top of this event's …</span></span>
+<span><span class="co">#&gt;  5 dataset_key       VARCHAR   YES         Dataset Key         &lt;NA&gt;            Provenance stamp: `p…</span></span>
+<span><span class="co">#&gt;  6 grid_key          VARCHAR   YES         Grid Key            &lt;NA&gt;            CalCOFI station grid…</span></span>
+<span><span class="co">#&gt;  7 site_key          VARCHAR   YES         Site Key            &lt;NA&gt;            CalCOFI station natu…</span></span>
+<span><span class="co">#&gt;  8 cruise_key        VARCHAR   YES         Cruise Key          &lt;NA&gt;            CalCOFI cruise natur…</span></span>
+<span><span class="co">#&gt;  9 order_occ         INTEGER   YES         Order of Occupation &lt;NA&gt;            Order in which the s…</span></span>
+<span><span class="co">#&gt; 10 latitude          DOUBLE    YES         Latitude            decimal degrees Event latitude (WGS8…</span></span>
+<span><span class="co">#&gt; # ℹ 11 more rows</span></span>
+<span><span class="fu"><a href="reference/cc_list_measurement_types.html">cc_list_measurement_types</a></span><span class="op">(</span>con <span class="op">=</span> <span class="va">con</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 8 × 3</span></span>
+<span><span class="co">#&gt;   measurement_type description                                                                 units</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;            &lt;chr&gt;                                                                       &lt;chr&gt;</span></span>
+<span><span class="co">#&gt; 1 abundance        Specimen count per net tow (headline occurrence; standardize via std_haul_… count</span></span>
+<span><span class="co">#&gt; 2 air_temp_c       Air temperature                                                             deg_C</span></span>
+<span><span class="co">#&gt; 3 alkalinity       Total alkalinity                                                            umol…</span></span>
+<span><span class="co">#&gt; 4 alkalinity_rep1  Total alkalinity replicate 1                                                umol…</span></span>
+<span><span class="co">#&gt; 5 alkalinity_rep2  Total alkalinity replicate 2                                                umol…</span></span>
+<span><span class="co">#&gt; 6 ammonia          Ammonia concentration (QC'd)                                                umol…</span></span>
+<span><span class="co">#&gt; 7 anchovy_eggs     Northern anchovy egg count                                                  count</span></span>
+<span><span class="co">#&gt; 8 atm_pressure_mb  Atmospheric pressure (ship level)                                           mb</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="read-data-with-convenience-functions">Read Data with Convenience Functions<a class="anchor" aria-label="anchor" href="#read-data-with-convenience-functions"></a>
+<h3 id="read-with-convenience-functions">Read with convenience functions<a class="anchor" aria-label="anchor" href="#read-with-convenience-functions"></a>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># read ichthyoplankton (larvae) data</span></span>
-<span><span class="va">ichthyo</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_ichthyo.html">cc_read_ichthyo</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># taxonomy: one row per taxon, keyed worms:&lt;id&gt; or itis:&lt;id&gt;</span></span>
+<span><span class="fu"><a href="reference/cc_read_taxon.html">cc_read_taxon</a></span><span class="op">(</span><span class="va">scientific_name</span> <span class="op">==</span> <span class="st">"Engraulis mordax"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 1 × 19</span></span>
+<span><span class="co">#&gt;   taxon_key    worms_id itis_id gbif_id ncbi_id inat_id scientific_name  common_n…¹ rank  rank_order</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;           &lt;int&gt;   &lt;int&gt;   &lt;int&gt;   &lt;int&gt;   &lt;int&gt; &lt;chr&gt;            &lt;chr&gt;      &lt;chr&gt;      &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1 worms:272286   272286  161828 2414024      NA      NA Engraulis mordax Northern … Spec…         43</span></span>
+<span><span class="co">#&gt; # ℹ abbreviated name: ¹​common_name</span></span>
+<span><span class="co">#&gt; # ℹ 9 more variables: taxonomic_status &lt;chr&gt;, status_checked &lt;chr&gt;, parent_taxon_key &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   kingdom &lt;chr&gt;, phylum &lt;chr&gt;, class &lt;chr&gt;, order_taxon &lt;chr&gt;, family &lt;chr&gt;, notes &lt;chr&gt;</span></span>
 <span></span>
-<span><span class="co"># read bottle samples</span></span>
-<span><span class="va">bottles</span> <span class="op">&lt;-</span> <span class="fu">cc_read_bottle</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># occurrences of one taxon in one dataset, lazily (collect = FALSE)</span></span>
+<span><span class="va">anchovy</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_obs.html">cc_read_obs</a></span><span class="op">(</span></span>
+<span>  <span class="va">taxon_key</span> <span class="op">==</span> <span class="st">"worms:272286"</span>, realm <span class="op">=</span> <span class="st">"bio"</span>, datasets <span class="op">=</span> <span class="st">"swfsc_ichthyo"</span>, collect <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">anchovy</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">life_stage</span>, <span class="va">measurement_type</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 2 × 3</span></span>
+<span><span class="co">#&gt;   life_stage measurement_type     n</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;      &lt;chr&gt;            &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 egg        abundance        15551</span></span>
+<span><span class="co">#&gt; 2 larva      abundance        26493</span></span>
 <span></span>
-<span><span class="co"># read cast data</span></span>
-<span><span class="va">casts</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_casts.html">cc_read_casts</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># read species taxonomy</span></span>
-<span><span class="va">species</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_species.html">cc_read_species</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># get measurement types</span></span>
-<span><span class="fu"><a href="reference/cc_list_measurement_types.html">cc_list_measurement_types</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># filter while reading (uses dplyr syntax, returns lazy table)</span></span>
-<span><span class="va">anchovy</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_read_ichthyo.html">cc_read_ichthyo</a></span><span class="op">(</span><span class="va">species_id</span> <span class="op">==</span> <span class="fl">19</span>, collect <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># sampling events, filtered by core columns</span></span>
+<span><span class="fu"><a href="reference/cc_read_sample.html">cc_read_sample</a></span><span class="op">(</span>datasets <span class="op">=</span> <span class="st">"calcofi_bottle"</span>, sample_types <span class="op">=</span> <span class="st">"cast"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">sample_key</span>, <span class="va">cruise_key</span>, <span class="va">site_key</span>, <span class="va">datetime</span>, <span class="va">latitude</span>, <span class="va">longitude</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 3 × 6</span></span>
+<span><span class="co">#&gt;   sample_key              cruise_key   site_key    datetime            latitude longitude</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;                   &lt;chr&gt;        &lt;chr&gt;       &lt;dttm&gt;                 &lt;dbl&gt;     &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 calcofi_bottle:cast:1   1949-03-31CR 054.0 056.0 1949-03-01 09:30:00     38.8     -124.</span></span>
+<span><span class="co">#&gt; 2 calcofi_bottle:cast:10  1949-03-31CR 059.0 117.0 1949-03-04 23:54:00     36.1     -128.</span></span>
+<span><span class="co">#&gt; 3 calcofi_bottle:cast:100 1949-04-31HO 082.0 077.0 1949-04-02 17:30:00     33.2     -122.</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="version-control">Version Control<a class="anchor" aria-label="anchor" href="#version-control"></a>
+<h3 id="quality-flags">Quality flags<a class="anchor" aria-label="anchor" href="#quality-flags"></a>
 </h3>
-<p>Access specific database versions for reproducibility:</p>
+<p><code>measurement_qual</code> is each dataset’s <em>own</em> code set (bottle/CTD <code>8</code> = suspect, <code>9</code> = missing/bad; DIC WOCE 3/4/9). A flagged value is still a row — filter it:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># list available versions</span></span>
-<span><span class="fu"><a href="reference/cc_list_versions.html">cc_list_versions</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     version release_date tables  total_rows size_mb is_latest</span></span>
-<span><span class="co">#&gt; 1 v2026.05.19   2026-05-19     28  133022102  5503.6      TRUE</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/cc_qual_ok_sql.html">cc_qual_ok_sql</a></span><span class="op">(</span><span class="st">"o"</span><span class="op">)</span>                      <span class="co"># the predicate, for obs / obs_env / sample_measurement</span></span>
+<span><span class="co">#&gt; [1] "COALESCE(NOT ((o.dataset_key = 'calcofi_bottle' AND regexp_replace(o.measurement_qual, '\\.0+$', '') IN ('8', '9')) OR (o.dataset_key = 'calcofi_ctd-cast' AND regexp_replace(o.measurement_qual, '\\.0+$', '') IN ('8', '9')) OR (o.dataset_key = 'calcofi_dic' AND regexp_replace(o.measurement_qual, '\\.0+$', '') IN ('3', '4', '9'))), TRUE)"</span></span>
 <span></span>
-<span><span class="co"># connect to specific version</span></span>
-<span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_get_db.html">cc_get_db</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"v2026.05.19"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># get release information</span></span>
-<span><span class="fu"><a href="reference/cc_db_info.html">cc_db_info</a></span><span class="op">(</span><span class="st">"v2026.05.19"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># view release notes</span></span>
-<span><span class="fu"><a href="reference/cc_release_notes.html">cc_release_notes</a></span><span class="op">(</span><span class="st">"v2026.05.19"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"</span></span>
+<span><span class="st">  SELECT count(*) AS n_ok</span></span>
+<span><span class="st">  FROM obs_env o</span></span>
+<span><span class="st">  WHERE o.dataset_key = 'calcofi_bottle' AND o.measurement_type = 'oxygen_ml_l'</span></span>
+<span><span class="st">    AND {cc_qual_ok_sql('o')}"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     n_ok</span></span>
+<span><span class="co">#&gt; 1 724175</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="execute-custom-queries">Execute Custom Queries<a class="anchor" aria-label="anchor" href="#execute-custom-queries"></a>
+<h3 id="match-biology-to-environment">Match biology to environment<a class="anchor" aria-label="anchor" href="#match-biology-to-environment"></a>
 </h3>
+<p>The question CalCOFI exists to answer: what water were the larvae in? One call joins ichthyoplankton tows to the nearest CTD-bottle measurement, and <code>return_sql = TRUE</code> hands back the exact query so anyone can re-run it in DuckDB (R, Python, the CLI):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># run SQL queries</span></span>
-<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_query.html">cc_query</a></span><span class="op">(</span><span class="st">"</span></span>
-<span><span class="st">  SELECT species_id, COUNT(*) as n</span></span>
-<span><span class="st">  FROM ichthyo</span></span>
-<span><span class="st">  GROUP BY species_id</span></span>
-<span><span class="st">  ORDER BY n DESC</span></span>
-<span><span class="st">  LIMIT 10"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># describe table schema (descriptions + units from metadata.json sidecar)</span></span>
-<span><span class="fu"><a href="reference/cc_describe_table.html">cc_describe_table</a></span><span class="op">(</span><span class="st">"ichthyo"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/cc_describe_table.html">cc_describe_table</a></span><span class="op">(</span><span class="st">"casts"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_match_ichthyo_by_name.html">cc_match_ichthyo_by_name</a></span><span class="op">(</span></span>
+<span>  scientific_name <span class="op">=</span> <span class="st">"Sardinops sagax"</span>,</span>
+<span>  env_var         <span class="op">=</span> <span class="st">"temperature"</span>,</span>
+<span>  date_min        <span class="op">=</span> <span class="st">"2018-01-01"</span>,</span>
+<span>  date_max        <span class="op">=</span> <span class="st">"2018-12-31"</span>,</span>
+<span>  relax_matching  <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 51 19</span></span>
+<span><span class="va">d</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">bio_datetime</span>, <span class="va">bio_lat</span>, <span class="va">bio_lon</span>, <span class="va">bio_value</span>, <span class="va">env_value</span>, <span class="va">dist_km</span>, <span class="va">time_diff_hr</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 3 × 7</span></span>
+<span><span class="co">#&gt;   bio_datetime        bio_lat bio_lon bio_value env_value dist_km time_diff_hr</span></span>
+<span><span class="co">#&gt;   &lt;dttm&gt;                &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;        &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 2018-04-19 08:15:00    32.8   -124.     24.6       11.1   0.431        1.37 </span></span>
+<span><span class="co">#&gt; 2 2018-04-15 04:33:00    31.7   -123.      4.91      11.4   0.737        0.909</span></span>
+<span><span class="co">#&gt; 3 2018-04-08 03:38:00    30.5   -122.     42.2       11.5   0.240        0.858</span></span></code></pre></div>
+<p>See the <a href="https://calcofi.io/calcofi4r/articles/bio-env-matching.html">bio–env matching article</a> for the column contract and <code><a href="reference/cc_match_bio_env.html">cc_match_bio_env()</a></code> for your own subqueries.</p>
 </div>
-</div>
-<div class="section level2">
-<h2 id="calcofi-api-functions">CalCOFI API Functions<a class="anchor" aria-label="anchor" href="#calcofi-api-functions"></a>
-</h2>
-<p>The package also provides functions for the CalCOFI API at <a href="https://api.calcofi.io" class="external-link">api.calcofi.io</a>:</p>
+<div class="section level3">
+<h3 id="versions">Versions<a class="anchor" aria-label="anchor" href="#versions"></a>
+</h3>
+<p>Releases are immutable, so pin one for a reproducible analysis:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># get available variables</span></span>
-<span><span class="fu"><a href="reference/get_variables.html">get_variables</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/cc_list_versions.html">cc_list_versions</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">version</span>, <span class="va">release_date</span>, <span class="va">tables</span>, <span class="va">total_rows</span>, <span class="va">doi</span>, <span class="va">is_latest</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 3 × 6</span></span>
+<span><span class="co">#&gt;   version     release_date tables total_rows doi                     is_latest</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;         &lt;int&gt;      &lt;int&gt; &lt;chr&gt;                   &lt;lgl&gt;    </span></span>
+<span><span class="co">#&gt; 1 v2026.09.06 2026-09-06       23  348657010 10.5281/zenodo.22514953 TRUE     </span></span>
+<span><span class="co">#&gt; 2 v2026.09.04 2026-09-04       23  348657010 10.5281/zenodo.22310858 FALSE    </span></span>
+<span><span class="co">#&gt; 3 v2026.08.25 2026-08-25       18  320260205 &lt;NA&gt;                    FALSE</span></span>
 <span></span>
-<span><span class="co"># get cruise information</span></span>
-<span><span class="fu"><a href="reference/get_cruises.html">get_cruises</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/cc_latest_version.html">cc_latest_version</a></span><span class="op">(</span><span class="op">)</span>                      <span class="co"># what "latest" resolves to right now — record it</span></span>
+<span><span class="co">#&gt; [1] "v2026.09.06"</span></span>
+<span><span class="va">con_pinned</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_get_db.html">cc_get_db</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"v2026.08.25"</span><span class="op">)</span>   <span class="co"># a consolidated release stays readable</span></span>
+<span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con_pinned</span>, <span class="st">"SELECT count(*) AS n FROM cruise"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     n</span></span>
+<span><span class="co">#&gt; 1 691</span></span>
 <span></span>
-<span><span class="co"># get interpolated raster</span></span>
-<span><span class="fu"><a href="reference/get_raster.html">get_raster</a></span><span class="op">(</span></span>
-<span>  variable  <span class="op">=</span> <span class="st">"ctdcast_bottle.t_deg_c"</span>,</span>
-<span>  cruise_id <span class="op">=</span> <span class="st">"2020-01-05-C-33RL"</span>,</span>
-<span>  out_tif   <span class="op">=</span> <span class="st">"temperature.tif"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># get time series summary</span></span>
-<span><span class="fu"><a href="reference/get_timeseries.html">get_timeseries</a></span><span class="op">(</span></span>
-<span>  variable    <span class="op">=</span> <span class="st">"ctdcast_bottle.t_deg_c"</span>,</span>
-<span>  aoi_wkt     <span class="op">=</span> <span class="st">"POLYGON((-121 33, -119 33, -119 35, -121 35, -121 33))"</span>,</span>
-<span>  depth_m_min <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  depth_m_max <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>  time_step   <span class="op">=</span> <span class="st">"year"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/cc_db_info.html">cc_db_info</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">version</span>                     <span class="co"># catalog.json for a version</span></span>
+<span><span class="co">#&gt; [1] "v2026.09.06"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="fu"><a href="reference/cc_release_notes.html">cc_release_notes</a></span><span class="op">(</span><span class="op">)</span>, <span class="fl">1</span>, <span class="fl">400</span><span class="op">)</span><span class="op">)</span>  <span class="co"># its RELEASE_NOTES.md</span></span>
+<span><span class="co">#&gt; # CalCOFI integrated database release v2026.09.06</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; **Release date:** 2026-09-06 · **promoted** (`latest.txt`)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ## The dataset catalog record says what a page needs to say (schema 1.1)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; `datasets.json` grew five fields, all additive, all read from a registry the team already edits</span></span>
+<span><span class="co">#&gt; (calcofi4db 4.5.0; UI plan 2026-09-05 § D-9). Each of them retires a hand-typed map in</span></span>
+<span><span class="co">#&gt; calcofi.io's own generator — a f</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="cite">Cite<a class="anchor" aria-label="anchor" href="#cite"></a>
+</h3>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cites</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_cite.html">cc_cite</a></span><span class="op">(</span><span class="op">)</span>                       <span class="co"># the release, then every dataset it carries</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">cites</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 17</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">cites</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, sep <span class="op">=</span> <span class="st">"\n\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; CalCOFI (2026). CalCOFI Integrated Database, release v2026.09.06 [Data set]. Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife. https://doi.org/10.5281/zenodo.22514953</span></span>
+<span><span class="co">#&gt; Page: https://calcofi.io/datasets/release/</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; CalCOFI. (2023). CalCOFI Bottle Database 194903-202105. CalCOFI.org.</span></span>
+<span><span class="co">#&gt; Page: https://calcofi.io/datasets/calcofi_bottle/</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
-<h2 id="package-data">Package Data<a class="anchor" aria-label="anchor" href="#package-data"></a>
+<h2 id="the-ctd-teams-postgresql-working-database-account-required">The CTD team’s PostgreSQL working database (account required)<a class="anchor" aria-label="anchor" href="#the-ctd-teams-postgresql-working-database-account-required"></a>
 </h2>
-<p>The package includes small lookup and example datasets:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># CalCOFI sampling grid</span></span>
-<span><span class="va">cc_grid</span></span>
-<span><span class="va">cc_grid_ctrs</span></span>
-<span><span class="va">cc_grid_zones</span></span>
-<span></span>
-<span><span class="co"># example bottle data</span></span>
-<span><span class="va">cc_bottle</span></span>
-<span></span>
-<span><span class="co"># station locations</span></span>
-<span><span class="va">stations</span></span>
-<span></span>
-<span><span class="co"># geographic places</span></span>
-<span><span class="va">cc_places</span></span></code></pre></div>
+<p>Private, multi-user, reached over SSH — see <a href="https://calcofi.io/docs/server-access.html" class="external-link">Server Access</a> for the account, the <code>~/.ssh/config</code> alias <code>calcofi</code>, and the <code>~/.pgpass</code> file (your password lives there and in no script, ever). <code>cc_pg_connect(tunnel = TRUE)</code> opens the tunnel for you; <code>cc_pg_attach(con)</code> ATTACHes PostgreSQL to a <code><a href="reference/cc_get_db.html">cc_get_db()</a></code> DuckDB connection as the catalog <code>pg</code>, so one query can join the public release to the team’s working state. See <code><a href="reference/cc_pg_connect.html">?cc_pg_connect</a></code>.</p>
+</div>
+<div class="section level2">
+<h2 id="package-data">Package data<a class="anchor" aria-label="anchor" href="#package-data"></a>
+</h2>
+<p>Small lookup and example datasets ship with the package:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cc_grid</span>          <span class="co"># CalCOFI sampling grid (sf polygons)</span></span>
+<span><span class="co">#&gt; Simple feature collection with 218 features and 7 fields</span></span>
+<span><span class="co">#&gt; Geometry type: GEOMETRY</span></span>
+<span><span class="co">#&gt; Dimension:     XY</span></span>
+<span><span class="co">#&gt; Bounding box:  xmin: -135.2301 ymin: 18.42757 xmax: -105.7769 ymax: 49.23891</span></span>
+<span><span class="co">#&gt; Geodetic CRS:  WGS 84</span></span>
+<span><span class="co">#&gt; # A tibble: 218 × 8</span></span>
+<span><span class="co">#&gt;    sta_key sta_lin sta_pos sta_dpos sta_shore sta_pattern                              geom zone_key</span></span>
+<span><span class="co">#&gt;  * &lt;chr&gt;     &lt;int&gt;   &lt;int&gt;    &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;                           &lt;POLYGON [°]&gt; &lt;glue&gt;  </span></span>
+<span><span class="co">#&gt;  1 10,0         10       0       20 nearshore historical  ((-124.2721 48.47964, -124.3891 … nearsho…</span></span>
+<span><span class="co">#&gt;  2 10,20        10      20       20 nearshore historical  ((-126.7498 48.80705, -128.4865 … nearsho…</span></span>
+<span><span class="co">#&gt;  3 10,40        10      40       20 nearshore historical  ((-128.4865 48.14038, -130.2005 … nearsho…</span></span>
+<span><span class="co">#&gt;  4 10,60        10      60       20 nearshore historical  ((-130.2005 47.47371, -131.8929 … nearsho…</span></span>
+<span><span class="co">#&gt;  5 10,80        10      80       20 offshore  historical  ((-131.8929 46.80705, -133.5642 … offshor…</span></span>
+<span><span class="co">#&gt;  6 10,100       10     100       20 offshore  historical  ((-133.5642 46.14038, -135.2153 … offshor…</span></span>
+<span><span class="co">#&gt;  7 20,0         20       0       20 nearshore historical  ((-125.4461 47.075, -124.1741 45… nearsho…</span></span>
+<span><span class="co">#&gt;  8 20,20        20      20       20 nearshore historical  ((-125.4461 47.075, -127.1258 46… nearsho…</span></span>
+<span><span class="co">#&gt;  9 20,40        20      40       20 nearshore historical  ((-127.1258 46.40833, -128.785 4… nearsho…</span></span>
+<span><span class="co">#&gt; 10 20,60        20      60       20 nearshore historical  ((-128.785 45.74166, -130.4243 4… nearsho…</span></span>
+<span><span class="co">#&gt; # ℹ 208 more rows</span></span>
+<span><span class="va">cc_grid_zones</span>    <span class="co"># zones aggregated by station pattern</span></span>
+<span><span class="co">#&gt; Simple feature collection with 6 features and 8 fields</span></span>
+<span><span class="co">#&gt; Geometry type: GEOMETRY</span></span>
+<span><span class="co">#&gt; Dimension:     XY</span></span>
+<span><span class="co">#&gt; Bounding box:  xmin: -135.2301 ymin: 18.42757 xmax: -105.7769 ymax: 49.23891</span></span>
+<span><span class="co">#&gt; Geodetic CRS:  WGS 84</span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 9</span></span>
+<span><span class="co">#&gt;   zone_key             sta_pattern sta_shore sta_dpos sta_lin_min sta_lin_max sta_pos_min sta_pos_…¹</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;                &lt;chr&gt;       &lt;chr&gt;        &lt;int&gt;       &lt;int&gt;       &lt;int&gt;       &lt;int&gt;      &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1 nearshore-extended   extended    nearshore        5          60          73          45         60</span></span>
+<span><span class="co">#&gt; 2 offshore-extended    extended    offshore        10          60          73          70        100</span></span>
+<span><span class="co">#&gt; 3 nearshore-historical historical  nearshore       20          10         160         -40         60</span></span>
+<span><span class="co">#&gt; 4 offshore-historical  historical  offshore        20          10         160          80        200</span></span>
+<span><span class="co">#&gt; 5 nearshore-standard   standard    nearshore        5          76          93          25         60</span></span>
+<span><span class="co">#&gt; 6 offshore-standard    standard    offshore        10          76          93          70        120</span></span>
+<span><span class="co">#&gt; # ℹ abbreviated name: ¹​sta_pos_max</span></span>
+<span><span class="co">#&gt; # ℹ 1 more variable: geom &lt;GEOMETRY [°]&gt;</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">cc_places</span><span class="op">)</span>  <span class="co"># geographic places</span></span>
+<span><span class="co">#&gt; Simple feature collection with 6 features and 3 fields</span></span>
+<span><span class="co">#&gt; Geometry type: GEOMETRY</span></span>
+<span><span class="co">#&gt; Dimension:     XY</span></span>
+<span><span class="co">#&gt; Bounding box:  xmin: -127.0621 ymin: 33.51603 xmax: -120.8844 ymax: 43.95971</span></span>
+<span><span class="co">#&gt; Geodetic CRS:  WGS 84</span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 4</span></span>
+<span><span class="co">#&gt;   category                 key                   name                                           geom</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;                    &lt;glue&gt;                &lt;glue&gt;                               &lt;GEOMETRY [°]&gt;</span></span>
+<span><span class="co">#&gt; 1 BOEM Wind Planning Areas boem-wpa_NI10-03      California Call Area - D… MULTIPOLYGON (((-121.146…</span></span>
+<span><span class="co">#&gt; 2 BOEM Wind Planning Areas boem-wpa_NI10-01      California Call Area - M… MULTIPOLYGON (((-121.804…</span></span>
+<span><span class="co">#&gt; 3 BOEM Wind Planning Areas boem-wpa_NK10-04      Oregon Call Area - Brook… MULTIPOLYGON (((-124.707…</span></span>
+<span><span class="co">#&gt; 4 BOEM Wind Planning Areas boem-wpa_NK10-01      Oregon Call Area - Coos … MULTIPOLYGON (((-124.434…</span></span>
+<span><span class="co">#&gt; 5 CalCOFI Zones            cc_nearshore-extended Extended Nearshore        MULTIPOLYGON (((-122.936…</span></span>
+<span><span class="co">#&gt; 6 CalCOFI Zones            cc_offshore-extended  Extended Offshore         POLYGON ((-122.804 34.51…</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="data-architecture">Data architecture<a class="anchor" aria-label="anchor" href="#data-architecture"></a>
+</h2>
+<p>Since the v2026.09 releases each table’s bytes are <strong>content-addressed</strong> objects that the release catalog points at, so a table unchanged between releases is stored, and fetched, once:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>gs<span class="sc">:</span><span class="er">//</span>calcofi<span class="sc">-</span>db<span class="sc">/</span>ducklake<span class="sc">/</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>├── releases<span class="sc">/</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>│   ├── latest.txt            → <span class="fu">v2026.09.06</span> (promoted only after test_release.qmd passes)</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>│   ├── versions.json</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>│   ├── RELEASES.md           <span class="co"># the database's NEWS file</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>│   └── v2026.<span class="fl">09.06</span><span class="sc">/</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>│       ├── catalog.json      <span class="co"># tables, row counts, objects[] (path + sha256), views</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>│       ├── metadata.json     <span class="co"># table/column descriptions, units, datasets</span></span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a>│       ├── relationships.json</span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a>│       ├── datasets.json, taxa.json, integrity.json</span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a>│       └── RELEASE_NOTES.md</span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a>└── tables<span class="sc">/</span>{table}<span class="sc">/</span>{hash}<span class="sc">/</span>…   <span class="co"># the parquet, one immutable object per table (or partition)</span></span></code></pre></div>
+<p>Never build a <code>releases/{v}/parquet/</code> path by hand: <code><a href="reference/cc_catalog.html">cc_catalog()</a></code> → <code><a href="reference/cc_release_sources.html">cc_release_sources()</a></code> → <code><a href="reference/cc_read_parquet_sql.html">cc_read_parquet_sql()</a></code> is how every table here is resolved, and you can hand that SQL fragment to any DuckDB. Details: <a href="https://calcofi.io/docs/data-access.html" class="external-link">Data Access</a>.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cat_</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_catalog.html">cc_catalog</a></span><span class="op">(</span><span class="st">"latest"</span><span class="op">)</span></span>
+<span><span class="va">src</span>  <span class="op">&lt;-</span> <span class="fu"><a href="reference/cc_release_sources.html">cc_release_sources</a></span><span class="op">(</span><span class="va">cat_</span>, <span class="st">"obs_env"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">src</span><span class="op">$</span><span class="va">urls</span><span class="op">)</span>                         <span class="co"># one https URL per partition</span></span>
+<span><span class="co">#&gt; [1] 84</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="fu"><a href="reference/cc_read_parquet_sql.html">cc_read_parquet_sql</a></span><span class="op">(</span><span class="va">src</span><span class="op">)</span>, <span class="fl">1</span>, <span class="fl">120</span><span class="op">)</span> <span class="co"># read_parquet([...], hive_partitioning = true)</span></span>
+<span><span class="co">#&gt; read_parquet(['https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=air_temp_c/a002495adbb</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
 <ul>
-<li><a href="https://calcofi.io/calcofi4r/articles/calcofi4r.html">Get Started Vignette</a></li>
+<li>
+<a href="https://calcofi.io/calcofi4r/articles/calcofi4r.html">Get Started</a> and the other articles</li>
 <li><a href="https://calcofi.io/calcofi4r/reference/">Function Reference</a></li>
-<li><a href="https://calcofi.io/workflows/README_PLAN.html" class="external-link">CalCOFI Data Workflow Plan</a></li>
+<li>
+<a href="https://calcofi.io/docs/" class="external-link"><strong>CalCOFI Docs</strong></a> — data access, helpers, portals, API</li>
 </ul>
-</div>
-<div class="section level2">
-<h2 id="data-architecture">Data Architecture<a class="anchor" aria-label="anchor" href="#data-architecture"></a>
-</h2>
-<p>CalCOFI data is stored in frozen DuckLake releases on Google Cloud Storage:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>gs<span class="sc">:</span><span class="er">//</span>calcofi<span class="sc">-</span>db<span class="sc">/</span>ducklake<span class="sc">/</span>releases<span class="sc">/</span></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>├── v2026.<span class="fl">05.19</span><span class="sc">/</span></span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>│   ├── catalog.json         <span class="co"># table list, row counts, total_size</span></span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>│   ├── relationships.json   <span class="co"># primary + foreign keys</span></span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>│   ├── metadata.json        <span class="co"># table/column descriptions, units, datasets, measurement types</span></span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>│   ├── RELEASE_NOTES.md</span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>│   └── parquet<span class="sc">/</span></span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>│       ├── bottle.parquet</span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>│       ├── casts.parquet</span>
-<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>│       ├── ichthyo.parquet</span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>│       ├── species.parquet</span>
-<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>│       └── ...</span>
-<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>├── versions.json</span>
-<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>└── latest.txt → v2026.<span class="fl">05.19</span></span></code></pre></div>
-<p>Data is accessed directly via DuckDB’s httpfs extension — no download required for queries.</p>
 </div>
 <div class="section level2">
 <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a>
 </h2>
 <ul>
 <li>
-<a href="https://calcofi.io/db-schema/" class="external-link"><strong>CalCOFI Schema</strong></a> — per-release ERD, tables, columns (units + descriptions), datasets, and measurement-type registry. The same <code>metadata.json</code> sidecar that powers <code><a href="reference/cc_describe_table.html">cc_describe_table()</a></code> and <code><a href="reference/cc_db_catalog.html">cc_db_catalog()</a></code>.</li>
+<a href="https://calcofi.io/explore/" class="external-link"><strong>CalCOFI Explorer</strong></a> — the browser app over the same release</li>
 <li>
-<a href="https://calcofi.io/db-query/" class="external-link"><strong>CalCOFI Query</strong></a> — browser-only DuckDB-WASM playground against the public release Parquet.</li>
+<a href="https://calcofi.io/db-schema/" class="external-link"><strong>CalCOFI Schema</strong></a> — per-release ERD, tables, columns (units + descriptions), datasets, and measurement-type registry</li>
 <li>
-<a href="https://calcofi.io/docs/" class="external-link"><strong>CalCOFI Docs</strong></a> — data access, helpers, portals, API.</li>
+<a href="https://calcofi.io/db-query/" class="external-link"><strong>CalCOFI Query</strong></a> — browser-only DuckDB-WASM playground against the public release Parquet</li>
 </ul>
 </div>
 <div class="section level2">

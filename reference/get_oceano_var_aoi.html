@@ -39,7 +39,7 @@ cc_read_measurements(), then use sf for spatial filtering."><meta property="og:i
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.23.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.24.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -135,12 +135,11 @@ Query bottle measurement data directly with <code><a href="cc_get_db.html">cc_ge
 <span class="r-in"><span><span class="co"># deprecated - use DuckDB queries instead:</span></span></span>
 <span class="r-in"><span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu"><a href="cc_get_db.html">cc_get_db</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="st">"</span></span></span>
-<span class="r-in"><span><span class="st">  SELECT c.lon_dec, c.lat_dec, c.datetime_utc, b.depth_m,</span></span></span>
-<span class="r-in"><span><span class="st">         bm.measurement_value, bm.measurement_type</span></span></span>
-<span class="r-in"><span><span class="st">  FROM bottle_measurement bm</span></span></span>
-<span class="r-in"><span><span class="st">  JOIN bottle b ON bm.bottle_id = b.bottle_id</span></span></span>
-<span class="r-in"><span><span class="st">  JOIN casts c ON b.cast_id = c.cast_id</span></span></span>
-<span class="r-in"><span><span class="st">  WHERE bm.measurement_type = 'oxygen'"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="st">  SELECT s.longitude, s.latitude, o.datetime, o.depth_min_m,</span></span></span>
+<span class="r-in"><span><span class="st">         o.measurement_value, o.measurement_type</span></span></span>
+<span class="r-in"><span><span class="st">  FROM obs_env o</span></span></span>
+<span class="r-in"><span><span class="st">  JOIN sample s USING (sample_key)</span></span></span>
+<span class="r-in"><span><span class="st">  WHERE o.dataset_key = 'calcofi_bottle' AND o.measurement_type = 'oxygen_ml_l'"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># then filter spatially with sf::st_filter(d_sf, aoi)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>

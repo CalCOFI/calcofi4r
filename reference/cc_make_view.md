@@ -1,7 +1,7 @@
 # Create a Derived VIEW in the Database
 
 Creates a SQL VIEW with derived columns on top of base tables. Supports
-prebaked templates (e.g., "casts_extra") or custom column definitions
+prebaked templates (e.g., "sample_extra") or custom column definitions
 specified as named SQL expressions.
 
 ## Usage
@@ -24,9 +24,9 @@ cc_make_view(
 
 - template:
 
-  Character. Name of a prebaked view template. Available: "casts_extra".
-  If provided, view_name and column_definitions are taken from the
-  template (but can be overridden).
+  Character. Name of a prebaked view template. Available:
+  "sample_extra". If provided, view_name and column_definitions are
+  taken from the template (but can be overridden).
 
 - view_name:
 
