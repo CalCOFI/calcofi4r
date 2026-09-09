@@ -101,11 +101,11 @@ get_cruises <- function() {
 #' # deprecated - use DuckDB queries + pts_to_rast_idw() instead:
 #' con <- cc_get_db()
 #' d <- DBI::dbGetQuery(con, "
-#'   SELECT c.lon_dec, c.lat_dec, bm.measurement_value
-#'   FROM bottle_measurement bm
-#'   JOIN bottle b ON bm.bottle_id = b.bottle_id
-#'   JOIN casts c ON b.cast_id = c.cast_id
-#'   WHERE bm.measurement_type = 'temperature'")
+#'   SELECT s.longitude, s.latitude, o.measurement_value
+#'   FROM obs_env o
+#'   JOIN sample s USING (sample_key)
+#'   WHERE o.dataset_key = 'calcofi_bottle' AND o.measurement_type = 'temperature'
+#'     AND o.depth_min_m <= 10")
 #' }
 get_raster <- function(
   variable = "ctdcast_bottle.t_deg_c",
@@ -183,12 +183,11 @@ get_raster <- function(
 #' # deprecated - use DuckDB queries instead:
 #' con <- cc_get_db()
 #' d <- DBI::dbGetQuery(con, "
-#'   SELECT EXTRACT(YEAR FROM c.datetime_utc) AS year,
-#'          AVG(bm.measurement_value) AS avg_temp
-#'   FROM bottle_measurement bm
-#'   JOIN bottle b ON bm.bottle_id = b.bottle_id
-#'   JOIN casts c ON b.cast_id = c.cast_id
-#'   WHERE bm.measurement_type = 'temperature'
+#'   SELECT EXTRACT(YEAR FROM o.datetime) AS year,   -- obs.datetime is UTC
+#'          AVG(o.measurement_value) AS avg_temp
+#'   FROM obs_env o
+#'   WHERE o.dataset_key = 'calcofi_bottle' AND o.measurement_type = 'temperature'
+#'     AND o.depth_min_m <= 10
 #'   GROUP BY year ORDER BY year")
 #' }
 get_timeseries <- function(
@@ -257,8 +256,9 @@ get_timeseries <- function(
 #' # get first 100 ichthyo records
 #' ichthyo <- cc_read_ichthyo() |> head(100)
 #'
-#' # get specific species (lazy query)
-#' anchovy <- cc_read_ichthyo(species_id == 19, collect = FALSE)
+#' # retired: filters see the core schema now (taxon_key, not species_id)
+#' anchovy <- cc_read_obs(taxon_key == "worms:272286", realm = "bio",
+#'                        datasets = "swfsc_ichthyo", collect = FALSE)
 #' }
 #' @importFrom dplyr tbl filter collect
 cc_read_ichthyo <- function(..., version = "latest", collect = TRUE) {
@@ -358,8 +358,10 @@ cc_read_cast <- cc_read_casts
 #'
 #' @examples
 #' \dontrun{
-#' results <- cc_query("SELECT * FROM ichthyo LIMIT 10")
-#' results <- cc_query("SELECT species_id, COUNT(*) as n FROM ichthyo GROUP BY species_id")
+#' results <- cc_query("SELECT * FROM obs_bio LIMIT 10")
+#' results <- cc_query("
+#'   SELECT taxon_key, COUNT(*) AS n FROM obs_bio
+#'   WHERE dataset_key = 'swfsc_ichthyo' GROUP BY taxon_key ORDER BY n DESC LIMIT 10")
 #' }
 #' @importFrom DBI dbGetQuery
 #' @importFrom tibble as_tibble
@@ -509,7 +511,7 @@ cc_describe_table <- function(table, version = "latest", con = NULL) {
 
   if (!file.exists(meta_path)) {
     .cc_download_gcs_file(
-      glue::glue("gs://calcofi-db/ducklake/releases/{version}/metadata.json"),
+      glue::glue("{.cc_releases_gs()}/{version}/metadata.json"),
       meta_path,
       overwrite = TRUE)
   }

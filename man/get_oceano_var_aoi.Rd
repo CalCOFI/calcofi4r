@@ -39,12 +39,11 @@ Query bottle measurement data directly with \code{\link[=cc_get_db]{cc_get_db()}
 # deprecated - use DuckDB queries instead:
 con <- cc_get_db()
 d <- DBI::dbGetQuery(con, "
-  SELECT c.lon_dec, c.lat_dec, c.datetime_utc, b.depth_m,
-         bm.measurement_value, bm.measurement_type
-  FROM bottle_measurement bm
-  JOIN bottle b ON bm.bottle_id = b.bottle_id
-  JOIN casts c ON b.cast_id = c.cast_id
-  WHERE bm.measurement_type = 'oxygen'")
+  SELECT s.longitude, s.latitude, o.datetime, o.depth_min_m,
+         o.measurement_value, o.measurement_type
+  FROM obs_env o
+  JOIN sample s USING (sample_key)
+  WHERE o.dataset_key = 'calcofi_bottle' AND o.measurement_type = 'oxygen_ml_l'")
 # then filter spatially with sf::st_filter(d_sf, aoi)
 }
 }

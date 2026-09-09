@@ -59,7 +59,7 @@ cc_datasets <- function(version = "latest", what = c("datasets", "holdings", "re
                         base_https = "https://storage.googleapis.com/calcofi-db") {
   what <- match.arg(what)
   version <- .cc_resolve_version(version)
-  url <- glue::glue("{base_https}/ducklake/releases/{version}/datasets.json")
+  url <- glue::glue("{base_https}/{.cc_release_prefix()}/{version}/datasets.json")
   .cc_datasets_read(url, what = what, version_hint = version)
 }
 

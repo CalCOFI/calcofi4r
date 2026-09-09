@@ -98,17 +98,10 @@ cc_get_db <- function(
     dir.create(cache_dir, recursive = TRUE)
   }
 
-  # resolve "latest" to actual version
+  # resolve "latest" to actual version (CALCOFI_RELEASE_VERSION first: the release
+  # pipeline points "latest" at the release it is about to gate)
   if (version == "latest") {
-    # get latest version from GCS
-    latest_file <- tryCatch({
-      .cc_download_gcs_file(
-        "gs://calcofi-db/ducklake/releases/latest.txt",
-        file.path(cache_dir, "latest.txt"),
-        overwrite = TRUE)
-      readLines(file.path(cache_dir, "latest.txt"))[1]
-    }, error = function(e) {
-      # fallback: try to find from directory listing
+    latest_file <- tryCatch(.cc_resolve_version("latest"), error = function(e) {
       message("Could not determine latest version, using v2026.02 as default")
       "v2026.02"
     })
@@ -164,7 +157,7 @@ cc_get_db <- function(
   .cc_load_httpfs(con)
 
   # get catalog for this version (needed for both cached and fresh paths)
-  gcs_base     <- glue::glue("gs://calcofi-db/ducklake/releases/{version}")
+  gcs_base     <- glue::glue("{.cc_releases_gs()}/{version}")
   catalog_path <- file.path(cache_dir, glue::glue("catalog_{version}.json"))
 
   tryCatch({
@@ -340,7 +333,7 @@ cc_get_db <- function(
 cc_list_versions <- function() {
   # download versions manifest from public bucket
   tryCatch({
-    versions_url <- "https://storage.googleapis.com/calcofi-db/ducklake/releases/versions.json"
+    versions_url <- glue::glue("{.cc_releases_https()}/versions.json")
     versions_file <- tempfile(fileext = ".json")
 
     utils::download.file(
@@ -353,10 +346,7 @@ cc_list_versions <- function() {
 
     # get latest
     latest <- tryCatch({
-      latest_url <- "https://storage.googleapis.com/calcofi-db/ducklake/releases/latest.txt"
-      latest_file <- tempfile()
-      utils::download.file(latest_url, latest_file, quiet = TRUE)
-      trimws(readLines(latest_file, warn = FALSE)[1])
+      .cc_resolve_version("latest")
     }, error = function(e) {
       # fallback: use first version as latest
       if (length(versions_data$versions) > 0)
@@ -442,7 +432,7 @@ cc_db_info <- function(version = "latest") {
 
   tryCatch({
     .cc_download_gcs_file(
-      glue::glue("gs://calcofi-db/ducklake/releases/{version}/catalog.json"),
+      glue::glue("{.cc_releases_gs()}/{version}/catalog.json"),
       catalog_path,
       overwrite = TRUE)
   }, error = function(e) {
@@ -456,7 +446,7 @@ cc_db_info <- function(version = "latest") {
     release_date = catalog$release_date,
     total_rows   = catalog$total_rows,
     tables       = tibble::as_tibble(catalog$tables),
-    gcs_path     = glue::glue("gs://calcofi-db/ducklake/releases/{version}"))
+    gcs_path     = glue::glue("{.cc_releases_gs()}/{version}"))
 }
 
 #' View CalCOFI database release notes
@@ -494,7 +484,7 @@ cc_release_notes <- function(version = "latest") {
 
   tryCatch({
     .cc_download_gcs_file(
-      glue::glue("gs://calcofi-db/ducklake/releases/{version}/RELEASE_NOTES.md"),
+      glue::glue("{.cc_releases_gs()}/{version}/RELEASE_NOTES.md"),
       notes_path,
       overwrite = TRUE)
     paste(readLines(notes_path), collapse = "\n")
@@ -587,21 +577,14 @@ cc_get_dm <- function(version = "latest", con = NULL) {
   if (version == "latest") {
     cache_dir <- file.path(tempdir(), "calcofi4r_cache")
     dir.create(cache_dir, showWarnings = FALSE)
-    version <- tryCatch({
-      .cc_download_gcs_file(
-        "gs://calcofi-db/ducklake/releases/latest.txt",
-        file.path(cache_dir, "latest_dm.txt"),
-        overwrite = TRUE)
-      readLines(file.path(cache_dir, "latest_dm.txt"))[1]
-    }, error = function(e) "v2026.02")
+    version <- tryCatch(.cc_resolve_version("latest"), error = function(e) "v2026.02")
   }
 
   # build dm from connection (no learned keys)
   d <- dm::dm_from_con(con, learn_keys = FALSE)
 
   # download and apply relationships.json
-  rels_url <- glue::glue(
-    "gs://calcofi-db/ducklake/releases/{version}/relationships.json")
+  rels_url <- glue::glue("{.cc_releases_gs()}/{version}/relationships.json")
   rels_local <- file.path(tempdir(), glue::glue("relationships_{version}.json"))
 
   tryCatch({
@@ -838,35 +821,38 @@ cc_tbl <- function(
 
 # ─── derived views ─────────────────────────────────────────────────────────────
 
-# internal: prebaked view templates
+# internal: prebaked view templates. `sample_extra` derives the calendar and
+# degree-minute columns the pre-2026 `casts` table carried, on `sample`
+# (`datetime` is UTC; `latitude`/`longitude` decimal degrees). The `casts_extra`
+# template it replaces named columns (`datetime_utc`, `lat_dec`) and a table
+# (`casts`) no release has had since the core consolidation.
 .view_templates <- list(
-  casts_extra = list(
-    base_table = "casts",
-    view_name  = "casts_extra",
+  sample_extra = list(
+    base_table = "sample",
+    view_name  = "sample_extra",
     columns    = c(
-      year        = "EXTRACT(YEAR FROM datetime_utc)::SMALLINT",
-      month       = "EXTRACT(MONTH FROM datetime_utc)::SMALLINT",
-      quarter     = "EXTRACT(QUARTER FROM datetime_utc)::SMALLINT",
-      julian_day  = "EXTRACT(DOY FROM datetime_utc)::SMALLINT",
-      julian_date = "(datetime_utc::DATE - DATE '1899-12-30')",
-      lat_deg     = "FLOOR(ABS(lat_dec))::SMALLINT",
-      lat_min     = "(ABS(lat_dec) - FLOOR(ABS(lat_dec))) * 60",
-      lat_hem     = "CASE WHEN lat_dec >= 0 THEN 'N' ELSE 'S' END",
-      lon_deg     = "FLOOR(ABS(lon_dec))::SMALLINT",
-      lon_min     = "(ABS(lon_dec) - FLOOR(ABS(lon_dec))) * 60",
-      lon_hem     = "CASE WHEN lon_dec >= 0 THEN 'E' ELSE 'W' END",
-      cruise      = "STRFTIME(datetime_utc, '%Y%m')",
+      year        = "EXTRACT(YEAR FROM datetime)::SMALLINT",
+      month       = "EXTRACT(MONTH FROM datetime)::SMALLINT",
+      quarter     = "EXTRACT(QUARTER FROM datetime)::SMALLINT",
+      julian_day  = "EXTRACT(DOY FROM datetime)::SMALLINT",
+      julian_date = "(datetime::DATE - DATE '1899-12-30')",
+      lat_deg     = "FLOOR(ABS(latitude))::SMALLINT",
+      lat_min     = "(ABS(latitude) - FLOOR(ABS(latitude))) * 60",
+      lat_hem     = "CASE WHEN latitude >= 0 THEN 'N' ELSE 'S' END",
+      lon_deg     = "FLOOR(ABS(longitude))::SMALLINT",
+      lon_min     = "(ABS(longitude) - FLOOR(ABS(longitude))) * 60",
+      lon_hem     = "CASE WHEN longitude >= 0 THEN 'E' ELSE 'W' END",
       db_sta_key  = "REPLACE(REPLACE(site_key, '.', ''), ' ', '')")))
 
 #' Create a Derived VIEW in the Database
 #'
 #' Creates a SQL VIEW with derived columns on top of base tables.
-#' Supports prebaked templates (e.g., "casts_extra") or custom
+#' Supports prebaked templates (e.g., "sample_extra") or custom
 #' column definitions specified as named SQL expressions.
 #'
 #' @param con DBI connection to DuckDB
 #' @param template Character. Name of a prebaked view template.
-#'   Available: "casts_extra". If provided, view_name and
+#'   Available: "sample_extra". If provided, view_name and
 #'   column_definitions are taken from the template (but can be
 #'   overridden).
 #' @param view_name Character. Name for the VIEW. Defaults to the
@@ -1190,7 +1176,7 @@ create_index <- function(con, tbl, flds, is_geom=F, is_unique=F, overwrite=F, sh
 # error on a version whose parquet has been removed by archive thinning
 .cc_stop_if_retired <- function(version) {
   vs <- tryCatch(jsonlite::fromJSON(
-    "https://storage.googleapis.com/calcofi-db/ducklake/releases/versions.json",
+    glue::glue("{.cc_releases_https()}/versions.json"),
     simplifyVector = FALSE)$versions, error = function(e) list())
   rec <- Filter(function(r) identical(r$version, version), vs)
   if (length(rec) && !is.null(rec[[1]]$retired)) {

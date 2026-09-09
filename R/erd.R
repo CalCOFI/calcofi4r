@@ -23,8 +23,8 @@ updateMermaid <- function(version = "") {
 #' Generates a [Mermaid](https://mermaid.js.org/syntax/entityRelationshipDiagram.html)
 #' entity relationship diagram from a DuckDB connection by querying
 #' `information_schema.columns`. Unlike `dm::dm_draw()`, this handles
-#' `GEOMETRY` columns without errors, so spatial tables like `site`, `grid`,
-#' `casts`, and `segment` are included in the diagram.
+#' `GEOMETRY` columns without errors, so spatial tables like `sample`, `grid`
+#' and `spatial` are included in the diagram.
 #'
 #' @param con DBI connection to a DuckDB database
 #' @param tables Character vector of table names to include. If NULL (default),
@@ -69,15 +69,11 @@ updateMermaid <- function(version = "") {
 #' cc_erd(con,
 #'   rels_path = "relationships.json",
 #'   colors = list(
-#'     lightblue   = c("cruise", "ship", "site", "tow", "net"),
-#'     lightyellow = c("ichthyo", "species", "lookup", "taxon", "taxa_rank"),
-#'     lightgreen  = c("grid", "segment"),
-#'     pink        = c("casts", "bottle", "bottle_measurement",
-#'                      "cast_condition", "measurement_type"),
-#'     lavender    = c("ctd_cast", "ctd_measurement", "ctd_summary"),
-#'     lightsalmon = c("dic_sample", "dic_measurement",
-#'                      "dic_measurement_summary"),
-#'     white       = c("dataset")))
+#'     lightblue   = c("cruise", "ship", "sample", "sample_measurement"),
+#'     lightyellow = c("obs_bio", "taxon", "dataset_taxon", "taxon_group", "obs_attribute"),
+#'     lightgreen  = c("grid", "spatial", "spatial_attribute", "sample_spatial", "region"),
+#'     pink        = c("obs_env", "measurement_type", "climatology"),
+#'     white       = c("dataset", "lookup")))
 #'
 #' # inline relationships (alternative to rels_path)
 #' cc_erd(con, rels = list(
@@ -291,8 +287,8 @@ cc_erd <- function(
 #' \dontrun{
 #' color_map <- cc_erd_color_map(
 #'   table_dataset  = list(
-#'     casts            = "calcofi_bottle",
-#'     ctd_thin         = "calcofi_ctd-cast",
+#'     obs_env          = c("calcofi_bottle", "calcofi_ctd-cast", "calcofi_dic"),
+#'     climatology      = "calcofi_ctd-cast",
 #'     measurement_type = c("calcofi_bottle", "calcofi_ctd-cast", "calcofi_dic")),
 #'   dataset_colors = list(
 #'     calcofi_bottle   = "#cfe3f7",

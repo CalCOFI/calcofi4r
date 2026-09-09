@@ -54,8 +54,8 @@ as a Mermaid diagram (respects \code{mermaid-format} in \verb{_quarto.yml}).
 Generates a \href{https://mermaid.js.org/syntax/entityRelationshipDiagram.html}{Mermaid}
 entity relationship diagram from a DuckDB connection by querying
 \code{information_schema.columns}. Unlike \code{dm::dm_draw()}, this handles
-\code{GEOMETRY} columns without errors, so spatial tables like \code{site}, \code{grid},
-\code{casts}, and \code{segment} are included in the diagram.
+\code{GEOMETRY} columns without errors, so spatial tables like \code{sample}, \code{grid}
+and \code{spatial} are included in the diagram.
 }
 \examples{
 \dontrun{
@@ -71,15 +71,11 @@ cc_erd(con, rels_path = "data/releases/v2026.03.25/relationships.json")
 cc_erd(con,
   rels_path = "relationships.json",
   colors = list(
-    lightblue   = c("cruise", "ship", "site", "tow", "net"),
-    lightyellow = c("ichthyo", "species", "lookup", "taxon", "taxa_rank"),
-    lightgreen  = c("grid", "segment"),
-    pink        = c("casts", "bottle", "bottle_measurement",
-                     "cast_condition", "measurement_type"),
-    lavender    = c("ctd_cast", "ctd_measurement", "ctd_summary"),
-    lightsalmon = c("dic_sample", "dic_measurement",
-                     "dic_measurement_summary"),
-    white       = c("dataset")))
+    lightblue   = c("cruise", "ship", "sample", "sample_measurement"),
+    lightyellow = c("obs_bio", "taxon", "dataset_taxon", "taxon_group", "obs_attribute"),
+    lightgreen  = c("grid", "spatial", "spatial_attribute", "sample_spatial", "region"),
+    pink        = c("obs_env", "measurement_type", "climatology"),
+    white       = c("dataset", "lookup")))
 
 # inline relationships (alternative to rels_path)
 cc_erd(con, rels = list(

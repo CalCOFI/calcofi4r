@@ -20,8 +20,10 @@ a frozen CalCOFI database release.
 }
 \examples{
 \dontrun{
-results <- cc_query("SELECT * FROM ichthyo LIMIT 10")
-results <- cc_query("SELECT species_id, COUNT(*) as n FROM ichthyo GROUP BY species_id")
+results <- cc_query("SELECT * FROM obs_bio LIMIT 10")
+results <- cc_query("
+  SELECT taxon_key, COUNT(*) AS n FROM obs_bio
+  WHERE dataset_key = 'swfsc_ichthyo' GROUP BY taxon_key ORDER BY n DESC LIMIT 10")
 }
 }
 \concept{read}

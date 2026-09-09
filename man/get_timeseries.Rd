@@ -56,12 +56,11 @@ with \code{\link[=cc_get_db]{cc_get_db()}} and aggregate using dplyr for time se
 # deprecated - use DuckDB queries instead:
 con <- cc_get_db()
 d <- DBI::dbGetQuery(con, "
-  SELECT EXTRACT(YEAR FROM c.datetime_utc) AS year,
-         AVG(bm.measurement_value) AS avg_temp
-  FROM bottle_measurement bm
-  JOIN bottle b ON bm.bottle_id = b.bottle_id
-  JOIN casts c ON b.cast_id = c.cast_id
-  WHERE bm.measurement_type = 'temperature'
+  SELECT EXTRACT(YEAR FROM o.datetime) AS year,   -- obs.datetime is UTC
+         AVG(o.measurement_value) AS avg_temp
+  FROM obs_env o
+  WHERE o.dataset_key = 'calcofi_bottle' AND o.measurement_type = 'temperature'
+    AND o.depth_min_m <= 10
   GROUP BY year ORDER BY year")
 }
 }

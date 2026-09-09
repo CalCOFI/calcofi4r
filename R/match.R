@@ -17,16 +17,32 @@
 # identical rows. That reproducibility hook is the single source of truth for the
 # `db-viz-hex` download bundle.
 
-# internal: resolve "latest" to a concrete release version (e.g. "v2026.05.14")
+# internal: the bucket-relative prefix the releases live under. CALCOFI_RELEASE_PREFIX
+# overrides it — the release pipeline (CalCOFI/workflows test_release.qmd) sets it to
+# ducklake-staging/releases on a staging run so this package reads the release it is
+# about to gate, never the promoted one. Users never set it.
+.cc_release_prefix <- function() {
+  p <- Sys.getenv("CALCOFI_RELEASE_PREFIX", "ducklake/releases")
+  gsub("^/+|/+$", "", if (nzchar(p)) p else "ducklake/releases")
+}
+.cc_releases_https <- function() glue::glue("https://storage.googleapis.com/calcofi-db/{.cc_release_prefix()}")
+.cc_releases_gs    <- function() glue::glue("gs://calcofi-db/{.cc_release_prefix()}")
+
+# internal: resolve "latest" to a concrete release version (e.g. "v2026.05.14").
+# CALCOFI_RELEASE_VERSION, when set, is what "latest" resolves to: the release pipeline
+# points it at the freshly uploaded, not-yet-promoted release so the README examples
+# (tests/testthat/test-readme.R) gate its promotion. Users never set it.
 .cc_resolve_version <- function(version = "latest") {
   if (!identical(version, "latest")) {
     if (!grepl("^v\\d{4}\\.\\d{2}", version))
       stop("Version must be 'latest' or in format vYYYY.MM[.DD] (e.g. 'v2026.05.14')")
     return(version)
   }
+  env <- trimws(Sys.getenv("CALCOFI_RELEASE_VERSION", ""))
+  if (nzchar(env)) return(env)
   tryCatch(
     trimws(readLines(
-      "https://storage.googleapis.com/calcofi-db/ducklake/releases/latest.txt",
+      glue::glue("{.cc_releases_https()}/latest.txt"),
       warn = FALSE)[1]),
     error = function(e) stop(
       "Could not resolve 'latest' release version. ",

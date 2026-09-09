@@ -1,3 +1,27 @@
+# calcofi4r 1.24.0
+
+## The README's examples are tests
+
+- `README.Rmd` is knit for real — every chunk executes against the promoted release — by
+  `tests/testthat/test-readme.R`, and the CalCOFI database release pipeline
+  (`CalCOFI/workflows` `test_release.qmd`) knits it against each new release *before* promoting
+  it. The README had drifted to a schema no release has had since the core consolidation
+  (`ichthyo`, `casts`, `bottle_measurement`, `species_id`, `datetime_utc`) because its chunks
+  were `eval = FALSE`; the Python sibling's first example failed the same way in a researcher's
+  hands on 2026-09-09. The rewritten README covers connect, `cc_query()`, dbplyr, the readers,
+  quality flags, bio–env matching, versions, citation and the content-addressed layout; the
+  deprecated `get_*()` API section is gone (the API is being phased out; the functions remain).
+- `CALCOFI_RELEASE_VERSION` and `CALCOFI_RELEASE_PREFIX` environment variables redirect what
+  `"latest"` resolves to and the releases prefix (`ducklake/releases`), for that pipeline (a
+  not-yet-promoted release, a staging bucket). Every release path in the package now goes through
+  them; users never set them.
+- The view template `casts_extra` (on the retired `casts` table, `datetime_utc`, `lat_dec`) is
+  replaced by `sample_extra`, the same derived calendar and degree–minute columns on `sample`
+  (`datetime`, `latitude`, `longitude`). `cc_list_view_templates()` reports the new name.
+- Reference examples that still named the retired tables (`get_raster()`, `get_timeseries()`,
+  `get_oceano_var_aoi()`, `cc_query()`, `cc_read_ichthyo()`, `cc_erd()`, `cc_erd_color_map()`)
+  now read `obs_env` / `obs_bio` / `sample`.
+
 # calcofi4r 1.23.0
 
 ## `cc_climatology()` keys on the station, not the grid cell

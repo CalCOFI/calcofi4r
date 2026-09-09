@@ -29,8 +29,9 @@ CalCOFI database. The data is stored in the \code{ichthyo} table.
 # get first 100 ichthyo records
 ichthyo <- cc_read_ichthyo() |> head(100)
 
-# get specific species (lazy query)
-anchovy <- cc_read_ichthyo(species_id == 19, collect = FALSE)
+# retired: filters see the core schema now (taxon_key, not species_id)
+anchovy <- cc_read_obs(taxon_key == "worms:272286", realm = "bio",
+                       datasets = "swfsc_ichthyo", collect = FALSE)
 }
 }
 \concept{read}
