@@ -225,7 +225,7 @@ cc_transect_section <- function(
 #' Seasonal climatology for one or more measurement types
 #'
 #' The baseline every CalCOFI anomaly is a departure from: a plain mean per
-#' (`grid_key`, calendar month, 10 m floor depth bin, measurement type) across a
+#' (`site_key` — the real station, calendar month, 10 m floor depth bin, measurement type) across a
 #' window of years, kept where at least `min_cruises` distinct cruises contribute.
 #' Calendar month is the finest season CalCOFI's design supports — quarterly-ish
 #' cruises over decades give many *years* per month at a station but only a
@@ -253,9 +253,12 @@ cc_transect_section <- function(
 #' @param min_cruises minimum distinct cruises for a cell to be returned (default
 #'   3). A floor in cruises rather than observations because a nearshore grid cell
 #'   holds several stations' casts from one cruise.
-#' @return Tibble: `grid_key`, `month`, `depth_m`, `variable`, `clim_mean`,
-#'   `clim_sd`, `clim_n`, `n_cruises`; attributes `baseline` (the years) and
-#'   `source` (`"release"` or `"computed"`).
+#' @return Tibble: `site_key` (the station; absent only when reading a release
+#'   table from before v2026.09.2x, which was grained on the grid cell), `grid_key`
+#'   (the station's modal cell — the inshore cells hold 2–4 stations, so key on
+#'   `site_key`), `month`, `depth_m`, `variable`, `clim_mean`, `clim_sd`, `clim_n`,
+#'   `n_cruises`; attributes `baseline` (the years) and `source` (`"release"` or
+#'   `"computed"`).
 #' @export
 #' @concept transect
 cc_climatology <- function(
@@ -279,8 +282,8 @@ cc_climatology <- function(
           measurement_type %in% !!variables,
           depth_bin        <= !!depth_max,
           n_cruises        >= !!min_cruises) |>
-        dplyr::select(grid_key, month, depth_m = depth_bin, variable = measurement_type,
-                      clim_mean, clim_sd, clim_n, n_cruises) |>
+        dplyr::select(dplyr::any_of("site_key"), grid_key, month, depth_m = depth_bin,
+                      variable = measurement_type, clim_mean, clim_sd, clim_n, n_cruises) |>
         dplyr::collect() |>
         dplyr::mutate(month = as.integer(month), depth_m = as.numeric(depth_m),
                       clim_n = as.integer(clim_n), n_cruises = as.integer(n_cruises))
@@ -290,7 +293,14 @@ cc_climatology <- function(
     }
   }
 
-  # the same definition, computed (a mirror of calcofi4db::build_climatology())
+  # the same definition, computed (a mirror of calcofi4db::build_climatology()): the station is
+  # sample.site_key (obs carries only the grid cell), grid_key rides along as the station's modal cell
+  has_sample <- "sample" %in% DBI::dbListTables(con) &&
+    "site_key" %in% DBI::dbListFields(con, "sample")
+  if (!has_sample)
+    stop("cc_climatology(): computing the baseline needs `sample` (with site_key) beside `obs`; ",
+         "the release's own `climatology` table is used when the connection has it and `years` ",
+         "is its window.", call. = FALSE)
   out <- dplyr::tbl(con, "obs") |>
     .filter_qual_ok() |>
     dplyr::filter(
@@ -299,15 +309,21 @@ cc_climatology <- function(
       !is.na(measurement_value), !is.na(depth_min_m), !is.na(datetime),
       depth_min_m      >= 0,
       depth_min_m      <  !!(depth_max + depth_bin)) |>
+    dplyr::inner_join(
+      dplyr::tbl(con, "sample") |>
+        dplyr::filter(!is.na(site_key)) |>
+        dplyr::select(sample_key, site_key),
+      by = "sample_key") |>
     dplyr::mutate(
       yr  = as.integer(strftime(datetime, "%Y")),
       mon = as.integer(strftime(datetime, "%m"))) |>
     dplyr::filter(yr >= !!years[1], yr <= !!years[2]) |>
     dplyr::mutate(depth_m = floor(depth_min_m / !!depth_bin) * !!depth_bin) |>
     dplyr::filter(depth_m <= !!depth_max) |>
-    dplyr::group_by(grid_key, month = mon, depth_m,
+    dplyr::group_by(site_key, month = mon, depth_m,
                     variable = measurement_type) |>
     dplyr::summarize(
+      grid_key  = dplyr::sql("mode(grid_key)"),
       clim_mean = mean(measurement_value, na.rm = TRUE),
       clim_sd   = stats::sd(measurement_value, na.rm = TRUE),
       clim_n    = dplyr::n(),
@@ -315,7 +331,8 @@ cc_climatology <- function(
       .groups   = "drop") |>
     dplyr::collect() |>
     dplyr::filter(n_cruises >= min_cruises) |>
-    dplyr::mutate(clim_n = as.integer(clim_n), n_cruises = as.integer(n_cruises))
+    dplyr::mutate(clim_n = as.integer(clim_n), n_cruises = as.integer(n_cruises)) |>
+    dplyr::select(site_key, grid_key, month, depth_m, variable, clim_mean, clim_sd, clim_n, n_cruises)
 
   attr(out, "baseline") <- years
   attr(out, "source")   <- "computed"

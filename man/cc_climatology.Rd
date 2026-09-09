@@ -32,13 +32,16 @@ edge). The release table is only used at 10.}
 holds several stations' casts from one cruise.}
 }
 \value{
-Tibble: \code{grid_key}, \code{month}, \code{depth_m}, \code{variable}, \code{clim_mean},
-\code{clim_sd}, \code{clim_n}, \code{n_cruises}; attributes \code{baseline} (the years) and
-\code{source} (\code{"release"} or \code{"computed"}).
+Tibble: \code{site_key} (the station; absent only when reading a release
+table from before v2026.09.2x, which was grained on the grid cell), \code{grid_key}
+(the station's modal cell — the inshore cells hold 2–4 stations, so key on
+\code{site_key}), \code{month}, \code{depth_m}, \code{variable}, \code{clim_mean}, \code{clim_sd}, \code{clim_n},
+\code{n_cruises}; attributes \code{baseline} (the years) and \code{source} (\code{"release"} or
+\code{"computed"}).
 }
 \description{
 The baseline every CalCOFI anomaly is a departure from: a plain mean per
-(\code{grid_key}, calendar month, 10 m floor depth bin, measurement type) across a
+(\code{site_key} — the real station, calendar month, 10 m floor depth bin, measurement type) across a
 window of years, kept where at least \code{min_cruises} distinct cruises contribute.
 Calendar month is the finest season CalCOFI's design supports — quarterly-ish
 cruises over decades give many \emph{years} per month at a station but only a

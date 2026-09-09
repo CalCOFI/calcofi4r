@@ -30,12 +30,15 @@ fixture_con <- function() {
                data_stage = "preliminary_without_bottle"))
   smp$dataset_key <- "calcofi_ctd-cast"
   smp$sample_type <- "cast"
+  # the real station: cc_climatology() computes on sample.site_key (calcofi4r 1.23.0)
+  smp$site_key    <- sprintf("093.3 %05.1f", as.numeric(sub("^st0*([0-9]+)-.*$", "\\1", smp$grid_key)))
 
   # temperature declining with depth; station 30 of cruise B is 3 degC warm
   obs <- do.call(rbind, lapply(seq_len(nrow(smp)), function(i) {
     d <- c(1.2, 14.8, 29.9)  # -> floor bins 0, 10, 20 at depth_bin = 10
     data.frame(
       cruise_key        = smp$cruise_key[i],
+      sample_key        = smp$sample_key[i],
       grid_key          = smp$grid_key[i],
       depth_min_m       = d,
       measurement_type  = "temperature_ave",
@@ -145,6 +148,10 @@ test_that("climatology reads the release's own table when the connection has it"
   expect_equal(cl$depth_m, 0)
   expect_equal(cl$n_cruises, 10L)
   expect_named(cl, c("grid_key", "month", "depth_m", "variable", "clim_mean", "clim_sd", "clim_n", "n_cruises"))
+  # computing (another window) keys on the station and carries the modal cell beside it
+  cc <- cc_climatology(con, years = c(2024, 2024), min_cruises = 1)
+  expect_named(cc, c("site_key", "grid_key", "month", "depth_m", "variable", "clim_mean", "clim_sd", "clim_n", "n_cruises"))
+  expect_true(all(grepl("^093\\.3 0[3-9]0\\.0$", cc$site_key)))
   expect_equal(nrow(cc_climatology(con, min_cruises = 11)), 0)
   # another window, or another bin, is not the table: computed from obs instead
   expect_identical(attr(cc_climatology(con, years = c(2024, 2024), min_cruises = 1), "source"), "computed")

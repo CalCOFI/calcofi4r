@@ -1,3 +1,15 @@
+# calcofi4r 1.23.0
+
+## `cc_climatology()` keys on the station, not the grid cell
+
+- The computed baseline is grained on `sample.site_key` (the real station, joined through
+  `sample_key`; `obs` carries only the grid cell) and returns `site_key` first with `grid_key` beside
+  it as the station's modal cell — the grain `calcofi4db::build_climatology()` moved to in 4.8.0 and
+  the release table carries from v2026.09.2x. The inshore grid cells hold 2–4 stations occupied every
+  cruise (`st30-ln90` = 90.30, 90.28, 90.27.7, 88.5/30.1), so the cell-grained baseline blended
+  stations 15–30 km apart. Reading an older release's table (grid grain) still works; `site_key` is
+  simply absent there. Computing now requires `sample` beside `obs` and says so.
+
 # calcofi4r 1.22.0
 
 ## `cc_interpolate()` gains the Explorer's site grain
