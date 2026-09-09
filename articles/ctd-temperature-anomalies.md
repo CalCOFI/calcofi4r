@@ -365,7 +365,7 @@ comparison <- series |>
 
 summary(abs(comparison$difference))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#> 0.04528 0.07534 0.07884 0.17224 0.29630 0.52030
+#>  0.0174  0.1879  0.2439  0.2839  0.3694  0.6815
 ```
 
 ## Reading it honestly

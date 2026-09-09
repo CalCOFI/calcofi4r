@@ -1,16 +1,16 @@
 # Seasonal climatology for one or more measurement types
 
 The baseline every CalCOFI anomaly is a departure from: a plain mean per
-(`grid_key`, calendar month, 10 m floor depth bin, measurement type)
-across a window of years, kept where at least `min_cruises` distinct
-cruises contribute. Calendar month is the finest season CalCOFI's design
-supports — quarterly-ish cruises over decades give many *years* per
-month at a station but only a handful of days — and the coarsest that
-works: a mean over all months is a map of the seasonal cycle, not an
-anomaly. A plain mean rather than harmonics: Rudnick et al. (2017) fit
-annual and semiannual harmonics for the CUGN glider climatology, which
-suits continuous glider sampling; CalCOFI's is episodic, and a monthly
-mean is something a reader can state exactly.
+(`site_key` — the real station, calendar month, 10 m floor depth bin,
+measurement type) across a window of years, kept where at least
+`min_cruises` distinct cruises contribute. Calendar month is the finest
+season CalCOFI's design supports — quarterly-ish cruises over decades
+give many *years* per month at a station but only a handful of days —
+and the coarsest that works: a mean over all months is a map of the
+seasonal cycle, not an anomaly. A plain mean rather than harmonics:
+Rudnick et al. (2017) fit annual and semiannual harmonics for the CUGN
+glider climatology, which suits continuous glider sampling; CalCOFI's is
+episodic, and a monthly mean is something a reader can state exactly.
 
 ## Usage
 
@@ -60,9 +60,12 @@ cc_climatology(
 
 ## Value
 
-Tibble: `grid_key`, `month`, `depth_m`, `variable`, `clim_mean`,
-`clim_sd`, `clim_n`, `n_cruises`; attributes `baseline` (the years) and
-`source` (`"release"` or `"computed"`).
+Tibble: `site_key` (the station; absent only when reading a release
+table from before v2026.09.2x, which was grained on the grid cell),
+`grid_key` (the station's modal cell — the inshore cells hold 2–4
+stations, so key on `site_key`), `month`, `depth_m`, `variable`,
+`clim_mean`, `clim_sd`, `clim_n`, `n_cruises`; attributes `baseline`
+(the years) and `source` (`"release"` or `"computed"`).
 
 ## Details
 
