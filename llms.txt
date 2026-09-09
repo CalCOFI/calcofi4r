@@ -20,6 +20,31 @@ Then load the package:
 library(calcofi4r)
 ```
 
+### System requirements
+
+`calcofi4r` pulls in `sf`, and `sf` pulls in
+[`s2`](https://r-spatial.github.io/s2/), which is C++ and must compile.
+CRAN publishes no macOS arm64 binaries for R 4.6 yet, so on Apple
+Silicon that compile is not optional and it needs **`cmake`**:
+
+``` sh
+brew install cmake
+```
+
+`brew install abseil` does *not* substitute for this, despite what s2’s
+own error message suggests. Its `configure` defaults
+`S2_FORCE_BUNDLED_ABSEIL=true` and so always builds its vendored copy of
+Abseil with cmake, never consulting `pkg-config` for a system one.
+
+To skip the compile altogether, point R at Posit Package Manager, which
+serves prebuilt macOS arm64 and Linux binaries for R 4.6. Put this in
+your `~/.Rprofile`:
+
+``` r
+
+options(repos = c(P3M = "https://packagemanager.posit.co/cran/latest"))
+```
+
 ## Quick Start
 
 ### Connect to CalCOFI Database

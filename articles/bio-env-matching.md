@@ -255,7 +255,7 @@ str(meta)
 #>   ..$ max_time_hr: num 72
 #>   ..$ join_method: chr "nearest_time"
 #>  $ source_urls    : chr [1:87] "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_bio/d0c1299adc3a9c2786de6144/obs_bio.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=air_temp_c/a002495adbbcbf98e"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity_rep1/ed4b235e8132"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity/49874a63b622aa020"| __truncated__ ...
-#>  $ generated_at   : chr "2026-09-07 16:32:27 UTC"
+#>  $ generated_at   : chr "2026-09-09 09:36:33 UTC"
 #>  $ n_rows         : int 310
 ```
 
