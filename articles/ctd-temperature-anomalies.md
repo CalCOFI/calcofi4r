@@ -116,7 +116,7 @@ clim <- cc_climatology(
 attr(clim, "baseline")
 #> [1] 1993 2013
 nrow(clim)
-#> [1] 23320
+#> [1] 21247
 ```
 
 [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
@@ -300,14 +300,14 @@ series <- anom_summer |>
 
 head(series)
 #> # A tibble: 6 × 4
-#>      yr layer     anomaly     n
-#>   <int> <fct>       <dbl> <int>
-#> 1  2000 0-50 m     0.543    582
-#> 2  2000 50-100 m  -0.0248   411
-#> 3  2000 100-200 m -0.0721   706
-#> 4  2000 200-500 m -0.0117  1649
-#> 5  2001 0-50 m     0.629    646
-#> 6  2001 50-100 m  -0.0186   452
+#>      yr layer      anomaly     n
+#>   <int> <fct>        <dbl> <int>
+#> 1  2000 0-50 m     0.695     717
+#> 2  2000 50-100 m  -0.00537   430
+#> 3  2000 100-200 m -0.0791    733
+#> 4  2000 200-500 m -0.0161   1681
+#> 5  2001 0-50 m     0.576     806
+#> 6  2001 50-100 m   0.00355   486
 ```
 
 A sanity check before reading anything into it: the baseline years must
@@ -365,7 +365,7 @@ comparison <- series |>
 
 summary(abs(comparison$difference))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#>  0.0174  0.1879  0.2439  0.2839  0.3694  0.6815
+#> 0.04551 0.08223 0.10835 0.19294 0.30483 0.58528
 ```
 
 ## Reading it honestly

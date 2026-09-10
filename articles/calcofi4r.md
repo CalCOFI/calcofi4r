@@ -44,20 +44,20 @@ The package provides convenience functions for common operations:
 
 # list available versions
 cc_list_versions()
-#> # A tibble: 30 × 9
-#>    version     release_date tables total_rows size_mb doi           consolidated
-#>    <chr>       <chr>         <int>      <int>   <dbl> <chr>         <lgl>       
-#>  1 v2026.09.06 2026-09-06       23  348657010   2350. 10.5281/zeno… FALSE       
-#>  2 v2026.09.04 2026-09-04       23  348657010   2351. 10.5281/zeno… FALSE       
-#>  3 v2026.08.25 2026-08-25       18  320260205   1998. NA            TRUE        
-#>  4 v2026.08.14 2026-08-14       18  307537056   1930. NA            TRUE        
-#>  5 v2026.08.11 2026-08-11       18  323912311   2016. NA            FALSE       
-#>  6 v2026.08.10 2026-08-11       18  323912364   2017. NA            FALSE       
-#>  7 v2026.08.08 2026-08-08       18  309122838   1947  NA            FALSE       
-#>  8 v2026.08.07 2026-08-07       18  323733662   2024. NA            FALSE       
-#>  9 v2026.08.06 2026-08-06       18  255137845   1636. NA            FALSE       
-#> 10 v2026.08.05 2026-08-05       18  255137845   1636. NA            FALSE       
-#> # ℹ 20 more rows
+#> # A tibble: 31 × 9
+#>    version     release_date tables total_rows size_mb consolidated doi          
+#>    <chr>       <chr>         <int>      <int>   <dbl> <lgl>        <chr>        
+#>  1 v2026.09.10 2026-09-11       23  356635055   2462. FALSE        NA           
+#>  2 v2026.09.06 2026-09-06       23  348657010   2350. FALSE        10.5281/zeno…
+#>  3 v2026.09.04 2026-09-04       23  348657010   2351. FALSE        10.5281/zeno…
+#>  4 v2026.08.25 2026-08-25       18  320260205   1998. TRUE         NA           
+#>  5 v2026.08.14 2026-08-14       18  307537056   1930. TRUE         NA           
+#>  6 v2026.08.11 2026-08-11       18  323912311   2016. FALSE        NA           
+#>  7 v2026.08.10 2026-08-11       18  323912364   2017. FALSE        NA           
+#>  8 v2026.08.08 2026-08-08       18  309122838   1947  FALSE        NA           
+#>  9 v2026.08.07 2026-08-07       18  323733662   2024. FALSE        NA           
+#> 10 v2026.08.06 2026-08-06       18  255137845   1636. FALSE        NA           
+#> # ℹ 21 more rows
 #> # ℹ 2 more variables: retired <df[,3]>, is_latest <lgl>
 
 # list tables (con = reuses the connection opened above)
@@ -139,12 +139,12 @@ head(ichthyo_sample)
 #> # A tibble: 6 × 18
 #>     obs_id realm dataset_key   sample_key grid_key cruise_key latitude longitude
 #>      <dbl> <chr> <chr>         <chr>      <chr>    <chr>         <dbl>     <dbl>
-#> 1 26253493 bio   swfsc_ichthyo swfsc_ich… NA       2003-10-3…     9.41     -99.2
-#> 2 26245380 bio   swfsc_ichthyo swfsc_ich… NA       2000-10-3…     7.74     -82.1
-#> 3 26248698 bio   swfsc_ichthyo swfsc_ich… NA       2002-10-3…    28.0     -178. 
-#> 4 25835471 bio   swfsc_ichthyo swfsc_ich… st20-ln… 1965-07-3…    26.6     -113. 
-#> 5 25946858 bio   swfsc_ichthyo swfsc_ich… st40-ln… 1966-08-3…    26.9     -114. 
-#> 6 25861961 bio   swfsc_ichthyo swfsc_ich… st30-ln… 1969-07-3…    32.8     -118. 
+#> 1 30679505 bio   swfsc_ichthyo swfsc_ich… NA       2003-10-3…     9.41     -99.2
+#> 2 30671392 bio   swfsc_ichthyo swfsc_ich… NA       2000-10-3…     7.74     -82.1
+#> 3 30674710 bio   swfsc_ichthyo swfsc_ich… NA       2002-10-3…    28.0     -178. 
+#> 4 30261483 bio   swfsc_ichthyo swfsc_ich… st20-ln… 1965-07-3…    26.6     -113. 
+#> 5 30372870 bio   swfsc_ichthyo swfsc_ich… st40-ln… 1966-08-3…    26.9     -114. 
+#> 6 30287973 bio   swfsc_ichthyo swfsc_ich… st30-ln… 1969-07-3…    32.8     -118. 
 #> # ℹ 10 more variables: datetime <dttm>, depth_min_m <dbl>, depth_max_m <dbl>,
 #> #   taxon_key <chr>, life_stage <chr>, measurement_type <chr>,
 #> #   measurement_value <dbl>, measurement_qual <chr>, measurement_prec <dbl>,
@@ -192,12 +192,12 @@ tibble(
 #> # A tibble: 20 × 2
 #>    table                  rows
 #>    <chr>                 <dbl>
-#>  1 obs                26265248
-#>  2 obs_env            25006583
-#>  3 sample              1469155
+#>  1 obs                30691260
+#>  2 obs_env            29432595
+#>  3 sample              1469151
 #>  4 obs_bio             1258665
-#>  5 sample_spatial       929664
-#>  6 climatology          768880
+#>  5 sample_spatial       929632
+#>  6 climatology          714882
 #>  7 sample_measurement   589603
 #>  8 obs_attribute        458184
 #>  9 spatial_attribute    148461

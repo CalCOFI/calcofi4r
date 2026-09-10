@@ -55,7 +55,7 @@ d <- cc_match_ichthyo_by_name(
   version         = REL)
 
 REL
-#> [1] "v2026.09.06"
+#> [1] "v2026.09.10"
 dim(d)
 #> [1] 310  19
 ```
@@ -249,18 +249,18 @@ meta <- attr(d, "query_meta")
 str(meta)
 #> List of 6
 #>  $ package_version: chr "1.24.2"
-#>  $ release_version: chr "v2026.09.06"
+#>  $ release_version: chr "v2026.09.10"
 #>  $ params         :List of 3
 #>   ..$ max_dist_km: num 5
 #>   ..$ max_time_hr: num 72
 #>   ..$ join_method: chr "nearest_time"
-#>  $ source_urls    : chr [1:87] "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_bio/d0c1299adc3a9c2786de6144/obs_bio.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=air_temp_c/a002495adbbcbf98e"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity_rep1/ed4b235e8132"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity/49874a63b622aa020"| __truncated__ ...
-#>  $ generated_at   : chr "2026-09-10 20:43:27 UTC"
+#>  $ source_urls    : chr [1:97] "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_bio/de0b227397e7252879a9cc7b/obs_bio.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=air_temp_c/c9a612291a598664c"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity_rep1/bbf843012d36"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity/a000f32c034287a61"| __truncated__ ...
+#>  $ generated_at   : chr "2026-09-10 22:44:52 UTC"
 #>  $ n_rows         : int 310
 ```
 
 `meta$release_version` pins which release the result came from
-(v2026.09.06 here). `meta$source_urls` is the full list of public GCS
+(v2026.09.10 here). `meta$source_urls` is the full list of public GCS
 parquet files the query reads. And `attr(d, "sql")` is the literal query
 — no `dplyr` translation, no hidden state, ~90 lines of plain DuckDB
 SQL:

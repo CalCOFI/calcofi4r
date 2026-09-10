@@ -216,7 +216,7 @@ station 120:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">clim</span>, <span class="st">"baseline"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1993 2013</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">clim</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 23320</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 21247</span></span></code></pre></div>
 <p><code><a href="../reference/cc_climatology.html">cc_climatology()</a></code> is a plain mean per (station, 5 m depth
 bin, calendar month) — the finest grouping CalCOFI’s design supports,
 since quarterly-ish cruises over decades give many <em>years</em> per
@@ -381,14 +381,14 @@ see.</li>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">series</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 4</span></span></span>
-<span><span class="co">#&gt;      yr layer     anomaly     n</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  <span style="text-decoration: underline;">2</span>000 0-50 m     0.543    582</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  <span style="text-decoration: underline;">2</span>000 50-100 m  -<span style="color: #BB0000;">0.024</span><span style="color: #BB0000; text-decoration: underline;">8</span>   411</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  <span style="text-decoration: underline;">2</span>000 100-200 m -<span style="color: #BB0000;">0.072</span><span style="color: #BB0000; text-decoration: underline;">1</span>   706</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>  <span style="text-decoration: underline;">2</span>000 200-500 m -<span style="color: #BB0000;">0.011</span><span style="color: #BB0000; text-decoration: underline;">7</span>  <span style="text-decoration: underline;">1</span>649</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>  <span style="text-decoration: underline;">2</span>001 0-50 m     0.629    646</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>  <span style="text-decoration: underline;">2</span>001 50-100 m  -<span style="color: #BB0000;">0.018</span><span style="color: #BB0000; text-decoration: underline;">6</span>   452</span></span></code></pre></div>
+<span><span class="co">#&gt;      yr layer      anomaly     n</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  <span style="text-decoration: underline;">2</span>000 0-50 m     0.695     717</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  <span style="text-decoration: underline;">2</span>000 50-100 m  -<span style="color: #BB0000;">0.005</span><span style="color: #BB0000; text-decoration: underline;">37</span>   430</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  <span style="text-decoration: underline;">2</span>000 100-200 m -<span style="color: #BB0000;">0.079</span><span style="color: #BB0000; text-decoration: underline;">1</span>    733</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>  <span style="text-decoration: underline;">2</span>000 200-500 m -<span style="color: #BB0000;">0.016</span><span style="color: #BB0000; text-decoration: underline;">1</span>   <span style="text-decoration: underline;">1</span>681</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>  <span style="text-decoration: underline;">2</span>001 0-50 m     0.576     806</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>  <span style="text-decoration: underline;">2</span>001 50-100 m   0.003<span style="text-decoration: underline;">55</span>   486</span></span></code></pre></div>
 <p>A sanity check before reading anything into it: the baseline years
 must sit near zero by construction, and the series should reproduce
 events we already know happened. It does — 2014-15 is the marine
@@ -438,7 +438,7 @@ possible before the 1993–2002 cruises were ingested.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">comparison</span><span class="op">$</span><span class="va">difference</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span><span class="co">#&gt;  0.0174  0.1879  0.2439  0.2839  0.3694  0.6815</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.04551 0.08223 0.10835 0.19294 0.30483 0.58528</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="reading-it-honestly">Reading it honestly<a class="anchor" aria-label="anchor" href="#reading-it-honestly"></a>
