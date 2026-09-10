@@ -34,7 +34,8 @@ updateMermaid <- function(version = "") {
 #' @param rels_path Path to a `relationships.json` file for primary key and
 #'   foreign key definitions. If NULL (default), the diagram shows table
 #'   structures without relationship lines. Ignored when `rels` is provided.
-#' @param rels A list with `primary_keys` (named list: table → column) and
+#' @param rels A list with `primary_keys` (named list: table → column, or a character
+#'   vector of columns for a composite key) and
 #'   `foreign_keys` (list of lists with `table`, `column`, `ref_table`,
 #'   `ref_column`). Alternative to `rels_path` for passing relationships
 #'   inline. Takes precedence over `rels_path`.
@@ -192,7 +193,8 @@ cc_erd <- function(
         cname <- tbl_cols$column_name[i]
         ctype <- .erd_shorten_type(tbl_cols$data_type[i])
 
-        is_pk <- !is.null(pks[[tbl]]) && cname == pks[[tbl]]
+        # a primary key may be composite (a character vector) since calcofi4db 4.7.0
+        is_pk <- !is.null(pks[[tbl]]) && cname %in% pks[[tbl]]
         is_fk <- paste0(tbl, ".", cname) %in% fk_set
 
         tag <- if (is_pk && is_fk) {

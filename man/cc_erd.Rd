@@ -28,7 +28,8 @@ Applied after \code{tables}.}
 foreign key definitions. If NULL (default), the diagram shows table
 structures without relationship lines. Ignored when \code{rels} is provided.}
 
-\item{rels}{A list with \code{primary_keys} (named list: table → column) and
+\item{rels}{A list with \code{primary_keys} (named list: table → column, or a character
+vector of columns for a composite key) and
 \code{foreign_keys} (list of lists with \code{table}, \code{column}, \code{ref_table},
 \code{ref_column}). Alternative to \code{rels_path} for passing relationships
 inline. Takes precedence over \code{rels_path}.}
