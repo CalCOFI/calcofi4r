@@ -1,5 +1,15 @@
 # Changelog
 
+## calcofi4r 1.24.1
+
+- [`cc_erd()`](https://calcofi.io/calcofi4r/reference/cc_erd.md) accepts
+  a composite primary key (a character vector in `rels$primary_keys`),
+  which `relationships.json` has carried for `sample_spatial`,
+  `spatial_attribute`, `taxon_group` and `climatology` since calcofi4db
+  4.7.0; the `combined_schema` chunk of `release_database.qmd` errored
+  on `cname == pks[[tbl]]` (“‘length = 2’ in coercion to ‘logical(1)’”)
+  on 2026-09-10.
+
 ## calcofi4r 1.24.0
 
 ### The README’s examples are tests

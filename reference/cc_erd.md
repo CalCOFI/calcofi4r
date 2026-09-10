@@ -47,10 +47,11 @@ cc_erd(
 
 - rels:
 
-  A list with `primary_keys` (named list: table → column) and
-  `foreign_keys` (list of lists with `table`, `column`, `ref_table`,
-  `ref_column`). Alternative to `rels_path` for passing relationships
-  inline. Takes precedence over `rels_path`.
+  A list with `primary_keys` (named list: table → column, or a character
+  vector of columns for a composite key) and `foreign_keys` (list of
+  lists with `table`, `column`, `ref_table`, `ref_column`). Alternative
+  to `rels_path` for passing relationships inline. Takes precedence over
+  `rels_path`.
 
 - colors:
 

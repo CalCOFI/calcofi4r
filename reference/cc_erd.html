@@ -39,7 +39,7 @@ and spatial are included in the diagram."><meta property="og:image" content="htt
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.24.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.24.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -128,7 +128,8 @@ structures without relationship lines. Ignored when <code>rels</code> is provide
 
 
 <dt id="arg-rels">rels<a class="anchor" aria-label="anchor" href="#arg-rels"></a></dt>
-<dd><p>A list with <code>primary_keys</code> (named list: table → column) and
+<dd><p>A list with <code>primary_keys</code> (named list: table → column, or a character
+vector of columns for a composite key) and
 <code>foreign_keys</code> (list of lists with <code>table</code>, <code>column</code>, <code>ref_table</code>,
 <code>ref_column</code>). Alternative to <code>rels_path</code> for passing relationships
 inline. Takes precedence over <code>rels_path</code>.</p></dd>
