@@ -12,7 +12,8 @@ cc_list_versions()
 ## Value
 
 Tibble with columns: version, release_date, tables, total_rows, size_mb,
-is_latest
+is_latest, doi (NA until Zenodo mints one) and consolidated; always
+present, whatever the manifest carries
 
 ## Examples
 

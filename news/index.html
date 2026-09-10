@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.24.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.24.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,13 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.24.2" id="calcofi4r-1242">calcofi4r 1.24.2<a class="anchor" aria-label="anchor" href="#calcofi4r-1242"></a></h2>
+<ul><li>
+<code><a href="../reference/cc_catalog.html">cc_catalog()</a></code> resolves <code>"latest"</code> through <code>CALCOFI_RELEASE_VERSION</code> and reads the catalog under <code>CALCOFI_RELEASE_PREFIX</code> like every other resolver (it still hardcoded <code>ducklake/releases</code>, so the README gate of the first staging run with <code>package_examples</code> 404’d on the release it was testing). Under an override prefix a version that is not there — a pinned historical release such as the README’s <code>cc_get_db("v2026.08.25")</code> — is read from the promoted prefix.</li>
+<li>
+<code><a href="../reference/cc_list_versions.html">cc_list_versions()</a></code> always returns its documented <code>doi</code> and <code>consolidated</code> columns (NA / FALSE when the manifest lacks them, as a staging bucket’s does), so <code>select(…, doi, …)</code> never errors.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.24.1" id="calcofi4r-1241">calcofi4r 1.24.1<a class="anchor" aria-label="anchor" href="#calcofi4r-1241"></a></h2>
 <ul><li>
