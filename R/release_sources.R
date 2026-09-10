@@ -209,10 +209,19 @@ cc_read_parquet_sql <- function(src, paths = NULL, prefer_single_file = FALSE) {
 #' @export
 cc_catalog <- function(version = "latest",
                        base_https = "https://storage.googleapis.com/calcofi-db") {
-  if (identical(version, "latest"))
-    version <- trimws(readLines(glue::glue("{base_https}/ducklake/releases/latest.txt"), warn = FALSE)[1])
-  jsonlite::fromJSON(glue::glue("{base_https}/ducklake/releases/{version}/catalog.json"),
-                     simplifyVector = FALSE)
+  # "latest" honours CALCOFI_RELEASE_VERSION and the prefix honours CALCOFI_RELEASE_PREFIX
+  # (the release pipeline's staging run); this function hardcoded ducklake/releases until
+  # 1.24.2, so the README gate 404'd on the staging release it was meant to test.
+  version <- .cc_resolve_version(version)
+  prefix  <- .cc_release_prefix()
+  url     <- glue::glue("{base_https}/{prefix}/{version}/catalog.json")
+  if (identical(prefix, "ducklake/releases"))
+    return(jsonlite::fromJSON(url, simplifyVector = FALSE))
+  # under an override prefix only the release under test exists; a pinned historical
+  # version (README: cc_get_db("v2026.08.25")) still lives on the promoted prefix
+  tryCatch(jsonlite::fromJSON(url, simplifyVector = FALSE), error = function(e)
+    jsonlite::fromJSON(glue::glue("{base_https}/ducklake/releases/{version}/catalog.json"),
+                       simplifyVector = FALSE))
 }
 
 # a catalog's tables as a list of records, whether it was read with

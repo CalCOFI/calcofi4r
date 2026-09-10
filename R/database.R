@@ -320,7 +320,8 @@ cc_get_db <- function(
 #' Lists all available frozen CalCOFI database releases by reading
 #' the versions manifest from the public GCS bucket.
 #'
-#' @return Tibble with columns: version, release_date, tables, total_rows, size_mb, is_latest
+#' @return Tibble with columns: version, release_date, tables, total_rows, size_mb, is_latest,
+#'   doi (NA until Zenodo mints one) and consolidated; always present, whatever the manifest carries
 #'
 #' @export
 #' @concept database
@@ -379,6 +380,11 @@ cc_list_versions <- function() {
         size_mb      = numeric(),
         is_latest    = logical())
     }
+    # the documented columns are always present: a staging bucket's versions.json (the
+    # release pipeline's CALCOFI_RELEASE_PREFIX override) carries no `doi`, and a promoted
+    # release has one only once Zenodo has minted it
+    if (!"doi" %in% names(result))          result$doi          <- NA_character_
+    if (!"consolidated" %in% names(result)) result$consolidated <- FALSE
     result |> dplyr::arrange(dplyr::desc(version))
 
   }, error = function(e) {

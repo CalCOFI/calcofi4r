@@ -1,3 +1,13 @@
+# calcofi4r 1.24.2
+
+- `cc_catalog()` resolves `"latest"` through `CALCOFI_RELEASE_VERSION` and reads the catalog under
+  `CALCOFI_RELEASE_PREFIX` like every other resolver (it still hardcoded `ducklake/releases`, so the
+  README gate of the first staging run with `package_examples` 404'd on the release it was testing).
+  Under an override prefix a version that is not there — a pinned historical release such as the
+  README's `cc_get_db("v2026.08.25")` — is read from the promoted prefix.
+- `cc_list_versions()` always returns its documented `doi` and `consolidated` columns (NA / FALSE
+  when the manifest lacks them, as a staging bucket's does), so `select(…, doi, …)` never errors.
+
 # calcofi4r 1.24.1
 
 - `cc_erd()` accepts a composite primary key (a character vector in `rels$primary_keys`), which

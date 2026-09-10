@@ -7,7 +7,8 @@
 cc_list_versions()
 }
 \value{
-Tibble with columns: version, release_date, tables, total_rows, size_mb, is_latest
+Tibble with columns: version, release_date, tables, total_rows, size_mb, is_latest,
+doi (NA until Zenodo mints one) and consolidated; always present, whatever the manifest carries
 }
 \description{
 Lists all available frozen CalCOFI database releases by reading
