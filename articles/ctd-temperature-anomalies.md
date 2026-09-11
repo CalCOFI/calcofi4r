@@ -116,7 +116,7 @@ clim <- cc_climatology(
 attr(clim, "baseline")
 #> [1] 1993 2013
 nrow(clim)
-#> [1] 21247
+#> [1] 21229
 ```
 
 [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
@@ -160,9 +160,9 @@ temp_all |>
 #> # A tibble: 3 × 2
 #>   band       n
 #>   <fct>  <int>
-#> 1 <24   690945
+#> 1 <24   691157
 #> 2 24-26      1
-#> 3 >=35      18
+#> 3 >=35       1
 ```
 
 So a regional ceiling well inside that gap removes every artifact and
@@ -215,7 +215,7 @@ anom <- cc_anomaly(sec, clim_screened, sta)
 round(100 * mean(!is.na(anom$anomaly)))   # % of this section with a baseline
 #> [1] 59
 range(anom$anomaly, na.rm = TRUE)
-#> [1] -1.411423  4.709667
+#> [1] -1.900097  4.302867
 ```
 
 ``` r
@@ -300,14 +300,14 @@ series <- anom_summer |>
 
 head(series)
 #> # A tibble: 6 × 4
-#>      yr layer      anomaly     n
-#>   <int> <fct>        <dbl> <int>
-#> 1  2000 0-50 m     0.695     717
-#> 2  2000 50-100 m  -0.00537   430
-#> 3  2000 100-200 m -0.0791    733
-#> 4  2000 200-500 m -0.0161   1681
-#> 5  2001 0-50 m     0.576     806
-#> 6  2001 50-100 m   0.00355   486
+#>      yr layer     anomaly     n
+#>   <int> <fct>       <dbl> <int>
+#> 1  2000 0-50 m     0.635    717
+#> 2  2000 50-100 m  -0.103    429
+#> 3  2000 100-200 m -0.169    733
+#> 4  2000 200-500 m -0.0667  1681
+#> 5  2001 0-50 m     0.479    798
+#> 6  2001 50-100 m  -0.117    483
 ```
 
 A sanity check before reading anything into it: the baseline years must
@@ -365,7 +365,7 @@ comparison <- series |>
 
 summary(abs(comparison$difference))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#> 0.04551 0.08223 0.10835 0.19294 0.30483 0.58528
+#> 0.02664 0.06869 0.09357 0.18018 0.29571 0.58528
 ```
 
 ## Reading it honestly

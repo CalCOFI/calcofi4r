@@ -44,20 +44,20 @@ The package provides convenience functions for common operations:
 
 # list available versions
 cc_list_versions()
-#> # A tibble: 31 × 9
+#> # A tibble: 32 × 9
 #>    version     release_date tables total_rows size_mb consolidated doi          
 #>    <chr>       <chr>         <int>      <int>   <dbl> <lgl>        <chr>        
-#>  1 v2026.09.10 2026-09-11       23  356635055   2462. FALSE        NA           
-#>  2 v2026.09.06 2026-09-06       23  348657010   2350. FALSE        10.5281/zeno…
-#>  3 v2026.09.04 2026-09-04       23  348657010   2351. FALSE        10.5281/zeno…
-#>  4 v2026.08.25 2026-08-25       18  320260205   1998. TRUE         NA           
-#>  5 v2026.08.14 2026-08-14       18  307537056   1930. TRUE         NA           
-#>  6 v2026.08.11 2026-08-11       18  323912311   2016. FALSE        NA           
-#>  7 v2026.08.10 2026-08-11       18  323912364   2017. FALSE        NA           
-#>  8 v2026.08.08 2026-08-08       18  309122838   1947  FALSE        NA           
-#>  9 v2026.08.07 2026-08-07       18  323733662   2024. FALSE        NA           
-#> 10 v2026.08.06 2026-08-06       18  255137845   1636. FALSE        NA           
-#> # ℹ 21 more rows
+#>  1 v2026.09.11 2026-09-11       23  362124968   2497. FALSE        NA           
+#>  2 v2026.09.10 2026-09-11       23  356635055   2462. FALSE        10.5281/zeno…
+#>  3 v2026.09.06 2026-09-06       23  348657010   2350. FALSE        10.5281/zeno…
+#>  4 v2026.09.04 2026-09-04       23  348657010   2351. FALSE        10.5281/zeno…
+#>  5 v2026.08.25 2026-08-25       18  320260205   1998. TRUE         NA           
+#>  6 v2026.08.14 2026-08-14       18  307537056   1930. TRUE         NA           
+#>  7 v2026.08.11 2026-08-11       18  323912311   2016. FALSE        NA           
+#>  8 v2026.08.10 2026-08-11       18  323912364   2017. FALSE        NA           
+#>  9 v2026.08.08 2026-08-08       18  309122838   1947  FALSE        NA           
+#> 10 v2026.08.07 2026-08-07       18  323733662   2024. FALSE        NA           
+#> # ℹ 22 more rows
 #> # ℹ 2 more variables: retired <df[,3]>, is_latest <lgl>
 
 # list tables (con = reuses the connection opened above)
@@ -104,7 +104,7 @@ cc_list_measurement_types(con = con) |> head(10)
 #>  3 alkalinity          Total alkalinity                                    umol…
 #>  4 alkalinity_rep1     Total alkalinity replicate 1                        umol…
 #>  5 alkalinity_rep2     Total alkalinity replicate 2                        umol…
-#>  6 ammonia             Ammonia concentration (QC'd)                        umol…
+#>  6 ammonia             Ammonium concentration (QC'd; the source column is… umol…
 #>  7 anchovy_eggs        Northern anchovy egg count                          count
 #>  8 atm_pressure_mb     Atmospheric pressure (ship level)                   mb   
 #>  9 atm_pressure_slc_mb Atmospheric pressure (sea-level corrected)          mb   
@@ -139,12 +139,12 @@ head(ichthyo_sample)
 #> # A tibble: 6 × 18
 #>     obs_id realm dataset_key   sample_key grid_key cruise_key latitude longitude
 #>      <dbl> <chr> <chr>         <chr>      <chr>    <chr>         <dbl>     <dbl>
-#> 1 30679505 bio   swfsc_ichthyo swfsc_ich… NA       2003-10-3…     9.41     -99.2
-#> 2 30671392 bio   swfsc_ichthyo swfsc_ich… NA       2000-10-3…     7.74     -82.1
-#> 3 30674710 bio   swfsc_ichthyo swfsc_ich… NA       2002-10-3…    28.0     -178. 
-#> 4 30261483 bio   swfsc_ichthyo swfsc_ich… st20-ln… 1965-07-3…    26.6     -113. 
-#> 5 30372870 bio   swfsc_ichthyo swfsc_ich… st40-ln… 1966-08-3…    26.9     -114. 
-#> 6 30287973 bio   swfsc_ichthyo swfsc_ich… st30-ln… 1969-07-3…    32.8     -118. 
+#> 1 31085003 bio   swfsc_ichthyo swfsc_ich… NA       2003-10-3…     9.41     -99.2
+#> 2 31076890 bio   swfsc_ichthyo swfsc_ich… NA       2000-10-3…     7.74     -82.1
+#> 3 31080208 bio   swfsc_ichthyo swfsc_ich… NA       2002-10-3…    28.0     -178. 
+#> 4 30666981 bio   swfsc_ichthyo swfsc_ich… st20-ln… 1965-07-3…    26.6     -113. 
+#> 5 30778368 bio   swfsc_ichthyo swfsc_ich… st40-ln… 1966-08-3…    26.9     -114. 
+#> 6 30693471 bio   swfsc_ichthyo swfsc_ich… st30-ln… 1969-07-3…    32.8     -118. 
 #> # ℹ 10 more variables: datetime <dttm>, depth_min_m <dbl>, depth_max_m <dbl>,
 #> #   taxon_key <chr>, life_stage <chr>, measurement_type <chr>,
 #> #   measurement_value <dbl>, measurement_qual <chr>, measurement_prec <dbl>,
@@ -192,12 +192,12 @@ tibble(
 #> # A tibble: 20 × 2
 #>    table                  rows
 #>    <chr>                 <dbl>
-#>  1 obs                30691260
-#>  2 obs_env            29432595
+#>  1 obs                31096758
+#>  2 obs_env            29838093
 #>  3 sample              1469151
 #>  4 obs_bio             1258665
 #>  5 sample_spatial       929632
-#>  6 climatology          714882
+#>  6 climatology          736916
 #>  7 sample_measurement   589603
 #>  8 obs_attribute        458184
 #>  9 spatial_attribute    148461
@@ -239,12 +239,12 @@ d_temp <- dbGetQuery(con, "
 
 head(d_temp)
 #>         lon      lat            datetime depth_m temperature
-#> 1 -122.8167 32.93333 1949-09-17 21:30:00      10       18.47
-#> 2 -108.5000 24.08333 1956-02-07 13:42:00       0       19.99
-#> 3 -108.5000 24.08333 1956-02-07 13:42:00      10       20.01
-#> 4 -108.9833 23.91667 1956-02-07 18:24:00       0       19.76
-#> 5 -108.9833 23.91667 1956-02-07 18:24:00       9       19.74
-#> 6 -108.9833 23.91667 1956-02-07 18:24:00      10       19.73
+#> 1 -118.2917 28.60833 1969-09-21 00:37:00       0       19.90
+#> 2 -118.2917 28.60833 1969-09-21 00:37:00       1       19.90
+#> 3 -118.2917 28.60833 1969-09-21 00:37:00      10       19.90
+#> 4 -118.9417 28.27500 1969-09-20 17:51:00       0       20.40
+#> 5 -118.9417 28.27500 1969-09-20 17:51:00       1       20.40
+#> 6 -118.9417 28.27500 1969-09-20 17:51:00      10       20.39
 nrow(d_temp)
 #> [1] 93985
 ```
@@ -514,7 +514,7 @@ dbGetQuery(con, "
 #> 3                                                                   Total alkalinity
 #> 4                                                       Total alkalinity replicate 1
 #> 5                                                       Total alkalinity replicate 2
-#> 6                                                       Ammonia concentration (QC'd)
+#> 6                      Ammonium concentration (QC'd; the source column is named NH3)
 #> 7                                                         Northern anchovy egg count
 #> 8                                                  Atmospheric pressure (ship level)
 #> 9                                         Atmospheric pressure (sea-level corrected)
