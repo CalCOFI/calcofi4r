@@ -148,7 +148,7 @@ or guess whether a <code>license_url</code> is required.</p>
 <span></span>
 <span><span class="va">REL</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cc_latest_version.html">cc_latest_version</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/cc_cite.html">cc_cite</a></span><span class="op">(</span>version <span class="op">=</span> <span class="va">REL</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1] "CalCOFI (2026). CalCOFI Integrated Database, release v2026.09.11 [Data set]. Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife. https://calcofi.io/db-schema/?v=v2026.09.11\nPage: https://calcofi.io/datasets/release/"                                                                                                                                                                                                                                                                                                                                                                                                                           </span></span>
+<span><span class="co">#&gt;  [1] "CalCOFI (2026). CalCOFI Integrated Database, release v2026.09.11 [Data set]. Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife. https://doi.org/10.5281/zenodo.22714951\nPage: https://calcofi.io/datasets/release/"                                                                                                                                                                                                                                                                                                                                                                                                                               </span></span>
 <span><span class="co">#&gt;  [2] "CalCOFI. (2023). CalCOFI Bottle Database 194903-202105. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_bottle/"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             </span></span>
 <span><span class="co">#&gt;  [3] "CalCOFI. (2023). CalCOFI CTD Cast Files. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_ctd-cast/"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </span></span>
 <span><span class="co">#&gt;  [4] "Keeling, C.D.; Lueker, T.J.; Emanuele, G.; Dickson, A.G.; Martz, T.R.; Wolfe, W.H.; Mau, A. (2025). Discrete profile dissolved inorganic carbon, total alkalinity, water temperature and salinity measurements for CalCOFI (NCEI Accession 0301029). NOAA NCEI. https://doi.org/10.25921/3w9f-jd72\nLicense: CC-BY-4.0\nDOI: https://doi.org/10.25921/3w9f-jd72\nPage: https://calcofi.io/datasets/calcofi_dic/"                                                                                                                                                                                                                                                                                     </span></span>
@@ -180,9 +180,9 @@ dataset, in alphabetical <code>dataset_key</code> order by default.</p>
 everything, and never whichever ones you remember typing.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/cc_cite.html">cc_cite</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"calcofi_bottle"</span>, <span class="st">"calcofi_ctd-cast"</span><span class="op">)</span>, version <span class="op">=</span> <span class="va">REL</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "CalCOFI (2026). CalCOFI Integrated Database, release v2026.09.11 [Data set]. Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife. https://calcofi.io/db-schema/?v=v2026.09.11\nPage: https://calcofi.io/datasets/release/"</span></span>
-<span><span class="co">#&gt; [2] "CalCOFI. (2023). CalCOFI Bottle Database 194903-202105. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_bottle/"                                                                                                                                                  </span></span>
-<span><span class="co">#&gt; [3] "CalCOFI. (2023). CalCOFI CTD Cast Files. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_ctd-cast/"                                                                                                                                                               </span></span>
+<span><span class="co">#&gt; [1] "CalCOFI (2026). CalCOFI Integrated Database, release v2026.09.11 [Data set]. Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife. https://doi.org/10.5281/zenodo.22714951\nPage: https://calcofi.io/datasets/release/"</span></span>
+<span><span class="co">#&gt; [2] "CalCOFI. (2023). CalCOFI Bottle Database 194903-202105. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_bottle/"                                                                                                                                              </span></span>
+<span><span class="co">#&gt; [3] "CalCOFI. (2023). CalCOFI CTD Cast Files. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_ctd-cast/"                                                                                                                                                           </span></span>
 <span><span class="co">#&gt; attr(,"source")</span></span>
 <span><span class="co">#&gt; [1] "release"</span></span></code></pre></div>
 <p>Better still, hand <code><a href="../reference/cc_cite.html">cc_cite()</a></code> the <strong>query result
@@ -201,8 +201,8 @@ order they first appear:</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">500</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/cc_cite.html">cc_cite</a></span><span class="op">(</span><span class="va">d</span>, version <span class="op">=</span> <span class="va">REL</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "CalCOFI (2026). CalCOFI Integrated Database, release v2026.09.11 [Data set]. Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife. https://calcofi.io/db-schema/?v=v2026.09.11\nPage: https://calcofi.io/datasets/release/"</span></span>
-<span><span class="co">#&gt; [2] "CalCOFI. (2023). CalCOFI Bottle Database 194903-202105. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_bottle/"                                                                                                                                                  </span></span>
+<span><span class="co">#&gt; [1] "CalCOFI (2026). CalCOFI Integrated Database, release v2026.09.11 [Data set]. Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife. https://doi.org/10.5281/zenodo.22714951\nPage: https://calcofi.io/datasets/release/"</span></span>
+<span><span class="co">#&gt; [2] "CalCOFI. (2023). CalCOFI Bottle Database 194903-202105. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_bottle/"                                                                                                                                              </span></span>
 <span><span class="co">#&gt; attr(,"source")</span></span>
 <span><span class="co">#&gt; [1] "release"</span></span></code></pre></div>
 <p>An unrecognized <code>dataset_key</code> is an error naming it,
@@ -227,7 +227,7 @@ directly.</p>
 title = {CalCOFI Integrated Database, release v2026.09.11}, author =
 {CalCOFI}, year = {2026}, publisher = {Scripps Institution of
 Oceanography, NOAA Fisheries, and California Department of Fish and
-Wildlife}, url = {<a href="https://calcofi.io/db-schema/?v=v2026.09.11" class="external-link uri">https://calcofi.io/db-schema/?v=v2026.09.11</a>} }</p>
+Wildlife}, doi = {10.5281/zenodo.22714951}, url = {<a href="https://doi.org/10.5281/zenodo.22714951" class="external-link uri">https://doi.org/10.5281/zenodo.22714951</a>} }</p>
 <p><span class="citation">@misc</span>{calcofi_dic, title = {CalCOFI
 DIC}, howpublished = {Keeling, C.D.; Lueker, T.J.; Emanuele, G.;
 Dickson, A.G.; Martz, T.R.; Wolfe, W.H.; Mau, A. (2025). Discrete
@@ -238,7 +238,7 @@ NCEI. <a href="https://doi.org/10.25921/3w9f-jd72" class="external-link uri">htt
 CC-BY-4.0} }</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu"><a href="../reference/cc_cite.html">cc_cite</a></span><span class="op">(</span><span class="st">"calcofi_dic"</span>, version <span class="op">=</span> <span class="va">REL</span>, format <span class="op">=</span> <span class="st">"csl"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt; List of 7</span></span>
+<span><span class="co">#&gt; List of 8</span></span>
 <span><span class="co">#&gt;  $ id       : chr "calcofi_release_v2026_09_11"</span></span>
 <span><span class="co">#&gt;  $ type     : chr "dataset"</span></span>
 <span><span class="co">#&gt;  $ title    : chr "CalCOFI Integrated Database, release v2026.09.11"</span></span>
@@ -250,7 +250,8 @@ CC-BY-4.0} }</p>
 <span><span class="co">#&gt;   .. ..$ :List of 1</span></span>
 <span><span class="co">#&gt;   .. .. ..$ : int 2026</span></span>
 <span><span class="co">#&gt;  $ publisher: chr "Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife"</span></span>
-<span><span class="co">#&gt;  $ URL      : chr "https://calcofi.io/db-schema/?v=v2026.09.11"</span></span></code></pre></div>
+<span><span class="co">#&gt;  $ DOI      : chr "10.5281/zenodo.22714951"</span></span>
+<span><span class="co">#&gt;  $ URL      : chr "https://doi.org/10.5281/zenodo.22714951"</span></span></code></pre></div>
 <p><code>format = "bibtex"</code> builds every entry
 <strong>offline</strong>, from the fields already on the release’s
 <code>dataset</code> table and in its <code>catalog.json</code> —
