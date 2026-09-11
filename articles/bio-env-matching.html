@@ -26,8 +26,11 @@
 <link rel="stylesheet" href="https://calcofi.io/brand/v2/fonts.css">
 <link rel="stylesheet" href="https://calcofi.io/brand/v2/theme.css">
 <script defer src="https://calcofi.io/brand/v2/theme.js"></script><script>(function(){var r=document.documentElement,last=r.getAttribute("data-bs-theme");new MutationObserver(function(){var t=r.getAttribute("data-bs-theme");if(t===last||(t!=="dark"&&t!=="light"))return;last=t;if(window.ccTheme&&ccTheme.get()!==t)ccTheme.set(t)}).observe(r,{attributes:true,attributeFilter:["data-bs-theme"]})})();</script><style>
-  .navbar .cc-home .cc-logo{display:inline-block;width:118px;height:28px;vertical-align:middle;background:url(https://calcofi.io/brand/v2/logo_calcofi_h.svg) left center/contain no-repeat}
-  [data-bs-theme=light] .navbar .cc-home .cc-logo{background-image:url(https://calcofi.io/brand/v2/logo_calcofi_h_light.svg)}
+  /* the lockup (before_title) at the app header's 28 px; the ground it shows is pkgdown's data-bs-theme */
+  .navbar .cc-home{display:inline-flex;align-items:center;margin-right:.75rem;text-decoration:none}
+  .navbar .cc-home img{height:28px;width:auto}
+  .navbar .cc-home .cc-logo-dark,.navbar .cc-home .cc-logo-light{display:none}
+  [data-bs-theme=dark] .navbar .cc-home .cc-logo-dark,[data-bs-theme=light] .navbar .cc-home .cc-logo-light{display:block}
   /* the light-switch button wears the brand pair (theme.css exports the masks): the sun while
      the page is dark, the moon-in-sun while it is light — what a click moves toward, as on
      calcofi4py — in place of Font Awesome's current-mode sun/moon. The menu's own
@@ -52,6 +55,7 @@
 
 
     <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
+    <a class="external-link cc-home" href="https://calcofi.io" aria-label="CalCOFI.io home"><img class="cc-logo-dark" src="https://calcofi.io/brand/v2/logo_calcofi_h.svg" alt="CalCOFI.io"><img class="cc-logo-light" src="https://calcofi.io/brand/v2/logo_calcofi_h_light.svg" alt="CalCOFI.io"></a>
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
@@ -64,7 +68,6 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="external-link nav-link cc-home" href="https://calcofi.io" aria-label="CalCOFI.io home"><span class="cc cc-logo"></span></a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/calcofi4r.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
@@ -440,7 +443,7 @@ contract:</p>
 <span><span class="co">#&gt;   ..$ max_time_hr: num 72</span></span>
 <span><span class="co">#&gt;   ..$ join_method: chr "nearest_time"</span></span>
 <span><span class="co">#&gt;  $ source_urls    : chr [1:97] "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_bio/de0b227397e7252879a9cc7b/obs_bio.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=air_temp_c/c9a612291a598664c"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity_rep1/bbf843012d36"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity/a000f32c034287a61"| __truncated__ ...</span></span>
-<span><span class="co">#&gt;  $ generated_at   : chr "2026-09-10 23:00:00 UTC"</span></span>
+<span><span class="co">#&gt;  $ generated_at   : chr "2026-09-11 09:12:54 UTC"</span></span>
 <span><span class="co">#&gt;  $ n_rows         : int 310</span></span></code></pre></div>
 <p><code>meta$release_version</code> pins which release the result came
 from (v2026.09.10 here). <code>meta$source_urls</code> is the full list
