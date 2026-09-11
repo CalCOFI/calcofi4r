@@ -31,6 +31,13 @@
   .navbar .cc-home img{height:28px;width:auto}
   .navbar .cc-home .cc-logo-dark,.navbar .cc-home .cc-logo-light{display:none}
   [data-bs-theme=dark] .navbar .cc-home .cc-logo-dark,[data-bs-theme=light] .navbar .cc-home .cc-logo-light{display:block}
+  /* the bar spans the window, as every calcofi.io header does: the lockup at the left edge, the
+     links at the right, instead of both squeezed into the 1320 px content column; the page
+     below keeps pkgdown's centred column. From 1200 px the nav labels stay on one line ("Get
+     started"); between the collapse (992 px) and 1200 px they may wrap, and the search narrows. */
+  .navbar>.container{max-width:none;padding-left:1.25rem;padding-right:1.25rem}
+  @media (min-width:1200px){.navbar .nav-link{white-space:nowrap}}
+  @media (min-width:992px) and (max-width:1199.98px){.navbar input[type=search]{width:6rem}.navbar .navbar-nav .nav-link{padding-left:.35rem;padding-right:.35rem}}
   /* the light-switch button wears the brand pair (theme.css exports the masks): the sun while
      the page is dark, the moon-in-sun while it is light — what a click moves toward, as on
      calcofi4py — in place of Font Awesome's current-mode sun/moon. The menu's own
@@ -443,7 +450,7 @@ contract:</p>
 <span><span class="co">#&gt;   ..$ max_time_hr: num 72</span></span>
 <span><span class="co">#&gt;   ..$ join_method: chr "nearest_time"</span></span>
 <span><span class="co">#&gt;  $ source_urls    : chr [1:97] "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_bio/de0b227397e7252879a9cc7b/obs_bio.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=air_temp_c/c9a612291a598664c"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity_rep1/bbf843012d36"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity/a000f32c034287a61"| __truncated__ ...</span></span>
-<span><span class="co">#&gt;  $ generated_at   : chr "2026-09-11 09:12:54 UTC"</span></span>
+<span><span class="co">#&gt;  $ generated_at   : chr "2026-09-11 09:39:32 UTC"</span></span>
 <span><span class="co">#&gt;  $ n_rows         : int 310</span></span></code></pre></div>
 <p><code>meta$release_version</code> pins which release the result came
 from (v2026.09.10 here). <code>meta$source_urls</code> is the full list
