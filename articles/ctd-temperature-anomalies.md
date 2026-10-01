@@ -78,11 +78,11 @@ head(sec)
 #> # A tibble: 6 × 6
 #>   cruise_key     sta dist_km depth_m variable        value
 #>   <chr>        <dbl>   <dbl>   <dbl> <chr>           <dbl>
-#> 1 2026-07-3322    25       0       0 temperature_ave  20.0
+#> 1 2026-07-3322    25       0       0 temperature_ave  20.1
 #> 2 2026-07-3322    25       0      10 temperature_ave  17.1
 #> 3 2026-07-3322    25       0      20 temperature_ave  13.5
-#> 4 2026-07-3322    25       0      30 temperature_ave  11.3
-#> 5 2026-07-3322    25       0      40 temperature_ave  11.2
+#> 4 2026-07-3322    25       0      30 temperature_ave  11.4
+#> 5 2026-07-3322    25       0      40 temperature_ave  11.3
 #> 6 2026-07-3322    25       0      50 temperature_ave  11.1
 ```
 
@@ -103,7 +103,7 @@ lin <- cc_transect_stations(con, LINE, cruise_recent, x = "line")
 
 c(occupied_km = max(occ$dist_km), along_line_km = max(lin$dist_km))
 #>   occupied_km along_line_km 
-#>      468.7072      470.4155
+#>      690.5248      692.0594
 ```
 
 ## The baseline, and a filter before it
@@ -160,7 +160,7 @@ temp_all |>
 #> # A tibble: 3 × 2
 #>   band       n
 #>   <fct>  <int>
-#> 1 <24   691157
+#> 1 <24   694019
 #> 2 24-26      1
 #> 3 >=35       1
 ```
@@ -213,9 +213,9 @@ never measured.
 anom <- cc_anomaly(sec, clim_screened, sta)
 
 round(100 * mean(!is.na(anom$anomaly)))   # % of this section with a baseline
-#> [1] 59
+#> [1] 69
 range(anom$anomaly, na.rm = TRUE)
-#> [1] -1.900097  4.302867
+#> [1] -2.395349  4.302867
 ```
 
 ``` r
@@ -249,8 +249,8 @@ shape a Plotly or ODV-style section takes directly.
 m <- cc_transect_matrix(anom, value = "anomaly")
 str(m, max.level = 1)
 #> List of 4
-#>  $ x  : num [1:11] 0 11.3 62.7 99.8 135.6 ...
-#>  $ sta: num [1:11] 25 30 35 40 45 50 55 60 70 80 ...
+#>  $ x  : num [1:14] 0 11.3 62.7 99.8 135.6 ...
+#>  $ sta: num [1:14] 25 30 35 40 45 50 55 60 70 80 ...
 #>  $ y  : num [1:51] 0 10 20 30 40 50 60 70 80 90 ...
 #>  $ z  :List of 51
 ```
@@ -365,7 +365,7 @@ comparison <- series |>
 
 summary(abs(comparison$difference))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#> 0.02664 0.06869 0.09357 0.18018 0.29571 0.58528
+#> 0.02664 0.06931 0.09357 0.18034 0.29571 0.58528
 ```
 
 ## Reading it honestly

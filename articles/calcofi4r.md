@@ -44,20 +44,20 @@ The package provides convenience functions for common operations:
 
 # list available versions
 cc_list_versions()
-#> # A tibble: 32 × 9
+#> # A tibble: 33 × 9
 #>    version     release_date tables total_rows size_mb consolidated doi          
 #>    <chr>       <chr>         <int>      <int>   <dbl> <lgl>        <chr>        
-#>  1 v2026.09.11 2026-09-11       23  362124968   2497. FALSE        NA           
-#>  2 v2026.09.10 2026-09-11       23  356635055   2462. FALSE        10.5281/zeno…
-#>  3 v2026.09.06 2026-09-06       23  348657010   2350. FALSE        10.5281/zeno…
-#>  4 v2026.09.04 2026-09-04       23  348657010   2351. FALSE        10.5281/zeno…
-#>  5 v2026.08.25 2026-08-25       18  320260205   1998. TRUE         NA           
-#>  6 v2026.08.14 2026-08-14       18  307537056   1930. TRUE         NA           
-#>  7 v2026.08.11 2026-08-11       18  323912311   2016. FALSE        NA           
-#>  8 v2026.08.10 2026-08-11       18  323912364   2017. FALSE        NA           
-#>  9 v2026.08.08 2026-08-08       18  309122838   1947  FALSE        NA           
-#> 10 v2026.08.07 2026-08-07       18  323733662   2024. FALSE        NA           
-#> # ℹ 22 more rows
+#>  1 v2026.10.01 2026-10-01       23  375505833   2603. FALSE        NA           
+#>  2 v2026.09.11 2026-09-11       23  362124968   2497. FALSE        10.5281/zeno…
+#>  3 v2026.09.10 2026-09-11       23  356635055   2462. FALSE        10.5281/zeno…
+#>  4 v2026.09.06 2026-09-06       23  348657010   2350. FALSE        10.5281/zeno…
+#>  5 v2026.09.04 2026-09-04       23  348657010   2351. FALSE        10.5281/zeno…
+#>  6 v2026.08.25 2026-08-25       18  320260205   1998. TRUE         NA           
+#>  7 v2026.08.14 2026-08-14       18  307537056   1930. TRUE         NA           
+#>  8 v2026.08.11 2026-08-11       18  323912311   2016. FALSE        NA           
+#>  9 v2026.08.10 2026-08-11       18  323912364   2017. FALSE        NA           
+#> 10 v2026.08.08 2026-08-08       18  309122838   1947  FALSE        NA           
+#> # ℹ 23 more rows
 #> # ℹ 2 more variables: retired <df[,3]>, is_latest <lgl>
 
 # list tables (con = reuses the connection opened above)
@@ -139,12 +139,12 @@ head(ichthyo_sample)
 #> # A tibble: 6 × 18
 #>     obs_id realm dataset_key   sample_key grid_key cruise_key latitude longitude
 #>      <dbl> <chr> <chr>         <chr>      <chr>    <chr>         <dbl>     <dbl>
-#> 1 31085003 bio   swfsc_ichthyo swfsc_ich… NA       2003-10-3…     9.41     -99.2
-#> 2 31076890 bio   swfsc_ichthyo swfsc_ich… NA       2000-10-3…     7.74     -82.1
-#> 3 31080208 bio   swfsc_ichthyo swfsc_ich… NA       2002-10-3…    28.0     -178. 
-#> 4 30666981 bio   swfsc_ichthyo swfsc_ich… st20-ln… 1965-07-3…    26.6     -113. 
-#> 5 30778368 bio   swfsc_ichthyo swfsc_ich… st40-ln… 1966-08-3…    26.9     -114. 
-#> 6 30693471 bio   swfsc_ichthyo swfsc_ich… st30-ln… 1969-07-3…    32.8     -118. 
+#> 1 33127694 bio   swfsc_ichthyo swfsc_ich… NA       2003-10-3…     9.41     -99.2
+#> 2 33119581 bio   swfsc_ichthyo swfsc_ich… NA       2000-10-3…     7.74     -82.1
+#> 3 33122899 bio   swfsc_ichthyo swfsc_ich… NA       2002-10-3…    28.0     -178. 
+#> 4 32709672 bio   swfsc_ichthyo swfsc_ich… st20-ln… 1965-07-3…    26.6     -113. 
+#> 5 32821059 bio   swfsc_ichthyo swfsc_ich… st40-ln… 1966-08-3…    26.9     -114. 
+#> 6 32736162 bio   swfsc_ichthyo swfsc_ich… st30-ln… 1969-07-3…    32.8     -118. 
 #> # ℹ 10 more variables: datetime <dttm>, depth_min_m <dbl>, depth_max_m <dbl>,
 #> #   taxon_key <chr>, life_stage <chr>, measurement_type <chr>,
 #> #   measurement_value <dbl>, measurement_qual <chr>, measurement_prec <dbl>,
@@ -192,25 +192,25 @@ tibble(
 #> # A tibble: 20 × 2
 #>    table                  rows
 #>    <chr>                 <dbl>
-#>  1 obs                31096758
-#>  2 obs_env            29838093
-#>  3 sample              1469151
-#>  4 obs_bio             1258665
-#>  5 sample_spatial       929632
-#>  6 climatology          736916
-#>  7 sample_measurement   589603
+#>  1 obs                33139449
+#>  2 obs_env            31819982
+#>  3 sample              1469239
+#>  4 obs_bio             1319467
+#>  5 sample_spatial       929664
+#>  6 climatology          821001
+#>  7 sample_measurement   652879
 #>  8 obs_attribute        458184
 #>  9 spatial_attribute    148461
 #> 10 spatial               13206
-#> 11 taxon                  2614
-#> 12 dataset_taxon          1917
+#> 11 taxon                  2623
+#> 12 dataset_taxon          1921
 #> 13 cruise                  842
 #> 14 taxon_group             441
 #> 15 grid                    218
-#> 16 measurement_type        200
+#> 16 measurement_type        211
 #> 17 ship                     49
 #> 18 lookup                   26
-#> 19 dataset                  16
+#> 19 dataset                  17
 #> 20 region                    4
 ```
 
@@ -239,12 +239,12 @@ d_temp <- dbGetQuery(con, "
 
 head(d_temp)
 #>         lon      lat            datetime depth_m temperature
-#> 1 -119.5917 31.77500 1960-05-25 09:18:00       0       13.44
-#> 2 -119.5917 31.77500 1960-05-25 09:18:00       1       13.44
-#> 3 -119.5917 31.77500 1960-05-25 09:18:00      10       13.42
-#> 4 -115.5500 27.71667 1950-02-06 12:36:00      10       14.63
-#> 5 -128.5333 33.31667 1949-04-05 03:36:00      10       14.62
-#> 6 -118.8833 32.13333 1960-05-25 16:36:00       0       14.69
+#> 1 -124.0833 38.83333 1949-03-01 09:30:00       0       10.50
+#> 2 -121.0833 35.25000 1951-09-08 03:54:00       0       14.42
+#> 3 -121.0833 35.25000 1951-09-08 03:54:00       9       14.38
+#> 4 -121.0833 35.25000 1951-09-08 03:54:00      10       14.37
+#> 5 -120.4167 33.73333 1951-09-08 16:12:00       9       13.57
+#> 6 -120.4167 33.73333 1951-09-08 16:12:00      10       13.52
 nrow(d_temp)
 #> [1] 93985
 ```
