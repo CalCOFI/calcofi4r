@@ -5,17 +5,17 @@
 \alias{cc_grid_zones}
 \title{CalCOFI Grid Zones}
 \format{
-A \code{sf} spatial feature set with 6 rows x 9 columns:
+An \code{sf} of 6 rows x 9 columns:
 \describe{
-\item{zone_key}{unique zone key of the form \code{"{sta_pattern}-{sta_shore}"} }
+\item{zone_key}{unique zone key of the form \code{"{sta_shore}-{sta_pattern}"}}
 \item{sta_pattern}{the CalCOFI station pattern; one of: "standard", "extended" or "historical"}
 \item{sta_shore}{the position wrt shore; one of: "nearshore" or "offshore"}
-\item{sta_dpos}{the difference in position: 5 (nearshore), 10 (offshore) or 20 (historical)}
-\item{sta_lin_min}{the minimum value of dissolved \code{sta_lin} from \code{cc_grid}}
-\item{sta_lin_max}{the maximum value of dissolved \code{sta_lin} from \code{cc_grid}}
-\item{sta_pos_min}{the minimum value of dissolved \code{sta_pos} from \code{cc_grid}}
-\item{sta_pos_max}{the maximum value of dissolved \code{sta_pos} from \code{cc_grid}}
-\item{geom}{geometry of dissolved zone from \code{cc_grid} with latitude and longitude in decimal degree geographic coordinates (EPSG:4326)}
+\item{sta_dpos}{the spacing class: 5 (nearshore), 10 (offshore) or 20 (historical)}
+\item{sta_lin_min}{the minimum \code{sta_lin} of the zone's cells}
+\item{sta_lin_max}{the maximum \code{sta_lin} of the zone's cells}
+\item{sta_pos_min}{the minimum \code{sta_pos} of the zone's cells}
+\item{sta_pos_max}{the maximum \code{sta_pos} of the zone's cells}
+\item{geom}{the dissolved zone (EPSG:4326)}
 }
 }
 \source{
@@ -25,9 +25,9 @@ A \code{sf} spatial feature set with 6 rows x 9 columns:
 cc_grid_zones
 }
 \description{
-A set of zones based on dissolving \code{cc_grid} for differentiating position wrt
-the shore (\code{sta_shore}: "nearshore" or "offshore") and station patterns (
-\code{sta_pattern}: "standard", "extended" or "historical").
+The six zones \link{cc_grid} dissolves into by position relative to shore (\code{sta_shore}: "nearshore"
+or "offshore") and station pattern (\code{sta_pattern}: "standard", "extended" or "historical");
+\code{\link[=cc_grid_zones_build]{cc_grid_zones_build()}} of \link{cc_grid}.
 }
 \concept{data}
 \keyword{datasets}

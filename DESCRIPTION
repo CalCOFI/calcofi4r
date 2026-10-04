@@ -1,6 +1,6 @@
 Package: calcofi4r
 Title: CalCOFI R helper functions
-Version: 1.24.2
+Version: 1.25.0
 URL: https://calcofi.io/calcofi4r
 BugReports: https://github.com/calcofi/calcofi4r/issues
 Authors@R: c(
@@ -18,7 +18,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5)
 LazyData: true
 Imports:
     bslib,

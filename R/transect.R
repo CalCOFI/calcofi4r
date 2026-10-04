@@ -77,9 +77,9 @@ cc_transect_stations <- function(
   #     caller may not have loaded (cc_get_db() does not), and silently LOADing
   #     one into someone else's connection is a side effect this has no business
   #     having;
-  #   * the bundled `cc_grid` is a different vintage: its `sta_lin` is a
-  #     TRUNCATED INTEGER (93 for line 93.3, 76 for 76.7), so it cannot be joined
-  #     to the release's decimal lines without inventing a mapping.
+  #   * the bundled `cc_grid` describes one grid and a release another: a release
+  #     through v2026.10.01 carries `cc_grid_v1`, a later one the Voronoi cells,
+  #     and the two share key names whose polygons differ.
   #
   # Deriving from the casts also keeps the geometry self-consistent with the data
   # being plotted, and every station that can appear on a transect necessarily

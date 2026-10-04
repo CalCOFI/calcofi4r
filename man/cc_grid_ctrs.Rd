@@ -3,25 +3,24 @@
 \docType{data}
 \name{cc_grid_ctrs}
 \alias{cc_grid_ctrs}
-\title{CalCOFI Grid Centroids for Extracting Effort}
+\title{CalCOFI grid sites: the station of each cell}
 \format{
-A \code{sf} spatial feature set with
+An \code{sf} of 225 points (EPSG:4326) with the columns of \link{cc_grid} and
 \describe{
-\item{site_key}{site key in the form of "\code{lin},\code{pos}"}
-\item{sta_lin}{alongshore line in CalCOFI coordinate system}
-\item{sta_pos}{offshore position in CalCOFI coordinate system}
-\item{sta_dpos}{difference in position, from 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area)}
-\item{geom}{station latitude and longitude in decimal degree geographic coordinates (SRID 4326)}
+\item{geom}{the site (EPSG:4326)}
 }
 }
 \source{
-\url{https://calcofi.org/sampling-info/station-positions/}
+\href{https://calcofi.org/sampling-info/station-positions}{Station Positions - CalCOFI}
 }
 \usage{
 cc_grid_ctrs
 }
 \description{
-A set of centroids for the grid to calculate effort by station using Voronoi diagram to fetch nearest station, additionally clipped by land (\code{rnaturalearthhires::states10}).
+The site of each \link{cc_grid} cell: the official station position for a station cell (on its line
+by construction), and for a cell kept from the previous grid its labelled (line, station) under
+\code{+proj=calcofi} where the cell holds it, else the previous cell's centre, else a point on the
+cell. The release's \code{grid.geom_ctr}.
 }
 \concept{data}
 \keyword{datasets}
