@@ -52,8 +52,14 @@
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_get_dm.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_ggplot_theme.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_grid.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_grid_build.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_grid_ctrs.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_grid_key.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_grid_land.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_grid_land_prep.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_grid_v1.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_grid_zones.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_grid_zones_build.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_interpolate.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_interpolate_rast.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_is_dark.html</loc></url>
@@ -96,6 +102,7 @@
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_release_notes.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_release_sources.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_release_url.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_station_positions.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_tbl.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_theme.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_tour_enabled.html</loc></url>

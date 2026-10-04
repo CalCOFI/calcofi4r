@@ -1,9 +1,12 @@
 # CalCOFI Grid Zones
 
-A set of zones based on dissolving `cc_grid` for differentiating
-position wrt the shore (`sta_shore`: "nearshore" or "offshore") and
-station patterns ( `sta_pattern`: "standard", "extended" or
-"historical").
+The six zones
+[cc_grid](https://calcofi.io/calcofi4r/reference/cc_grid.md) dissolves
+into by position relative to shore (`sta_shore`: "nearshore" or
+"offshore") and station pattern (`sta_pattern`: "standard", "extended"
+or "historical");
+[`cc_grid_zones_build()`](https://calcofi.io/calcofi4r/reference/cc_grid_zones_build.md)
+of [cc_grid](https://calcofi.io/calcofi4r/reference/cc_grid.md).
 
 ## Usage
 
@@ -13,11 +16,11 @@ cc_grid_zones
 
 ## Format
 
-A `sf` spatial feature set with 6 rows x 9 columns:
+An `sf` of 6 rows x 9 columns:
 
 - zone_key:
 
-  unique zone key of the form `"{sta_pattern}-{sta_shore}"`
+  unique zone key of the form `"{sta_shore}-{sta_pattern}"`
 
 - sta_pattern:
 
@@ -30,29 +33,27 @@ A `sf` spatial feature set with 6 rows x 9 columns:
 
 - sta_dpos:
 
-  the difference in position: 5 (nearshore), 10 (offshore) or 20
-  (historical)
+  the spacing class: 5 (nearshore), 10 (offshore) or 20 (historical)
 
 - sta_lin_min:
 
-  the minimum value of dissolved `sta_lin` from `cc_grid`
+  the minimum `sta_lin` of the zone's cells
 
 - sta_lin_max:
 
-  the maximum value of dissolved `sta_lin` from `cc_grid`
+  the maximum `sta_lin` of the zone's cells
 
 - sta_pos_min:
 
-  the minimum value of dissolved `sta_pos` from `cc_grid`
+  the minimum `sta_pos` of the zone's cells
 
 - sta_pos_max:
 
-  the maximum value of dissolved `sta_pos` from `cc_grid`
+  the maximum `sta_pos` of the zone's cells
 
 - geom:
 
-  geometry of dissolved zone from `cc_grid` with latitude and longitude
-  in decimal degree geographic coordinates (EPSG:4326)
+  the dissolved zone (EPSG:4326)
 
 ## Source
 

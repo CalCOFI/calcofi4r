@@ -592,13 +592,20 @@ small lookup and example datasets not requiring API access
 - [`cc_bottle`](https://calcofi.io/calcofi4r/reference/cc_bottle.md) :
   Bottle data in space and time
 - [`cc_grid`](https://calcofi.io/calcofi4r/reference/cc_grid.md) :
-  CalCOFI Grid for Extracting Effort
+  CalCOFI grid: one cell per official station
 - [`cc_grid_ctrs`](https://calcofi.io/calcofi4r/reference/cc_grid_ctrs.md)
-  : CalCOFI Grid Centroids for Extracting Effort
+  : CalCOFI grid sites: the station of each cell
+- [`cc_grid_land`](https://calcofi.io/calcofi4r/reference/cc_grid_land.md)
+  : The land mask the CalCOFI grid is clipped with
+- [`cc_grid_v1`](https://calcofi.io/calcofi4r/reference/cc_grid_v1.md) :
+  The previous CalCOFI grid (through calcofi4r 1.24 and release
+  v2026.10.01)
 - [`cc_grid_zones`](https://calcofi.io/calcofi4r/reference/cc_grid_zones.md)
   : CalCOFI Grid Zones
 - [`cc_places`](https://calcofi.io/calcofi4r/reference/cc_places.md) :
   CalCOFI Places
+- [`cc_station_positions`](https://calcofi.io/calcofi4r/reference/cc_station_positions.md)
+  : Official CalCOFI station positions
 - [`stations`](https://calcofi.io/calcofi4r/reference/stations.md) :
   Oceanographic stations
 
@@ -810,6 +817,19 @@ check for other functions or datasets not captured by above categories
 - [`cc_density_sql()`](https://calcofi.io/calcofi4r/reference/cc_density_sql.md)
   : SQL deriving the two canonical densities and the effort class of a
   bio observation
+
+- [`cc_grid_build()`](https://calcofi.io/calcofi4r/reference/cc_grid_build.md)
+  : Build the CalCOFI grid: one cell per official station, inside the
+  previous grid
+
+- [`cc_grid_key()`](https://calcofi.io/calcofi4r/reference/cc_grid_key.md)
+  : The grid cell a position falls in
+
+- [`cc_grid_land_prep()`](https://calcofi.io/calcofi4r/reference/cc_grid_land_prep.md)
+  : Prepare a land mask for the grid's coastline
+
+- [`cc_grid_zones_build()`](https://calcofi.io/calcofi4r/reference/cc_grid_zones_build.md)
+  : Dissolve grid cells into zones by station pattern and shore
 
 - [`cc_match_bio_env()`](https://calcofi.io/calcofi4r/reference/cc_match_bio_env.md)
   : Match biological to environmental observations

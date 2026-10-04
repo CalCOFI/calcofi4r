@@ -45,18 +45,18 @@ The package provides convenience functions for common operations:
 # list available versions
 cc_list_versions()
 #> # A tibble: 33 × 9
-#>    version     release_date tables total_rows size_mb consolidated doi          
-#>    <chr>       <chr>         <int>      <int>   <dbl> <lgl>        <chr>        
-#>  1 v2026.10.01 2026-10-01       23  375505833   2603. FALSE        NA           
-#>  2 v2026.09.11 2026-09-11       23  362124968   2497. FALSE        10.5281/zeno…
-#>  3 v2026.09.10 2026-09-11       23  356635055   2462. FALSE        10.5281/zeno…
-#>  4 v2026.09.06 2026-09-06       23  348657010   2350. FALSE        10.5281/zeno…
-#>  5 v2026.09.04 2026-09-04       23  348657010   2351. FALSE        10.5281/zeno…
-#>  6 v2026.08.25 2026-08-25       18  320260205   1998. TRUE         NA           
-#>  7 v2026.08.14 2026-08-14       18  307537056   1930. TRUE         NA           
-#>  8 v2026.08.11 2026-08-11       18  323912311   2016. FALSE        NA           
-#>  9 v2026.08.10 2026-08-11       18  323912364   2017. FALSE        NA           
-#> 10 v2026.08.08 2026-08-08       18  309122838   1947  FALSE        NA           
+#>    version     release_date tables total_rows size_mb doi           consolidated
+#>    <chr>       <chr>         <int>      <int>   <dbl> <chr>         <lgl>       
+#>  1 v2026.10.01 2026-10-01       23  375505833   2603. 10.5281/zeno… FALSE       
+#>  2 v2026.09.11 2026-09-11       23  362124968   2497. 10.5281/zeno… FALSE       
+#>  3 v2026.09.10 2026-09-11       23  356635055   2462. 10.5281/zeno… FALSE       
+#>  4 v2026.09.06 2026-09-06       23  348657010   2350. 10.5281/zeno… FALSE       
+#>  5 v2026.09.04 2026-09-04       23  348657010   2351. 10.5281/zeno… FALSE       
+#>  6 v2026.08.25 2026-08-25       18  320260205   1998. NA            TRUE        
+#>  7 v2026.08.14 2026-08-14       18  307537056   1930. NA            TRUE        
+#>  8 v2026.08.11 2026-08-11       18  323912311   2016. NA            FALSE       
+#>  9 v2026.08.10 2026-08-11       18  323912364   2017. NA            FALSE       
+#> 10 v2026.08.08 2026-08-08       18  309122838   1947  NA            FALSE       
 #> # ℹ 23 more rows
 #> # ℹ 2 more variables: retired <df[,3]>, is_latest <lgl>
 
@@ -239,12 +239,12 @@ d_temp <- dbGetQuery(con, "
 
 head(d_temp)
 #>         lon      lat            datetime depth_m temperature
-#> 1 -124.0833 38.83333 1949-03-01 09:30:00       0       10.50
-#> 2 -121.0833 35.25000 1951-09-08 03:54:00       0       14.42
-#> 3 -121.0833 35.25000 1951-09-08 03:54:00       9       14.38
-#> 4 -121.0833 35.25000 1951-09-08 03:54:00      10       14.37
-#> 5 -120.4167 33.73333 1951-09-08 16:12:00       9       13.57
-#> 6 -120.4167 33.73333 1951-09-08 16:12:00      10       13.52
+#> 1 -122.8167 32.93333 1949-09-17 21:30:00      10       18.47
+#> 2 -108.5000 24.08333 1956-02-07 13:42:00       0       19.99
+#> 3 -108.5000 24.08333 1956-02-07 13:42:00      10       20.01
+#> 4 -108.9833 23.91667 1956-02-07 18:24:00       0       19.76
+#> 5 -108.9833 23.91667 1956-02-07 18:24:00       9       19.74
+#> 6 -108.9833 23.91667 1956-02-07 18:24:00      10       19.73
 nrow(d_temp)
 #> [1] 93985
 ```
@@ -282,12 +282,21 @@ head(d_t)
 
 ## CalCOFI Grid
 
-The CalCOFI sampling grid defines standard station positions. The
-package includes pre-loaded grid data:
+The CalCOFI grid has one cell per official station: the Voronoi
+tessellation of the 113 [official station
+positions](https://calcofi.org/sampling-info/station-positions/), ending
+at the coastline, beside the historical cells beyond the official
+pattern, kept as they were. The package includes pre-loaded grid data:
 
-- `cc_grid` - station polygons
-- `cc_grid_ctrs` - station centroids
+- `cc_grid` - station cells (one per official station) and the kept
+  historical cells
+- `cc_grid_ctrs` - the station of each cell
 - `cc_grid_zones` - aggregated zones by station pattern
+- `cc_station_positions` - the official station table
+- `cc_grid_v1` - the previous grid (database releases through
+  v2026.10.01)
+
+`cc_grid_key(lon, lat)` returns the cell a position falls in.
 
 ``` r
 

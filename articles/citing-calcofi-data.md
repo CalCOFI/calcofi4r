@@ -25,7 +25,7 @@ library(calcofi4r)
 
 REL <- cc_latest_version()
 cc_cite(version = REL)
-#>  [1] "CalCOFI (2026). CalCOFI Integrated Database, release v2026.10.01 [Data set]. Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife. https://calcofi.io/db-schema/?v=v2026.10.01\nPage: https://calcofi.io/datasets/release/"                                                                                                                                                                                                                                                                                                                                                                                                                           
+#>  [1] "CalCOFI (2026). CalCOFI Integrated Database, release v2026.10.01 [Data set]. Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife. https://doi.org/10.5281/zenodo.23085119\nPage: https://calcofi.io/datasets/release/"                                                                                                                                                                                                                                                                                                                                                                                                                               
 #>  [2] "CalCOFI. (2023). CalCOFI Bottle Database 194903-202105. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_bottle/"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 #>  [3] "CalCOFI. (2023). CalCOFI CTD Cast Files. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_ctd-cast/"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 #>  [4] "CalCOFI. (2026). CalCOFI CTD Derived Hydrographic Products (from the CalCOFI CTD Cast Files). CalCOFI.io. https://calcofi.io/workflows/ingest_calcofi_ctd-derived.html\nPage: https://calcofi.io/datasets/calcofi_ctd-derived/"                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
@@ -61,9 +61,9 @@ never whichever ones you remember typing.
 ``` r
 
 cc_cite(c("calcofi_bottle", "calcofi_ctd-cast"), version = REL)
-#> [1] "CalCOFI (2026). CalCOFI Integrated Database, release v2026.10.01 [Data set]. Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife. https://calcofi.io/db-schema/?v=v2026.10.01\nPage: https://calcofi.io/datasets/release/"
-#> [2] "CalCOFI. (2023). CalCOFI Bottle Database 194903-202105. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_bottle/"                                                                                                                                                  
-#> [3] "CalCOFI. (2023). CalCOFI CTD Cast Files. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_ctd-cast/"                                                                                                                                                               
+#> [1] "CalCOFI (2026). CalCOFI Integrated Database, release v2026.10.01 [Data set]. Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife. https://doi.org/10.5281/zenodo.23085119\nPage: https://calcofi.io/datasets/release/"
+#> [2] "CalCOFI. (2023). CalCOFI Bottle Database 194903-202105. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_bottle/"                                                                                                                                              
+#> [3] "CalCOFI. (2023). CalCOFI CTD Cast Files. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_ctd-cast/"                                                                                                                                                           
 #> attr(,"source")
 #> [1] "release"
 ```
@@ -88,8 +88,8 @@ d <- cc_read_obs(
   head(500)
 
 cc_cite(d, version = REL)
-#> [1] "CalCOFI (2026). CalCOFI Integrated Database, release v2026.10.01 [Data set]. Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife. https://calcofi.io/db-schema/?v=v2026.10.01\nPage: https://calcofi.io/datasets/release/"
-#> [2] "CalCOFI. (2023). CalCOFI Bottle Database 194903-202105. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_bottle/"                                                                                                                                                  
+#> [1] "CalCOFI (2026). CalCOFI Integrated Database, release v2026.10.01 [Data set]. Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife. https://doi.org/10.5281/zenodo.23085119\nPage: https://calcofi.io/datasets/release/"
+#> [2] "CalCOFI. (2023). CalCOFI Bottle Database 194903-202105. CalCOFI.org.\nPage: https://calcofi.io/datasets/calcofi_bottle/"                                                                                                                                              
 #> attr(,"source")
 #> [1] "release"
 ```
@@ -120,8 +120,8 @@ cat(cc_cite("calcofi_dic", version = REL, format = "bibtex"))
 @misc{calcofi_release_v2026_10_01, title = {CalCOFI Integrated Database,
 release v2026.10.01}, author = {CalCOFI}, year = {2026}, publisher =
 {Scripps Institution of Oceanography, NOAA Fisheries, and California
-Department of Fish and Wildlife}, url =
-{<https://calcofi.io/db-schema/?v=v2026.10.01>} }
+Department of Fish and Wildlife}, doi = {10.5281/zenodo.23085119}, url =
+{<https://doi.org/10.5281/zenodo.23085119>} }
 
 @misc{calcofi_dic, title = {CalCOFI DIC}, howpublished = {Keeling, C.D.;
 Lueker, T.J.; Emanuele, G.; Dickson, A.G.; Martz, T.R.; Wolfe, W.H.;
@@ -135,7 +135,7 @@ alkalinity, water temperature and salinity measurements for CalCOFI
 ``` r
 
 str(cc_cite("calcofi_dic", version = REL, format = "csl")[[1]])
-#> List of 7
+#> List of 8
 #>  $ id       : chr "calcofi_release_v2026_10_01"
 #>  $ type     : chr "dataset"
 #>  $ title    : chr "CalCOFI Integrated Database, release v2026.10.01"
@@ -147,7 +147,8 @@ str(cc_cite("calcofi_dic", version = REL, format = "csl")[[1]])
 #>   .. ..$ :List of 1
 #>   .. .. ..$ : int 2026
 #>  $ publisher: chr "Scripps Institution of Oceanography, NOAA Fisheries, and California Department of Fish and Wildlife"
-#>  $ URL      : chr "https://calcofi.io/db-schema/?v=v2026.10.01"
+#>  $ DOI      : chr "10.5281/zenodo.23085119"
+#>  $ URL      : chr "https://doi.org/10.5281/zenodo.23085119"
 ```
 
 `format = "bibtex"` builds every entry **offline**, from the fields
@@ -194,7 +195,7 @@ citation("calcofi4r")
 #> To cite package 'calcofi4r' in publications use:
 #> 
 #>   Best B (2026). _calcofi4r: CalCOFI R helper functions_. R package
-#>   version 1.24.2, <https://calcofi.io/calcofi4r>.
+#>   version 1.25.0, <https://calcofi.io/calcofi4r>.
 #> 
 #> A BibTeX entry for LaTeX users is
 #> 
@@ -202,7 +203,7 @@ citation("calcofi4r")
 #>     title = {calcofi4r: CalCOFI R helper functions},
 #>     author = {Ben Best},
 #>     year = {2026},
-#>     note = {R package version 1.24.2},
+#>     note = {R package version 1.25.0},
 #>     url = {https://calcofi.io/calcofi4r},
 #>   }
 ```

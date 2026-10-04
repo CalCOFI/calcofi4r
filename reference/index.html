@@ -42,7 +42,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.24.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.25.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -466,14 +466,28 @@
           <code><a href="cc_grid.html">cc_grid</a></code>
 
         </dt>
-        <dd>CalCOFI Grid for Extracting Effort</dd>
+        <dd>CalCOFI grid: one cell per official station</dd>
 
         <dt>
 
           <code><a href="cc_grid_ctrs.html">cc_grid_ctrs</a></code>
 
         </dt>
-        <dd>CalCOFI Grid Centroids for Extracting Effort</dd>
+        <dd>CalCOFI grid sites: the station of each cell</dd>
+
+        <dt>
+
+          <code><a href="cc_grid_land.html">cc_grid_land</a></code>
+
+        </dt>
+        <dd>The land mask the CalCOFI grid is clipped with</dd>
+
+        <dt>
+
+          <code><a href="cc_grid_v1.html">cc_grid_v1</a></code>
+
+        </dt>
+        <dd>The previous CalCOFI grid (through calcofi4r 1.24 and release v2026.10.01)</dd>
 
         <dt>
 
@@ -488,6 +502,13 @@
 
         </dt>
         <dd>CalCOFI Places</dd>
+
+        <dt>
+
+          <code><a href="cc_station_positions.html">cc_station_positions</a></code>
+
+        </dt>
+        <dd>Official CalCOFI station positions</dd>
 
         <dt>
 
@@ -923,6 +944,34 @@
 
         </dt>
         <dd>SQL deriving the two canonical densities and the effort class of a bio observation</dd>
+
+        <dt>
+
+          <code><a href="cc_grid_build.html">cc_grid_build()</a></code>
+
+        </dt>
+        <dd>Build the CalCOFI grid: one cell per official station, inside the previous grid</dd>
+
+        <dt>
+
+          <code><a href="cc_grid_key.html">cc_grid_key()</a></code>
+
+        </dt>
+        <dd>The grid cell a position falls in</dd>
+
+        <dt>
+
+          <code><a href="cc_grid_land_prep.html">cc_grid_land_prep()</a></code>
+
+        </dt>
+        <dd>Prepare a land mask for the grid's coastline</dd>
+
+        <dt>
+
+          <code><a href="cc_grid_zones_build.html">cc_grid_zones_build()</a></code>
+
+        </dt>
+        <dd>Dissolve grid cells into zones by station pattern and shore</dd>
 
         <dt>
 

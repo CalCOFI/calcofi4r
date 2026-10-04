@@ -1,8 +1,12 @@
-# CalCOFI Grid Centroids for Extracting Effort
+# CalCOFI grid sites: the station of each cell
 
-A set of centroids for the grid to calculate effort by station using
-Voronoi diagram to fetch nearest station, additionally clipped by land
-([`rnaturalearthhires::states10`](https://docs.ropensci.org/rnaturalearthhires/reference/states.html)).
+The site of each
+[cc_grid](https://calcofi.io/calcofi4r/reference/cc_grid.md) cell: the
+official station position for a station cell (on its line by
+construction), and for a cell kept from the previous grid its labelled
+(line, station) under `+proj=calcofi` where the cell holds it, else the
+previous cell's centre, else a point on the cell. The release's
+`grid.geom_ctr`.
 
 ## Usage
 
@@ -12,30 +16,14 @@ cc_grid_ctrs
 
 ## Format
 
-A `sf` spatial feature set with
-
-- site_key:
-
-  site key in the form of "`lin`,`pos`"
-
-- sta_lin:
-
-  alongshore line in CalCOFI coordinate system
-
-- sta_pos:
-
-  offshore position in CalCOFI coordinate system
-
-- sta_dpos:
-
-  difference in position, from 5 (nearshore), 10 (offshore) to 20
-  (outside 113 station extended area)
+An `sf` of 225 points (EPSG:4326) with the columns of
+[cc_grid](https://calcofi.io/calcofi4r/reference/cc_grid.md) and
 
 - geom:
 
-  station latitude and longitude in decimal degree geographic
-  coordinates (SRID 4326)
+  the site (EPSG:4326)
 
 ## Source
 
-<https://calcofi.org/sampling-info/station-positions/>
+[Station Positions -
+CalCOFI](https://calcofi.org/sampling-info/station-positions)
