@@ -150,11 +150,17 @@ head(d_t)
 
 ## CalCOFI Grid
 
-The CalCOFI sampling grid defines standard station positions. The package includes pre-loaded grid data:
+The CalCOFI grid has one cell per official station: the Voronoi tessellation of the 113 [official
+station positions](https://calcofi.org/sampling-info/station-positions/), clipped to the coastline,
+plus the historical cells beyond the official pattern. The package includes pre-loaded grid data:
 
-- `cc_grid` - station polygons
-- `cc_grid_ctrs` - station centroids
+- `cc_grid` - station cells (one polygon per station)
+- `cc_grid_ctrs` - the station of each cell
 - `cc_grid_zones` - aggregated zones by station pattern
+- `cc_station_positions` - the official station table
+- `cc_grid_v1` - the previous grid (database releases through v2026.10.01)
+
+`cc_grid_key(lon, lat)` returns the cell a position falls in.
 
 ```{r grid}
 # show the CalCOFI grid colored by zone

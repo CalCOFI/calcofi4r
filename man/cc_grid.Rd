@@ -3,27 +3,49 @@
 \docType{data}
 \name{cc_grid}
 \alias{cc_grid}
-\title{CalCOFI Grid for Extracting Effort}
+\title{CalCOFI grid: one cell per official station}
 \format{
-A \code{sf} spatial feature set with
+An \code{sf} of 225 polygons (EPSG:4326) with
 \describe{
-\item{site_key}{site key in the form of "\code{lin},\code{pos}"}
-\item{sta_lin}{alongshore line in CalCOFI coordinate system}
-\item{sta_pos}{offshore position in CalCOFI coordinate system}
-\item{sta_dpos}{difference in position, from 5 (nearshore), 10 (offshore) to 20 (outside 113 station extended area)}
-\item{sta_pattern}{the CalCOFI station pattern; one of: "standard", "extended" or "historical"}
-\item{sta_shore}{the position wrt shore; one of: "nearshore" or "offshore"}
-\item{geom}{station voronoi polygon with latitude and longitude in decimal degree geographic coordinates (SRID 4326)}
+\item{grid_key}{the release key, \verb{st\{station\}-ln\{line\}}, with \verb{_hist} for a cell of the
+historical pattern (e.g. \code{st26.7-ln93.3}, \code{st120-ln110_hist})}
+\item{sta_key}{station key in the form "\code{line},\code{station}" (e.g. \code{"93.3,26.7"})}
+\item{sta_lin}{line (alongshore) in the CalCOFI coordinate system (double: \code{76.7}, \code{93.4})}
+\item{sta_pos}{station (offshore position) in the CalCOFI coordinate system (double: \code{26.7})}
+\item{sta_dpos}{nominal spacing class in station units: 5 (nearshore), 10 (offshore) or 20
+(historical pattern)}
+\item{sta_shore}{"nearshore" (station 60 or less) or "offshore"}
+\item{sta_pattern}{"standard" (lines 76.7 and south: the 75-station pattern), "extended"
+(lines north of 76.7) or "historical" (kept from the previous grid)}
+\item{zone_key}{\code{"{sta_shore}-{sta_pattern}"}, the key of \link{cc_grid_zones}}
+\item{sta_type}{the station's type on the official list: "ROS" (rosette) or "SCCOOS" (the
+nine ~20 m inshore stations); \code{NA} for a cell kept from the previous grid}
+\item{sta_source}{"official" (a station of the official list) or "previous" (a cell kept
+from \link{cc_grid_v1})}
+\item{geom}{the cell, one polygon (EPSG:4326); edges are straight in longitude/latitude}
 }
 }
 \source{
-\href{https://calcofi.org/sampling-info/station-positions}{Station Positions - CalCOFI}
+\href{https://calcofi.org/sampling-info/station-positions}{Station Positions - CalCOFI};
+coastline (c) OpenStreetMap contributors (ODbL)
 }
 \usage{
 cc_grid
 }
 \description{
-A grid for calculating effort by station using Voronoi diagram to fetch nearest station, additionally clipped by land (\code{rnaturalearthhires::states10}).
+The cells of the CalCOFI grid: the Voronoi tessellation of the 113 official station positions
+(\link{cc_station_positions}), clipped to the outer hull of the previous grid (\link{cc_grid_v1}) and to
+the coastline (\link{cc_grid_land}), plus the previous grid's cells beyond 20 nautical miles of the
+official pattern, so the extended historical grid keeps its cells and keys. Every cell is one
+polygon holding its own station, and the release's \code{grid} table is these cells
+(\code{calcofi4db::build_grid_reference()}). Built by \code{\link[=cc_grid_build]{cc_grid_build()}} in \code{data-raw/cc_grid.R};
+the rules are documented there.
+}
+\details{
+Before this grid, cells were Voronoi polygons of an idealized lattice and an inshore cell held
+several real stations (\link{cc_grid_v1}). \strong{84 of the 113 station cells reuse a key whose polygon
+changed}, so never map a key between the two grids by name: use the release's \code{grid_crosswalk}
+table (\code{calcofi4db::build_grid_crosswalk()}), and \code{\link[=cc_grid_key]{cc_grid_key()}} to key a position.
 }
 \concept{data}
 \keyword{datasets}

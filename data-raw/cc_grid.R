@@ -1,403 +1,130 @@
-librarian::shelf(
-  # janitor, leaflet,
-  DBI, dplyr, here, mapview)
-devtools::load_all()
+# data-raw/cc_grid.R
+# -----------------------------------------------------------------------------
+# The CalCOFI grid, rebuilt from the official station positions (CalCOFI/workflows#130).
+#
+# Every bundled grid dataset is made here, from three inputs and no hand edits:
+#
+#   1. data-raw/station_positions.csv — the "Station Position (Lat/Lon), Depth, and Type" table
+#      of https://calcofi.org/sampling-info/station-positions/ (113 stations), as tidied by
+#      CalCOFI/workflows `libs/download_station_positions.R`, which cross-checks the page's table
+#      against the linked CalCOFIStationOrder.csv and CalCOFI_113StationMap.kml. To refresh it:
+#        source("../workflows/libs/download_station_positions.R")
+#        download_station_positions(dir_out = tempdir(), overwrite = TRUE)   # then copy the CSV here
+#      Fetched 2026-10-02.
+#   2. the previous grid — `data/cc_grid.rda` and `data/cc_grid_ctrs.rda` as of calcofi4r 1.24.2
+#      (git commit GRID_V1_COMMIT; built by data-raw/cc_grid_v1.R from a PostGIS table and a
+#      hand-drawn sliver file, so it is read from git, never rebuilt). It supplies the outer hull
+#      and the historical cells beyond the official pattern, and ships as `cc_grid_v1`.
+#   3. OpenStreetMap land polygons — https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip
+#      (926 MB; the copy CalCOFI/workflows `ingest_spatial.qmd` keeps under
+#      cc_stage_dir()/reference/). Read once, prepared by cc_grid_land_prep() and shipped as
+#      `cc_grid_land`, so step 4 runs from the package alone. Set CC_GRID_REBUILD_LAND=true (and
+#      CC_OSM_LAND_ZIP) to re-read the zip.
+#
+#   4. cc_grid_build() -> cc_grid, cc_grid_ctrs, cc_grid_zones, and the six "CalCOFI Zones" rows
+#      of cc_places.
+#
+# Run from the package root: Rscript data-raw/cc_grid.R
 
-con <- cc_db_connect()
+librarian::shelf(dplyr, glue, readr, sf, tibble, usethis, quiet = TRUE)
+devtools::load_all(quiet = TRUE)
 
-rng_lin <- tbl(con, "stations_order") %>%
-  filter(STA <= 60) %>%
-  pull(LINE) %>%
-  c(93.7) %>%
-  range() # 60.0 93.4
-rng_pos <- tbl(con, "stations_order") %>%
-  filter(STA <= 60) %>%
-  pull(STA) %>%
-  c(25) %>%
-  range() # 26.4 60.0
+GRID_V1_COMMIT <- "1701c48"   # calcofi4r 1.24.2, the last commit carrying the previous grid
+OSM_LAND_ZIP   <- Sys.getenv("CC_OSM_LAND_ZIP", "~/_big/calcofi/reference/land-polygons-split-4326.zip")
+REBUILD_LAND   <- tolower(Sys.getenv("CC_GRID_REBUILD_LAND", "false")) == "true"
 
-g5 <- expand_grid(
-  lin = c(
-    57.7,
-    map(seq(60, 100, 10), function(x){
-      cumsum(c(x, 3.3, 3.4)) })) %>% unlist(),
-  pos = c(seq(15, 60, 5), 70)) %>%
-  st_as_sf(
-    coords = c("lin", "pos"), remove = F,
-    crs = st_crs("+proj=calcofi"))
-# mapView(g5)
-
-v_pos5 <- st_voronoi(st_union(st_geometry(g5))) %>%
-  st_collection_extract(type = "POLYGON") %>%
-  st_sf() %>%
-  st_make_valid() %>%
-  st_join(g5) %>%
-  filter(
-    lin <= rng_lin[2],
-    lin >= rng_lin[1],
-    pos <= 60,
-    pos >= rng_pos[1]) %>%
+# 1. official station positions ----
+cc_station_positions <- read_csv("data-raw/station_positions.csv", show_col_types = FALSE) |>
   mutate(
-    dpos = 5)
-# mapView(v_pos5) + mapView(g5)
+    grid_key    = paste0("st", station, "-ln", line),
+    order_occ   = as.integer(order_occ),
+    depth_est_m = as.integer(depth_est_m)) |>
+  select(
+    station_key, grid_key, order_occ, line, station, longitude, latitude, depth_est_m, sta_type,
+    in_75, navy_ops_area)
+stopifnot(
+  nrow(cc_station_positions) == 113,
+  !anyDuplicated(cc_station_positions$grid_key),
+  all(cc_station_positions$sta_type %in% c("ROS", "SCCOOS")),
+  !anyNA(cc_station_positions[c("line", "station", "longitude", "latitude")]))
 
-g10 <- expand_grid(
-  lin = c(
-    map(seq(50, 100, 10), function(x){
-      cumsum(c(x, 3.3, 3.4)) })) %>% unlist(),
-  pos = seq(60, 130, 10)) %>%
-  st_as_sf(
-    coords = c("lin", "pos"), remove = F,
-    crs = st_crs("+proj=calcofi"))
-# mapView(g)
+# 2. the previous grid, from git ----
+git_rda <- function(path, commit = GRID_V1_COMMIT) {
+  tmp <- tempfile(fileext = ".rda")
+  stopifnot(system2("git", c("show", glue("{commit}:{path}")), stdout = tmp) == 0)
+  e <- new.env(); load(tmp, envir = e); get(ls(e)[1], envir = e)
+}
+g1 <- git_rda("data/cc_grid.rda")
+c1 <- git_rda("data/cc_grid_ctrs.rda")
+stopifnot(nrow(g1) == 218, identical(g1$sta_key, c1$sta_key), identical(g1$sta_pattern, c1$sta_pattern))
+ctr_xy <- st_coordinates(c1)
+cc_grid_v1 <- g1 |>
+  transmute(
+    # the key the releases through v2026.10.01 carry (calcofi4db::build_grid_reference() <= 4.17)
+    sta_lin  = as.double(sub(",.*$", "", sta_key)),
+    sta_pos  = as.double(sub("^.*,", "", sta_key)),
+    grid_key = paste0("st", sta_pos, "-ln", sta_lin, ifelse(sta_pattern == "historical", "_hist", "")),
+    sta_key, sta_dpos, sta_shore, sta_pattern,
+    zone_key = as.character(zone_key),
+    lon_ctr  = ctr_xy[, 1],
+    lat_ctr  = ctr_xy[, 2]) |>
+  relocate(grid_key, sta_key, sta_lin, sta_pos) |>
+  st_set_geometry("geom")
+stopifnot(!anyDuplicated(cc_grid_v1$grid_key), st_crs(cc_grid_v1) == st_crs(4326))
 
-v_pos10 <- st_voronoi(st_union(st_geometry(g10))) %>%
-  st_collection_extract(type = "POLYGON") %>%
-  st_sf() %>%
-  st_make_valid() %>%
-  st_join(g10) %>%
-  filter(
-    lin >= 60 & lin <= 93.3,
-    pos >= 70 & pos <= 120,
-    ifelse(
-      lin < 83.3,
-      pos <= 100,
-      T),
-    ifelse(
-      lin %in% c(83.3, 86.7),
-      pos <= 110,
-      T)) %>%
-  mutate(
-    dpos = 10)
-# mapView(v_pos10) +
-#   mapView(g10)
+# 3. the land mask ----
+if (REBUILD_LAND || !file.exists("data/cc_grid_land.rda")) {
+  zip <- path.expand(OSM_LAND_ZIP)
+  stopifnot("no OSM land-polygons zip: set CC_OSM_LAND_ZIP" = file.exists(zip))
+  bb  <- st_bbox(cc_grid_v1)
+  box <- st_as_sfc(st_bbox(c(bb["xmin"] - .5, bb["ymin"] - .5, bb["xmax"] + .5, bb["ymax"] + .5), crs = 4326))
+  osm <- st_read(
+    glue("/vsizip/{zip}/land-polygons-split-4326/land_polygons.shp"), wkt_filter = st_as_text(box), quiet = TRUE)
+  s2  <- sf_use_s2(FALSE)
+  osm <- suppressWarnings(suppressMessages(st_crop(st_make_valid(osm), box)))
+  sf_use_s2(s2)
+  z   <- unzip(zip, list = TRUE)
+  cc_grid_land <- st_sf(
+    source  = "OpenStreetMap land polygons (osmdata.openstreetmap.de), (c) OpenStreetMap contributors, ODbL",
+    version = as.character(as.Date(z$Date[grepl("land_polygons\\.shp$", z$Name)][1])),
+    geom    = st_union(cc_grid_land_prep(osm, near = cc_grid_v1)))   # islets < 1 km2 dropped, coast -300 m, simplified 100 m
+  use_data(cc_grid_land, overwrite = TRUE, compress = "xz")
+} else {
+  load("data/cc_grid_land.rda")
+}
 
-lnd <- rnaturalearth::ne_countries(
-  country =c(
-    "United States of America", "Mexico", "Canada"),
-  scale = 10, returnclass = "sf") %>%
-  st_union()
+# 4. the grid ----
+b <- cc_grid_build(cc_station_positions, cc_grid_v1, cc_grid_land, verbose = TRUE)
+cc_grid       <- b$grid
+cc_grid_ctrs  <- b$ctrs
+cc_grid_zones <- b$zones
+stopifnot(
+  "every cell is one polygon"            = all(st_geometry_type(cc_grid) == "POLYGON"),
+  "every cell is valid"                  = all(st_is_valid(cc_grid)),
+  "keys are unique"                      = !anyDuplicated(cc_grid$grid_key) && !anyDuplicated(cc_grid$sta_key),
+  "every official station has its cell"  = all(cc_station_positions$grid_key %in% cc_grid$grid_key),
+  "every generator is in its own cell"   =
+    identical(cc_grid_key(st_coordinates(cc_grid_ctrs)[, 1], st_coordinates(cc_grid_ctrs)[, 2], cc_grid),
+              cc_grid_ctrs$grid_key),
+  "six zones"                            = nrow(cc_grid_zones) == 6)
 
-# h0 <- h
-h <- st_read(
-  con,
-  query =
-    "SELECT
-       ST_ConvexHull(ST_COLLECT(geom))
-     FROM ctd_casts") %>%
-  st_difference(lnd) %>%
-  st_make_valid()
-# mapView(h)
+# cc_places carries the zones as its "CalCOFI Zones" category (data-raw/cc_places.R): re-cut them
+load("data/cc_places.rda")
+i <- match(paste0("cc_", cc_grid_zones$zone_key), cc_places$key)
+stopifnot(!anyNA(i), all(cc_places$category[i] == "CalCOFI Zones"))
+st_geometry(cc_places)[i] <- st_geometry(cc_grid_zones)
 
-hp <- st_bbox(h) %>%
-  st_as_sfc() %>%
-  st_coordinates() %>%
-  as.data.frame() %>%
-  st_as_sf(
-    coords = c("X", "Y"),
-    crs = 4326)
-# hp
+use_data(cc_station_positions, overwrite = TRUE)
+use_data(cc_grid_v1,           overwrite = TRUE)
+use_data(cc_grid,              overwrite = TRUE)
+use_data(cc_grid_ctrs,         overwrite = TRUE)
+use_data(cc_grid_zones,        overwrite = TRUE)
+use_data(cc_places,            overwrite = TRUE)
 
-hb <- hp %>%
-  st_transform(st_crs("+proj=calcofi")) %>%
-  st_bbox()
-
-g20 <- expand_grid(
-  lin = c(
-    seq(60, hb["xmax"] + 10,  10),
-    seq(60, hb["xmin"] - 10, -10)) %>%
-    unique(),
-  pos = c(
-    seq(100, hb["ymax"]+ 20,  20),
-    seq(100, hb["ymin"]- 20, -20)) %>%
-    unique()) %>%
-  st_as_sf(
-    coords = c("lin", "pos"), remove = F,
-    crs = st_crs("+proj=calcofi"))
-# mapView(g20)
-
-v_pos20 <- st_voronoi(st_union(st_geometry(g20))) %>%
-  st_collection_extract(type = "POLYGON") %>%
-  st_sf() %>%
-  st_make_valid() %>%
-  st_join(g20) %>%
-  filter(
-    lin < hb["xmax"],
-    lin > hb["xmin"],
-    pos < hb["ymax"],
-    pos > hb["ymin"]) %>%
-  mutate(
-    dpos = 20)
-
-v_pos20 <- v_pos20 %>%
-  filter(
-    st_intersects(
-      v_pos20,
-      h %>% st_transform(st_crs("+proj=calcofi")),
-      sparse = F)[,1])
-
-v_pos10 <- st_difference(
-  v_pos10, st_union(v_pos5))
-
-V <- v_pos20 %>%
-  st_difference(
-    st_union(
-      st_union(v_pos10),
-      st_union(v_pos5))) %>%
-  bind_rows(v_pos10) %>%
-  bind_rows(v_pos5)
-
-V <- V %>%
-  filter(
-    st_intersects(
-      V,
-      h %>% st_transform(st_crs("+proj=calcofi")),
-      sparse = F)[,1])
-# mapView(V)
-
-u <- V %>%
-  filter(
-    (dpos == 20 & lin == 60 & pos == 120) |
-      (dpos == 20 & lin == 60 & pos == 100)) %>%
-  st_union() %>%
-  st_as_sf() %>%
-  rename(geometry = x) %>%
-  mutate(
-    dpos = 20,
-    lin  = 60,
-    pos  = 110)
-# mapView(V) + mapView(u)
-V <- st_difference(V, st_geometry(u)) %>%
-  bind_rows(u)
-
-u <- V %>%
-  filter(
-    (dpos == 20 & lin == 70 & pos == 120) |
-      (dpos == 20 & lin == 70 & pos == 100)) %>%
-  st_union() %>%
-  st_as_sf() %>%
-  rename(geometry = x) %>%
-  mutate(
-    dpos = 20,
-    lin  = 70,
-    pos  = 110)
-# mapView(V) + mapView(u)
-V <- st_difference(V, st_geometry(u)) %>%
-  bind_rows(u)
-
-u <- V %>%
-  filter(
-    (dpos == 20 & lin == 80 & pos == 120) |
-      (dpos == 20 & lin == 80 & pos == 100)) %>%
-  st_union() %>%
-  st_as_sf() %>%
-  rename(geometry = x) %>%
-  mutate(
-    dpos = 20,
-    lin  = 80,
-    pos  = 110)
-# mapView(V) +  mapView(u)
-V <- st_difference(V, st_geometry(u)) %>%
-  bind_rows(u)
-
-u <- V %>%
-  filter(
-    (dpos == 20 & lin == 50 & pos == 80) |
-      (dpos == 20 & lin == 60 & pos == 80)) %>%
-  st_union() %>%
-  st_as_sf() %>%
-  rename(geometry = x) %>%
-  mutate(
-    dpos = 20,
-    lin  = 55,
-    pos  = 80)
-# mapView(V) + mapView(u)
-V <- st_difference(V, st_geometry(u)) %>%
-  bind_rows(u)
-
-u <- V %>%
-  filter(
-    (dpos == 20 & lin == 50 & pos == 60) |
-      (dpos == 20 & lin == 60 & pos == 60)) %>%
-  st_union() %>%
-  st_as_sf() %>%
-  rename(geometry = x) %>%
-  mutate(
-    dpos = 20,
-    lin  = 55,
-    pos  = 60)
-# mapView(V) + mapView(u)
-V <- st_difference(V, st_geometry(u)) %>%
-  bind_rows(u)
-
-u <- V %>%
-  filter(
-    (dpos == 20 & lin == 50 & pos == 40) |
-      (dpos == 20 & lin == 60 & pos == 40)) %>%
-  st_union() %>%
-  st_as_sf() %>%
-  rename(geometry = x) %>%
-  mutate(
-    dpos = 20,
-    lin  = 55,
-    pos  = 40)
-# mapView(V) + mapView(u)
-V <- st_difference(V, st_geometry(u)) %>%
-  bind_rows(u)
-# mapView(V)
-
-V <-  V %>%
-  mutate(
-    site_key = glue("{lin},{pos}")) %>%
-  relocate(site_key)
-
-# mapView(V) +
-#   mapView(iea_ca_y, col.regions = "red")
-
-site_keys <- read_csv(here("data-raw/cc_grid_sta-keys.csv")) %>%
-  pull(site_key)
-# TODO: rm 60,45 from cc_grid_sta-keys.csv in SF Bay?
-# mapView(V)
-V <- V %>%
-  filter(site_key %in% site_keys)
-# mapView(V)
-
-cc_grid <- st_difference(
-  V, st_transform(lnd, st_crs("+proj=calcofi"))) %>%
-  st_transform(4326) %>%
-  rename(geom = geometry)
-# mapView(cc_grid)
-
-slivers <- st_difference(
-  st_union(V) %>%
-    st_transform(4326),
-  cc_grid) %>%
-  st_cast("POLYGON") %>%
-  st_as_sf() %>%
-  mutate(
-    area = st_area(x)) %>%
-  rowid_to_column("id")
-# slivers$area
-# mapview(slivers)
-
-# mapview(V %>% st_transform(4326)) +
-#   mapview(slivers, color="red", col.regions = "red", lwd=10)
-# mapview(slivers)
-
-# m <- mapview(st_union(V))
-# mapedit()
-# m <- mapview(st_union(V %>% st_transform(4326)))
-# y <- mapedit::editMap(m)
-# write_sf(y$all, "data-raw/cc_grid_box4slivers.geojson")
-y <- read_sf("data-raw/cc_grid_box4slivers.geojson")
-
-# get slivers
-s <- st_difference(
-  y,
-  st_union(V %>% st_transform(4326))) %>%
-  st_cast("POLYGON") %>%
-  rowid_to_column("id")
-# mapview(V %>% st_transform(4326)) +
-#   mapview(s, color="red", col.regions = "red", lwd=10)
-
-g_key = "93.3,110"; s_id = 5
-st_geometry(cc_grid[cc_grid$site_key == g_key,]) <- st_union(
-  filter(cc_grid, site_key == g_key) %>% pull(geom),
-  filter(s, id==s_id) %>% pull(geometry))
-
-g_key = "93.3,90"; s_id = 4
-st_geometry(cc_grid[cc_grid$site_key == g_key,]) <- st_union(
-  filter(cc_grid, site_key == g_key) %>% pull(geom),
-  filter(s, id==s_id) %>% pull(geometry))
-
-g_key = "93.3,70"; s_id = 3
-st_geometry(cc_grid[cc_grid$site_key == g_key,]) <- st_union(
-  filter(cc_grid, site_key == g_key) %>% pull(geom),
-  filter(s, id==s_id) %>% pull(geometry))
-
-g_key = "93.3,50"; s_id = 1
-st_geometry(cc_grid[cc_grid$site_key == g_key,]) <- st_union(
-  filter(cc_grid, site_key == g_key) %>% pull(geom),
-  filter(s, id==s_id) %>% pull(geometry))
-
-g_key = "93.3,30"; s_id = 2
-st_geometry(cc_grid[cc_grid$site_key == g_key,]) <- st_union(
-  filter(cc_grid, site_key == g_key) %>% pull(geom),
-  filter(s, id==s_id) %>% pull(geometry))
-
-cc_grid <- cc_grid %>%
-  select(site_key, sta_lin = lin, sta_pos = pos, sta_dpos = dpos) %>%
-  as_tibble() %>% st_as_sf()
-
-# add categories for https://github.com/CalCOFI/calcofi4r/issues/4
-cc_grid <- cc_grid %>%
-  mutate(
-    sta_shore = case_when(
-      sta_pos <= 60 ~ "nearshore",
-      TRUE ~ "offshore"),
-    sta_pattern = case_when(
-      sta_lin >= 76.7 & sta_dpos %in% c(5,10) ~ "standard",
-      sta_lin <  76.7 & sta_dpos %in% c(5,10) ~ "extended",
-      TRUE ~ "historical"))
-# mapview::mapView(cc_grid, zcol="sta_pattern")
-# mapview::mapView(cc_grid, zcol="sta_shore")
-
-cc_grid <- read_sf(con, "effort_grid") %>%
-  mutate(
-    sta_lin  = as.integer(sta_lin),
-    sta_pos  = as.integer(sta_pos),
-    sta_dpos = as.integer(sta_dpos),
-    zone_key = glue("{sta_shore}-{sta_pattern}"))
-
-# write to database
-dbSendQuery(
-  con,
-  "DROP TABLE effort_grid CASCADE")
-st_write(
-  cc_grid, con, "effort_grid",
-  layer_options = c(
-    "OVERWRITE=yes", "LAUNDER=true"))
-dbSendQuery(
-  con,
-  "CREATE INDEX IF NOT EXISTS effort_grid_idx ON effort_grid USING GIST (geom);")
-
-cc_grid_ctrs <- cc_grid %>%
-  mutate(
-    geom = st_centroid(
-      geom, of_largest_polygon = T))
-# mapView(cc_grid) + mapView(cc_grid_ctrs)
-
-st_write(
-  cc_grid_ctrs, con, "effort_ctrs",
-  layer_options = c(
-    "OVERWRITE=yes", "LAUNDER=true"))
-dbSendQuery(
-  con,
-  "CREATE INDEX IF NOT EXISTS effort_ctrs_idx ON effort_ctrs USING GIST (geom);")
-
-cc_grid_zones <- read_sf(con, "effort_grid") %>%
-  group_by(
-    sta_pattern, sta_shore) %>%
-  summarize(
-    zone_key    = unique(zone_key),
-    sta_dpos    = unique(sta_dpos),
-    sta_lin_min = min(sta_lin),
-    sta_lin_max = max(sta_lin),
-    sta_pos_min = min(sta_pos),
-    sta_pos_max = max(sta_pos),
-    .groups = "drop") %>%
-  relocate(zone_key)
-# cc_grid_zones
-# mapview::mapView(cc_grid_zones, zcol="zone_key")
-
-st_write(
-  cc_grid_zones, con, "effort_zones",
-  layer_options = c(
-    "OVERWRITE=yes", "LAUNDER=true"))
-dbSendQuery(
-  con,
-  "CREATE INDEX IF NOT EXISTS effort_zones_idx ON effort_zones USING GIST (geom);")
-
-usethis::use_data(cc_grid, overwrite = TRUE)
-usethis::use_data(cc_grid_ctrs, overwrite = TRUE)
-usethis::use_data(cc_grid_zones, overwrite = TRUE)
+# the record of what the build did, for the docs and the evidence notebook
+# (CalCOFI/workflows explore_grid_voronoi.qmd)
+write_csv(b$seeds, "data-raw/cc_grid_seeds.csv", na = "")
+write_sf(b$pockets, "data-raw/cc_grid_pockets.geojson", delete_dsn = TRUE)
+cat("cc_grid:", nrow(cc_grid), "cells;",
+    sum(vapply(st_geometry(cc_grid), function(g) nrow(st_coordinates(g)), 1)), "vertices\n")
+print(b$report)

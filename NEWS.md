@@ -1,3 +1,43 @@
+# calcofi4r (development version)
+
+## The CalCOFI grid is rebuilt from the official station positions (CalCOFI/workflows#130)
+
+- **`cc_grid` is now one cell per official station**: the Voronoi tessellation of the 113
+  positions on <https://calcofi.org/sampling-info/station-positions/> (the nine SCCOOS inshore
+  stations included), clipped to the previous grid's outer hull and to the coastline, plus the
+  previous grid's cells beyond 20 nautical miles of the official pattern (112 of them, keys
+  unchanged). 225 cells, each a single polygon holding its own station; before, cells were Voronoi
+  polygons of an idealized lattice, 19 were in several pieces, and an inshore cell held two to
+  four real stations. `cc_grid_ctrs` is now each cell's station (on its line by construction)
+  rather than the centroid of its largest polygon, and `cc_grid_zones` is the new cells dissolved.
+- **A key is not a cell across the two grids.** 84 of the 113 station cells reuse a key whose
+  polygon changed (`st30-ln90` was the cell of four stations and is now the cell of 90.0 30.0), 22
+  keys retire and 29 are new (`st26.7-ln93.3`, `st27.7-ln90`, `st26.4-ln93.4`, ...). Map between
+  them with the release's `grid_crosswalk` table, never by name.
+- **Column changes in `cc_grid` / `cc_grid_ctrs`**: `sta_lin` and `sta_pos` are doubles (they were
+  integers, so line 76.7 read 76 and 93.3 read 93); new `grid_key` (the release key), `sta_type`
+  (`"ROS"`, `"SCCOOS"`, `NA` for a kept cell) and `sta_source` (`"official"` or `"previous"`);
+  `zone_key` is a plain character; `sta_key` is unique (the previous grid had `"90,120"` twice);
+  `geom` is always a `POLYGON`. `cc_grid_zones`' `sta_lin_*` / `sta_pos_*` are doubles.
+- New `cc_grid_key(lon, lat, grid = cc_grid)`: the cell a position falls in, by the rule
+  `calcofi4db::assign_grid_key()` applies in DuckDB (planar longitude/latitude; on a shared edge,
+  the key that sorts first), so R and the database agree on every position.
+- New `cc_grid_build()`, `cc_grid_land_prep()` and `cc_grid_zones_build()`: the build itself,
+  exported so it is tested and so a variant can be measured beside the shipped grid. The rules
+  (extent, generators and the 20 nautical mile seed rule, a kept cell generated from its label
+  even where that is on land, pockets cut off by land joining the neighbour they share water
+  with, sites, attributes) are in `?cc_grid_build`.
+- New datasets: `cc_station_positions` (the official table), `cc_grid_v1` (the previous grid, with
+  the keys every release through v2026.10.01 carries) and `cc_grid_land` (the land mask: OpenStreetMap
+  land polygons, islets under 1 km2 dropped, coastline pulled back 300 m and simplified to 100 m).
+  With them `cc_grid_build()` reproduces `cc_grid` from the package alone, and a test asserts it.
+- `data-raw/cc_grid.R` is rewritten to build every grid dataset from those inputs with no hand
+  edits; the previous script (a PostGIS table and a hand-drawn sliver file) is kept as
+  `data-raw/cc_grid_v1.R`. `cc_places`' six "CalCOFI Zones" are re-cut from the new zones.
+- `cc_transect_stations(line = 93.3)` reads the release's `grid`, so against a release with the
+  new grid it no longer returns casts at the SCCOOS station 93.4 26.4 (its own line and cell), and
+  the inshore stations of a line are separate columns instead of one cast per shared cell.
+
 # calcofi4r 1.24.2
 
 - `cc_catalog()` resolves `"latest"` through `CALCOFI_RELEASE_VERSION` and reads the catalog under
