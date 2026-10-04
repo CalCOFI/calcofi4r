@@ -52,20 +52,21 @@
 # cc_grid ----
 #' CalCOFI grid: one cell per official station
 #'
-#' The cells of the CalCOFI grid: the Voronoi tessellation of the 113 official station positions
-#' ([cc_station_positions]), clipped to the outer hull of the previous grid ([cc_grid_v1]) and to
-#' the coastline ([cc_grid_land]), plus the previous grid's cells beyond 20 nautical miles of the
-#' official pattern, so the extended historical grid keeps its cells and keys. Every cell is one
-#' polygon holding its own station, and the release's `grid` table is these cells
-#' (`calcofi4db::build_grid_reference()`). Built by [cc_grid_build()] in `data-raw/cc_grid.R`;
-#' the rules are documented there.
+#' The cells of the CalCOFI grid. 113 **station cells**: the Voronoi tessellation of the official
+#' station positions ([cc_station_positions]), confined to the cells of the previous grid
+#' ([cc_grid_v1]) it replaces, so an outer station's cell stops where the previous grid stopped.
+#' And 112 **kept cells**: the previous grid's cells beyond 20 nautical miles of the official
+#' pattern, with their own boundaries and keys, so a historical position keys as it always did.
+#' Both end at the coastline ([cc_grid_land]). Every station cell holds its own station, and the
+#' release's `grid` table is these cells (`calcofi4db::build_grid_reference()`). Built by
+#' [cc_grid_build()] in `data-raw/cc_grid.R`; the rules are documented there.
 #'
 #' Before this grid, cells were Voronoi polygons of an idealized lattice and an inshore cell held
 #' several real stations ([cc_grid_v1]). **84 of the 113 station cells reuse a key whose polygon
 #' changed**, so never map a key between the two grids by name: use the release's `grid_crosswalk`
 #' table (`calcofi4db::build_grid_crosswalk()`), and [cc_grid_key()] to key a position.
 #'
-#' @format An `sf` of 225 polygons (EPSG:4326) with
+#' @format An `sf` of 225 cells (EPSG:4326) with
 #' \describe{
 #'   \item{grid_key}{the release key, `st{station}-ln{line}`, with `_hist` for a cell of the
 #'     historical pattern (e.g. `st26.7-ln93.3`, `st120-ln110_hist`)}
@@ -82,7 +83,9 @@
 #'     nine ~20 m inshore stations); `NA` for a cell kept from the previous grid}
 #'   \item{sta_source}{"official" (a station of the official list) or "previous" (a cell kept
 #'     from [cc_grid_v1])}
-#'   \item{geom}{the cell, one polygon (EPSG:4326); edges are straight in longitude/latitude}
+#'   \item{geom}{the cell (EPSG:4326); edges are straight in longitude/latitude. A station cell is
+#'     one polygon (but `st53-ln60`, which keeps 21 km2 of Tomales Bay that no station cell reaches
+#'     by water); a kept cell is the previous cell, in as many pieces as it was (13 are in several)}
 #' }
 #' @source [Station Positions - CalCOFI](https://calcofi.org/sampling-info/station-positions);
 #'   coastline (c) OpenStreetMap contributors (ODbL)
@@ -92,10 +95,10 @@
 # cc_grid_ctrs ----
 #' CalCOFI grid sites: the station of each cell
 #'
-#' The site of each [cc_grid] cell, i.e. the generator its cell was built from: the official
-#' station position for a station cell (on its line by construction), and for a cell kept from the
-#' previous grid its labelled (line, station) under `+proj=calcofi`, or the previous cell's centre
-#' where that label is on land. The release's `grid.geom_ctr`.
+#' The site of each [cc_grid] cell: the official station position for a station cell (on its line
+#' by construction), and for a cell kept from the previous grid its labelled (line, station) under
+#' `+proj=calcofi` where the cell holds it, else the previous cell's centre, else a point on the
+#' cell. The release's `grid.geom_ctr`.
 #'
 #' @format An `sf` of 225 points (EPSG:4326) with the columns of [cc_grid] and
 #' \describe{
@@ -134,8 +137,9 @@
 #' The grid as `cc_grid` shipped it through calcofi4r 1.24.2 and as every database release through
 #' v2026.10.01 carries it in `grid`: Voronoi polygons of an idealized lattice (5, 10 and 20 station
 #' units) in `+proj=calcofi` coordinates, clipped by Natural Earth land. Kept because the current
-#' [cc_grid] is built inside its outer hull and keeps its cells beyond the official pattern, and
-#' because the release's `grid_crosswalk` is the overlap of the two.
+#' [cc_grid] is built from it (its cells beyond the official pattern are kept as they were, and
+#' the station cells fill the ones they replace), and because the release's `grid_crosswalk` is
+#' the overlap of the two.
 #'
 #' @format An `sf` of 218 polygons and multipolygons (EPSG:4326) with
 #' \describe{

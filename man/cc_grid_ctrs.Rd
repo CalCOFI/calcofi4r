@@ -17,10 +17,10 @@ An \code{sf} of 225 points (EPSG:4326) with the columns of \link{cc_grid} and
 cc_grid_ctrs
 }
 \description{
-The site of each \link{cc_grid} cell, i.e. the generator its cell was built from: the official
-station position for a station cell (on its line by construction), and for a cell kept from the
-previous grid its labelled (line, station) under \code{+proj=calcofi}, or the previous cell's centre
-where that label is on land. The release's \code{grid.geom_ctr}.
+The site of each \link{cc_grid} cell: the official station position for a station cell (on its line
+by construction), and for a cell kept from the previous grid its labelled (line, station) under
+\code{+proj=calcofi} where the cell holds it, else the previous cell's centre, else a point on the
+cell. The release's \code{grid.geom_ctr}.
 }
 \concept{data}
 \keyword{datasets}

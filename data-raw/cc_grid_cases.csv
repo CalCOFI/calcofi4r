@@ -1,0 +1,3 @@
+case,grid_key,area_km2,note
+replaced water no station cell reaches,st53-ln60,21.066970498461764,in previous st50-ln60; kept with its nearest station as a detached part
+replaced region piece apart from the main one,st53-ln60,21.066970498461764,0 station(s) inside; in previous st50-ln60

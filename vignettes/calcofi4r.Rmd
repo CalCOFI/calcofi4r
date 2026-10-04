@@ -151,10 +151,11 @@ head(d_t)
 ## CalCOFI Grid
 
 The CalCOFI grid has one cell per official station: the Voronoi tessellation of the 113 [official
-station positions](https://calcofi.org/sampling-info/station-positions/), clipped to the coastline,
-plus the historical cells beyond the official pattern. The package includes pre-loaded grid data:
+station positions](https://calcofi.org/sampling-info/station-positions/), ending at the coastline,
+beside the historical cells beyond the official pattern, kept as they were. The package includes
+pre-loaded grid data:
 
-- `cc_grid` - station cells (one polygon per station)
+- `cc_grid` - station cells (one per official station) and the kept historical cells
 - `cc_grid_ctrs` - the station of each cell
 - `cc_grid_zones` - aggregated zones by station pattern
 - `cc_station_positions` - the official station table

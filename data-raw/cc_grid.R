@@ -13,8 +13,9 @@
 #      Fetched 2026-10-02.
 #   2. the previous grid — `data/cc_grid.rda` and `data/cc_grid_ctrs.rda` as of calcofi4r 1.24.2
 #      (git commit GRID_V1_COMMIT; built by data-raw/cc_grid_v1.R from a PostGIS table and a
-#      hand-drawn sliver file, so it is read from git, never rebuilt). It supplies the outer hull
-#      and the historical cells beyond the official pattern, and ships as `cc_grid_v1`.
+#      hand-drawn sliver file, so it is read from git, never rebuilt). It supplies the outer hull,
+#      the cells kept as they were (beyond 20 nautical miles of the official pattern) and the
+#      region the station cells are confined to (the cells they replace), and ships as `cc_grid_v1`.
 #   3. OpenStreetMap land polygons — https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip
 #      (926 MB; the copy CalCOFI/workflows `ingest_spatial.qmd` keeps under
 #      cc_stage_dir()/reference/). Read once, prepared by cc_grid_land_prep() and shipped as
@@ -98,8 +99,13 @@ b <- cc_grid_build(cc_station_positions, cc_grid_v1, cc_grid_land, verbose = TRU
 cc_grid       <- b$grid
 cc_grid_ctrs  <- b$ctrs
 cc_grid_zones <- b$zones
+n_parts <- vapply(st_geometry(cc_grid), function(g) if (inherits(g, "MULTIPOLYGON")) length(g) else 1L, 1L)
+off     <- cc_grid$sta_source == "official"
 stopifnot(
-  "every cell is one polygon"            = all(st_geometry_type(cc_grid) == "POLYGON"),
+  # a kept cell is the previous cell, pieces and all; a station cell is one polygon unless the
+  # build reports why not (b$cases: water of a replaced cell that no station cell reaches)
+  "a station cell is in pieces and no case explains it" =
+    all(cc_grid$grid_key[off & n_parts > 1] %in% b$cases$grid_key),
   "every cell is valid"                  = all(st_is_valid(cc_grid)),
   "keys are unique"                      = !anyDuplicated(cc_grid$grid_key) && !anyDuplicated(cc_grid$sta_key),
   "every official station has its cell"  = all(cc_station_positions$grid_key %in% cc_grid$grid_key),
@@ -122,9 +128,13 @@ use_data(cc_grid_zones,        overwrite = TRUE)
 use_data(cc_places,            overwrite = TRUE)
 
 # the record of what the build did, for the docs and the evidence notebook
-# (CalCOFI/workflows explore_grid_voronoi.qmd)
-write_csv(b$seeds, "data-raw/cc_grid_seeds.csv", na = "")
+# (CalCOFI/workflows explore_grid_voronoi.qmd): what became of each previous cell, the pockets
+# that changed station cell, and the cases the rules could not attach
+write_csv(b$prev,  "data-raw/cc_grid_prev.csv",  na = "")
+write_csv(b$cases, "data-raw/cc_grid_cases.csv", na = "")
 write_sf(b$pockets, "data-raw/cc_grid_pockets.geojson", delete_dsn = TRUE)
+cat("multi-part cells:", sum(n_parts > 1), "(", sum(off & n_parts > 1), "station cell(s) )\n")
+print(b$cases)
 cat("cc_grid:", nrow(cc_grid), "cells;",
     sum(vapply(st_geometry(cc_grid), function(g) nrow(st_coordinates(g)), 1)), "vertices\n")
 print(b$report)

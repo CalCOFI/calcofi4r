@@ -2,14 +2,15 @@
 % Please edit documentation in R/grid.R
 \name{cc_grid_build}
 \alias{cc_grid_build}
-\title{Build the CalCOFI grid as a Voronoi tessellation of station positions}
+\title{Build the CalCOFI grid: one cell per official station, inside the previous grid}
 \usage{
 cc_grid_build(
   stations = calcofi4r::cc_station_positions,
   grid_prev = calcofi4r::cc_grid_v1,
   land = calcofi4r::cc_grid_land,
-  seed_dist_m = 20 * CC_NMI_M,
+  keep_dist_m = 20 * CC_NMI_M,
   edge_m = 5000,
+  gap_m = 250,
   crs_m = 3310,
   verbose = FALSE
 )
@@ -25,10 +26,13 @@ cc_grid_build(
 \item{land}{land polygons (\code{sf} or \code{sfc}, any CRS), used as given; default the bundled
 \link{cc_grid_land}, which is \code{\link[=cc_grid_land_prep]{cc_grid_land_prep()}} of OpenStreetMap's land polygons}
 
-\item{seed_dist_m}{a previous cell is kept as a seed when its label is farther than this from
-the convex hull of \code{stations}, in metres (default 20 nautical miles)}
+\item{keep_dist_m}{a previous cell is kept when its label is farther than this from the convex
+hull of \code{stations}, in metres (default 20 nautical miles)}
 
 \item{edge_m}{longest Voronoi edge segment, in metres (default 5000)}
+
+\item{gap_m}{spacing of the points along a gap's edges that decide which cell gap water is
+nearest to, in metres (default 250)}
 
 \item{crs_m}{projected CRS, in metres, for the tessellation and the areas (default 3310,
 California Albers)}
@@ -36,15 +40,16 @@ California Albers)}
 \item{verbose}{print what the build did}
 }
 \value{
-a list: \code{grid} (\code{sf} polygons, EPSG:4326: \code{grid_key}, \code{sta_key}, \code{sta_lin}, \code{sta_pos},
+a list: \code{grid} (\code{sf}, EPSG:4326: \code{grid_key}, \code{sta_key}, \code{sta_lin}, \code{sta_pos},
 \code{sta_dpos}, \code{sta_shore}, \code{sta_pattern}, \code{zone_key}, \code{sta_type}, \code{sta_source} and \code{geom}),
 \code{ctrs} (the same rows with each cell's site as \code{geom}), \code{zones} (cells dissolved by
-pattern and shore), \code{pockets} (\code{sf}, EPSG:4326: every piece that changed cell under rule 4,
-with \code{key_from}, \code{key_to}, \code{area_km2}), \code{dropped} (\code{sf}: the cut-off water of rule 1),
-\code{seeds} (one row per previous cell: \code{in_zone}, whether its label and its centre are in
-water, and \code{seed_at}: \code{"retired"}, or where the kept cell's site is, \code{"label"}, \code{"centre"}
-or \code{"water"}, or \code{"no water"} for a seed whose cell came out empty) and \code{report} (named
-counts)
+pattern and shore), \code{pockets} (\code{sf}, EPSG:4326: every piece that changed cell under rule 5,
+with \code{key_from}, \code{key_to}, \code{area_km2}), \code{dropped} (\code{sf}: the gap water left out under rule
+6), \code{prev} (one row per previous cell: \code{grid_key}, \code{sta_key}, \code{sta_pattern}, \code{in_zone},
+\code{fate} (\code{"kept"}, \code{"replaced"}, or \code{"no water"} for a kept cell that is all land),
+\code{site_at} (\code{"label"}, \code{"centre"} or \code{"water"}) and \code{gap_km2}, the gap water it gained),
+\code{cases} (a data frame of what rule 5 could not attach and of a replaced region in several
+pieces: \code{case}, \code{grid_key}, \code{area_km2}, \code{note}) and \code{report} (named counts)
 }
 \description{
 The cells of the CalCOFI grid, built from the official station positions
@@ -58,32 +63,36 @@ stations) measured beside it.
 The rules, in order:
 \enumerate{
 \item \strong{Extent.} The grid covers the outer hull of the previous grid (the union of its cells with
-interior holes filled) minus \code{land}. A piece of water that land cuts off from every cell
-(a lagoon behind the previous grid's coarser coastline) is not part of the grid.
-\item \strong{Generators.} Every row of \code{stations} at its listed position, plus a \strong{seed} for each
-previous cell whose labelled (line, station) lies farther than \code{seed_dist_m} (20 nautical
-miles) from the convex hull of the stations, so the extended historical grid keeps its
-cells and keys. A seed is the cell's label under \code{+proj=calcofi}, \strong{on land or not}: the
-edge it shares with its neighbours then stays where the previous lattice put it, and the
-samples of a coastal cell stay in it. (Moving a seed off land onto the cell's water pulls
-that edge seaward and hands the cell its neighbour's nearshore stations.) A previous cell
-inside the 20 nautical mile zone that is not a station is retired: its water goes to the
-nearest generator.
-\item \strong{Cells.} The Voronoi tessellation of the generators in metres (\code{crs_m}), clipped to the
-extent. Voronoi edges get a vertex every \code{edge_m} so that the lon/lat polygon follows the
-metric edge (to well under a metre at 5 km).
-\item \strong{Pockets.} A piece of a cell that land separates from the cell's home piece joins the
-neighbouring cell it shares the longest water edge with (ties: the key that sorts first),
-repeated until every piece is attached. A cell is then one polygon. The home piece is the
-one holding the generator; for a seed on land, the one holding the previous cell's centre,
-else the largest.
-\item \strong{Sites.} The site of a cell (\code{ctrs}, the release's \code{grid.geom_ctr}) is its generator; for
-a seed on land it is the previous cell's centre when that lies in the new cell, else a
-point on the cell.
+interior holes filled) minus \code{land}.
+\item \strong{Kept or replaced.} A previous cell whose labelled (line, station) lies farther than
+\code{keep_dist_m} (20 nautical miles) from the convex hull of \code{stations} is \strong{kept}; the others
+are \strong{replaced}. Where two previous cells overlap, the overlap belongs to the key that sorts
+first, which is the cell \code{\link[=cc_grid_key]{cc_grid_key()}} gave a position there.
+\item \strong{Kept cells are the previous cells.} A kept cell keeps its key, its attributes and its own
+boundaries, toward the other kept cells and toward the replaced region, so a position that
+was in a kept cell is still in it. Only its coast side changes: it ends at \code{land}.
+\item \strong{Station cells.} The Voronoi tessellation of \code{stations} in metres (\code{crs_m}), confined to
+the replaced region \code{R} (the union of the replaced cells): an outer station's cell stops
+where the previous grid stopped. Voronoi edges get a vertex every \code{edge_m} so the lon/lat
+polygon follows the metric edge (to well under a metre at 5 km).
+\item \strong{Pockets.} A piece of a station's cell that land separates from the piece holding the
+station joins the neighbouring station cell it shares the longest water edge with (ties:
+the key that sorts first), repeated until every piece is attached. A pocket never joins a
+kept cell. A piece of \code{R} that no station's cell reaches by water stays with the station it
+is nearest to, as a detached part, and is reported in \code{cases}.
+\item \strong{Gap water.} Water of the extent that no previous cell covered (the previous grid was
+clipped by a coarser coastline) joins the cell whose edge it is nearest to, kept or
+replaced; inside \code{R} it is then part of the station tessellation. Gap water that touches no
+cell is left out of the grid.
+\item \strong{Sites.} The site of a station cell (\code{ctrs}, the release's \code{grid.geom_ctr}) is the
+station. The site of a kept cell is its label under \code{+proj=calcofi} when the cell holds it,
+else the previous cell's centre, else a point on the cell.
 \item \strong{Attributes.} A station's cell is \code{nearshore} at station 60 or less and \code{offshore} beyond;
 \code{standard} on lines 76.7 and south (the 75-station pattern) and \code{extended} north of it;
-spacing class 5 nearshore and 10 offshore. A seed's cell keeps the previous cell's
-attributes and key.
+spacing class 5 nearshore and 10 offshore.
 }
+
+It stops when a station lies on land, outside the previous grid's hull, or outside the
+replaced region \code{R}: a station inside a kept cell has no cell to be the station of.
 }
 \concept{grid}

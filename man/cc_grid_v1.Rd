@@ -27,8 +27,9 @@ cc_grid_v1
 The grid as \code{cc_grid} shipped it through calcofi4r 1.24.2 and as every database release through
 v2026.10.01 carries it in \code{grid}: Voronoi polygons of an idealized lattice (5, 10 and 20 station
 units) in \code{+proj=calcofi} coordinates, clipped by Natural Earth land. Kept because the current
-\link{cc_grid} is built inside its outer hull and keeps its cells beyond the official pattern, and
-because the release's \code{grid_crosswalk} is the overlap of the two.
+\link{cc_grid} is built from it (its cells beyond the official pattern are kept as they were, and
+the station cells fill the ones they replace), and because the release's \code{grid_crosswalk} is
+the overlap of the two.
 }
 \concept{data}
 \keyword{datasets}
