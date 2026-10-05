@@ -78,12 +78,12 @@ head(sec)
 #> # A tibble: 6 × 6
 #>   cruise_key     sta dist_km depth_m variable        value
 #>   <chr>        <dbl>   <dbl>   <dbl> <chr>           <dbl>
-#> 1 2026-07-3322    25       0       0 temperature_ave  20.1
-#> 2 2026-07-3322    25       0      10 temperature_ave  17.1
-#> 3 2026-07-3322    25       0      20 temperature_ave  13.5
-#> 4 2026-07-3322    25       0      30 temperature_ave  11.4
-#> 5 2026-07-3322    25       0      40 temperature_ave  11.3
-#> 6 2026-07-3322    25       0      50 temperature_ave  11.1
+#> 1 2026-07-3322  26.7       0       0 temperature_ave  20.3
+#> 2 2026-07-3322  26.7       0      10 temperature_ave  17.8
+#> 3 2026-07-3322  26.7       0      20 temperature_ave  12.6
+#> 4 2026-07-3322  26.7       0      30 temperature_ave  11.4
+#> 5 2026-07-3322  26.7       0      40 temperature_ave  11.3
+#> 6 2026-07-3322  26.7       0      50 temperature_ave  11.1
 ```
 
 [`cc_transect_stations()`](https://calcofi.io/calcofi4r/reference/cc_transect_stations.md)
@@ -103,7 +103,7 @@ lin <- cc_transect_stations(con, LINE, cruise_recent, x = "line")
 
 c(occupied_km = max(occ$dist_km), along_line_km = max(lin$dist_km))
 #>   occupied_km along_line_km 
-#>      690.5248      692.0594
+#>      689.0909      689.0085
 ```
 
 ## The baseline, and a filter before it
@@ -116,7 +116,7 @@ clim <- cc_climatology(
 attr(clim, "baseline")
 #> [1] 1993 2013
 nrow(clim)
-#> [1] 21229
+#> [1] 21232
 ```
 
 [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
@@ -160,7 +160,7 @@ temp_all |>
 #> # A tibble: 3 × 2
 #>   band       n
 #>   <fct>  <int>
-#> 1 <24   694019
+#> 1 <24   689199
 #> 2 24-26      1
 #> 3 >=35       1
 ```
@@ -213,9 +213,9 @@ never measured.
 anom <- cc_anomaly(sec, clim_screened, sta)
 
 round(100 * mean(!is.na(anom$anomaly)))   # % of this section with a baseline
-#> [1] 69
+#> [1] 64
 range(anom$anomaly, na.rm = TRUE)
-#> [1] -2.395349  4.302867
+#> [1] -2.387766  4.305396
 ```
 
 ``` r
@@ -249,8 +249,8 @@ shape a Plotly or ODV-style section takes directly.
 m <- cc_transect_matrix(anom, value = "anomaly")
 str(m, max.level = 1)
 #> List of 4
-#>  $ x  : num [1:14] 0 11.3 62.7 99.8 135.6 ...
-#>  $ sta: num [1:14] 25 30 35 40 45 50 55 60 70 80 ...
+#>  $ x  : num [1:15] 0 9.84 24.62 61.31 98.33 ...
+#>  $ sta: num [1:15] 26.7 28 30 35 40 45 50 55 60 70 ...
 #>  $ y  : num [1:51] 0 10 20 30 40 50 60 70 80 90 ...
 #>  $ z  :List of 51
 ```
@@ -302,12 +302,12 @@ head(series)
 #> # A tibble: 6 × 4
 #>      yr layer     anomaly     n
 #>   <int> <fct>       <dbl> <int>
-#> 1  2000 0-50 m     0.635    717
-#> 2  2000 50-100 m  -0.103    429
-#> 3  2000 100-200 m -0.169    733
-#> 4  2000 200-500 m -0.0667  1681
-#> 5  2001 0-50 m     0.479    798
-#> 6  2001 50-100 m  -0.117    483
+#> 1  2000 0-50 m     0.457    582
+#> 2  2000 50-100 m  -0.127    410
+#> 3  2000 100-200 m -0.165    705
+#> 4  2000 200-500 m -0.0628  1649
+#> 5  2001 0-50 m     0.524    639
+#> 6  2001 50-100 m  -0.127    448
 ```
 
 A sanity check before reading anything into it: the baseline years must
@@ -365,7 +365,7 @@ comparison <- series |>
 
 summary(abs(comparison$difference))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#> 0.02664 0.06931 0.09357 0.18034 0.29571 0.58528
+#> 0.04166 0.05450 0.05918 0.15677 0.26004 0.51747
 ```
 
 ## Reading it honestly

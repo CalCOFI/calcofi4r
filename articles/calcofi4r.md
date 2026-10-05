@@ -28,12 +28,13 @@ q <- dbExecute(con, "INSTALL spatial; LOAD spatial;")
 # list available tables
 dbListTables(con)
 #>  [1] "climatology"        "cruise"             "dataset"           
-#>  [4] "dataset_taxon"      "grid"               "lookup"            
-#>  [7] "measurement_type"   "obs"                "obs_attribute"     
-#> [10] "obs_bio"            "obs_env"            "region"            
-#> [13] "sample"             "sample_measurement" "sample_spatial"    
-#> [16] "ship"               "spatial"            "spatial_attribute" 
-#> [19] "taxon"              "taxon_group"
+#>  [4] "dataset_taxon"      "fish"               "grid"              
+#>  [7] "grid_crosswalk"     "lookup"             "measurement_type"  
+#> [10] "obs"                "obs_attribute"      "obs_bio"           
+#> [13] "obs_env"            "region"             "sample"            
+#> [16] "sample_measurement" "sample_spatial"     "ship"              
+#> [19] "spatial"            "spatial_attribute"  "taxon"             
+#> [22] "taxon_group"
 ```
 
 ## Convenience Functions
@@ -44,31 +45,32 @@ The package provides convenience functions for common operations:
 
 # list available versions
 cc_list_versions()
-#> # A tibble: 33 × 9
-#>    version     release_date tables total_rows size_mb doi           consolidated
-#>    <chr>       <chr>         <int>      <int>   <dbl> <chr>         <lgl>       
-#>  1 v2026.10.01 2026-10-01       23  375505833   2603. 10.5281/zeno… FALSE       
-#>  2 v2026.09.11 2026-09-11       23  362124968   2497. 10.5281/zeno… FALSE       
-#>  3 v2026.09.10 2026-09-11       23  356635055   2462. 10.5281/zeno… FALSE       
-#>  4 v2026.09.06 2026-09-06       23  348657010   2350. 10.5281/zeno… FALSE       
-#>  5 v2026.09.04 2026-09-04       23  348657010   2351. 10.5281/zeno… FALSE       
-#>  6 v2026.08.25 2026-08-25       18  320260205   1998. NA            TRUE        
-#>  7 v2026.08.14 2026-08-14       18  307537056   1930. NA            TRUE        
-#>  8 v2026.08.11 2026-08-11       18  323912311   2016. NA            FALSE       
-#>  9 v2026.08.10 2026-08-11       18  323912364   2017. NA            FALSE       
-#> 10 v2026.08.08 2026-08-08       18  309122838   1947  NA            FALSE       
-#> # ℹ 23 more rows
+#> # A tibble: 34 × 9
+#>    version     release_date tables total_rows size_mb consolidated doi          
+#>    <chr>       <chr>         <int>      <int>   <dbl> <lgl>        <chr>        
+#>  1 v2026.10.05 2026-10-05       25  373474855   2606. FALSE        NA           
+#>  2 v2026.10.01 2026-10-01       23  375505833   2603. FALSE        10.5281/zeno…
+#>  3 v2026.09.11 2026-09-11       23  362124968   2497. FALSE        10.5281/zeno…
+#>  4 v2026.09.10 2026-09-11       23  356635055   2462. FALSE        10.5281/zeno…
+#>  5 v2026.09.06 2026-09-06       23  348657010   2350. FALSE        10.5281/zeno…
+#>  6 v2026.09.04 2026-09-04       23  348657010   2351. FALSE        10.5281/zeno…
+#>  7 v2026.08.25 2026-08-25       18  320260205   1998. TRUE         NA           
+#>  8 v2026.08.14 2026-08-14       18  307537056   1930. TRUE         NA           
+#>  9 v2026.08.11 2026-08-11       18  323912311   2016. FALSE        NA           
+#> 10 v2026.08.10 2026-08-11       18  323912364   2017. FALSE        NA           
+#> # ℹ 24 more rows
 #> # ℹ 2 more variables: retired <df[,3]>, is_latest <lgl>
 
 # list tables (con = reuses the connection opened above)
 cc_list_tables(con = con)
 #>  [1] "climatology"        "cruise"             "dataset"           
-#>  [4] "dataset_taxon"      "grid"               "lookup"            
-#>  [7] "measurement_type"   "obs"                "obs_attribute"     
-#> [10] "obs_bio"            "obs_env"            "region"            
-#> [13] "sample"             "sample_measurement" "sample_spatial"    
-#> [16] "ship"               "spatial"            "spatial_attribute" 
-#> [19] "taxon"              "taxon_group"
+#>  [4] "dataset_taxon"      "fish"               "grid"              
+#>  [7] "grid_crosswalk"     "lookup"             "measurement_type"  
+#> [10] "obs"                "obs_attribute"      "obs_bio"           
+#> [13] "obs_env"            "region"             "sample"            
+#> [16] "sample_measurement" "sample_spatial"     "ship"              
+#> [19] "spatial"            "spatial_attribute"  "taxon"             
+#> [22] "taxon_group"
 
 # describe a table
 cc_describe_table("obs", con = con)
@@ -100,15 +102,15 @@ cc_list_measurement_types(con = con) |> head(10)
 #>    measurement_type    description                                         units
 #>    <chr>               <chr>                                               <chr>
 #>  1 abundance           Specimen count per net tow (headline occurrence; s… count
-#>  2 air_temp_c          Air temperature                                     deg_C
-#>  3 alkalinity          Total alkalinity                                    umol…
-#>  4 alkalinity_rep1     Total alkalinity replicate 1                        umol…
-#>  5 alkalinity_rep2     Total alkalinity replicate 2                        umol…
-#>  6 ammonia             Ammonium concentration (QC'd; the source column is… umol…
-#>  7 anchovy_eggs        Northern anchovy egg count                          count
-#>  8 atm_pressure_mb     Atmospheric pressure (ship level)                   mb   
-#>  9 atm_pressure_slc_mb Atmospheric pressure (sea-level corrected)          mb   
-#> 10 barometric_pressure Barometric pressure                                 mill…
+#>  2 acoustic_presence   Presence (1) or absence (0) of the taxon's calls i… dime…
+#>  3 air_temp_c          Air temperature                                     deg_C
+#>  4 alkalinity          Total alkalinity                                    umol…
+#>  5 alkalinity_rep1     Total alkalinity replicate 1                        umol…
+#>  6 alkalinity_rep2     Total alkalinity replicate 2                        umol…
+#>  7 ammonia             Ammonium concentration (QC'd; the source column is… umol…
+#>  8 anchovy_eggs        Northern anchovy egg count                          count
+#>  9 atm_pressure_mb     Atmospheric pressure (ship level)                   mb   
+#> 10 atm_pressure_slc_mb Atmospheric pressure (sea-level corrected)          mb
 ```
 
 ### Read Data Directly
@@ -139,12 +141,12 @@ head(ichthyo_sample)
 #> # A tibble: 6 × 18
 #>     obs_id realm dataset_key   sample_key grid_key cruise_key latitude longitude
 #>      <dbl> <chr> <chr>         <chr>      <chr>    <chr>         <dbl>     <dbl>
-#> 1 33127694 bio   swfsc_ichthyo swfsc_ich… NA       2003-10-3…     9.41     -99.2
-#> 2 33119581 bio   swfsc_ichthyo swfsc_ich… NA       2000-10-3…     7.74     -82.1
-#> 3 33122899 bio   swfsc_ichthyo swfsc_ich… NA       2002-10-3…    28.0     -178. 
-#> 4 32709672 bio   swfsc_ichthyo swfsc_ich… st20-ln… 1965-07-3…    26.6     -113. 
-#> 5 32821059 bio   swfsc_ichthyo swfsc_ich… st40-ln… 1966-08-3…    26.9     -114. 
-#> 6 32736162 bio   swfsc_ichthyo swfsc_ich… st30-ln… 1969-07-3…    32.8     -118. 
+#> 1 33319321 bio   swfsc_ichthyo swfsc_ich… NA       2003-10-3…     9.41     -99.2
+#> 2 33335556 bio   swfsc_ichthyo swfsc_ich… NA       2000-10-3…     7.74     -82.1
+#> 3 33325012 bio   swfsc_ichthyo swfsc_ich… NA       2002-10-3…    28.0     -178. 
+#> 4 32906017 bio   swfsc_ichthyo swfsc_ich… st20-ln… 1965-07-3…    26.6     -113. 
+#> 5 33029084 bio   swfsc_ichthyo swfsc_ich… st40-ln… 1966-08-3…    26.9     -114. 
+#> 6 32936721 bio   swfsc_ichthyo swfsc_ich… st30-ln… 1969-07-3…    32.8     -118. 
 #> # ℹ 10 more variables: datetime <dttm>, depth_min_m <dbl>, depth_max_m <dbl>,
 #> #   taxon_key <chr>, life_stage <chr>, measurement_type <chr>,
 #> #   measurement_value <dbl>, measurement_qual <chr>, measurement_prec <dbl>,
@@ -189,29 +191,20 @@ tibble(
     dbGetQuery(con, sprintf("SELECT COUNT(*) as n FROM %s", t))$n
   })) |>
   arrange(desc(rows))
-#> # A tibble: 20 × 2
+#> # A tibble: 22 × 2
 #>    table                  rows
 #>    <chr>                 <dbl>
-#>  1 obs                33139449
-#>  2 obs_env            31819982
-#>  3 sample              1469239
-#>  4 obs_bio             1319467
-#>  5 sample_spatial       929664
-#>  6 climatology          821001
-#>  7 sample_measurement   652879
-#>  8 obs_attribute        458184
+#>  1 obs                33340002
+#>  2 obs_env            31737343
+#>  3 obs_bio             1602659
+#>  4 sample              1479442
+#>  5 sample_spatial       945262
+#>  6 climatology          821390
+#>  7 sample_measurement   659989
+#>  8 obs_attribute        476615
 #>  9 spatial_attribute    148461
 #> 10 spatial               13206
-#> 11 taxon                  2623
-#> 12 dataset_taxon          1921
-#> 13 cruise                  842
-#> 14 taxon_group             441
-#> 15 grid                    218
-#> 16 measurement_type        211
-#> 17 ship                     49
-#> 18 lookup                   26
-#> 19 dataset                  17
-#> 20 region                    4
+#> # ℹ 12 more rows
 ```
 
 ## Query Environmental Data
@@ -239,12 +232,12 @@ d_temp <- dbGetQuery(con, "
 
 head(d_temp)
 #>         lon      lat            datetime depth_m temperature
-#> 1 -122.8167 32.93333 1949-09-17 21:30:00      10       18.47
-#> 2 -108.5000 24.08333 1956-02-07 13:42:00       0       19.99
-#> 3 -108.5000 24.08333 1956-02-07 13:42:00      10       20.01
-#> 4 -108.9833 23.91667 1956-02-07 18:24:00       0       19.76
-#> 5 -108.9833 23.91667 1956-02-07 18:24:00       9       19.74
-#> 6 -108.9833 23.91667 1956-02-07 18:24:00      10       19.73
+#> 1 -107.9750 23.30000 1956-02-06 17:54:00      10       20.24
+#> 2 -122.8167 32.93333 1949-09-17 21:30:00       0       18.90
+#> 3 -122.8167 32.93333 1949-09-17 21:30:00       8       18.48
+#> 4 -107.5167 23.55000 1956-02-06 22:36:00       0       22.00
+#> 5 -107.5167 23.55000 1956-02-06 22:36:00       9       21.37
+#> 6 -107.5167 23.55000 1956-02-06 22:36:00      10       21.34
 nrow(d_temp)
 #> [1] 93985
 ```
@@ -322,12 +315,12 @@ head(grid_db)
 #> 5 st-40-ln160_hist     -40  160 nearshore historical      20
 #> 6    st0-ln10_hist       0   10 nearshore historical      20
 #>                   zone  area_km2
-#> 1 nearshore-historical  2065.491
-#> 2 nearshore-historical 10689.976
-#> 3 nearshore-historical 21697.541
-#> 4 nearshore-historical 31967.488
-#> 5 nearshore-historical  2993.808
-#> 6 nearshore-historical 23111.471
+#> 1 nearshore-historical  2067.983
+#> 2 nearshore-historical 10696.875
+#> 3 nearshore-historical 21747.087
+#> 4 nearshore-historical 31989.836
+#> 5 nearshore-historical  2970.610
+#> 6 nearshore-historical 23158.491
 ```
 
 ## Show Effort by Grid Cell
@@ -415,16 +408,16 @@ top_species <- dbGetQuery(con, "
 
 top_species
 #>              scientific_name                common_name total_count n_samples
-#> 1                  Teleostei       Unidentified Teliost     8958412     61442
-#> 2           Engraulis mordax           Northern anchovy     6410683     29521
-#> 3            Sardinops sagax Pacific sardine (pilchard)      898866      9766
-#> 4       Merluccius productus    Pacific hake or whiting      872595     12527
-#> 5       Vinciguerria lucetia           Panama lightfish      421943     14829
-#> 6                   Sebastes                 Rockfishes      235762     18187
-#> 7      Trachurus symmetricus              Jack mackerel      193414      9528
-#> 8      Leuroglossus stilbius    California smoothtongue      159765     12478
-#> 9  Stenobrachius leucopsarus          Northern lampfish      139854     12726
-#> 10     Triphoturus mexicanus           Mexican lampfish      137992     14572
+#> 1                  Teleostei       Unidentified Teliost     9016352     61933
+#> 2           Engraulis mordax           Northern anchovy     6415353     29497
+#> 3            Sardinops sagax Pacific sardine (pilchard)      902351      9883
+#> 4       Merluccius productus    Pacific hake or whiting      881780     12872
+#> 5       Vinciguerria lucetia           Panama lightfish      422288     14858
+#> 6                   Sebastes                 Rockfishes      240613     18574
+#> 7      Trachurus symmetricus              Jack mackerel      193469      9564
+#> 8      Leuroglossus stilbius    California smoothtongue      163247     12669
+#> 9  Stenobrachius leucopsarus          Northern lampfish      142382     12919
+#> 10     Triphoturus mexicanus           Mexican lampfish      138132     14610
 ```
 
 ### Species Distribution
@@ -498,67 +491,67 @@ dbGetQuery(con, "
   head(20)
 #>       measurement_type
 #> 1            abundance
-#> 2           air_temp_c
-#> 3           alkalinity
-#> 4      alkalinity_rep1
-#> 5      alkalinity_rep2
-#> 6              ammonia
-#> 7         anchovy_eggs
-#> 8      atm_pressure_mb
-#> 9  atm_pressure_slc_mb
-#> 10 barometric_pressure
-#> 11    beam_attenuation
-#> 12            behavior
-#> 13         body_length
-#> 14        bottom_depth
-#> 15      bottom_depth_m
-#> 16   bottom_depth_mb_m
-#> 17        btl_ammonium
-#> 18   btl_chlorophyll_a
-#> 19           btl_depth
-#> 20         btl_nitrate
-#>                                                                          description
-#> 1  Specimen count per net tow (headline occurrence; standardize via std_haul_factor)
-#> 2                                                                    Air temperature
-#> 3                                                                   Total alkalinity
-#> 4                                                       Total alkalinity replicate 1
-#> 5                                                       Total alkalinity replicate 2
-#> 6                      Ammonium concentration (QC'd; the source column is named NH3)
-#> 7                                                         Northern anchovy egg count
-#> 8                                                  Atmospheric pressure (ship level)
-#> 9                                         Atmospheric pressure (sea-level corrected)
-#> 10                                                               Barometric pressure
-#> 11                                                      Beam attenuation coefficient
-#> 12     Seabird/marine-mammal behavior category (obs_attribute; e.g. Flying, Feeding)
-#> 13                                     Larva body length (obs_freq binned attribute)
-#> 14              Water depth at the sampling event (sea floor depth beneath the cast)
-#> 15                                                        Bottom depth (single-beam)
-#> 16                                                          Bottom depth (multibeam)
-#> 17                                                                   Bottle ammonium
-#> 18                                                              Bottle chlorophyll-a
-#> 19                                                                 Bottle trip depth
-#> 20                                                                    Bottle nitrate
-#>        units
-#> 1      count
-#> 2      deg_C
-#> 3    umol/kg
-#> 4    umol/kg
-#> 5    umol/kg
-#> 6     umol/L
-#> 7      count
-#> 8         mb
-#> 9         mb
-#> 10 millibars
-#> 11       1/m
-#> 12      <NA>
-#> 13        mm
-#> 14         m
-#> 15         m
-#> 16         m
-#> 17    umol/L
-#> 18      ug/L
-#> 19         m
-#> 20    umol/L
+#> 2    acoustic_presence
+#> 3           air_temp_c
+#> 4           alkalinity
+#> 5      alkalinity_rep1
+#> 6      alkalinity_rep2
+#> 7              ammonia
+#> 8         anchovy_eggs
+#> 9      atm_pressure_mb
+#> 10 atm_pressure_slc_mb
+#> 11 barometric_pressure
+#> 12    beam_attenuation
+#> 13            behavior
+#> 14         body_length
+#> 15        bottom_depth
+#> 16      bottom_depth_m
+#> 17   bottom_depth_mb_m
+#> 18        btl_ammonium
+#> 19   btl_chlorophyll_a
+#> 20           btl_depth
+#>                                                                                                                                                                                        description
+#> 1                                                                                                                Specimen count per net tow (headline occurrence; standardize via std_haul_factor)
+#> 2  Presence (1) or absence (0) of the taxon's calls in one hour of sonobuoy recording, scanned as 60-s spectrogram windows (headline occurrence; the call types heard are obs_attribute call_type)
+#> 3                                                                                                                                                                                  Air temperature
+#> 4                                                                                                                                                                                 Total alkalinity
+#> 5                                                                                                                                                                     Total alkalinity replicate 1
+#> 6                                                                                                                                                                     Total alkalinity replicate 2
+#> 7                                                                                                                                    Ammonium concentration (QC'd; the source column is named NH3)
+#> 8                                                                                                                                                                       Northern anchovy egg count
+#> 9                                                                                                                                                                Atmospheric pressure (ship level)
+#> 10                                                                                                                                                      Atmospheric pressure (sea-level corrected)
+#> 11                                                                                                                                                                             Barometric pressure
+#> 12                                                                                                                                                                    Beam attenuation coefficient
+#> 13                                                                                                                   Seabird/marine-mammal behavior category (obs_attribute; e.g. Flying, Feeding)
+#> 14                                                                                                                                                   Larva body length (obs_freq binned attribute)
+#> 15                                                                                                                            Water depth at the sampling event (sea floor depth beneath the cast)
+#> 16                                                                                                                                                                      Bottom depth (single-beam)
+#> 17                                                                                                                                                                        Bottom depth (multibeam)
+#> 18                                                                                                                                                                                 Bottle ammonium
+#> 19                                                                                                                                                                            Bottle chlorophyll-a
+#> 20                                                                                                                                                                               Bottle trip depth
+#>            units
+#> 1          count
+#> 2  dimensionless
+#> 3          deg_C
+#> 4        umol/kg
+#> 5        umol/kg
+#> 6        umol/kg
+#> 7         umol/L
+#> 8          count
+#> 9             mb
+#> 10            mb
+#> 11     millibars
+#> 12           1/m
+#> 13          <NA>
+#> 14            mm
+#> 15             m
+#> 16             m
+#> 17             m
+#> 18        umol/L
+#> 19          ug/L
+#> 20             m
 ```
 
 ## Disconnect
