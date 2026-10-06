@@ -384,3 +384,23 @@ test_that("cc_bathy prefers an explicit local raster over the download", {
   })
   expect_error(cc_bathy("/nope/missing.tif"), "not found")
 })
+
+# regression (2026-10-06, Rasmus Swalethorp): CalCOFI 2607 (2026-07-3322) worked line 93.3 inshore of
+# station 50 on 30 June; matched on the calendar month those stations found no (June) baseline. The
+# anomaly is matched on the cruise's month, the month calcofi4db::build_climatology() files them under.
+test_that("cc_anomaly() matches the cruise's month, not the date a station was occupied", {
+  expect_identical(
+    .cruise_month(c("2026-07-3322", "2401XX", NA),
+                  as.POSIXct(c("2026-06-30 04:48", "2024-01-15", "2024-03-02"), tz = "UTC")),
+    c(7L, 1L, 3L))
+  sta <- data.frame(cruise_key = "2026-07-3322", sta = c(30, 60), grid_key = c("st30-ln93.3", "st60-ln93.3"),
+                    datetime = as.POSIXct(c("2026-06-30 10:41", "2026-07-01 08:26"), tz = "UTC"))
+  sec <- data.frame(cruise_key = "2026-07-3322", sta = c(30, 60), depth_m = 0,
+                    variable = "temperature_ave", value = c(16, 17))
+  cl  <- data.frame(site_key = c("093.3 030.0", "093.3 060.0", "093.3 030.0"),
+                    grid_key = c("st30-ln93.3", "st60-ln93.3", "st30-ln93.3"),
+                    month = c(7L, 7L, 6L), depth_m = 0, variable = "temperature_ave",
+                    clim_mean = c(15, 16, 99), clim_sd = 1, clim_n = 10L, n_cruises = 10L)
+  an <- cc_anomaly(sec, cl, sta)
+  expect_equal(an$anomaly[order(an$sta)], c(1, 1), info = "station 30 (30 June) departs from July, not June")
+})
