@@ -116,7 +116,7 @@ clim <- cc_climatology(
 attr(clim, "baseline")
 #> [1] 1993 2013
 nrow(clim)
-#> [1] 21232
+#> [1] 21005
 ```
 
 [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
@@ -215,7 +215,7 @@ anom <- cc_anomaly(sec, clim_screened, sta)
 round(100 * mean(!is.na(anom$anomaly)))   # % of this section with a baseline
 #> [1] 100
 range(anom$anomaly, na.rm = TRUE)
-#> [1] -2.387766  4.305396
+#> [1] -2.503684  4.393715
 ```
 
 ``` r
@@ -302,12 +302,12 @@ head(series)
 #> # A tibble: 6 × 4
 #>      yr layer     anomaly     n
 #>   <int> <fct>       <dbl> <int>
-#> 1  2000 0-50 m     0.457    582
-#> 2  2000 50-100 m  -0.127    410
-#> 3  2000 100-200 m -0.165    705
-#> 4  2000 200-500 m -0.0628  1649
-#> 5  2001 0-50 m     0.524    639
-#> 6  2001 50-100 m  -0.127    448
+#> 1  2000 0-50 m     0.453    582
+#> 2  2000 50-100 m  -0.149    410
+#> 3  2000 100-200 m -0.178    705
+#> 4  2000 200-500 m -0.0657  1649
+#> 5  2001 0-50 m     0.523    639
+#> 6  2001 50-100 m  -0.131    448
 ```
 
 A sanity check before reading anything into it: the baseline years must
@@ -365,7 +365,7 @@ comparison <- series |>
 
 summary(abs(comparison$difference))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#> 0.02688 0.04874 0.05335 0.16273 0.25593 0.50903
+#> 0.04147 0.05515 0.05934 0.15674 0.26257 0.46045
 ```
 
 ## Reading it honestly
