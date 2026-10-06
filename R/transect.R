@@ -225,7 +225,7 @@ cc_transect_section <- function(
 #' Seasonal climatology for one or more measurement types
 #'
 #' The baseline every CalCOFI anomaly is a departure from: a plain mean per
-#' (`site_key` — the real station, calendar month, 10 m floor depth bin, measurement type) across a
+#' (`site_key` — the real station, the cruise's month, 10 m floor depth bin, measurement type) across a
 #' window of years, kept where at least `min_cruises` distinct cruises contribute.
 #' Calendar month is the finest season CalCOFI's design supports — quarterly-ish
 #' cruises over decades give many *years* per month at a station but only a
@@ -314,9 +314,11 @@ cc_climatology <- function(
         dplyr::filter(!is.na(site_key)) |>
         dplyr::select(sample_key, site_key),
       by = "sample_key") |>
+    # the cruise's designated year and month (YYYY-MM-NODC), as calcofi4db::build_climatology()
+    # files the release's table; the calendar date only when the key does not parse
     dplyr::mutate(
-      yr  = as.integer(strftime(datetime, "%Y")),
-      mon = as.integer(strftime(datetime, "%m"))) |>
+      yr  = dplyr::sql(!!.cruise_part_sql("year")),
+      mon = dplyr::sql(!!.cruise_part_sql("month"))) |>
     dplyr::filter(yr >= !!years[1], yr <= !!years[2]) |>
     dplyr::mutate(depth_m = floor(depth_min_m / !!depth_bin) * !!depth_bin) |>
     dplyr::filter(depth_m <= !!depth_max) |>
@@ -341,8 +343,12 @@ cc_climatology <- function(
 
 #' Join a section to a climatology and difference it
 #'
-#' `anomaly = value - clim_mean`, matched on station, calendar month and depth
-#' bin. Cells with no baseline come back `NA` rather than 0 — an unsampled
+#' `anomaly = value - clim_mean`, matched on station, the cruise's month and
+#' depth bin. The month is the one `cruise_key` designates (`YYYY-MM-NODC`), not
+#' the date a station was occupied: a cruise often starts in the last days of the
+#' month before (CalCOFI 2607 worked line 93.3 inshore of station 50 on 30 June),
+#' and the release's climatology files every cast under its cruise's month. The
+#' date is used only when the key does not parse. Cells with no baseline come back `NA` rather than 0 — an unsampled
 #' baseline is not a zero anomaly, and collapsing the two is how a map ends up
 #' claiming "normal" for somewhere never measured.
 #'
@@ -360,7 +366,7 @@ cc_climatology <- function(
 #' @concept transect
 cc_anomaly <- function(section, clim, stations) {
   key <- stations |>
-    dplyr::mutate(month = as.integer(strftime(datetime, "%m"))) |>
+    dplyr::mutate(month = .cruise_month(cruise_key, datetime)) |>
     dplyr::select(cruise_key, sta, grid_key, month) |>
     dplyr::distinct()
 
@@ -691,4 +697,19 @@ utils::globalVariables(c(
   if (!"measurement_qual" %in% colnames(tb)) return(tb)
   dplyr::filter(tb, is.na(measurement_qual) |
                     !(measurement_qual %in% c("8", "9", "8.0", "9.0")))
+}
+
+# the cruise's designated month: cruise_key is YYYY-MM-NODC (the month SWFSC assigns the cruise);
+# the calendar month of `datetime` only when the key does not parse
+.cruise_month <- function(cruise_key, datetime) {
+  ok <- !is.na(cruise_key) & grepl("^[0-9]{4}-(0[1-9]|1[0-2])-", cruise_key)
+  as.integer(ifelse(ok, substr(cruise_key, 6, 7), strftime(datetime, "%m", tz = "UTC")))
+}
+# the same, as DuckDB SQL over the columns `cruise_key` and `datetime`
+.cruise_part_sql <- function(part = c("month", "year")) {
+  part <- match.arg(part)
+  rng  <- if (part == "month") "6, 2" else "1, 4"
+  paste0("CASE WHEN regexp_matches(cruise_key, '^[0-9]{4}-(0[1-9]|1[0-2])-') ",
+         "THEN CAST(substr(cruise_key, ", rng, ") AS INTEGER) ",
+         "ELSE CAST(", part, "(datetime) AS INTEGER) END")
 }
