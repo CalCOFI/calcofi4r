@@ -213,7 +213,7 @@ never measured.
 anom <- cc_anomaly(sec, clim_screened, sta)
 
 round(100 * mean(!is.na(anom$anomaly)))   # % of this section with a baseline
-#> [1] 64
+#> [1] 100
 range(anom$anomaly, na.rm = TRUE)
 #> [1] -2.387766  4.305396
 ```
@@ -365,7 +365,7 @@ comparison <- series |>
 
 summary(abs(comparison$difference))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#> 0.04166 0.05450 0.05918 0.15677 0.26004 0.51747
+#> 0.02688 0.04874 0.05335 0.16273 0.25593 0.50903
 ```
 
 ## Reading it honestly

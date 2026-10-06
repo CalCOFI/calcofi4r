@@ -1,5 +1,17 @@
 # Changelog
 
+## calcofi4r 1.26.0
+
+- **[`cc_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_anomaly.md)
+  matches the cruise’s month, not the date a station was occupied.** The
+  month is the one `cruise_key` designates (`YYYY-MM-NODC`); the date
+  only when the key does not parse. CalCOFI 2607 (`2026-07-3322`) worked
+  line 93.3 inshore of station 50 on 30 June, and matched on the
+  calendar month those stations found no (June) baseline.
+  [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)’s
+  computed path files observations the same way, as calcofi4db 4.22.0’s
+  `build_climatology()` does for the release table.
+
 ## calcofi4r 1.25.0
 
 ### The CalCOFI grid is rebuilt from the official station positions (CalCOFI/workflows#130)
