@@ -1,8 +1,8 @@
 # Seasonal climatology for one or more measurement types
 
 The baseline every CalCOFI anomaly is a departure from: a plain mean per
-(`site_key` — the real station, calendar month, 10 m floor depth bin,
-measurement type) across a window of years, kept where at least
+(`site_key` — the real station, the cruise's month, 10 m floor depth
+bin, measurement type) across a window of years, kept where at least
 `min_cruises` distinct cruises contribute. Calendar month is the finest
 season CalCOFI's design supports — quarterly-ish cruises over decades
 give many *years* per month at a station but only a handful of days —

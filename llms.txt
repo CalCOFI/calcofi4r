@@ -562,6 +562,14 @@ functions for analyzing data
 
 functions for visualizing data
 
+- [`cc_basemap_style()`](https://calcofi.io/calcofi4r/reference/cc_basemap_style.md)
+  : CARTO vector basemap style
+- [`cc_vector_basemap()`](https://calcofi.io/calcofi4r/reference/cc_vector_basemap.md)
+  : Draw a map's CARTO basemaps as vector tiles
+- [`cc_vector_basemap_deps()`](https://calcofi.io/calcofi4r/reference/cc_vector_basemap_deps.md)
+  : Dependencies that draw CARTO basemaps as vector tiles in Leaflet
+- [`cc_vector_basemap_page()`](https://calcofi.io/calcofi4r/reference/cc_vector_basemap_page.md)
+  : Draw every CARTO basemap in a notebook as vector tiles
 - [`map_env()`](https://calcofi.io/calcofi4r/reference/map_env.md) :
   Create Interactive Environmental Map with Hexagonal Binning
 - [`map_raster()`](https://calcofi.io/calcofi4r/reference/map_raster.md)

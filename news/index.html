@@ -42,7 +42,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.26.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.27.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,6 +82,14 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.27.0" id="calcofi4r-1270">calcofi4r 1.27.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1270"></a></h2>
+<ul><li>
+<strong>Maps draw CARTO’s basemaps from vector tiles.</strong> CARTO’s raster basemaps (leaflet’s <code>CartoDB.*</code> providers, the first two of mapview’s default basemaps) draw an “API KEY REQUIRED” watermark on every tile since Sep 2026; its vector GL styles do not. New <code>cc_vector_basemap(map)</code> takes a leaflet or mapview map and draws each CARTO raster layer on the page from the same basemap’s vector style (maplibre-gl + maplibre-gl-leaflet), keeping the provider names, groups and layer control; other tile layers pass through. <code><a href="../reference/cc_vector_basemap_page.html">cc_vector_basemap_page()</a></code>, called once in a notebook, does the same for every map on the page; <code><a href="../reference/cc_vector_basemap_deps.html">cc_vector_basemap_deps()</a></code> gives the HTML dependencies for a Shiny <code>ui</code>; and <code><a href="../reference/cc_basemap_style.html">cc_basemap_style()</a></code> the style URL for a MapLibre or Plotly map. maplibre-gl 5.24.0 and maplibre-gl-leaflet 0.1.4 ship in the package (Quarto takes only on-disk dependencies).</li>
+<li>
+<code><a href="../reference/map_raster.html">map_raster()</a></code> draws on vector CARTO Positron; its Stamen Toner Lite tiles had moved behind a key (Stadia, 2023).</li>
+<li>The Get started vignette’s maps use <code><a href="../reference/cc_vector_basemap.html">cc_vector_basemap()</a></code>.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.26.0" id="calcofi4r-1260">calcofi4r 1.26.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1260"></a></h2>
 <ul><li>

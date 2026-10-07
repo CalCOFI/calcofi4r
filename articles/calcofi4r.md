@@ -232,12 +232,12 @@ d_temp <- dbGetQuery(con, "
 
 head(d_temp)
 #>         lon      lat            datetime depth_m temperature
-#> 1 -107.9750 23.30000 1956-02-06 17:54:00      10       20.24
-#> 2 -122.8167 32.93333 1949-09-17 21:30:00       0       18.90
-#> 3 -122.8167 32.93333 1949-09-17 21:30:00       8       18.48
-#> 4 -107.5167 23.55000 1956-02-06 22:36:00       0       22.00
-#> 5 -107.5167 23.55000 1956-02-06 22:36:00       9       21.37
-#> 6 -107.5167 23.55000 1956-02-06 22:36:00      10       21.34
+#> 1 -120.2500 31.46667 1960-05-25 02:36:00       0       14.37
+#> 2 -120.2500 31.46667 1960-05-25 02:36:00       1       14.37
+#> 3 -120.2500 31.46667 1960-05-25 02:36:00      10       14.08
+#> 4 -115.5500 27.71667 1950-02-06 12:36:00       0       14.63
+#> 5 -115.5500 27.71667 1950-02-06 12:36:00       9       14.66
+#> 6 -119.5917 31.77500 1960-05-25 09:18:00       0       13.44
 nrow(d_temp)
 #> [1] 93985
 ```
@@ -291,11 +291,21 @@ pattern, kept as they were. The package includes pre-loaded grid data:
 
 `cc_grid_key(lon, lat)` returns the cell a position falls in.
 
+The maps below pipe each
+[`mapview()`](https://r-spatial.github.io/mapview/reference/mapView.html)
+through
+[`cc_vector_basemap()`](https://calcofi.io/calcofi4r/reference/cc_vector_basemap.md):
+mapview’s default basemaps start with CARTO’s Positron and Dark Matter,
+whose raster tiles draw “API KEY REQUIRED” since Sep 2026, and
+[`cc_vector_basemap()`](https://calcofi.io/calcofi4r/reference/cc_vector_basemap.md)
+draws them from CARTO’s vector tiles instead.
+
 ``` r
 
 # show the CalCOFI grid colored by zone
-mapview(cc_grid, zcol = "zone_key", layer.name = "Zone") +
-  mapview(cc_grid_ctrs, cex = 1, col.regions = "black", legend = FALSE)
+(mapview(cc_grid, zcol = "zone_key", layer.name = "Zone") +
+  mapview(cc_grid_ctrs, cex = 1, col.regions = "black", legend = FALSE)) |>
+  cc_vector_basemap()
 ```
 
 ### Grid from Database
@@ -336,7 +346,8 @@ n_grid <- cc_grid |>
   group_by(sta_key) |>
   summarize(n = sum(n, na.rm = TRUE))
 
-mapview(n_grid, zcol = "n", layer.name = "Observations")
+mapview(n_grid, zcol = "n", layer.name = "Observations") |>
+  cc_vector_basemap()
 ```
 
 ### Show Effort by Station Point
@@ -349,7 +360,8 @@ n_pts <- cc_grid_ctrs |>
     n_grid |> st_drop_geometry() |> select(sta_key, n),
     by = "sta_key")
 
-mapview(n_pts, cex = "n", layer.name = "Observations")
+mapview(n_pts, cex = "n", layer.name = "Observations") |>
+  cc_vector_basemap()
 ```
 
 ## Map Contours
@@ -366,7 +378,8 @@ r_all <- pts_to_rast_idw(d_t, "t_avg", cc_grid_zones)
 
 # generate contour polygons
 p_all <- rast_to_contours(r_all, cc_grid_zones)
-mapview(p_all, zcol = "z_avg", layer.name = "Temp (C)")
+mapview(p_all, zcol = "z_avg", layer.name = "Temp (C)") |>
+  cc_vector_basemap()
 ```
 
 ### Standard and Extended Pattern
@@ -380,7 +393,8 @@ aoi_ext <- cc_grid_zones |>
 # interpolate and contour
 r_ext <- pts_to_rast_idw(d_t, "t_avg", aoi_ext)
 p_ext <- rast_to_contours(r_ext, aoi_ext)
-mapview(p_ext, zcol = "z_avg", layer.name = "Temp (C)")
+mapview(p_ext, zcol = "z_avg", layer.name = "Temp (C)") |>
+  cc_vector_basemap()
 ```
 
 ## Query Ichthyoplankton Data
@@ -442,7 +456,8 @@ anchovy <- dbGetQuery(con, "
   filter(!is.na(lon), !is.na(lat)) |>
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
 
-mapview(anchovy, cex = "count", layer.name = "Anchovy count")
+mapview(anchovy, cex = "count", layer.name = "Anchovy count") |>
+  cc_vector_basemap()
 ```
 
 ## Cruise Timeline
