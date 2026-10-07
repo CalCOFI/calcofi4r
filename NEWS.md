@@ -1,3 +1,19 @@
+# calcofi4r 1.27.0
+
+- **Maps draw CARTO's basemaps from vector tiles.** CARTO's raster basemaps (leaflet's
+  `CartoDB.*` providers, the first two of mapview's default basemaps) draw an "API KEY REQUIRED"
+  watermark on every tile since Sep 2026; its vector GL styles do not. New
+  `cc_vector_basemap(map)` takes a leaflet or mapview map and draws each CARTO raster layer on
+  the page from the same basemap's vector style (maplibre-gl + maplibre-gl-leaflet), keeping the
+  provider names, groups and layer control; other tile layers pass through.
+  `cc_vector_basemap_page()`, called once in a notebook, does the same for every map on the page;
+  `cc_vector_basemap_deps()` gives the HTML dependencies for a Shiny `ui`; and
+  `cc_basemap_style()` the style URL for a MapLibre or Plotly map. maplibre-gl 5.24.0 and
+  maplibre-gl-leaflet 0.1.4 ship in the package (Quarto takes only on-disk dependencies).
+- `map_raster()` draws on vector CARTO Positron; its Stamen Toner Lite tiles had moved behind a
+  key (Stadia, 2023).
+- The Get started vignette's maps use `cc_vector_basemap()`.
+
 # calcofi4r 1.26.0
 
 - **`cc_anomaly()` matches the cruise's month, not the date a station was occupied.** The month

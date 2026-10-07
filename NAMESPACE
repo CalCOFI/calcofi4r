@@ -10,6 +10,7 @@ export(CC_QUAL_EXCLUDE)
 export(buffer_transect)
 export(cc_anomaly)
 export(cc_apps_script)
+export(cc_basemap_style)
 export(cc_bathy)
 export(cc_bathy_depth)
 export(cc_brand_head)
@@ -98,6 +99,9 @@ export(cc_transect_matrix)
 export(cc_transect_section)
 export(cc_transect_stations)
 export(cc_ts_gaps)
+export(cc_vector_basemap)
+export(cc_vector_basemap_deps)
+export(cc_vector_basemap_page)
 export(cc_view_sql)
 export(cc_view_tables)
 export(create_index)
@@ -195,6 +199,7 @@ importFrom(htmltools,
   HTML,
   div,
   em,
+  htmlDependency,
   span,
   strong
 )
@@ -203,6 +208,10 @@ importFrom(isoband,
   isobands
 )
 importFrom(jsonlite,fromJSON)
+importFrom(leaflet,
+  addProviderTiles,
+  leaflet
+)
 importFrom(lifecycle,
   deprecate_warn,
   deprecated

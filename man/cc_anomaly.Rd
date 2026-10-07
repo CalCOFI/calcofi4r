@@ -19,8 +19,12 @@ month, which \code{section} does not carry.}
 \code{anomaly_sd}; \code{baseline} attribute carried through.
 }
 \description{
-\code{anomaly = value - clim_mean}, matched on station, calendar month and depth
-bin. Cells with no baseline come back \code{NA} rather than 0 — an unsampled
+\code{anomaly = value - clim_mean}, matched on station, the cruise's month and
+depth bin. The month is the one \code{cruise_key} designates (\code{YYYY-MM-NODC}), not
+the date a station was occupied: a cruise often starts in the last days of the
+month before (CalCOFI 2607 worked line 93.3 inshore of station 50 on 30 June),
+and the release's climatology files every cast under its cruise's month. The
+date is used only when the key does not parse. Cells with no baseline come back \code{NA} rather than 0 — an unsampled
 baseline is not a zero anomaly, and collapsing the two is how a map ends up
 claiming "normal" for somewhere never measured.
 }
