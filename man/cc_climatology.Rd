@@ -41,7 +41,7 @@ table from before v2026.09.2x, which was grained on the grid cell), \code{grid_k
 }
 \description{
 The baseline every CalCOFI anomaly is a departure from: a plain mean per
-(\code{site_key} — the real station, calendar month, 10 m floor depth bin, measurement type) across a
+(\code{site_key} — the real station, the cruise's month, 10 m floor depth bin, measurement type) across a
 window of years, kept where at least \code{min_cruises} distinct cruises contribute.
 Calendar month is the finest season CalCOFI's design supports — quarterly-ish
 cruises over decades give many \emph{years} per month at a station but only a

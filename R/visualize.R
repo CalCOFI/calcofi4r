@@ -39,9 +39,11 @@ map_raster <- function(
   r_v <- raster::values(r)
   pal <- colorNumeric("Spectral", r_v, na.color = NA)
 
+  # Stamen's tiles moved behind a key (Stadia, 2023); CARTO Positron, drawn as
+  # vector tiles by cc_vector_basemap(), needs none
   leaflet() %>%
     addProviderTiles(
-      providers$Stamen.TonerLite,
+      providers$CartoDB.Positron,
       options = providerTileOptions(noWrap = TRUE)) %>%
     addRasterImage(
       r, project = F,
@@ -50,7 +52,8 @@ map_raster <- function(
     addLegend(
       pal = pal, values = r_v,
       title = legend_title) %>%
-    flyToBounds(b[['xmin']], b[['ymin']], b[['xmax']], b[['ymax']])
+    flyToBounds(b[['xmin']], b[['ymin']], b[['xmax']], b[['ymax']]) %>%
+    cc_vector_basemap()
 }
 
 #' Plot interactive depth of an oceanographic variable
