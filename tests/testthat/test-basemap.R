@@ -60,7 +60,7 @@ test_that("cc-vector-basemap.js swaps CARTO rasters and passes everything else t
     var window = {};
     var L = window.L = {
       maplibreGL: function (o) {
-        return { kind: 'gl', options: o, on: function () {} }; },
+        return { kind: 'gl', options: o, on: function () {}, onRemove: function () {} }; },
       tileLayer: function (url, o) { return { kind: 'raster', url: url }; }
     };
     L.tileLayer.wms = function () { return { kind: 'wms' }; };
@@ -93,6 +93,15 @@ test_that("cc-vector-basemap.js swaps CARTO rasters and passes everything else t
   # the factory keeps its sub-factories; a labels-only layer is flagged for its symbol filter
   expect_equal(ctx$get("L.tileLayer.wms().kind"), "wms")
   expect_equal(ctx$get("L.tileLayer.provider('CartoDB.VoyagerOnlyLabels').ccCarto.labels"), "only")
+
+  # regression: a GL layer carries a tile layer's zoom bounds; without maxZoom the map's
+  # maxZoom is Infinity and Leaflet.markercluster fails ("reading '_addChild'")
+  expect_equal(ctx$get("L.tileLayer.provider('CartoDB.Positron').options.maxZoom"), 20)
+  expect_equal(ctx$get("L.tileLayer.provider('CartoDB.Positron', {maxZoom: 12}).options.maxZoom"), 12)
+  # ... and registers them on the map as L.GridLayer does
+  ctx$eval("var lim = []; var fake_map = { _addZoomLimit: function (l) { lim.push(l.options.maxZoom); } };
+            L.tileLayer.provider('CartoDB.Positron').beforeAdd(fake_map);")
+  expect_equal(ctx$get("lim"), 20)
 
   # idempotent: a second load on the same page does not wrap twice
   ctx$source(system.file(

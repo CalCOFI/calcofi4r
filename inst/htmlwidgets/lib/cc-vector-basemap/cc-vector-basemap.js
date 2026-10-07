@@ -57,9 +57,22 @@
       style:       styleUrl(c),
       pane:        options.pane || "tilePane",
       attribution: options.attribution === "" ? "" : ATTRIBUTION,
-      interactive: false
+      interactive: false,
+      // the zoom bounds a tile layer sets on its map: without them the map's maxZoom is
+      // Infinity and Leaflet.markercluster fails ("reading '_addChild'"), clusters gone
+      minZoom:     options.minZoom != null ? options.minZoom : 0,
+      maxZoom:     options.maxZoom != null ? options.maxZoom : 20
     });
     layer.ccCarto = c;
+    // register those bounds the way L.GridLayer does (beforeAdd / onRemove)
+    layer.beforeAdd = function (map) {
+      if (map._addZoomLimit) map._addZoomLimit(layer);
+    };
+    var onRemove = layer.onRemove;
+    layer.onRemove = function (map) {
+      onRemove.call(layer, map);
+      if (map._removeZoomLimit) map._removeZoomLimit(layer);
+    };
     if (c.labels === "only") {
       layer.on("add", function () {
         var gl = layer.getMaplibreMap();
