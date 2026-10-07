@@ -7,7 +7,8 @@
 # raster layer for the same style drawn by maplibre-gl-leaflet, so existing
 # leaflet and mapview code keeps its provider names and gets a vector basemap.
 
-# maplibre-gl and its leaflet bridge, from the CDN (maplibre-gl is ~1 MB)
+# maplibre-gl and its leaflet bridge, vendored under inst/htmlwidgets/lib/{name}-{version}/
+# (Quarto copies only disk-based dependencies; a CDN href fails its render)
 .CC_MAPLIBRE_GL_VERSION      <- "5.24.0"
 .CC_MAPLIBRE_LEAFLET_VERSION <- "0.1.4"
 
@@ -40,12 +41,11 @@ cc_basemap_style <- function(
 
 #' Dependencies that draw CARTO basemaps as vector tiles in Leaflet
 #'
-#' The HTML dependencies behind [cc_vector_basemap()]: Leaflet and its
-#' providers plugin (so they load first), maplibre-gl, maplibre-gl-leaflet and
+#' The HTML dependencies behind [cc_vector_basemap()]: Leaflet and
+#' leaflet-providers (so they load first), maplibre-gl, maplibre-gl-leaflet and
 #' `cc-vector-basemap.js`, which swaps each CARTO raster layer on the page for
 #' its vector GL style. Use it page-wide where piping each map is impractical:
-#' `knitr::knit_meta_add(cc_vector_basemap_deps())` in a notebook, or inside a
-#' Shiny `ui`.
+#' [cc_vector_basemap_page()] in a notebook, or inside a Shiny `ui`.
 #'
 #' @return list of [htmltools::htmlDependency()] objects
 #' @concept visualize
@@ -56,27 +56,33 @@ cc_basemap_style <- function(
 #' @examples
 #' vapply(cc_vector_basemap_deps(), `[[`, "", "name")
 cc_vector_basemap_deps <- function() {
-  # leaflet's own dependencies, by the same name and version a widget carries,
-  # so a resolved page loads them before the bridge, which needs `L`
+  # Leaflet and its providers, by the same name and version a widget carries, so a
+  # resolved page loads them before the bridge, which needs `L` and
+  # `L.tileLayer.provider`. Not leaflet's R binding: it needs htmlwidgets.js, which
+  # only the widget brings, so a page-wide copy ahead of it breaks every map
   m_leaflet <- leaflet::leaflet() |>
     leaflet::addProviderTiles("CartoDB.Positron")
+  d_leaflet <- Filter(
+    \(d) d$name %in% c("leaflet", "leaflet-providers"),
+    m_leaflet$dependencies)
 
-  cdn <- "https://cdn.jsdelivr.net/npm"
+  lib_dep <- function(name, version, ...) {
+    htmltools::htmlDependency(
+      name    = name,
+      version = version,
+      src     = paste0("htmlwidgets/lib/", name, "-", version),
+      package = "calcofi4r",
+      ...)
+  }
   c(
-    m_leaflet$dependencies,
+    d_leaflet,
     list(
-      htmltools::htmlDependency(
-        name       = "maplibre-gl",
-        version    = .CC_MAPLIBRE_GL_VERSION,
-        src        = c(href = glue::glue("{cdn}/maplibre-gl@{.CC_MAPLIBRE_GL_VERSION}/dist")),
-        script     = "maplibre-gl.js",
-        stylesheet = "maplibre-gl.css"),
-      htmltools::htmlDependency(
-        name    = "maplibre-gl-leaflet",
-        version = .CC_MAPLIBRE_LEAFLET_VERSION,
-        src     = c(href = glue::glue(
-          "{cdn}/@maplibre/maplibre-gl-leaflet@{.CC_MAPLIBRE_LEAFLET_VERSION}")),
-        script  = "leaflet-maplibre-gl.js"),
+      lib_dep(
+        "maplibre-gl", .CC_MAPLIBRE_GL_VERSION,
+        script = "maplibre-gl.js", stylesheet = "maplibre-gl.css"),
+      lib_dep(
+        "maplibre-gl-leaflet", .CC_MAPLIBRE_LEAFLET_VERSION,
+        script = "leaflet-maplibre-gl.js"),
       htmltools::htmlDependency(
         name    = "cc-vector-basemap",
         version = as.character(utils::packageVersion("calcofi4r")),
@@ -119,4 +125,27 @@ cc_vector_basemap <- function(map) {
   stopifnot(inherits(map, "leaflet"))
   map$dependencies <- c(map$dependencies, cc_vector_basemap_deps())
   map
+}
+
+#' Draw every CARTO basemap in a notebook as vector tiles
+#'
+#' Call once in a knitr (R Markdown or Quarto) notebook, before or after its
+#' maps: it adds [cc_vector_basemap_deps()] to the page, so every leaflet and
+#' mapview map on it draws its CARTO basemaps from vector tiles without piping
+#' each one through [cc_vector_basemap()].
+#'
+#' @return the dependencies, invisibly
+#' @concept visualize
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # in a notebook's setup chunk
+#' calcofi4r::cc_vector_basemap_page()
+#' }
+cc_vector_basemap_page <- function() {
+  stopifnot(requireNamespace("knitr", quietly = TRUE))
+  deps <- cc_vector_basemap_deps()
+  knitr::knit_meta_add(deps)
+  invisible(deps)
 }

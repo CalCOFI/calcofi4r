@@ -10,12 +10,11 @@ cc_vector_basemap_deps()
 list of \code{\link[htmltools:htmlDependency]{htmltools::htmlDependency()}} objects
 }
 \description{
-The HTML dependencies behind \code{\link[=cc_vector_basemap]{cc_vector_basemap()}}: Leaflet and its
-providers plugin (so they load first), maplibre-gl, maplibre-gl-leaflet and
+The HTML dependencies behind \code{\link[=cc_vector_basemap]{cc_vector_basemap()}}: Leaflet and
+leaflet-providers (so they load first), maplibre-gl, maplibre-gl-leaflet and
 \code{cc-vector-basemap.js}, which swaps each CARTO raster layer on the page for
 its vector GL style. Use it page-wide where piping each map is impractical:
-\code{knitr::knit_meta_add(cc_vector_basemap_deps())} in a notebook, or inside a
-Shiny \code{ui}.
+\code{\link[=cc_vector_basemap_page]{cc_vector_basemap_page()}} in a notebook, or inside a Shiny \code{ui}.
 }
 \examples{
 vapply(cc_vector_basemap_deps(), `[[`, "", "name")

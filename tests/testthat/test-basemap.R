@@ -23,10 +23,15 @@ test_that("cc_vector_basemap_deps() loads leaflet before the bridge that needs `
   expect_lt(pos("leaflet-providers"),   pos("cc-vector-basemap"))
   expect_lt(pos("maplibre-gl"),         pos("maplibre-gl-leaflet"))
   expect_lt(pos("maplibre-gl-leaflet"), pos("cc-vector-basemap"))
-  # the shim ships in the package
-  dep <- cc_vector_basemap_deps()[[pos("cc-vector-basemap")]]
-  expect_true(file.exists(system.file(
-    dep$src$file, dep$script, package = "calcofi4r")))
+  # regression: leaflet's R binding needs htmlwidgets.js; a page-wide copy loaded
+  # ahead of it ("Cannot read properties of undefined (reading 'widget')") blanked every map
+  expect_false(any(c("leaflet-binding", "leaflet-providers-plugin", "htmlwidgets") %in% d))
+  # the bridge ships in the package, on disk: Quarto refuses a CDN (href) dependency
+  for (nm in c("maplibre-gl", "maplibre-gl-leaflet", "cc-vector-basemap")) {
+    dep <- cc_vector_basemap_deps()[[pos(nm)]]
+    expect_true(file.exists(system.file(
+      dep$src$file, dep$script, package = "calcofi4r")), label = nm)
+  }
 })
 
 test_that("cc_vector_basemap() attaches the dependencies to leaflet and mapview maps", {
