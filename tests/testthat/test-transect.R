@@ -404,3 +404,67 @@ test_that("cc_anomaly() matches the cruise's month, not the date a station was o
   an <- cc_anomaly(sec, cl, sta)
   expect_equal(an$anomaly[order(an$sta)], c(1, 1), info = "station 30 (30 June) departs from July, not June")
 })
+
+# the seasonal baseline (Rasmus Swalethorp, 2026-10-06): the quarter of the cruise's month, on each
+# month of the quarter, under the monthly names
+test_that("cc_climatology(season = TRUE) is the cruise quarter's mean on each of its months", {
+  con <- fixture_con(); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+  # computed: the fixture's January (2401XX) and July (2407XX) cruises -> Q1 and Q3 cells
+  cs <- cc_climatology(con, years = c(2024, 2024), min_cruises = 1, season = TRUE)
+  expect_identical(attr(cs, "period"), "season")
+  expect_setequal(unique(cs$month), c(1:3, 7:9))
+  a <- cs[cs$site_key == "093.3 030.0" & cs$depth_m == 0, ]
+  expect_equal(nrow(a), 6)
+  expect_equal(unique(a$clim_mean[a$month %in% 7:9]), 18 - 0.12 + 3)
+  expect_identical(attr(cc_climatology(con, years = c(2024, 2024), min_cruises = 1), "period"), "month")
+
+  # release: season_* under the monthly names; a NULL monthly mean is no monthly baseline
+  DBI::dbWriteTable(con, "climatology", data.frame(
+    dataset_key = "calcofi_ctd-cast", site_key = "093.3 030.0", grid_key = "st030-ln93.3",
+    month = c(7L, 8L), depth_bin = 0L, measurement_type = "temperature_ave",
+    clim_mean = c(15, NA), clim_sd = c(0.5, NA), clim_n = c(30L, NA), n_cruises = c(10L, NA),
+    clim_yr_min = 1993L, clim_yr_max = 2013L, quarter = 3L,
+    season_mean = c(16, 16), season_sd = 1, season_n = 50L, season_n_cruises = 12L))
+  cm <- cc_climatology(con)
+  expect_equal(cm$month, 7L, info = "August has only a seasonal cell")
+  expect_equal(cm$clim_mean, 15)
+  cq <- cc_climatology(con, season = TRUE)
+  expect_identical(attr(cq, "source"), "release")
+  expect_equal(cq$month, c(7L, 8L))
+  expect_equal(cq$clim_mean, c(16, 16))
+  expect_equal(cq$n_cruises, c(12L, 12L))
+})
+
+# the per-cast derived products (Rasmus Swalethorp, 2026-10-07): one value per cast, baseline cell
+# with depth_bin NULL
+test_that("cc_cast_anomaly() differences a cast's value against its station's per-cast cell", {
+  con <- fixture_con(); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+  expect_error(cc_cast_anomaly(con), "no per-cast baseline")
+  DBI::dbWriteTable(con, "sample_measurement", data.frame(
+    sample_key = c("B30d", "B40d", "B50d", "B30d"),
+    dataset_key = "calcofi_ctd-derived",
+    measurement_type = c("mld_sigma_theta_002", "mld_sigma_theta_002", "mld_sigma_theta_002", "chl_max_depth"),
+    measurement_value = c(25, 40, 60, 30),
+    measurement_qual = c(NA, NA, "9", NA)))
+  DBI::dbWriteTable(con, "climatology", data.frame(
+    dataset_key = "calcofi_ctd-derived",
+    site_key = c("093.3 030.0", "093.3 040.0", "093.3 030.0"),
+    grid_key = c("st030-ln93.3", "st040-ln93.3", "st030-ln93.3"),
+    month = 7L, depth_bin = NA_integer_,
+    measurement_type = c("mld_sigma_theta_002", "mld_sigma_theta_002", "chl_max_depth"),
+    clim_mean = c(20, NA, 50), clim_sd = c(5, NA, 10), clim_n = c(12L, NA, 12L), n_cruises = c(12L, NA, 12L),
+    clim_yr_min = 1993L, clim_yr_max = 2013L, quarter = 3L,
+    season_mean = c(22, 35, 50), season_sd = c(4, 5, 10), season_n = 20L, season_n_cruises = 15L))
+  # the fixture's July cruise key does not parse, so the month comes from its 2024-07-15 date
+  an <- cc_cast_anomaly(con, "mld_sigma_theta_002")
+  expect_equal(an$sample_key, c("B30d", "B40d"), info = "the cast flagged 9 is out")
+  expect_equal(an$anomaly, c(5, NA), info = "station 40 has no monthly baseline: NA, never 0")
+  expect_equal(an$anomaly_sd, c(1, NA))
+  expect_identical(attr(an, "baseline"), c(1993L, 2013L))
+  sn <- cc_cast_anomaly(con, "mld_sigma_theta_002", season = TRUE)
+  expect_equal(sn$anomaly, c(3, 5))
+  expect_identical(attr(sn, "period"), "season")
+  two <- cc_cast_anomaly(con, c("mld_sigma_theta_002", "chl_max_depth"), cruise_key = "2407XX")
+  expect_equal(two$anomaly[two$variable == "chl_max_depth"], -20)
+  expect_equal(nrow(cc_cast_anomaly(con, cruise_key = "nope")), 0)
+})

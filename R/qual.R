@@ -2,7 +2,8 @@
 #
 # `obs.measurement_qual` carries each dataset's OWN vocabulary, uninterpreted:
 # the bottle database's (6 = ok-from-CTD, 8 = suspect, 9 = missing), the CTD
-# cast files' (1/2 = use primary/secondary sensor, 8 = questionable, 9 = bad or
+# cast files' (1/2 = use primary/secondary sensor, 4 = a negative corrected
+# chlorophyll / nitrate set to 0 — a value, kept — 8 = questionable, 9 = bad or
 # missing) and DIC's WOCE flags (2 = good, 3 = questionable, 4 = bad, 9 = missing).
 # Every consumer that plotted `obs` averaged the flagged values in with the rest
 # — the bottle oxygen that put a 2.18 ml/L spike at 1,144 m on the station

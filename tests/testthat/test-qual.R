@@ -18,6 +18,9 @@ test_that("cc_qual_ok_sql() keeps unflagged rows and drops each dataset's bad co
   expect_equal(cc_qual_ok(
     c("calcofi_bottle", "calcofi_bottle", "calcofi_dic", "swfsc_ichthyo"),
     c(NA, "8.0", "4", "8")), c(TRUE, FALSE, FALSE, TRUE))
+  # CTD 4 (2026-10-12, Ben Gire): a negative corrected chlorophyll / nitrate set to 0 -- a real
+  # value, kept; DIC's WOCE 4 (bad) is still dropped
+  expect_equal(cc_qual_ok(c("calcofi_ctd-cast", "calcofi_dic"), c("4", "4")), c(TRUE, FALSE))
 })
 
 test_that("cc_climatology() leaves flagged CTD values out of the mean", {

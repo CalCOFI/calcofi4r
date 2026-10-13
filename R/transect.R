@@ -253,12 +253,19 @@ cc_transect_section <- function(
 #' @param min_cruises minimum distinct cruises for a cell to be returned (default
 #'   3). A floor in cruises rather than observations because a nearshore grid cell
 #'   holds several stations' casts from one cruise.
+#' @param season `FALSE` (default) for the monthly baseline; `TRUE` for the
+#'   **seasonal** one — the quarter of the cruise's month (Q1 Jan–Mar, Q2 Apr–Jun,
+#'   Q3 Jul–Sep, Q4 Oct–Dec) — returned on each month of the quarter under the
+#'   same column names, so [cc_anomaly()] uses it unchanged. Fills stations whose
+#'   months are each below `min_cruises` but whose quarter is not (the northern
+#'   lines 60–73.3). Read from the release's `season_*` columns (calcofi4db
+#'   >= 4.24.0) or computed the same way. The `period` attribute says which.
 #' @return Tibble: `site_key` (the station; absent only when reading a release
 #'   table from before v2026.09.2x, which was grained on the grid cell), `grid_key`
 #'   (the station's modal cell — the inshore cells hold 2–4 stations, so key on
 #'   `site_key`), `month`, `depth_m`, `variable`, `clim_mean`, `clim_sd`, `clim_n`,
-#'   `n_cruises`; attributes `baseline` (the years) and `source` (`"release"` or
-#'   `"computed"`).
+#'   `n_cruises`; attributes `baseline` (the years), `source` (`"release"` or
+#'   `"computed"`) and `period` (`"month"` or `"season"`).
 #' @export
 #' @concept transect
 cc_climatology <- function(
@@ -268,19 +275,29 @@ cc_climatology <- function(
   dataset_key = "calcofi_ctd-cast",
   depth_max   = 500,
   depth_bin   = 10,
-  min_cruises = 3
+  min_cruises = 3,
+  season      = FALSE
 ) {
-  stopifnot(length(years) == 2, years[1] <= years[2], min_cruises >= 1)
+  stopifnot(length(years) == 2, years[1] <= years[2], min_cruises >= 1,
+            is.logical(season), length(season) == 1, !is.na(season))
 
   # the release's own table, when it is the window asked for
   if (depth_bin == 10 && "climatology" %in% DBI::dbListTables(con)) {
     win <- DBI::dbGetQuery(con, "SELECT DISTINCT clim_yr_min, clim_yr_max FROM climatology")
-    if (nrow(win) == 1 && win$clim_yr_min == years[1] && win$clim_yr_max == years[2]) {
-      out <- dplyr::tbl(con, "climatology") |>
+    has_season <- "season_mean" %in% DBI::dbListFields(con, "climatology")
+    if (nrow(win) == 1 && win$clim_yr_min == years[1] && win$clim_yr_max == years[2] &&
+        (!season || has_season)) {
+      tb <- dplyr::tbl(con, "climatology")
+      # the seasonal cells under the monthly names, so cc_anomaly() needs no second path
+      if (season) tb <- tb |>
+        dplyr::mutate(clim_mean = season_mean, clim_sd = season_sd, clim_n = season_n,
+                      n_cruises = season_n_cruises)
+      out <- tb |>
         dplyr::filter(
           dataset_key      == !!dataset_key,
           measurement_type %in% !!variables,
-          depth_bin        <= !!depth_max,
+          depth_bin        <= !!depth_max,             # a per-cast cell (depth_bin NULL) is never a bin
+          !is.na(clim_mean),                           # a NULL monthly mean is "no monthly baseline"
           n_cruises        >= !!min_cruises) |>
         dplyr::select(dplyr::any_of("site_key"), grid_key, month, depth_m = depth_bin,
                       variable = measurement_type, clim_mean, clim_sd, clim_n, n_cruises) |>
@@ -289,6 +306,7 @@ cc_climatology <- function(
                       clim_n = as.integer(clim_n), n_cruises = as.integer(n_cruises))
       attr(out, "baseline") <- years
       attr(out, "source")   <- "release"
+      attr(out, "period")   <- if (season) "season" else "month"
       return(out)
     }
   }
@@ -322,7 +340,8 @@ cc_climatology <- function(
     dplyr::filter(yr >= !!years[1], yr <= !!years[2]) |>
     dplyr::mutate(depth_m = floor(depth_min_m / !!depth_bin) * !!depth_bin) |>
     dplyr::filter(depth_m <= !!depth_max) |>
-    dplyr::group_by(site_key, month = mon, depth_m,
+    dplyr::mutate(per = if (!!season) (mon - 1L) %/% 3L + 1L else mon) |>
+    dplyr::group_by(site_key, per, depth_m,
                     variable = measurement_type) |>
     dplyr::summarize(
       grid_key  = dplyr::sql("mode(grid_key)"),
@@ -333,11 +352,20 @@ cc_climatology <- function(
       .groups   = "drop") |>
     dplyr::collect() |>
     dplyr::filter(n_cruises >= min_cruises) |>
-    dplyr::mutate(clim_n = as.integer(clim_n), n_cruises = as.integer(n_cruises)) |>
-    dplyr::select(site_key, grid_key, month, depth_m, variable, clim_mean, clim_sd, clim_n, n_cruises)
+    dplyr::mutate(clim_n = as.integer(clim_n), n_cruises = as.integer(n_cruises))
+  # a quarter's cell on each of its three months (Q1 = Jan-Mar ...), as the release table carries it
+  out <- if (season) {
+    dplyr::inner_join(out, data.frame(per = rep(1:4, each = 3), month = 1:12),
+                      by = "per", relationship = "many-to-many")
+  } else dplyr::rename(out, month = per)
+  out <- out |>
+    dplyr::mutate(month = as.integer(month)) |>
+    dplyr::select(site_key, grid_key, month, depth_m, variable, clim_mean, clim_sd, clim_n, n_cruises) |>
+    dplyr::arrange(site_key, month, depth_m, variable)
 
   attr(out, "baseline") <- years
   attr(out, "source")   <- "computed"
+  attr(out, "period")   <- if (season) "season" else "month"
   out
 }
 
@@ -379,6 +407,87 @@ cc_anomaly <- function(section, clim, stations) {
                                   anomaly / clim_sd, NA_real_))
 
   attr(out, "baseline") <- attr(clim, "baseline")
+  out
+}
+
+#' Per-cast anomalies of the derived CTD products
+#'
+#' A cast's mixed-layer depth, the depth and value of its chlorophyll maximum and
+#' its integrated chlorophyll are **one value per cast** (`sample_measurement`,
+#' dataset `calcofi_ctd-derived`), with no depth. This returns each cast's value
+#' beside the release's baseline for its station and its cruise's month (or
+#' quarter, `season = TRUE`) and the difference. The baseline is the release's
+#' `climatology` table, where a per-cast cell has `depth_bin` NULL (calcofi4db >=
+#' 4.24.0, release v2026.10.1x onward). As with [cc_anomaly()], a cast with no
+#' baseline comes back `NA`, never 0.
+#'
+#' @param con DuckDB connection to a release ([cc_get_db()]).
+#' @param variables per-cast `measurement_type`s, e.g. `"mld_sigma_theta_002"`,
+#'   `"chl_max_depth"`, `"chl_integrated"`.
+#' @param cruise_key optional cruise key(s) (`YYYY-MM-NODC`) to restrict to.
+#' @param season `TRUE` for the seasonal (quarter) baseline instead of the monthly one.
+#' @param min_cruises minimum cruises behind a baseline cell (the release keeps >= 5).
+#' @return Tibble: `sample_key`, `cruise_key`, `site_key`, `grid_key`,
+#'   `longitude`, `latitude`, `datetime`, `month`, `variable`, `value`,
+#'   `clim_mean`, `clim_sd`, `n_cruises`, `anomaly`, `anomaly_sd`; attributes
+#'   `baseline` (the years) and `period` (`"month"` or `"season"`).
+#' @examples
+#' \dontrun{
+#' con <- cc_get_db()
+#' cc_cast_anomaly(con, "mld_sigma_theta_002", cruise_key = "2026-07-3322")
+#' }
+#' @export
+#' @concept transect
+cc_cast_anomaly <- function(
+  con,
+  variables   = "mld_sigma_theta_002",
+  cruise_key  = NULL,
+  season      = FALSE,
+  min_cruises = 5
+) {
+  stopifnot(is.character(variables), length(variables) >= 1,
+            is.logical(season), length(season) == 1, !is.na(season))
+  tbls <- DBI::dbListTables(con)
+  if (!"climatology" %in% tbls ||
+      !"season_mean" %in% DBI::dbListFields(con, "climatology"))
+    stop("cc_cast_anomaly(): this release has no per-cast baseline; the climatology's ",
+         "per-cast cells ship from calcofi4db 4.24.0 (releases after v2026.10.08).", call. = FALSE)
+  cr <- cruise_key
+  win <- DBI::dbGetQuery(con, "SELECT DISTINCT clim_yr_min, clim_yr_max FROM climatology")
+
+  clim <- dplyr::tbl(con, "climatology") |>
+    dplyr::filter(is.na(depth_bin), measurement_type %in% !!variables)
+  clim <- if (season) {
+    dplyr::transmute(clim, dataset_key, site_key, month, measurement_type,
+                     clim_mean = season_mean, clim_sd = season_sd, n_cruises = season_n_cruises)
+  } else {
+    dplyr::transmute(clim, dataset_key, site_key, month, measurement_type,
+                     clim_mean, clim_sd, n_cruises)
+  }
+  clim <- dplyr::filter(clim, !is.na(clim_mean), n_cruises >= !!min_cruises)
+
+  smp <- dplyr::tbl(con, "sample") |>
+    dplyr::select(sample_key, cruise_key, site_key, grid_key, longitude, latitude, datetime)
+  if (!is.null(cr)) smp <- dplyr::filter(smp, cruise_key %in% !!cr)
+
+  out <- dplyr::tbl(con, "sample_measurement") |>
+    dplyr::filter(measurement_type %in% !!variables, !is.na(measurement_value)) |>
+    .filter_qual_ok() |>
+    dplyr::select(sample_key, dataset_key, measurement_type, value = measurement_value) |>
+    dplyr::inner_join(smp, by = "sample_key") |>
+    dplyr::mutate(month = dplyr::sql(!!.cruise_part_sql("month"))) |>
+    dplyr::left_join(clim, by = c("dataset_key", "site_key", "month", "measurement_type")) |>
+    dplyr::collect() |>
+    dplyr::transmute(
+      sample_key, cruise_key, site_key, grid_key, longitude, latitude, datetime,
+      month = as.integer(month), variable = measurement_type, value,
+      clim_mean, clim_sd, n_cruises = as.integer(n_cruises),
+      anomaly    = value - clim_mean,
+      anomaly_sd = dplyr::if_else(!is.na(clim_sd) & clim_sd > 0, anomaly / clim_sd, NA_real_)) |>
+    dplyr::arrange(cruise_key, site_key, variable)
+
+  attr(out, "baseline") <- if (nrow(win) == 1) c(win$clim_yr_min, win$clim_yr_max) else NULL
+  attr(out, "period")   <- if (season) "season" else "month"
   out
 }
 
@@ -688,7 +797,9 @@ utils::globalVariables(c(
   "longitude", "datetime", "data_stage", "lon", "lat", "dist_km",
   "dataset_key", "sample_type", "measurement_type", "measurement_value",
   "depth_min_m", "depth_m", "variable", "value", "yr", "mon", "month",
-  "clim_mean", "clim_sd", "clim_n", "anomaly", "cc_grid"))
+  "clim_mean", "clim_sd", "clim_n", "anomaly", "cc_grid", "per", "depth_bin",
+  "season_mean", "season_sd", "season_n", "season_n_cruises", "n_cruises", "site_key",
+  "anomaly_sd"))
 
 # internal: drop rows flagged questionable/bad/missing (CTD 8/9; the lazy-table
 # twin of cc_qual_ok_sql()). A table without the column — a test fixture, an old

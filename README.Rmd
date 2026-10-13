@@ -125,7 +125,8 @@ cc_read_sample(datasets = "calcofi_bottle", sample_types = "cast") |>
 ### Quality flags
 
 `measurement_qual` is each dataset's *own* code set (bottle/CTD `8` = suspect, `9` =
-missing/bad; DIC WOCE 3/4/9). A flagged value is still a row — filter it:
+missing/bad; DIC WOCE 3/4/9). A flagged value is still a row — filter it. CTD code `4` (a
+negative corrected chlorophyll or nitrate set to 0 by the provider) is a real value and kept:
 
 ```{r qual}
 cc_qual_ok_sql("o")                      # the predicate, for obs / obs_env / sample_measurement
@@ -135,6 +136,19 @@ DBI::dbGetQuery(con, glue::glue("
   FROM obs_env o
   WHERE o.dataset_key = 'calcofi_bottle' AND o.measurement_type = 'oxygen_ml_l'
     AND {cc_qual_ok_sql('o')}"))
+```
+
+### Anomalies of the derived CTD products
+
+A cast's mixed-layer depth, chlorophyll-maximum depth and integrated chlorophyll are one value per
+cast. `cc_cast_anomaly()` sets each beside the 1993–2013 baseline for its station and its cruise's
+month, or its quarter with `season = TRUE` (Q1 Jan–Mar … Q4 Oct–Dec):
+
+```{r cast-anomaly}
+mld <- cc_cast_anomaly(con, "mld_sigma_theta_002", cruise_key = "2026-07-3322")
+dplyr::count(mld, has_baseline = !is.na(anomaly))
+summary(mld$anomaly)                     # m; positive = a deeper mixed layer than normal
+summary(cc_cast_anomaly(con, "mld_sigma_theta_002", cruise_key = "2026-07-3322", season = TRUE)$anomaly)
 ```
 
 ### Match biology to environment
