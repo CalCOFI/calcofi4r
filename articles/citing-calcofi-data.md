@@ -196,7 +196,7 @@ citation("calcofi4r")
 #> To cite package 'calcofi4r' in publications use:
 #> 
 #>   Best B (2026). _calcofi4r: CalCOFI R helper functions_. R package
-#>   version 1.27.0, <https://calcofi.io/calcofi4r>.
+#>   version 1.28.0, <https://calcofi.io/calcofi4r>.
 #> 
 #> A BibTeX entry for LaTeX users is
 #> 
@@ -204,7 +204,7 @@ citation("calcofi4r")
 #>     title = {calcofi4r: CalCOFI R helper functions},
 #>     author = {Ben Best},
 #>     year = {2026},
-#>     note = {R package version 1.27.0},
+#>     note = {R package version 1.28.0},
 #>     url = {https://calcofi.io/calcofi4r},
 #>   }
 ```

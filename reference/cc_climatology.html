@@ -60,7 +60,7 @@ a monthly mean is something a reader can state exactly."><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.27.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.28.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -123,7 +123,8 @@ a monthly mean is something a reader can state exactly.</p>
 <span>  dataset_key <span class="op">=</span> <span class="st">"calcofi_ctd-cast"</span>,</span>
 <span>  depth_max <span class="op">=</span> <span class="fl">500</span>,</span>
 <span>  depth_bin <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>  min_cruises <span class="op">=</span> <span class="fl">3</span></span>
+<span>  min_cruises <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  season <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -158,6 +159,15 @@ edge). The release table is only used at 10.</p></dd>
 3). A floor in cruises rather than observations because a nearshore grid cell
 holds several stations' casts from one cruise.</p></dd>
 
+
+<dt id="arg-season">season<a class="anchor" aria-label="anchor" href="#arg-season"></a></dt>
+<dd><p><code>FALSE</code> (default) for the monthly baseline; <code>TRUE</code> for the
+<strong>seasonal</strong> one — the quarter of the cruise's month (Q1 Jan–Mar, Q2 Apr–Jun,
+Q3 Jul–Sep, Q4 Oct–Dec) — returned on each month of the quarter under the
+same column names, so <code><a href="cc_anomaly.html">cc_anomaly()</a></code> uses it unchanged. Fills stations whose
+months are each below <code>min_cruises</code> but whose quarter is not (the northern
+lines 60–73.3). Read from the release's <code>season_*</code> columns (calcofi4db= 4.24.0) or computed the same way. The period attribute says which.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -165,8 +175,8 @@ holds several stations' casts from one cruise.</p></dd>
 table from before v2026.09.2x, which was grained on the grid cell), <code>grid_key</code>
 (the station's modal cell — the inshore cells hold 2–4 stations, so key on
 <code>site_key</code>), <code>month</code>, <code>depth_m</code>, <code>variable</code>, <code>clim_mean</code>, <code>clim_sd</code>, <code>clim_n</code>,
-<code>n_cruises</code>; attributes <code>baseline</code> (the years) and <code>source</code> (<code>"release"</code> or
-<code>"computed"</code>).</p>
+<code>n_cruises</code>; attributes <code>baseline</code> (the years), <code>source</code> (<code>"release"</code> or
+<code>"computed"</code>) and <code>period</code> (<code>"month"</code> or <code>"season"</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

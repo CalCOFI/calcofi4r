@@ -22,7 +22,8 @@ cc_climatology(
   dataset_key = "calcofi_ctd-cast",
   depth_max = 500,
   depth_bin = 10,
-  min_cruises = 3
+  min_cruises = 3,
+  season = FALSE
 )
 ```
 
@@ -58,6 +59,18 @@ cc_climatology(
   floor in cruises rather than observations because a nearshore grid
   cell holds several stations' casts from one cruise.
 
+- season:
+
+  `FALSE` (default) for the monthly baseline; `TRUE` for the
+  **seasonal** one — the quarter of the cruise's month (Q1 Jan–Mar, Q2
+  Apr–Jun, Q3 Jul–Sep, Q4 Oct–Dec) — returned on each month of the
+  quarter under the same column names, so
+  [`cc_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_anomaly.md)
+  uses it unchanged. Fills stations whose months are each below
+  `min_cruises` but whose quarter is not (the northern lines 60–73.3).
+  Read from the release's `season_*` columns (calcofi4db= 4.24.0) or
+  computed the same way. The period attribute says which.
+
 ## Value
 
 Tibble: `site_key` (the station; absent only when reading a release
@@ -65,7 +78,8 @@ table from before v2026.09.2x, which was grained on the grid cell),
 `grid_key` (the station's modal cell — the inshore cells hold 2–4
 stations, so key on `site_key`), `month`, `depth_m`, `variable`,
 `clim_mean`, `clim_sd`, `clim_n`, `n_cruises`; attributes `baseline`
-(the years) and `source` (`"release"` or `"computed"`).
+(the years), `source` (`"release"` or `"computed"`) and `period`
+(`"month"` or `"season"`).
 
 ## Details
 

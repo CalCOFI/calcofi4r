@@ -814,6 +814,9 @@ check for other functions or datasets not captured by above categories
 - [`cc_bathy_depth()`](https://calcofi.io/calcofi4r/reference/cc_bathy_depth.md)
   : Seafloor depth at points
 
+- [`cc_cast_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_cast_anomaly.md)
+  : Per-cast anomalies of the derived CTD products
+
 - [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
   : Seasonal climatology for one or more measurement types
 

@@ -42,7 +42,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.27.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.28.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,6 +82,17 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.28.0" id="calcofi4r-1280">calcofi4r 1.28.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1280"></a></h2>
+<ul><li>
+<strong>New <code><a href="../reference/cc_cast_anomaly.html">cc_cast_anomaly()</a></code></strong>: per-cast anomalies of the derived CTD products (mixed-layer depths, chlorophyll-maximum depth and value, integrated chlorophyll). Each cast’s value sits beside the release’s baseline for its station and its cruise’s month, and the difference is returned. A cast with no baseline is <code>NA</code>, never 0. Needs a release built with calcofi4db &gt;= 4.24.0, whose <code>climatology</code> has per-cast cells (<code>depth_bin</code> NULL).</li>
+<li>
+<strong><code>cc_climatology(season = TRUE)</code></strong> returns the seasonal baseline: the quarter of the cruise’s month (Q1 Jan–Mar … Q4 Oct–Dec), on each month of the quarter under the same column names, so <code><a href="../reference/cc_anomaly.html">cc_anomaly()</a></code> uses it unchanged. It reads the release’s <code>season_*</code> columns or computes the same thing. A new <code>period</code> attribute says which baseline the result is.</li>
+<li>
+<code><a href="../reference/cc_climatology.html">cc_climatology()</a></code> skips release rows whose monthly <code>clim_mean</code> is NULL (a month that has only a seasonal baseline) and per-cast cells.</li>
+<li>
+<code><a href="../reference/cc_qual_ok.html">cc_qual_ok()</a></code> / <code><a href="../reference/cc_qual_ok_sql.html">cc_qual_ok_sql()</a></code> are unchanged, and the docs and a test now state that CTD code <code>4</code> (a negative corrected value set to 0) is kept.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.27.0" id="calcofi4r-1270">calcofi4r 1.27.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1270"></a></h2>
 <ul><li>
