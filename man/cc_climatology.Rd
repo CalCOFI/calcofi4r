@@ -11,7 +11,8 @@ cc_climatology(
   dataset_key = "calcofi_ctd-cast",
   depth_max = 500,
   depth_bin = 10,
-  min_cruises = 3
+  min_cruises = 3,
+  season = FALSE
 )
 }
 \arguments{
@@ -30,14 +31,21 @@ edge). The release table is only used at 10.}
 \item{min_cruises}{minimum distinct cruises for a cell to be returned (default
 3). A floor in cruises rather than observations because a nearshore grid cell
 holds several stations' casts from one cruise.}
+
+\item{season}{\code{FALSE} (default) for the monthly baseline; \code{TRUE} for the
+\strong{seasonal} one — the quarter of the cruise's month (Q1 Jan–Mar, Q2 Apr–Jun,
+Q3 Jul–Sep, Q4 Oct–Dec) — returned on each month of the quarter under the
+same column names, so \code{\link[=cc_anomaly]{cc_anomaly()}} uses it unchanged. Fills stations whose
+months are each below \code{min_cruises} but whose quarter is not (the northern
+lines 60–73.3). Read from the release's \verb{season_*} columns (calcofi4db= 4.24.0) or computed the same way. The period attribute says which.}
 }
 \value{
 Tibble: \code{site_key} (the station; absent only when reading a release
 table from before v2026.09.2x, which was grained on the grid cell), \code{grid_key}
 (the station's modal cell — the inshore cells hold 2–4 stations, so key on
 \code{site_key}), \code{month}, \code{depth_m}, \code{variable}, \code{clim_mean}, \code{clim_sd}, \code{clim_n},
-\code{n_cruises}; attributes \code{baseline} (the years) and \code{source} (\code{"release"} or
-\code{"computed"}).
+\code{n_cruises}; attributes \code{baseline} (the years), \code{source} (\code{"release"} or
+\code{"computed"}) and \code{period} (\code{"month"} or \code{"season"}).
 }
 \description{
 The baseline every CalCOFI anomaly is a departure from: a plain mean per

@@ -1,3 +1,19 @@
+# calcofi4r 1.28.0
+
+- **New `cc_cast_anomaly()`**: per-cast anomalies of the derived CTD products (mixed-layer depths,
+  chlorophyll-maximum depth and value, integrated chlorophyll). Each cast's value sits beside the
+  release's baseline for its station and its cruise's month, and the difference is returned. A cast
+  with no baseline is `NA`, never 0. Needs a release built with calcofi4db >= 4.24.0, whose
+  `climatology` has per-cast cells (`depth_bin` NULL).
+- **`cc_climatology(season = TRUE)`** returns the seasonal baseline: the quarter of the cruise's
+  month (Q1 Jan–Mar … Q4 Oct–Dec), on each month of the quarter under the same column names, so
+  `cc_anomaly()` uses it unchanged. It reads the release's `season_*` columns or computes the same
+  thing. A new `period` attribute says which baseline the result is.
+- `cc_climatology()` skips release rows whose monthly `clim_mean` is NULL (a month that has only a
+  seasonal baseline) and per-cast cells.
+- `cc_qual_ok()` / `cc_qual_ok_sql()` are unchanged, and the docs and a test now state that CTD code
+  `4` (a negative corrected value set to 0) is kept.
+
 # calcofi4r 1.27.0
 
 - **Maps draw CARTO's basemaps from vector tiles.** CARTO's raster basemaps (leaflet's
