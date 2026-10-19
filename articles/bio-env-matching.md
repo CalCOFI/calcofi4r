@@ -55,7 +55,7 @@ d <- cc_match_ichthyo_by_name(
   version         = REL)
 
 REL
-#> [1] "v2026.10.14"
+#> [1] "v2026.10.19"
 dim(d)
 #> [1] 310  19
 ```
@@ -249,18 +249,18 @@ meta <- attr(d, "query_meta")
 str(meta)
 #> List of 6
 #>  $ package_version: chr "1.28.0"
-#>  $ release_version: chr "v2026.10.14"
+#>  $ release_version: chr "v2026.10.19"
 #>  $ params         :List of 3
 #>   ..$ max_dist_km: num 5
 #>   ..$ max_time_hr: num 72
 #>   ..$ join_method: chr "nearest_time"
 #>  $ source_urls    : chr [1:97] "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_bio/a1dda33ba8e2727216f92584/obs_bio.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=air_temp_c/1d20e4b2093381f16"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity_rep1/e215c64a6b22"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity/aebe87cd44eee21bf"| __truncated__ ...
-#>  $ generated_at   : chr "2026-10-14 14:49:02 UTC"
+#>  $ generated_at   : chr "2026-10-19 20:08:15 UTC"
 #>  $ n_rows         : int 310
 ```
 
 `meta$release_version` pins which release the result came from
-(v2026.10.14 here). `meta$source_urls` is the full list of public GCS
+(v2026.10.19 here). `meta$source_urls` is the full list of public GCS
 parquet files the query reads. And `attr(d, "sql")` is the literal query
 — no `dplyr` translation, no hidden state, ~90 lines of plain DuckDB
 SQL:
