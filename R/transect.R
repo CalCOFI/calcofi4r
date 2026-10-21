@@ -105,7 +105,7 @@ cc_transect_stations <- function(
   if (!is.null(cruise_key))
     smp <- dplyr::filter(smp, cruise_key %in% !!cruise_key)
   smp <- smp |>
-    dplyr::select(sample_key, cruise_key, grid_key,
+    dplyr::select(sample_key, cruise_key, grid_key, dplyr::any_of("site_key"),
                   latitude, longitude, datetime, data_stage) |>
     dplyr::collect()
   if (!nrow(smp)) return(smp[0, ])
@@ -140,8 +140,8 @@ cc_transect_stations <- function(
   }
 
   out |>
-    dplyr::select(cruise_key, grid_key, sta, lon, lat, datetime, data_stage,
-                  dist_km)
+    dplyr::select(cruise_key, grid_key, dplyr::any_of("site_key"), sta, lon, lat, datetime,
+                  data_stage, dist_km)
 }
 
 #' Cumulative great-circle distance (km) along an ordered path
@@ -386,8 +386,11 @@ cc_climatology <- function(
 #'
 #' @param section from [cc_transect_section()].
 #' @param clim from [cc_climatology()].
-#' @param stations from [cc_transect_stations()] — supplies `grid_key` and the
-#'   month, which `section` does not carry.
+#' @param stations from [cc_transect_stations()] — supplies the station
+#'   (`site_key`, else `grid_key`) and the month, which `section` does not carry.
+#'   The baseline is joined on `site_key` when both carry it: a kept grid cell
+#'   holds 2–4 stations, so joining on `grid_key` repeated each section row once
+#'   per station in the cell.
 #' @return `section` plus `clim_mean`, `clim_sd`, `clim_n`, `anomaly`,
 #'   `anomaly_sd`; `baseline` attribute carried through.
 #' @export
@@ -395,12 +398,16 @@ cc_climatology <- function(
 cc_anomaly <- function(section, clim, stations) {
   key <- stations |>
     dplyr::mutate(month = .cruise_month(cruise_key, datetime)) |>
-    dplyr::select(cruise_key, sta, grid_key, month) |>
+    dplyr::select(cruise_key, sta, grid_key, dplyr::any_of("site_key"), month) |>
     dplyr::distinct()
+  # the station, not its cell; grid_key only for a baseline from before site_key existed
+  by_sta <- if (all(c("site_key") %in% names(key)) && "site_key" %in% names(clim))
+    "site_key" else "grid_key"
+  clim <- dplyr::select(clim, -dplyr::any_of(setdiff(c("site_key", "grid_key"), by_sta)))
 
   out <- section |>
     dplyr::left_join(key, by = c("cruise_key", "sta")) |>
-    dplyr::left_join(clim, by = c("grid_key", "month", "depth_m", "variable")) |>
+    dplyr::left_join(clim, by = c(by_sta, "month", "depth_m", "variable")) |>
     dplyr::mutate(
       anomaly    = value - clim_mean,
       anomaly_sd = dplyr::if_else(!is.na(clim_sd) & clim_sd > 0,
