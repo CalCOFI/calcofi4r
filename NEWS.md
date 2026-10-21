@@ -1,3 +1,11 @@
+# calcofi4r 1.28.1
+
+- **`cc_anomaly()` joins the baseline on the station (`site_key`), not its grid cell.** A kept grid
+  cell holds 2–4 stations and the climatology is grained on the station with `grid_key` as its modal
+  cell, so the `grid_key` join returned each section row once per station sharing the cell, each
+  with another station's baseline. `cc_transect_stations()` now carries `site_key`; a baseline
+  without it (a release before v2026.09.2x) still joins on `grid_key`.
+
 # calcofi4r 1.28.0
 
 - **New `cc_cast_anomaly()`**: per-cast anomalies of the derived CTD products (mixed-layer depths,

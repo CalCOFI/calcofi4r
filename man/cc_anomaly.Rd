@@ -11,8 +11,11 @@ cc_anomaly(section, clim, stations)
 
 \item{clim}{from \code{\link[=cc_climatology]{cc_climatology()}}.}
 
-\item{stations}{from \code{\link[=cc_transect_stations]{cc_transect_stations()}} — supplies \code{grid_key} and the
-month, which \code{section} does not carry.}
+\item{stations}{from \code{\link[=cc_transect_stations]{cc_transect_stations()}} — supplies the station
+(\code{site_key}, else \code{grid_key}) and the month, which \code{section} does not carry.
+The baseline is joined on \code{site_key} when both carry it: a kept grid cell
+holds 2–4 stations, so joining on \code{grid_key} repeated each section row once
+per station in the cell.}
 }
 \value{
 \code{section} plus \code{clim_mean}, \code{clim_sd}, \code{clim_n}, \code{anomaly},

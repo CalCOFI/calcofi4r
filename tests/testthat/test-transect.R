@@ -468,3 +468,23 @@ test_that("cc_cast_anomaly() differences a cast's value against its station's pe
   expect_equal(two$anomaly[two$variable == "chl_max_depth"], -20)
   expect_equal(nrow(cc_cast_anomaly(con, cruise_key = "nope")), 0)
 })
+
+# regression (TODO 2026-10-06): a kept grid cell holds 2-4 stations, and the climatology is grained on
+# the station (site_key) with grid_key its modal cell. Joined on grid_key, each section row came back
+# once per station sharing the cell, with the other station's baseline.
+test_that("cc_anomaly() joins the baseline on the station, never duplicating rows in a shared cell", {
+  sta <- data.frame(cruise_key = "2401XX", sta = c(30, 33), grid_key = "kept-cell",
+                    site_key = c("093.3 030.0", "093.3 033.0"),
+                    datetime = as.POSIXct("2024-01-15", tz = "UTC"))
+  sec <- data.frame(cruise_key = "2401XX", sta = c(30, 33), depth_m = 0,
+                    variable = "temperature_ave", value = c(16, 17))
+  cl  <- data.frame(site_key = c("093.3 030.0", "093.3 033.0"), grid_key = "kept-cell",
+                    month = 1L, depth_m = 0, variable = "temperature_ave",
+                    clim_mean = c(15, 15.5), clim_sd = 1, clim_n = 10L, n_cruises = 10L)
+  an <- cc_anomaly(sec, cl, sta)
+  expect_equal(nrow(an), 2L)
+  expect_equal(an$anomaly[order(an$sta)], c(1, 1.5))
+  # a baseline without site_key (a release before v2026.09.2x) still joins on the cell
+  an0 <- cc_anomaly(sec, cl[1, setdiff(names(cl), "site_key")], sta[, setdiff(names(sta), "site_key")])
+  expect_equal(an0$anomaly[order(an0$sta)], c(1, 2))
+})
