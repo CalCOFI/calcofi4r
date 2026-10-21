@@ -179,18 +179,18 @@ downloading the entire database.</p>
 <code class="sourceCode R"><span><span class="co"># list available versions</span></span>
 <span><span class="fu"><a href="../reference/cc_list_versions.html">cc_list_versions</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 40 × 9</span></span></span>
-<span><span class="co">#&gt;    version     release_date tables total_rows size_mb consolidated doi          </span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> v2026.10.20 2026-10-20       26  383<span style="text-decoration: underline;">803</span>652   <span style="text-decoration: underline;">2</span>717. FALSE        <span style="color: #BB0000;">NA</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> v2026.10.19 2026-10-19       25  375<span style="text-decoration: underline;">348</span>707   <span style="text-decoration: underline;">2</span>620. FALSE        10.5281/zeno…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> v2026.10.14 2026-10-14       25  375<span style="text-decoration: underline;">348</span>707   <span style="text-decoration: underline;">2</span>620. FALSE        10.5281/zeno…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> v2026.10.13 2026-10-13       25  374<span style="text-decoration: underline;">740</span>011   <span style="text-decoration: underline;">2</span>614  FALSE        10.5281/zeno…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> v2026.10.08 2026-10-08       25  373<span style="text-decoration: underline;">376</span>204   <span style="text-decoration: underline;">2</span>605. FALSE        10.5281/zeno…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> v2026.10.06 2026-10-06       25  373<span style="text-decoration: underline;">467</span>857   <span style="text-decoration: underline;">2</span>606. FALSE        10.5281/zeno…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> v2026.10.05 2026-10-05       25  373<span style="text-decoration: underline;">474</span>855   <span style="text-decoration: underline;">2</span>606. FALSE        10.5281/zeno…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> v2026.10.01 2026-10-01       23  375<span style="text-decoration: underline;">505</span>833   <span style="text-decoration: underline;">2</span>603. FALSE        10.5281/zeno…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> v2026.09.11 2026-09-11       23  362<span style="text-decoration: underline;">124</span>968   <span style="text-decoration: underline;">2</span>497. FALSE        10.5281/zeno…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> v2026.09.10 2026-09-11       23  356<span style="text-decoration: underline;">635</span>055   <span style="text-decoration: underline;">2</span>462. FALSE        10.5281/zeno…</span></span>
+<span><span class="co">#&gt;    version     release_date tables total_rows size_mb doi           consolidated</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> v2026.10.20 2026-10-20       26  383<span style="text-decoration: underline;">803</span>652   <span style="text-decoration: underline;">2</span>717. 10.5281/zeno… FALSE       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> v2026.10.19 2026-10-19       25  375<span style="text-decoration: underline;">348</span>707   <span style="text-decoration: underline;">2</span>620. 10.5281/zeno… FALSE       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> v2026.10.14 2026-10-14       25  375<span style="text-decoration: underline;">348</span>707   <span style="text-decoration: underline;">2</span>620. 10.5281/zeno… FALSE       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> v2026.10.13 2026-10-13       25  374<span style="text-decoration: underline;">740</span>011   <span style="text-decoration: underline;">2</span>614  10.5281/zeno… FALSE       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> v2026.10.08 2026-10-08       25  373<span style="text-decoration: underline;">376</span>204   <span style="text-decoration: underline;">2</span>605. 10.5281/zeno… FALSE       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> v2026.10.06 2026-10-06       25  373<span style="text-decoration: underline;">467</span>857   <span style="text-decoration: underline;">2</span>606. 10.5281/zeno… FALSE       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> v2026.10.05 2026-10-05       25  373<span style="text-decoration: underline;">474</span>855   <span style="text-decoration: underline;">2</span>606. 10.5281/zeno… FALSE       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> v2026.10.01 2026-10-01       23  375<span style="text-decoration: underline;">505</span>833   <span style="text-decoration: underline;">2</span>603. 10.5281/zeno… FALSE       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> v2026.09.11 2026-09-11       23  362<span style="text-decoration: underline;">124</span>968   <span style="text-decoration: underline;">2</span>497. 10.5281/zeno… FALSE       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> v2026.09.10 2026-09-11       23  356<span style="text-decoration: underline;">635</span>055   <span style="text-decoration: underline;">2</span>462. 10.5281/zeno… FALSE       </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 30 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: retired &lt;df[,3]&gt;, is_latest &lt;lgl&gt;</span></span></span>
 <span></span>
@@ -373,12 +373,12 @@ per (sample, depth, measurement type). Position and time come from
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">d_temp</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         lon      lat            datetime depth_m temperature</span></span>
-<span><span class="co">#&gt; 1 -120.2500 31.46667 1960-05-25 02:36:00       0       14.37</span></span>
-<span><span class="co">#&gt; 2 -120.2500 31.46667 1960-05-25 02:36:00       1       14.37</span></span>
-<span><span class="co">#&gt; 3 -120.2500 31.46667 1960-05-25 02:36:00      10       14.08</span></span>
-<span><span class="co">#&gt; 4 -115.5500 27.71667 1950-02-06 12:36:00       0       14.63</span></span>
-<span><span class="co">#&gt; 5 -115.5500 27.71667 1950-02-06 12:36:00       9       14.66</span></span>
-<span><span class="co">#&gt; 6 -119.5917 31.77500 1960-05-25 09:18:00       0       13.44</span></span>
+<span><span class="co">#&gt; 1 -124.0833 38.83333 1949-03-01 09:30:00       0       10.50</span></span>
+<span><span class="co">#&gt; 2 -121.0833 35.25000 1951-09-08 03:54:00       0       14.42</span></span>
+<span><span class="co">#&gt; 3 -121.0833 35.25000 1951-09-08 03:54:00       9       14.38</span></span>
+<span><span class="co">#&gt; 4 -121.0833 35.25000 1951-09-08 03:54:00      10       14.37</span></span>
+<span><span class="co">#&gt; 5 -120.4167 33.73333 1951-09-08 16:12:00       9       13.57</span></span>
+<span><span class="co">#&gt; 6 -120.4167 33.73333 1951-09-08 16:12:00      10       13.52</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">d_temp</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 93985</span></span></code></pre></div>
 <div class="section level3">
