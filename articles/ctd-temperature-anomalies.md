@@ -78,11 +78,11 @@ head(sec)
 #> # A tibble: 6 × 6
 #>   cruise_key     sta dist_km depth_m variable        value
 #>   <chr>        <dbl>   <dbl>   <dbl> <chr>           <dbl>
-#> 1 2026-07-3322  26.7       0       0 temperature_ave  20.3
-#> 2 2026-07-3322  26.7       0      10 temperature_ave  17.8
-#> 3 2026-07-3322  26.7       0      20 temperature_ave  12.6
-#> 4 2026-07-3322  26.7       0      30 temperature_ave  11.4
-#> 5 2026-07-3322  26.7       0      40 temperature_ave  11.3
+#> 1 2026-07-3322  26.7       0       0 temperature_ave  20.2
+#> 2 2026-07-3322  26.7       0      10 temperature_ave  17.5
+#> 3 2026-07-3322  26.7       0      20 temperature_ave  12.5
+#> 4 2026-07-3322  26.7       0      30 temperature_ave  11.3
+#> 5 2026-07-3322  26.7       0      40 temperature_ave  11.2
 #> 6 2026-07-3322  26.7       0      50 temperature_ave  11.1
 ```
 
@@ -103,7 +103,7 @@ lin <- cc_transect_stations(con, LINE, cruise_recent, x = "line")
 
 c(occupied_km = max(occ$dist_km), along_line_km = max(lin$dist_km))
 #>   occupied_km along_line_km 
-#>      689.0909      689.0085
+#>      689.0909      689.0093
 ```
 
 ## The baseline, and a filter before it
@@ -116,7 +116,7 @@ clim <- cc_climatology(
 attr(clim, "baseline")
 #> [1] 1993 2013
 nrow(clim)
-#> [1] 21005
+#> [1] 21008
 ```
 
 [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
@@ -160,7 +160,7 @@ temp_all |>
 #> # A tibble: 3 × 2
 #>   band       n
 #>   <fct>  <int>
-#> 1 <24   689199
+#> 1 <24   703137
 #> 2 24-26      1
 #> 3 >=35       1
 ```
@@ -365,7 +365,7 @@ comparison <- series |>
 
 summary(abs(comparison$difference))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#> 0.04147 0.05515 0.05934 0.15674 0.26257 0.46045
+#> 0.04147 0.05520 0.06206 0.14212 0.22094 0.40609
 ```
 
 ## Reading it honestly

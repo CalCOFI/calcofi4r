@@ -29,12 +29,12 @@ q <- dbExecute(con, "INSTALL spatial; LOAD spatial;")
 dbListTables(con)
 #>  [1] "climatology"        "cruise"             "dataset"           
 #>  [4] "dataset_taxon"      "fish"               "grid"              
-#>  [7] "grid_crosswalk"     "lookup"             "measurement_type"  
-#> [10] "obs"                "obs_attribute"      "obs_bio"           
-#> [13] "obs_env"            "region"             "sample"            
-#> [16] "sample_measurement" "sample_spatial"     "ship"              
-#> [19] "spatial"            "spatial_attribute"  "taxon"             
-#> [22] "taxon_group"
+#>  [7] "grid_crosswalk"     "ichthyo_net"        "lookup"            
+#> [10] "measurement_type"   "obs"                "obs_attribute"     
+#> [13] "obs_bio"            "obs_env"            "region"            
+#> [16] "sample"             "sample_measurement" "sample_spatial"    
+#> [19] "ship"               "spatial"            "spatial_attribute" 
+#> [22] "taxon"              "taxon_group"
 ```
 
 ## Convenience Functions
@@ -45,32 +45,32 @@ The package provides convenience functions for common operations:
 
 # list available versions
 cc_list_versions()
-#> # A tibble: 39 × 9
-#>    version     release_date tables total_rows size_mb doi           consolidated
-#>    <chr>       <chr>         <int>      <int>   <dbl> <chr>         <lgl>       
-#>  1 v2026.10.19 2026-10-19       25  375348707   2620. 10.5281/zeno… FALSE       
-#>  2 v2026.10.14 2026-10-14       25  375348707   2620. 10.5281/zeno… FALSE       
-#>  3 v2026.10.13 2026-10-13       25  374740011   2614  10.5281/zeno… FALSE       
-#>  4 v2026.10.08 2026-10-08       25  373376204   2605. 10.5281/zeno… FALSE       
-#>  5 v2026.10.06 2026-10-06       25  373467857   2606. 10.5281/zeno… FALSE       
-#>  6 v2026.10.05 2026-10-05       25  373474855   2606. 10.5281/zeno… FALSE       
-#>  7 v2026.10.01 2026-10-01       23  375505833   2603. 10.5281/zeno… FALSE       
-#>  8 v2026.09.11 2026-09-11       23  362124968   2497. 10.5281/zeno… FALSE       
-#>  9 v2026.09.10 2026-09-11       23  356635055   2462. 10.5281/zeno… FALSE       
-#> 10 v2026.09.06 2026-09-06       23  348657010   2350. 10.5281/zeno… FALSE       
-#> # ℹ 29 more rows
+#> # A tibble: 40 × 9
+#>    version     release_date tables total_rows size_mb consolidated doi          
+#>    <chr>       <chr>         <int>      <int>   <dbl> <lgl>        <chr>        
+#>  1 v2026.10.20 2026-10-20       26  383803652   2717. FALSE        NA           
+#>  2 v2026.10.19 2026-10-19       25  375348707   2620. FALSE        10.5281/zeno…
+#>  3 v2026.10.14 2026-10-14       25  375348707   2620. FALSE        10.5281/zeno…
+#>  4 v2026.10.13 2026-10-13       25  374740011   2614  FALSE        10.5281/zeno…
+#>  5 v2026.10.08 2026-10-08       25  373376204   2605. FALSE        10.5281/zeno…
+#>  6 v2026.10.06 2026-10-06       25  373467857   2606. FALSE        10.5281/zeno…
+#>  7 v2026.10.05 2026-10-05       25  373474855   2606. FALSE        10.5281/zeno…
+#>  8 v2026.10.01 2026-10-01       23  375505833   2603. FALSE        10.5281/zeno…
+#>  9 v2026.09.11 2026-09-11       23  362124968   2497. FALSE        10.5281/zeno…
+#> 10 v2026.09.10 2026-09-11       23  356635055   2462. FALSE        10.5281/zeno…
+#> # ℹ 30 more rows
 #> # ℹ 2 more variables: retired <df[,3]>, is_latest <lgl>
 
 # list tables (con = reuses the connection opened above)
 cc_list_tables(con = con)
 #>  [1] "climatology"        "cruise"             "dataset"           
 #>  [4] "dataset_taxon"      "fish"               "grid"              
-#>  [7] "grid_crosswalk"     "lookup"             "measurement_type"  
-#> [10] "obs"                "obs_attribute"      "obs_bio"           
-#> [13] "obs_env"            "region"             "sample"            
-#> [16] "sample_measurement" "sample_spatial"     "ship"              
-#> [19] "spatial"            "spatial_attribute"  "taxon"             
-#> [22] "taxon_group"
+#>  [7] "grid_crosswalk"     "ichthyo_net"        "lookup"            
+#> [10] "measurement_type"   "obs"                "obs_attribute"     
+#> [13] "obs_bio"            "obs_env"            "region"            
+#> [16] "sample"             "sample_measurement" "sample_spatial"    
+#> [19] "ship"               "spatial"            "spatial_attribute" 
+#> [22] "taxon"              "taxon_group"
 
 # describe a table
 cc_describe_table("obs", con = con)
@@ -141,12 +141,12 @@ head(ichthyo_sample)
 #> # A tibble: 6 × 18
 #>     obs_id realm dataset_key   sample_key grid_key cruise_key latitude longitude
 #>      <dbl> <chr> <chr>         <chr>      <chr>    <chr>         <dbl>     <dbl>
-#> 1 33305725 bio   swfsc_ichthyo swfsc_ich… NA       2003-10-3…     9.41     -99.2
-#> 2 33321960 bio   swfsc_ichthyo swfsc_ich… NA       2000-10-3…     7.74     -82.1
-#> 3 33311416 bio   swfsc_ichthyo swfsc_ich… NA       2002-10-3…    28.0     -178. 
-#> 4 32892421 bio   swfsc_ichthyo swfsc_ich… st20-ln… 1965-07-3…    26.6     -113. 
-#> 5 33015488 bio   swfsc_ichthyo swfsc_ich… st40-ln… 1966-08-3…    26.9     -114. 
-#> 6 32923125 bio   swfsc_ichthyo swfsc_ich… st30-ln… 1969-07-3…    32.8     -118. 
+#> 1 35355056 bio   swfsc_ichthyo swfsc_ich… NA       2003-10-3…     9.41     -99.2
+#> 2 35339976 bio   swfsc_ichthyo swfsc_ich… NA       2000-10-3…     7.74     -82.1
+#> 3 35336561 bio   swfsc_ichthyo swfsc_ich… NA       2002-10-3…    28.0     -178. 
+#> 4 34923422 bio   swfsc_ichthyo swfsc_ich… st20-ln… 1965-07-3…    26.6     -113. 
+#> 5 35037493 bio   swfsc_ichthyo swfsc_ich… st40-ln… 1966-08-3…    26.9     -114. 
+#> 6 34952369 bio   swfsc_ichthyo swfsc_ich… st30-ln… 1969-07-3…    32.8     -118. 
 #> # ℹ 10 more variables: datetime <dttm>, depth_min_m <dbl>, depth_max_m <dbl>,
 #> #   taxon_key <chr>, life_stage <chr>, measurement_type <chr>,
 #> #   measurement_value <dbl>, measurement_qual <chr>, measurement_prec <dbl>,
@@ -191,20 +191,20 @@ tibble(
     dbGetQuery(con, sprintf("SELECT COUNT(*) as n FROM %s", t))$n
   })) |>
   arrange(desc(rows))
-#> # A tibble: 22 × 2
+#> # A tibble: 23 × 2
 #>    table                  rows
 #>    <chr>                 <dbl>
-#>  1 obs                33326406
-#>  2 obs_env            31739611
-#>  3 sample_spatial      1994263
-#>  4 climatology         1828215
+#>  1 obs                35358143
+#>  2 obs_env            33771348
+#>  3 sample_spatial      1996331
+#>  4 climatology         1878006
 #>  5 obs_bio             1586795
-#>  6 sample              1467016
-#>  7 sample_measurement   658009
+#>  6 sample              1467375
+#>  7 sample_measurement   659253
 #>  8 obs_attribute        455300
-#>  9 spatial_attribute     37943
-#> 10 fish                  10796
-#> # ℹ 12 more rows
+#>  9 ichthyo_net           77888
+#> 10 spatial_attribute     37943
+#> # ℹ 13 more rows
 ```
 
 ## Query Environmental Data
@@ -232,12 +232,12 @@ d_temp <- dbGetQuery(con, "
 
 head(d_temp)
 #>         lon      lat            datetime depth_m temperature
-#> 1 -107.9750 23.30000 1956-02-06 17:54:00      10       20.24
-#> 2 -122.8167 32.93333 1949-09-17 21:30:00       0       18.90
-#> 3 -122.8167 32.93333 1949-09-17 21:30:00       8       18.48
-#> 4 -107.5167 23.55000 1956-02-06 22:36:00       0       22.00
-#> 5 -107.5167 23.55000 1956-02-06 22:36:00       9       21.37
-#> 6 -107.5167 23.55000 1956-02-06 22:36:00      10       21.34
+#> 1 -120.2500 31.46667 1960-05-25 02:36:00       0       14.37
+#> 2 -120.2500 31.46667 1960-05-25 02:36:00       1       14.37
+#> 3 -120.2500 31.46667 1960-05-25 02:36:00      10       14.08
+#> 4 -115.5500 27.71667 1950-02-06 12:36:00       0       14.63
+#> 5 -115.5500 27.71667 1950-02-06 12:36:00       9       14.66
+#> 6 -119.5917 31.77500 1960-05-25 09:18:00       0       13.44
 nrow(d_temp)
 #> [1] 93985
 ```
