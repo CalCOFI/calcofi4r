@@ -32,7 +32,10 @@ cc_anomaly(section, clim, stations)
 
   from
   [`cc_transect_stations()`](https://calcofi.io/calcofi4r/reference/cc_transect_stations.md)
-  — supplies `grid_key` and the month, which `section` does not carry.
+  — supplies the station (`site_key`, else `grid_key`) and the month,
+  which `section` does not carry. The baseline is joined on `site_key`
+  when both carry it: a kept grid cell holds 2–4 stations, so joining on
+  `grid_key` repeated each section row once per station in the cell.
 
 ## Value
 

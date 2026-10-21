@@ -42,7 +42,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.28.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.28.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,6 +82,11 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.28.1" id="calcofi4r-1281">calcofi4r 1.28.1<a class="anchor" aria-label="anchor" href="#calcofi4r-1281"></a></h2>
+<ul><li>
+<strong><code><a href="../reference/cc_anomaly.html">cc_anomaly()</a></code> joins the baseline on the station (<code>site_key</code>), not its grid cell.</strong> A kept grid cell holds 2–4 stations and the climatology is grained on the station with <code>grid_key</code> as its modal cell, so the <code>grid_key</code> join returned each section row once per station sharing the cell, each with another station’s baseline. <code><a href="../reference/cc_transect_stations.html">cc_transect_stations()</a></code> now carries <code>site_key</code>; a baseline without it (a release before v2026.09.2x) still joins on <code>grid_key</code>.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.28.0" id="calcofi4r-1280">calcofi4r 1.28.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1280"></a></h2>
 <ul><li>

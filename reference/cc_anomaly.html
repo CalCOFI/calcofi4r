@@ -56,7 +56,7 @@ claiming &quot;normal&quot; for somewhere never measured."><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.28.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.28.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -126,8 +126,11 @@ claiming "normal" for somewhere never measured.</p>
 
 
 <dt id="arg-stations">stations<a class="anchor" aria-label="anchor" href="#arg-stations"></a></dt>
-<dd><p>from <code><a href="cc_transect_stations.html">cc_transect_stations()</a></code> — supplies <code>grid_key</code> and the
-month, which <code>section</code> does not carry.</p></dd>
+<dd><p>from <code><a href="cc_transect_stations.html">cc_transect_stations()</a></code> — supplies the station
+(<code>site_key</code>, else <code>grid_key</code>) and the month, which <code>section</code> does not carry.
+The baseline is joined on <code>site_key</code> when both carry it: a kept grid cell
+holds 2–4 stations, so joining on <code>grid_key</code> repeated each section row once
+per station in the cell.</p></dd>
 
 </dl></div>
     <div class="section level2">
