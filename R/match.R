@@ -91,7 +91,7 @@ cc_latest_version <- function() .cc_resolve_version("latest")
   }
 }
 
-# internal: get a DuckDB connection with httpfs + spatial loaded.
+# internal: get a DuckDB connection with httpfs loaded.
 # returns list(con=, created=) so the caller can disconnect a con it created.
 .cc_match_con <- function(con = NULL) {
   created <- FALSE
@@ -101,9 +101,8 @@ cc_latest_version <- function() .cc_resolve_version("latest")
     con     <- DBI::dbConnect(duckdb::duckdb())
     created <- TRUE
   }
-  # idempotent — needed for https read_parquet() and ST_Distance_Sphere()
+  # idempotent — needed for https read_parquet()
   DBI::dbExecute(con, "INSTALL httpfs; LOAD httpfs;")
-  DBI::dbExecute(con, "INSTALL spatial; LOAD spatial;")
   # a pre-v2026.09 catalog resolves a partitioned table (obs) to an s3:// glob,
   # which needs the anonymous-S3 settings; harmless for https objects
   .cc_setup_gcs_httpfs(con)
@@ -117,6 +116,37 @@ cc_latest_version <- function() .cc_resolve_version("latest")
   hits <- regmatches(sql, gregexpr("read_parquet\\((\\[[^]]*\\]|'[^']*')", sql))[[1]]
   urls <- unlist(regmatches(hits, gregexpr("'[^']+'", hits)))
   sort(unique(gsub("'", "", urls)))
+}
+
+#' Great-circle distance in kilometres, as a DuckDB SQL expression
+#'
+#' Builds a haversine expression over four longitude/latitude columns (decimal
+#' degrees) on a sphere of mean Earth radius 6,371.0088 km. It is plain SQL, so
+#' it needs no spatial extension and returns the same answer on every DuckDB
+#' version. `ST_Distance_Sphere(ST_Point(lon, lat), …)` does not: DuckDB 1.x
+#' reads its points as `[latitude, longitude]`, which made one degree of
+#' latitude 55.6 km instead of 111.2 km at 34°N, and DuckDB 2.0 refuses the call
+#' unless `geometry_always_xy` is set.
+#'
+#' @param lon1,lat1,lon2,lat2 Character. SQL expressions (usually column names)
+#'   for the two positions' longitude and latitude in decimal degrees.
+#'
+#' @return Character scalar, a SQL expression evaluating to kilometres.
+#' @export
+#' @concept database
+#' @examples
+#' cc_distance_km_sql("bio_lon", "bio_lat", "env_lon", "env_lat")
+#' \dontrun{
+#' con <- DBI::dbConnect(duckdb::duckdb())
+#' DBI::dbGetQuery(con, paste(
+#'   "SELECT", cc_distance_km_sql("-120", "34", "-120", "35"), "AS km"))  # 111.2
+#' }
+cc_distance_km_sql <- function(lon1, lat1, lon2, lat2) {
+  glue::glue(
+    "(2 * 6371.0088 * asin(sqrt(",
+    "pow(sin(radians(({lat2}) - ({lat1})) / 2), 2) + ",
+    "cos(radians({lat1})) * cos(radians({lat2})) * ",
+    "pow(sin(radians(({lon2}) - ({lon1})) / 2), 2))))")
 }
 
 # internal: assemble the full matching SQL from bio + env subqueries
@@ -143,9 +173,7 @@ matched AS (
     bio.*,
     env.* EXCLUDE (env_lon, env_lat),
     abs(epoch(bio.bio_datetime) - epoch(env.env_datetime)) / 3600.0 AS time_diff_hr,
-    ST_Distance_Sphere(
-      ST_Point(bio.bio_lon, bio.bio_lat),
-      ST_Point(env.env_lon, env.env_lat)) / 1000.0                  AS dist_km
+    {cc_distance_km_sql('bio.bio_lon', 'bio.bio_lat', 'env.env_lon', 'env.env_lat')} AS dist_km
   FROM bio
   JOIN env
     ON env.env_datetime BETWEEN bio.bio_datetime - INTERVAL '{max_time_hr} hours'
@@ -299,7 +327,7 @@ ORDER BY bio_id",
 #' Core engine relating biological observations to environmental observations by
 #' matching them on time and space. Builds a single DuckDB SQL string — a
 #' temporal interval join (within `max_time_hr`) plus a spatial filter
-#' (`ST_Distance_Sphere` within `max_dist_km`) — that reads directly from the
+#' (great-circle distance, [cc_distance_km_sql()], within `max_dist_km`) — that reads directly from the
 #' Parquet files of a frozen CalCOFI release on Google Cloud Storage, runs it,
 #' and attaches the fully-interpolated SQL and query metadata as attributes.
 #'

@@ -53,7 +53,7 @@ any of those environments**.
 
 `cc_match_ichthyo_by_name()` joins ichthyoplankton tows to CTD-bottle
 measurements on the fly: a temporal interval join (within `max_time_hr`) plus a
-spatial `ST_Distance_Sphere` filter (within `max_dist_km`), one row per
+great-circle distance filter (within `max_dist_km`, `cc_distance_km_sql()`), one row per
 biological observation with the matched environmental value averaged over the
 window. *Relaxed* matching widens the windows to 5 km / 72 hr.
 
