@@ -756,7 +756,7 @@ prep_splot <- function(df_sp, df_env, env_stat, method = "nearest_time",
         by = join_by(between(sp_dtime, env_dtime_lwr, env_dtime_upr))) |>
       # compute distance between species and ocean observations
       mutate(
-        dist_m = sql("ST_Distance_Sphere(ST_Point(sp_lon, sp_lat), ST_Point(env_lon, env_lat))")) |>
+        dist_m = sql(paste0(cc_distance_km_sql("sp_lon", "sp_lat", "env_lon", "env_lat"), " * 1000"))) |>
       # get pairs within desired distance
       filter(
         dist_m <= max_meters_diff)

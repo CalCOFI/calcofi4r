@@ -61,7 +61,7 @@ source URLs).
 Core engine relating biological observations to environmental observations by
 matching them on time and space. Builds a single DuckDB SQL string — a
 temporal interval join (within \code{max_time_hr}) plus a spatial filter
-(\code{ST_Distance_Sphere} within \code{max_dist_km}) — that reads directly from the
+(great-circle distance, \code{\link[=cc_distance_km_sql]{cc_distance_km_sql()}}, within \code{max_dist_km}) — that reads directly from the
 Parquet files of a frozen CalCOFI release on Google Cloud Storage, runs it,
 and attaches the fully-interpolated SQL and query metadata as attributes.
 }
