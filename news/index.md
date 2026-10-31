@@ -1,5 +1,24 @@
 # Changelog
 
+## calcofi4r 1.29.0
+
+- [`cc_match_bio_env()`](https://calcofi.io/calcofi4r/reference/cc_match_bio_env.md)
+  and its wrappers
+  ([`cc_match_ichthyo_by_name()`](https://calcofi.io/calcofi4r/reference/cc_match_ichthyo_by_name.md)
+  and the rest) measured distance with
+  `ST_Distance_Sphere(ST_Point(lon, lat), …)`, which DuckDB 1.x reads as
+  `[latitude, longitude]`, so a north-south separation came out at
+  roughly half its length. One degree of latitude at 34°N measured 55.6
+  km instead of 111.2 km, and `max_dist_km` let through env casts up to
+  about twice as far as asked. DuckDB 2.0 refuses the call outright.
+  Distances now come from the new exported
+  [`cc_distance_km_sql()`](https://calcofi.io/calcofi4r/reference/cc_distance_km_sql.md),
+  a plain-SQL haversine (radius 6,371.0088 km) that gives the same
+  answer on every DuckDB version and needs no spatial extension. The
+  legacy `merge_sp_env()` path had the same call and is fixed the same
+  way. **Matches made before 1.29.0 can differ:** expect fewer env casts
+  per tow at the same `max_dist_km`, and larger `dist_km`.
+
 ## calcofi4r 1.28.1
 
 - **[`cc_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_anomaly.md)

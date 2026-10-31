@@ -3,10 +3,11 @@
 Core engine relating biological observations to environmental
 observations by matching them on time and space. Builds a single DuckDB
 SQL string — a temporal interval join (within `max_time_hr`) plus a
-spatial filter (`ST_Distance_Sphere` within `max_dist_km`) — that reads
-directly from the Parquet files of a frozen CalCOFI release on Google
-Cloud Storage, runs it, and attaches the fully-interpolated SQL and
-query metadata as attributes.
+spatial filter (great-circle distance,
+[`cc_distance_km_sql()`](https://calcofi.io/calcofi4r/reference/cc_distance_km_sql.md),
+within `max_dist_km`) — that reads directly from the Parquet files of a
+frozen CalCOFI release on Google Cloud Storage, runs it, and attaches
+the fully-interpolated SQL and query metadata as attributes.
 
 ## Usage
 
