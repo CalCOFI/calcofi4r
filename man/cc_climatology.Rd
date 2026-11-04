@@ -33,11 +33,16 @@ edge). The release table is only used at 10.}
 holds several stations' casts from one cruise.}
 
 \item{season}{\code{FALSE} (default) for the monthly baseline; \code{TRUE} for the
-\strong{seasonal} one — the quarter of the cruise's month (Q1 Jan–Mar, Q2 Apr–Jun,
-Q3 Jul–Sep, Q4 Oct–Dec) — returned on each month of the quarter under the
-same column names, so \code{\link[=cc_anomaly]{cc_anomaly()}} uses it unchanged. Fills stations whose
-months are each below \code{min_cruises} but whose quarter is not (the northern
-lines 60–73.3). Read from the release's \verb{season_*} columns (calcofi4db= 4.24.0) or computed the same way. The period attribute says which.}
+\strong{seasonal} one — the season of the cruise's month: 1 = DJF (Dec–Feb),
+2 = MAM, 3 = JJA, 4 = SON since release v2026.11 (Q1 Jan–Mar … Q4 Oct–Dec
+before), December counting toward the following year's winter — returned on
+each month of the season under the same column names, so \code{\link[=cc_anomaly]{cc_anomaly()}} uses
+it unchanged. Fills stations whose months are each below \code{min_cruises} but
+whose season is not (the northern lines 60–73.3). Read from the release's
+\verb{season_*} columns (calcofi4db >= 4.24.0) or computed the same way. The
+\code{period} attribute says which. The cruise's month is its \strong{median cast
+month} (\code{cruise.month_median}, v2026.11+; \code{\link[=cc_cruise_month]{cc_cruise_month()}}), the key's
+\code{YYYY-MM} on an older release.}
 }
 \value{
 Tibble: \code{site_key} (the station; absent only when reading a release

@@ -12,7 +12,9 @@ cc_anomaly(section, clim, stations)
 \item{clim}{from \code{\link[=cc_climatology]{cc_climatology()}}.}
 
 \item{stations}{from \code{\link[=cc_transect_stations]{cc_transect_stations()}} — supplies the station
-(\code{site_key}, else \code{grid_key}) and the month, which \code{section} does not carry.
+(\code{site_key}, else \code{grid_key}) and the cruise's \code{month} (its median cast
+month where the release carries one, since 1.30.0), which \code{section} does not
+carry; a frame without \code{month} falls back to the \code{cruise_key}'s \code{YYYY-MM}.
 The baseline is joined on \code{site_key} when both carry it: a kept grid cell
 holds 2–4 stations, so joining on \code{grid_key} repeated each section row once
 per station in the cell.}

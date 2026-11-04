@@ -412,10 +412,11 @@ test_that("cc_climatology(season = TRUE) is the cruise quarter's mean on each of
   # computed: the fixture's January (2401XX) and July (2407XX) cruises -> Q1 and Q3 cells
   cs <- cc_climatology(con, years = c(2024, 2024), min_cruises = 1, season = TRUE)
   expect_identical(attr(cs, "period"), "season")
-  expect_setequal(unique(cs$month), c(1:3, 7:9))
+  # 1.30.0: January is DJF (December, January, February), July is JJA (June, July, August)
+  expect_setequal(unique(cs$month), c(12L, 1:2, 6:8))
   a <- cs[cs$site_key == "093.3 030.0" & cs$depth_m == 0, ]
   expect_equal(nrow(a), 6)
-  expect_equal(unique(a$clim_mean[a$month %in% 7:9]), 18 - 0.12 + 3)
+  expect_equal(unique(a$clim_mean[a$month %in% 6:8]), 18 - 0.12 + 3)
   expect_identical(attr(cc_climatology(con, years = c(2024, 2024), min_cruises = 1), "period"), "month")
 
   # release: season_* under the monthly names; a NULL monthly mean is no monthly baseline
@@ -487,4 +488,54 @@ test_that("cc_anomaly() joins the baseline on the station, never duplicating row
   # a baseline without site_key (a release before v2026.09.2x) still joins on the cell
   an0 <- cc_anomaly(sec, cl[1, setdiff(names(cl), "site_key")], sta[, setdiff(names(sta), "site_key")])
   expect_equal(an0$anomaly[order(an0$sta)], c(1, 2))
+})
+
+
+# the cruise's month is its MEDIAN cast month (release v2026.11+, cruise.month_median; Rasmus
+# Swalethorp 2026-10-16, Ben Best 2026-10-20), and the seasons are DJF / MAM / JJA / SON
+test_that("cc_season() / cc_season_label(): 1 = DJF ... 4 = SON", {
+  expect_equal(cc_season(c(12, 1, 2, 3, 5, 6, 8, 9, 11, NA)), c(1L, 1L, 1L, 2L, 2L, 3L, 3L, 4L, 4L, NA))
+  expect_equal(cc_season_label(c(7, 12)), c("Jun\u2013Aug", "Dec\u2013Feb"))
+})
+
+test_that("the cruise's month comes from cruise.month_median where the release carries it, else the key", {
+  con <- fixture_con(); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+  # no cruise table: the key rule (the fixture keys do not parse, so the date: January, July)
+  st <- cc_transect_stations(con, 93.3)
+  expect_equal(sort(unique(st$month)), c(1L, 7L))
+  expect_equal(cc_cruise_month(con, c("2026-07-3322", "2401XX"), as.POSIXct(c("2026-06-30", "2024-01-15"), tz = "UTC")), c(7L, 1L))
+  # the release's cruise table: 2401XX centres on 2 February, 2407XX on 1 August
+  DBI::dbWriteTable(con, "cruise", data.frame(
+    cruise_key = c("2401XX", "2407XX", "9999XX"),
+    date_median = as.Date(c("2024-02-02", "2024-08-01", NA)),
+    month_median = c(2L, 8L, NA), season = c("DJF", "JJA", NA), season_year = c(2024L, 2024L, NA)))
+  st <- cc_transect_stations(con, 93.3)
+  expect_equal(unique(st$month[st$cruise_key == "2401XX"]), 2L)
+  expect_equal(unique(st$month[st$cruise_key == "2407XX"]), 8L)
+  expect_equal(cc_cruise_month(con, c("2407XX", "9999XX", "2026-07-3322"),
+                               as.POSIXct(c("2024-07-15", "2024-05-01", "2026-06-30"), tz = "UTC")), c(8L, 5L, 7L))
+  # cc_anomaly() keys on the stamped month: station 30 of 2407XX departs from AUGUST, not July
+  sec <- data.frame(cruise_key = "2407XX", sta = 30, depth_m = 0, variable = "temperature_ave", value = 20)
+  cl  <- data.frame(site_key = "093.3 030.0", grid_key = "st030-ln93.3", month = c(7L, 8L), depth_m = 0,
+                    variable = "temperature_ave", clim_mean = c(99, 18), clim_sd = 1, clim_n = 10L, n_cruises = 10L)
+  an <- cc_anomaly(sec, cl, st[st$cruise_key == "2407XX", ])
+  expect_equal(an$anomaly, 2)
+  # the computed climatology files the July-keyed cruise under August (and JJA), the January one under February (DJF)
+  cm <- cc_climatology(con, years = c(2024, 2024), min_cruises = 1)
+  expect_setequal(unique(cm$month), c(2L, 8L))
+  cs <- cc_climatology(con, years = c(2024, 2024), min_cruises = 1, season = TRUE)
+  expect_setequal(unique(cs$month), c(12L, 1:2, 6:8))
+  # cc_cast_anomaly() too: the cast's July date no longer matters, its cruise is August
+  DBI::dbWriteTable(con, "sample_measurement", data.frame(
+    sample_key = "B30d", dataset_key = "calcofi_ctd-derived", measurement_type = "mld_sigma_theta_002",
+    measurement_value = 25, measurement_qual = NA_character_))
+  DBI::dbWriteTable(con, "climatology", data.frame(
+    dataset_key = "calcofi_ctd-derived", site_key = "093.3 030.0", grid_key = "st030-ln93.3",
+    month = c(7L, 8L), depth_bin = NA_integer_, measurement_type = "mld_sigma_theta_002",
+    clim_mean = c(99, 20), clim_sd = 5, clim_n = 12L, n_cruises = 12L,
+    clim_yr_min = 1993L, clim_yr_max = 2013L, quarter = 3L,
+    season_mean = 22, season_sd = 4, season_n = 20L, season_n_cruises = 15L))
+  ca <- cc_cast_anomaly(con, "mld_sigma_theta_002")
+  expect_equal(ca$month, 8L)
+  expect_equal(ca$anomaly, 5)
 })

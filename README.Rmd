@@ -142,7 +142,8 @@ DBI::dbGetQuery(con, glue::glue("
 
 A cast's mixed-layer depth, chlorophyll-maximum depth and integrated chlorophyll are one value per
 cast. `cc_cast_anomaly()` sets each beside the 1993–2013 baseline for its station and its cruise's
-month, or its quarter with `season = TRUE` (Q1 Jan–Mar … Q4 Oct–Dec):
+month (its median cast month, `cruise.month_median`), or its season with `season = TRUE`
+(DJF, MAM, JJA, SON; December with the following winter):
 
 ```{r cast-anomaly}
 mld <- cc_cast_anomaly(con, "mld_sigma_theta_002", cruise_key = "2026-07-3322")
