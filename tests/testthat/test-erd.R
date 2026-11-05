@@ -27,4 +27,22 @@ test_that("in Quarto, knit_print() hands a cc_erd to Quarto's own mermaid, never
   out <- knit_print.cc_erd(erd)
   expect_s3_class(out, "knit_asis")
   expect_identical(as.character(out), "\n\n```{mermaid}\nerDiagram\n    a {\n    }\n```\n\n")
+  # the viewer rides along as knit_meta, so Quarto puts its scripts in the page
+  meta <- attr(out, "knit_meta")
+  expect_length(meta, 1)
+  expect_s3_class(meta[[1]], "html_dependency")
+  expect_identical(meta[[1]]$name, "cc-diagram-viewer")
+})
+
+test_that("cc_diagram_viewer() ships the viewer's three files", {
+  dep <- cc_diagram_viewer()
+  expect_s3_class(dep, "html_dependency")
+  expect_identical(dep$script, c("svg-pan-zoom.min.js", "diagram.js"))
+  expect_identical(dep$stylesheet, "diagram.css")
+  files <- file.path(dep$src$file, c(dep$script, dep$stylesheet))
+  expect_true(all(file.exists(files)))
+  # the viewer waits for Quarto's renders and wraps each svg.mermaid-js
+  js <- paste(readLines(file.path(dep$src$file, "diagram.js")), collapse = "\n")
+  expect_match(js, "pre.mermaid-js", fixed = TRUE)
+  expect_match(js, "svg.mermaid-js", fixed = TRUE)
 })
