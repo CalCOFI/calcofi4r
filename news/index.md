@@ -3,7 +3,7 @@
 ## calcofi4r 1.30.0
 
 - **The cruise’s month is its median cast month, and the seasons are
-  DJF/MAM/JJA/SON** (release v2026.11, calcofi4db 4.33.0; Rasmus
+  DJF/MAM/JJA/SON** (release v2026.11, calcofi4db 4.34.0; Rasmus
   Swalethorp 2026-10-16, Ben Best 2026-10-20).
   [`cc_transect_stations()`](https://calcofi.io/calcofi4r/reference/cc_transect_stations.md)
   stamps `month` from the release’s `cruise.month_median` (the key’s
