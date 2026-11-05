@@ -371,6 +371,13 @@ plot.cc_erd <- function(x, ...) {
 
 #' @exportS3Method knitr::knit_print
 knit_print.cc_erd <- function(x, ...) {
+  # in Quarto, hand the code to Quarto's own mermaid (a {mermaid} block), the
+  # same on every machine. The DiagrammeR widget below loads its own mermaid,
+  # which replaces Quarto's global `mermaid` and blanks every {mermaid} block
+  # on the page (the ingest notebooks rendered where mmdc is absent, 2026-11-05)
+  if (!is.null(knitr::opts_knit$get("quarto.version")))
+    return(knitr::asis_output(erd_quarto_block(x)))
+
   mmdc <- Sys.which("mmdc")
 
   if (nzchar(mmdc)) {
@@ -403,6 +410,11 @@ knit_print.cc_erd <- function(x, ...) {
 
 
 # ─── internal helpers ─────────────────────────────────────────────────────────
+
+# a cc_erd as a Quarto {mermaid} block, for knitr's asis output
+erd_quarto_block <- function(x) {
+  paste0("\n\n```{mermaid}\n", unclass(x), "\n```\n\n")
+}
 
 # shorten DuckDB data types for ERD display
 .erd_shorten_type <- function(dtype) {
