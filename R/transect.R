@@ -139,9 +139,13 @@ cc_transect_stations <- function(
       dplyr::ungroup()
   }
 
+  # the cruise's month (calcofi4r 1.30.0): the release's median cast month where it carries one
+  # (cruise.month_median, v2026.11+), else the key's YYYY-MM, else the cast's date
+  out$month <- .cruise_month_of(con, out$cruise_key, out$datetime)
+
   out |>
     dplyr::select(cruise_key, grid_key, dplyr::any_of("site_key"), sta, lon, lat, datetime,
-                  data_stage, dist_km)
+                  data_stage, dist_km, month)
 }
 
 #' Cumulative great-circle distance (km) along an ordered path
@@ -254,12 +258,16 @@ cc_transect_section <- function(
 #'   3). A floor in cruises rather than observations because a nearshore grid cell
 #'   holds several stations' casts from one cruise.
 #' @param season `FALSE` (default) for the monthly baseline; `TRUE` for the
-#'   **seasonal** one — the quarter of the cruise's month (Q1 Jan–Mar, Q2 Apr–Jun,
-#'   Q3 Jul–Sep, Q4 Oct–Dec) — returned on each month of the quarter under the
-#'   same column names, so [cc_anomaly()] uses it unchanged. Fills stations whose
-#'   months are each below `min_cruises` but whose quarter is not (the northern
-#'   lines 60–73.3). Read from the release's `season_*` columns (calcofi4db
-#'   >= 4.24.0) or computed the same way. The `period` attribute says which.
+#'   **seasonal** one — the season of the cruise's month: 1 = DJF (Dec–Feb),
+#'   2 = MAM, 3 = JJA, 4 = SON since release v2026.11 (Q1 Jan–Mar … Q4 Oct–Dec
+#'   before), December counting toward the following year's winter — returned on
+#'   each month of the season under the same column names, so [cc_anomaly()] uses
+#'   it unchanged. Fills stations whose months are each below `min_cruises` but
+#'   whose season is not (the northern lines 60–73.3). Read from the release's
+#'   `season_*` columns (calcofi4db >= 4.24.0) or computed the same way. The
+#'   `period` attribute says which. The cruise's month is its **median cast
+#'   month** (`cruise.month_median`, v2026.11+; [cc_cruise_month()]), the key's
+#'   `YYYY-MM` on an older release.
 #' @return Tibble: `site_key` (the station; absent only when reading a release
 #'   table from before v2026.09.2x, which was grained on the grid cell), `grid_key`
 #'   (the station's modal cell — the inshore cells hold 2–4 stations, so key on
@@ -332,15 +340,15 @@ cc_climatology <- function(
         dplyr::filter(!is.na(site_key)) |>
         dplyr::select(sample_key, site_key),
       by = "sample_key") |>
-    # the cruise's designated year and month (YYYY-MM-NODC), as calcofi4db::build_climatology()
-    # files the release's table; the calendar date only when the key does not parse
-    dplyr::mutate(
-      yr  = dplyr::sql(!!.cruise_part_sql("year")),
-      mon = dplyr::sql(!!.cruise_part_sql("month"))) |>
+    # the cruise's year and month, as calcofi4db::build_climatology() files the release's table:
+    # the median cast month from the cruise table where the release carries it (v2026.11+), the
+    # key's YYYY-MM otherwise, the calendar date only when the key does not parse
+    .join_cruise_month(con) |>
     dplyr::filter(yr >= !!years[1], yr <= !!years[2]) |>
     dplyr::mutate(depth_m = floor(depth_min_m / !!depth_bin) * !!depth_bin) |>
     dplyr::filter(depth_m <= !!depth_max) |>
-    dplyr::mutate(per = if (!!season) (mon - 1L) %/% 3L + 1L else mon) |>
+    # the season is DJF / MAM / JJA / SON, 1-4 (1.30.0; Q1 Jan-Mar ... before)
+    dplyr::mutate(per = if (!!season) dplyr::sql(!!.season_sql("mon")) else mon) |>
     dplyr::group_by(site_key, per, depth_m,
                     variable = measurement_type) |>
     dplyr::summarize(
@@ -353,9 +361,10 @@ cc_climatology <- function(
     dplyr::collect() |>
     dplyr::filter(n_cruises >= min_cruises) |>
     dplyr::mutate(clim_n = as.integer(clim_n), n_cruises = as.integer(n_cruises))
-  # a quarter's cell on each of its three months (Q1 = Jan-Mar ...), as the release table carries it
+  # a season's cell on each of its three months (1 = DJF: December, January, February ...), as the
+  # release table carries it
   out <- if (season) {
-    dplyr::inner_join(out, data.frame(per = rep(1:4, each = 3), month = 1:12),
+    dplyr::inner_join(out, data.frame(per = rep(1:4, each = 3), month = c(12L, 1:11)),
                       by = "per", relationship = "many-to-many")
   } else dplyr::rename(out, month = per)
   out <- out |>
@@ -387,7 +396,9 @@ cc_climatology <- function(
 #' @param section from [cc_transect_section()].
 #' @param clim from [cc_climatology()].
 #' @param stations from [cc_transect_stations()] — supplies the station
-#'   (`site_key`, else `grid_key`) and the month, which `section` does not carry.
+#'   (`site_key`, else `grid_key`) and the cruise's `month` (its median cast
+#'   month where the release carries one, since 1.30.0), which `section` does not
+#'   carry; a frame without `month` falls back to the `cruise_key`'s `YYYY-MM`.
 #'   The baseline is joined on `site_key` when both carry it: a kept grid cell
 #'   holds 2–4 stations, so joining on `grid_key` repeated each section row once
 #'   per station in the cell.
@@ -396,8 +407,12 @@ cc_climatology <- function(
 #' @export
 #' @concept transect
 cc_anomaly <- function(section, clim, stations) {
+  # the cruise's month: what cc_transect_stations() stamped (the release's median cast month,
+  # 1.30.0), else the key rule for a stations frame built another way
+  if (!"month" %in% names(stations))
+    stations$month <- .cruise_month(stations$cruise_key, stations$datetime)
   key <- stations |>
-    dplyr::mutate(month = .cruise_month(cruise_key, datetime)) |>
+    dplyr::mutate(month = dplyr::coalesce(as.integer(month), .cruise_month(cruise_key, datetime))) |>
     dplyr::select(cruise_key, sta, grid_key, dplyr::any_of("site_key"), month) |>
     dplyr::distinct()
   # the station, not its cell; grid_key only for a baseline from before site_key existed
@@ -422,8 +437,9 @@ cc_anomaly <- function(section, clim, stations) {
 #' A cast's mixed-layer depth, the depth and value of its chlorophyll maximum and
 #' its integrated chlorophyll are **one value per cast** (`sample_measurement`,
 #' dataset `calcofi_ctd-derived`), with no depth. This returns each cast's value
-#' beside the release's baseline for its station and its cruise's month (or
-#' quarter, `season = TRUE`) and the difference. The baseline is the release's
+#' beside the release's baseline for its station and its cruise's month (its
+#' median cast month, `cruise.month_median`, since release v2026.11) or season
+#' (`season = TRUE`: DJF / MAM / JJA / SON) and the difference. The baseline is the release's
 #' `climatology` table, where a per-cast cell has `depth_bin` NULL (calcofi4db >=
 #' 4.24.0, release v2026.10.1x onward). As with [cc_anomaly()], a cast with no
 #' baseline comes back `NA`, never 0.
@@ -432,7 +448,7 @@ cc_anomaly <- function(section, clim, stations) {
 #' @param variables per-cast `measurement_type`s, e.g. `"mld_sigma_theta_002"`,
 #'   `"chl_max_depth"`, `"chl_integrated"`.
 #' @param cruise_key optional cruise key(s) (`YYYY-MM-NODC`) to restrict to.
-#' @param season `TRUE` for the seasonal (quarter) baseline instead of the monthly one.
+#' @param season `TRUE` for the seasonal (DJF / MAM / JJA / SON) baseline instead of the monthly one.
 #' @param min_cruises minimum cruises behind a baseline cell (the release keeps >= 5).
 #' @return Tibble: `sample_key`, `cruise_key`, `site_key`, `grid_key`,
 #'   `longitude`, `latitude`, `datetime`, `month`, `variable`, `value`,
@@ -482,7 +498,9 @@ cc_cast_anomaly <- function(
     .filter_qual_ok() |>
     dplyr::select(sample_key, dataset_key, measurement_type, value = measurement_value) |>
     dplyr::inner_join(smp, by = "sample_key") |>
-    dplyr::mutate(month = dplyr::sql(!!.cruise_part_sql("month"))) |>
+    # the cruise's month: the median cast month (cruise.month_median, v2026.11+), else the key's
+    .join_cruise_month(con) |>
+    dplyr::mutate(month = mon) |>
     dplyr::left_join(clim, by = c("dataset_key", "site_key", "month", "measurement_type")) |>
     dplyr::collect() |>
     dplyr::transmute(
@@ -806,7 +824,7 @@ utils::globalVariables(c(
   "depth_min_m", "depth_m", "variable", "value", "yr", "mon", "month",
   "clim_mean", "clim_sd", "clim_n", "anomaly", "cc_grid", "per", "depth_bin",
   "season_mean", "season_sd", "season_n", "season_n_cruises", "n_cruises", "site_key",
-  "anomaly_sd"))
+  "anomaly_sd", "mon", "yr", "month_median", "date_median"))
 
 # internal: drop rows flagged questionable/bad/missing (CTD 8/9; the lazy-table
 # twin of cc_qual_ok_sql()). A table without the column — a test fixture, an old
@@ -817,8 +835,86 @@ utils::globalVariables(c(
                     !(measurement_qual %in% c("8", "9", "8.0", "9.0")))
 }
 
-# the cruise's designated month: cruise_key is YYYY-MM-NODC (the month SWFSC assigns the cruise);
-# the calendar month of `datetime` only when the key does not parse
+#' The cruise's month and season every anomaly keys on
+#'
+#' Since release v2026.11 (calcofi4db 4.33.0; Rasmus Swalethorp 2026-10-16, Ben Best 2026-10-20) a
+#' cruise's month is the calendar month of the **median datetime of its root samples**
+#' (`cruise.month_median`), not the `YYYY-MM` its `cruise_key` names (59 of 868 cruises centre on
+#' the month beside their key's), and the seasons are the meteorological **DJF, MAM, JJA, SON**,
+#' numbered 1–4 (the `quarter` column), December counting toward the following year's winter.
+#' `cc_cruise_month()` returns each cruise's month from the connection's `cruise` table where it
+#' carries `month_median`, else the key's `YYYY-MM`, else the month of `datetime`; `cc_season()`
+#' maps a month to its season number (1–4), and `cc_season_label()` to "Dec–Feb" … "Sep–Nov".
+#'
+#' @param con DuckDB connection to a release ([cc_get_db()]).
+#' @param cruise_key,datetime vectors of equal length.
+#' @param month integer month (1–12).
+#' @return `cc_cruise_month()`: integer months; `cc_season()`: integer 1–4; `cc_season_label()`:
+#'   character.
+#' @examples
+#' cc_season(c(12, 1, 6))          # 1 1 3
+#' cc_season_label(cc_season(7))   # "Jun–Aug"
+#' @export
+#' @concept transect
+cc_cruise_month <- function(con, cruise_key, datetime = NULL) {
+  if (is.null(datetime)) datetime <- as.POSIXct(rep(NA_real_, length(cruise_key)), origin = "1970-01-01", tz = "UTC")
+  .cruise_month_of(con, cruise_key, datetime)
+}
+
+#' @rdname cc_cruise_month
+#' @export
+cc_season <- function(month) {
+  m <- as.integer(month)
+  out <- rep(NA_integer_, length(m))
+  out[m %in% c(12L, 1L, 2L)] <- 1L; out[m %in% 3:5] <- 2L; out[m %in% 6:8] <- 3L; out[m %in% 9:11] <- 4L
+  out
+}
+
+#' @rdname cc_cruise_month
+#' @export
+cc_season_label <- function(month) c("Dec\u2013Feb", "Mar\u2013May", "Jun\u2013Aug", "Sep\u2013Nov")[cc_season(month)]
+
+# the season (1 = DJF ... 4 = SON) of a month expression, as DuckDB SQL (calcofi4db::cruise_quarter_sql())
+.season_sql <- function(m) sprintf(
+  "(CASE WHEN %s IN (12, 1, 2) THEN 1 WHEN %s IN (3, 4, 5) THEN 2 WHEN %s IN (6, 7, 8) THEN 3 WHEN %s IN (9, 10, 11) THEN 4 END)",
+  m, m, m, m)
+
+# the connection's cruise table, when it carries the median cast month (v2026.11+); NULL otherwise
+.cruise_month_tbl <- function(con) {
+  tbls <- DBI::dbListTables(con)
+  if (!"cruise" %in% tbls || !"month_median" %in% DBI::dbListFields(con, "cruise")) return(NULL)
+  dplyr::tbl(con, "cruise") |>
+    dplyr::filter(!is.na(month_median)) |>
+    dplyr::select(cruise_key, month_median, date_median)
+}
+
+# in R: the cruise's month per row — month_median where the cruise table has it, else the key rule
+.cruise_month_of <- function(con, cruise_key, datetime) {
+  mon <- .cruise_month(cruise_key, datetime)
+  cm  <- .cruise_month_tbl(con)
+  if (is.null(cm) || !length(cruise_key)) return(mon)
+  med <- dplyr::collect(dplyr::filter(cm, cruise_key %in% !!unique(stats::na.omit(cruise_key))))
+  i <- match(cruise_key, med$cruise_key)
+  as.integer(ifelse(!is.na(i), med$month_median[i], mon))
+}
+
+# lazily: adds `yr` and `mon` to a lazy table that carries cruise_key and datetime — from the
+# cruise table's date_median / month_median where the release carries them, else the key rule
+.join_cruise_month <- function(tb, con) {
+  cm <- .cruise_month_tbl(con)
+  if (is.null(cm)) return(dplyr::mutate(tb,
+    yr  = dplyr::sql(!!.cruise_part_sql("year")),
+    mon = dplyr::sql(!!.cruise_part_sql("month"))))
+  tb |>
+    dplyr::left_join(cm, by = "cruise_key") |>
+    dplyr::mutate(
+      yr  = dplyr::sql(!!paste0("COALESCE(CAST(year(date_median) AS INTEGER), ", .cruise_part_sql("year"), ")")),
+      mon = dplyr::sql(!!paste0("COALESCE(CAST(month_median AS INTEGER), ", .cruise_part_sql("month"), ")")))
+}
+
+# the cruise's month by the KEY rule: cruise_key is YYYY-MM-NODC (the month SWFSC assigns the cruise);
+# the calendar month of `datetime` only when the key does not parse. The fallback where the release's
+# cruise table carries no month_median (before v2026.11).
 .cruise_month <- function(cruise_key, datetime) {
   ok <- !is.na(cruise_key) & grepl("^[0-9]{4}-(0[1-9]|1[0-2])-", cruise_key)
   as.integer(ifelse(ok, substr(cruise_key, 6, 7), strftime(datetime, "%m", tz = "UTC")))

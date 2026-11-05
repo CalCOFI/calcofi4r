@@ -20,7 +20,7 @@ cc_cast_anomaly(
 
 \item{cruise_key}{optional cruise key(s) (\code{YYYY-MM-NODC}) to restrict to.}
 
-\item{season}{\code{TRUE} for the seasonal (quarter) baseline instead of the monthly one.}
+\item{season}{\code{TRUE} for the seasonal (DJF / MAM / JJA / SON) baseline instead of the monthly one.}
 
 \item{min_cruises}{minimum cruises behind a baseline cell (the release keeps >= 5).}
 }
@@ -34,8 +34,9 @@ Tibble: \code{sample_key}, \code{cruise_key}, \code{site_key}, \code{grid_key},
 A cast's mixed-layer depth, the depth and value of its chlorophyll maximum and
 its integrated chlorophyll are \strong{one value per cast} (\code{sample_measurement},
 dataset \code{calcofi_ctd-derived}), with no depth. This returns each cast's value
-beside the release's baseline for its station and its cruise's month (or
-quarter, \code{season = TRUE}) and the difference. The baseline is the release's
+beside the release's baseline for its station and its cruise's month (its
+median cast month, \code{cruise.month_median}, since release v2026.11) or season
+(\code{season = TRUE}: DJF / MAM / JJA / SON) and the difference. The baseline is the release's
 \code{climatology} table, where a per-cast cell has \code{depth_bin} NULL (calcofi4db >=
 4.24.0, release v2026.10.1x onward). As with \code{\link[=cc_anomaly]{cc_anomaly()}}, a cast with no
 baseline comes back \code{NA}, never 0.
