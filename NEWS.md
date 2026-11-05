@@ -1,3 +1,13 @@
+# calcofi4r 1.30.1
+
+- **`cc_erd()` in a Quarto document now renders through Quarto's own Mermaid**
+  (a `{mermaid}` block), the same on every machine. Previously `knit_print()`
+  drew a PNG with `mmdc` where it was installed and otherwise fell back to the
+  `DiagrammeR::mermaid()` widget. That widget loads its own, much older
+  Mermaid, which replaced Quarto's and left every other `{mermaid}` diagram on
+  the page as plain text. Outside Quarto the `mmdc` → DiagrammeR order is
+  unchanged.
+
 # calcofi4r 1.30.0
 
 - **The cruise's month is its median cast month, and the seasons are DJF/MAM/JJA/SON**
