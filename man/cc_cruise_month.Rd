@@ -24,7 +24,7 @@ cc_season_label(month)
 character.
 }
 \description{
-Since release v2026.11 (calcofi4db 4.33.0; Rasmus Swalethorp 2026-10-16, Ben Best 2026-10-20) a
+Since release v2026.11 (calcofi4db 4.34.0; Rasmus Swalethorp 2026-10-16, Ben Best 2026-10-20) a
 cruise's month is the calendar month of the \strong{median datetime of its root samples}
 (\code{cruise.month_median}), not the \code{YYYY-MM} its \code{cruise_key} names (59 of 868 cruises centre on
 the month beside their key's), and the seasons are the meteorological \strong{DJF, MAM, JJA, SON},

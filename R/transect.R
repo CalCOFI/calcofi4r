@@ -837,7 +837,7 @@ utils::globalVariables(c(
 
 #' The cruise's month and season every anomaly keys on
 #'
-#' Since release v2026.11 (calcofi4db 4.33.0; Rasmus Swalethorp 2026-10-16, Ben Best 2026-10-20) a
+#' Since release v2026.11 (calcofi4db 4.34.0; Rasmus Swalethorp 2026-10-16, Ben Best 2026-10-20) a
 #' cruise's month is the calendar month of the **median datetime of its root samples**
 #' (`cruise.month_median`), not the `YYYY-MM` its `cruise_key` names (59 of 868 cruises centre on
 #' the month beside their key's), and the seasons are the meteorological **DJF, MAM, JJA, SON**,
