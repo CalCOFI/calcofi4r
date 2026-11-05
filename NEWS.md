@@ -1,3 +1,16 @@
+# calcofi4r 1.31.0
+
+- **New `cc_diagram_viewer()`**: an HTML dependency that gives every Mermaid
+  diagram on a Quarto page (each `{mermaid}` block and each `cc_erd()`) the look
+  and controls of the CalCOFI.io docs book's figures. Labels are in Source
+  Sans 3 and edges are curved. Each diagram sits in a viewer with +/−/reset
+  controls, drag to pan, double-click to zoom and a full-screen button (Esc
+  closes it). The mouse wheel zooms only in full screen. Quarto still draws the
+  diagrams in the browser, so a page is the same on every machine and no
+  headless browser runs at render time.
+- `cc_erd()` in a Quarto document attaches `cc_diagram_viewer()` itself; call
+  it directly only on a page with `{mermaid}` blocks and no ERD.
+
 # calcofi4r 1.30.1
 
 - **`cc_erd()` in a Quarto document now renders through Quarto's own Mermaid**

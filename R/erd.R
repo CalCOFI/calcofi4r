@@ -375,8 +375,10 @@ knit_print.cc_erd <- function(x, ...) {
   # same on every machine. The DiagrammeR widget below loads its own mermaid,
   # which replaces Quarto's global `mermaid` and blanks every {mermaid} block
   # on the page (the ingest notebooks rendered where mmdc is absent, 2026-11-05)
+  # on the page, with the pan/zoom/full-screen viewer and the docs' look
+  # (cc_diagram_viewer())
   if (!is.null(knitr::opts_knit$get("quarto.version")))
-    return(knitr::asis_output(erd_quarto_block(x)))
+    return(knitr::asis_output(erd_quarto_block(x), meta = list(cc_diagram_viewer())))
 
   mmdc <- Sys.which("mmdc")
 
@@ -406,6 +408,41 @@ knit_print.cc_erd <- function(x, ...) {
   # last resort: raw mermaid code block (may show as text)
   knitr::asis_output(
     paste0("\n\n```mermaid\n", unclass(x), "\n```\n\n"))
+}
+
+
+#' Zoomable Mermaid diagrams in a Quarto page
+#'
+#' An HTML dependency that gives every Mermaid diagram Quarto draws on the
+#' page (each `{mermaid}` block, and each [cc_erd()]) the look and controls of
+#' the figures in the CalCOFI.io docs book: Source Sans 3 labels and curved
+#' edges, then a viewer with +/-/reset controls, drag to pan, double-click to
+#' zoom and a full-screen button (Esc closes; the mouse wheel zooms only in
+#' full screen). Quarto still draws the diagrams in the browser, so a page is
+#' the same whichever machine rendered it and no headless browser runs at
+#' render time.
+#'
+#' [cc_erd()] attaches it by itself; call `cc_diagram_viewer()` in a chunk of a
+#' page that has `{mermaid}` blocks but no ERD. Attaching it more than once is
+#' harmless.
+#'
+#' @return An [htmltools::htmlDependency()] (it renders nothing visible).
+#' @export
+#' @concept database
+#'
+#' @examples
+#' \dontrun{
+#' # in a Quarto notebook chunk
+#' calcofi4r::cc_diagram_viewer()
+#' }
+#' @importFrom htmltools htmlDependency
+cc_diagram_viewer <- function() {
+  htmltools::htmlDependency(
+    name       = "cc-diagram-viewer",
+    version    = as.character(utils::packageVersion("calcofi4r")),
+    src        = c(file = system.file("diagram", package = "calcofi4r")),
+    script     = c("svg-pan-zoom.min.js", "diagram.js"),
+    stylesheet = "diagram.css")
 }
 
 
