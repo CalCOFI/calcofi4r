@@ -823,6 +823,11 @@ check for other functions or datasets not captured by above categories
 - [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
   : Seasonal climatology for one or more measurement types
 
+- [`cc_cruise_month()`](https://calcofi.io/calcofi4r/reference/cc_cruise_month.md)
+  [`cc_season()`](https://calcofi.io/calcofi4r/reference/cc_cruise_month.md)
+  [`cc_season_label()`](https://calcofi.io/calcofi4r/reference/cc_cruise_month.md)
+  : The cruise's month and season every anomaly keys on
+
 - [`cc_default_stage()`](https://calcofi.io/calcofi4r/reference/cc_default_stage.md)
   [`cc_default_denominator()`](https://calcofi.io/calcofi4r/reference/cc_default_stage.md)
   : The picker's defaults: which life stage and which denominator open a

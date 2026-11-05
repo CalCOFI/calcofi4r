@@ -62,14 +62,19 @@ cc_climatology(
 - season:
 
   `FALSE` (default) for the monthly baseline; `TRUE` for the
-  **seasonal** one — the quarter of the cruise's month (Q1 Jan–Mar, Q2
-  Apr–Jun, Q3 Jul–Sep, Q4 Oct–Dec) — returned on each month of the
-  quarter under the same column names, so
+  **seasonal** one — the season of the cruise's month: 1 = DJF
+  (Dec–Feb), 2 = MAM, 3 = JJA, 4 = SON since release v2026.11 (Q1
+  Jan–Mar … Q4 Oct–Dec before), December counting toward the following
+  year's winter — returned on each month of the season under the same
+  column names, so
   [`cc_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_anomaly.md)
   uses it unchanged. Fills stations whose months are each below
-  `min_cruises` but whose quarter is not (the northern lines 60–73.3).
-  Read from the release's `season_*` columns (calcofi4db= 4.24.0) or
-  computed the same way. The period attribute says which.
+  `min_cruises` but whose season is not (the northern lines 60–73.3).
+  Read from the release's `season_*` columns (calcofi4db \>= 4.24.0) or
+  computed the same way. The `period` attribute says which. The cruise's
+  month is its **median cast month** (`cruise.month_median`, v2026.11+;
+  [`cc_cruise_month()`](https://calcofi.io/calcofi4r/reference/cc_cruise_month.md)),
+  the key's `YYYY-MM` on an older release.
 
 ## Value
 

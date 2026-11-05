@@ -4,10 +4,12 @@ A cast's mixed-layer depth, the depth and value of its chlorophyll
 maximum and its integrated chlorophyll are **one value per cast**
 (`sample_measurement`, dataset `calcofi_ctd-derived`), with no depth.
 This returns each cast's value beside the release's baseline for its
-station and its cruise's month (or quarter, `season = TRUE`) and the
-difference. The baseline is the release's `climatology` table, where a
-per-cast cell has `depth_bin` NULL (calcofi4db \>= 4.24.0, release
-v2026.10.1x onward). As with
+station and its cruise's month (its median cast month,
+`cruise.month_median`, since release v2026.11) or season
+(`season = TRUE`: DJF / MAM / JJA / SON) and the difference. The
+baseline is the release's `climatology` table, where a per-cast cell has
+`depth_bin` NULL (calcofi4db \>= 4.24.0, release v2026.10.1x onward). As
+with
 [`cc_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_anomaly.md),
 a cast with no baseline comes back `NA`, never 0.
 
@@ -41,7 +43,8 @@ cc_cast_anomaly(
 
 - season:
 
-  `TRUE` for the seasonal (quarter) baseline instead of the monthly one.
+  `TRUE` for the seasonal (DJF / MAM / JJA / SON) baseline instead of
+  the monthly one.
 
 - min_cruises:
 

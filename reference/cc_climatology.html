@@ -60,7 +60,7 @@ a monthly mean is something a reader can state exactly."><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.29.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.30.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -162,11 +162,16 @@ holds several stations' casts from one cruise.</p></dd>
 
 <dt id="arg-season">season<a class="anchor" aria-label="anchor" href="#arg-season"></a></dt>
 <dd><p><code>FALSE</code> (default) for the monthly baseline; <code>TRUE</code> for the
-<strong>seasonal</strong> one — the quarter of the cruise's month (Q1 Jan–Mar, Q2 Apr–Jun,
-Q3 Jul–Sep, Q4 Oct–Dec) — returned on each month of the quarter under the
-same column names, so <code><a href="cc_anomaly.html">cc_anomaly()</a></code> uses it unchanged. Fills stations whose
-months are each below <code>min_cruises</code> but whose quarter is not (the northern
-lines 60–73.3). Read from the release's <code>season_*</code> columns (calcofi4db= 4.24.0) or computed the same way. The period attribute says which.</p></dd>
+<strong>seasonal</strong> one — the season of the cruise's month: 1 = DJF (Dec–Feb),
+2 = MAM, 3 = JJA, 4 = SON since release v2026.11 (Q1 Jan–Mar … Q4 Oct–Dec
+before), December counting toward the following year's winter — returned on
+each month of the season under the same column names, so <code><a href="cc_anomaly.html">cc_anomaly()</a></code> uses
+it unchanged. Fills stations whose months are each below <code>min_cruises</code> but
+whose season is not (the northern lines 60–73.3). Read from the release's
+<code>season_*</code> columns (calcofi4db &gt;= 4.24.0) or computed the same way. The
+<code>period</code> attribute says which. The cruise's month is its <strong>median cast
+month</strong> (<code>cruise.month_median</code>, v2026.11+; <code><a href="cc_cruise_month.html">cc_cruise_month()</a></code>), the key's
+<code>YYYY-MM</code> on an older release.</p></dd>
 
 </dl></div>
     <div class="section level2">

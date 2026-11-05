@@ -32,10 +32,13 @@ cc_anomaly(section, clim, stations)
 
   from
   [`cc_transect_stations()`](https://calcofi.io/calcofi4r/reference/cc_transect_stations.md)
-  — supplies the station (`site_key`, else `grid_key`) and the month,
-  which `section` does not carry. The baseline is joined on `site_key`
-  when both carry it: a kept grid cell holds 2–4 stations, so joining on
-  `grid_key` repeated each section row once per station in the cell.
+  — supplies the station (`site_key`, else `grid_key`) and the cruise's
+  `month` (its median cast month where the release carries one, since
+  1.30.0), which `section` does not carry; a frame without `month` falls
+  back to the `cruise_key`'s `YYYY-MM`. The baseline is joined on
+  `site_key` when both carry it: a kept grid cell holds 2–4 stations, so
+  joining on `grid_key` repeated each section row once per station in
+  the cell.
 
 ## Value
 

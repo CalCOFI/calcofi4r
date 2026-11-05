@@ -56,7 +56,7 @@ claiming &quot;normal&quot; for somewhere never measured."><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.29.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.30.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -127,7 +127,9 @@ claiming "normal" for somewhere never measured.</p>
 
 <dt id="arg-stations">stations<a class="anchor" aria-label="anchor" href="#arg-stations"></a></dt>
 <dd><p>from <code><a href="cc_transect_stations.html">cc_transect_stations()</a></code> — supplies the station
-(<code>site_key</code>, else <code>grid_key</code>) and the month, which <code>section</code> does not carry.
+(<code>site_key</code>, else <code>grid_key</code>) and the cruise's <code>month</code> (its median cast
+month where the release carries one, since 1.30.0), which <code>section</code> does not
+carry; a frame without <code>month</code> falls back to the <code>cruise_key</code>'s <code>YYYY-MM</code>.
 The baseline is joined on <code>site_key</code> when both carry it: a kept grid cell
 holds 2–4 stations, so joining on <code>grid_key</code> repeated each section row once
 per station in the cell.</p></dd>

@@ -1,5 +1,25 @@
 # Changelog
 
+## calcofi4r 1.30.0
+
+- **The cruise’s month is its median cast month, and the seasons are
+  DJF/MAM/JJA/SON** (release v2026.11, calcofi4db 4.33.0; Rasmus
+  Swalethorp 2026-10-16, Ben Best 2026-10-20).
+  [`cc_transect_stations()`](https://calcofi.io/calcofi4r/reference/cc_transect_stations.md)
+  stamps `month` from the release’s `cruise.month_median` (the key’s
+  `YYYY-MM` on an older release) and
+  [`cc_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_anomaly.md)
+  keys on it;
+  [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)’s
+  computed arm and
+  [`cc_cast_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_cast_anomaly.md)
+  read the same column; `cc_climatology(season = TRUE)` pools and labels
+  the meteorological seasons, 1 = DJF (December with the following
+  January and February) … 4 = SON. New
+  [`cc_cruise_month()`](https://calcofi.io/calcofi4r/reference/cc_cruise_month.md),
+  [`cc_season()`](https://calcofi.io/calcofi4r/reference/cc_cruise_month.md),
+  [`cc_season_label()`](https://calcofi.io/calcofi4r/reference/cc_cruise_month.md).
+
 ## calcofi4r 1.29.0
 
 - [`cc_match_bio_env()`](https://calcofi.io/calcofi4r/reference/cc_match_bio_env.md)
