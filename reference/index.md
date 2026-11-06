@@ -230,6 +230,9 @@ functions specific to database (Admin only)
 - [`cc_db_info()`](https://calcofi.io/calcofi4r/reference/cc_db_info.md)
   : Get CalCOFI database information
 
+- [`cc_diagram_viewer()`](https://calcofi.io/calcofi4r/reference/cc_diagram_viewer.md)
+  : Zoomable Mermaid diagrams in a Quarto page
+
 - [`cc_distance_km_sql()`](https://calcofi.io/calcofi4r/reference/cc_distance_km_sql.md)
   : Great-circle distance in kilometres, as a DuckDB SQL expression
 

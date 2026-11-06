@@ -42,7 +42,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.30.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,6 +82,13 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.31.0" id="calcofi4r-1310">calcofi4r 1.31.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1310"></a></h2>
+<ul><li>
+<strong>New <code><a href="../reference/cc_diagram_viewer.html">cc_diagram_viewer()</a></code></strong>: an HTML dependency that gives every Mermaid diagram on a Quarto page (each <code>{mermaid}</code> block and each <code><a href="../reference/cc_erd.html">cc_erd()</a></code>) the look and controls of the CalCOFI.io docs book’s figures. Labels are in Source Sans 3 and edges are curved. Each diagram sits in a viewer with +/−/reset controls, drag to pan, double-click to zoom and a full-screen button (Esc closes it). The mouse wheel zooms only in full screen. Quarto still draws the diagrams in the browser, so a page is the same on every machine and no headless browser runs at render time.</li>
+<li>
+<code><a href="../reference/cc_erd.html">cc_erd()</a></code> in a Quarto document attaches <code><a href="../reference/cc_diagram_viewer.html">cc_diagram_viewer()</a></code> itself; call it directly only on a page with <code>{mermaid}</code> blocks and no ERD.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.30.1" id="calcofi4r-1301">calcofi4r 1.30.1<a class="anchor" aria-label="anchor" href="#calcofi4r-1301"></a></h2>
 <ul><li>

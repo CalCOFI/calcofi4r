@@ -250,14 +250,14 @@ data. That is the package’s reproducibility contract:
 meta <- attr(d, "query_meta")
 str(meta)
 #> List of 6
-#>  $ package_version: chr "1.30.1"
+#>  $ package_version: chr "1.31.0"
 #>  $ release_version: chr "v2026.11.04"
 #>  $ params         :List of 3
 #>   ..$ max_dist_km: num 5
 #>   ..$ max_time_hr: num 72
 #>   ..$ join_method: chr "nearest_time"
 #>  $ source_urls    : chr [1:99] "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_bio/8ff54557696d6e581de49307/obs_bio.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=air_temp_c/74b085582da06f93f"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity_rep1/3154863fbb1c"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity/81433c3ecdcb961f0"| __truncated__ ...
-#>  $ generated_at   : chr "2026-11-05 21:05:20 UTC"
+#>  $ generated_at   : chr "2026-11-06 00:35:10 UTC"
 #>  $ n_rows         : int 310
 ```
 
