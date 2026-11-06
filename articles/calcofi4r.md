@@ -45,20 +45,20 @@ The package provides convenience functions for common operations:
 
 # list available versions
 cc_list_versions()
-#> # A tibble: 43 × 9
-#>    version     release_date tables total_rows size_mb doi           consolidated
-#>    <chr>       <chr>         <int>      <int>   <dbl> <chr>         <lgl>       
-#>  1 v2026.11.04 2026-11-04       26  385501687   3054. 10.5281/zeno… FALSE       
-#>  2 v2026.10.30 2026-10-30       26  383803829   2717. 10.5281/zeno… FALSE       
-#>  3 v2026.10.21 2026-10-21       26  383803703   2717. 10.5281/zeno… FALSE       
-#>  4 v2026.10.20 2026-10-20       26  383803652   2717. 10.5281/zeno… FALSE       
-#>  5 v2026.10.19 2026-10-19       25  375348707   2620. 10.5281/zeno… FALSE       
-#>  6 v2026.10.14 2026-10-14       25  375348707   2620. 10.5281/zeno… FALSE       
-#>  7 v2026.10.13 2026-10-13       25  374740011   2614  10.5281/zeno… FALSE       
-#>  8 v2026.10.08 2026-10-08       25  373376204   2605. 10.5281/zeno… FALSE       
-#>  9 v2026.10.06 2026-10-06       25  373467857   2606. 10.5281/zeno… FALSE       
-#> 10 v2026.10.05 2026-10-05       25  373474855   2606. 10.5281/zeno… FALSE       
-#> # ℹ 33 more rows
+#> # A tibble: 44 × 9
+#>    version     release_date tables total_rows size_mb consolidated doi          
+#>    <chr>       <chr>         <int>      <int>   <dbl> <lgl>        <chr>        
+#>  1 v2026.11.05 2026-11-05       26  385903651   2767  FALSE        NA           
+#>  2 v2026.11.04 2026-11-04       26  385501687   3054. FALSE        10.5281/zeno…
+#>  3 v2026.10.30 2026-10-30       26  383803829   2717. FALSE        10.5281/zeno…
+#>  4 v2026.10.21 2026-10-21       26  383803703   2717. FALSE        10.5281/zeno…
+#>  5 v2026.10.20 2026-10-20       26  383803652   2717. FALSE        10.5281/zeno…
+#>  6 v2026.10.19 2026-10-19       25  375348707   2620. FALSE        10.5281/zeno…
+#>  7 v2026.10.14 2026-10-14       25  375348707   2620. FALSE        10.5281/zeno…
+#>  8 v2026.10.13 2026-10-13       25  374740011   2614  FALSE        10.5281/zeno…
+#>  9 v2026.10.08 2026-10-08       25  373376204   2605. FALSE        10.5281/zeno…
+#> 10 v2026.10.06 2026-10-06       25  373467857   2606. FALSE        10.5281/zeno…
+#> # ℹ 34 more rows
 #> # ℹ 2 more variables: retired <df[,3]>, is_latest <lgl>
 
 # list tables (con = reuses the connection opened above)
@@ -141,12 +141,12 @@ head(ichthyo_sample)
 #> # A tibble: 6 × 18
 #>     obs_id realm dataset_key   sample_key grid_key cruise_key latitude longitude
 #>      <dbl> <chr> <chr>         <chr>      <chr>    <chr>         <dbl>     <dbl>
-#> 1 36004145 bio   swfsc_ichthyo swfsc_ich… NA       2003-10-3…     9.41     -99.2
-#> 2 35989065 bio   swfsc_ichthyo swfsc_ich… NA       2000-10-3…     7.74     -82.1
-#> 3 35985650 bio   swfsc_ichthyo swfsc_ich… NA       2002-10-3…    28.0     -178. 
-#> 4 35572511 bio   swfsc_ichthyo swfsc_ich… st20-ln… 1965-07-3…    26.6     -113. 
-#> 5 35686582 bio   swfsc_ichthyo swfsc_ich… st40-ln… 1966-08-3…    26.9     -114. 
-#> 6 35601458 bio   swfsc_ichthyo swfsc_ich… st30-ln… 1969-07-3…    32.8     -118. 
+#> 1 36031790 bio   swfsc_ichthyo swfsc_ich… NA       2003-10-3…     9.41     -99.2
+#> 2 36016710 bio   swfsc_ichthyo swfsc_ich… NA       2000-10-3…     7.74     -82.1
+#> 3 36013295 bio   swfsc_ichthyo swfsc_ich… NA       2002-10-3…    28.0     -178. 
+#> 4 35600156 bio   swfsc_ichthyo swfsc_ich… st20-ln… 1965-07-3…    26.6     -113. 
+#> 5 35714227 bio   swfsc_ichthyo swfsc_ich… st40-ln… 1966-08-3…    26.9     -114. 
+#> 6 35629103 bio   swfsc_ichthyo swfsc_ich… st30-ln… 1969-07-3…    32.8     -118. 
 #> # ℹ 10 more variables: datetime <dttm>, depth_min_m <dbl>, depth_max_m <dbl>,
 #> #   taxon_key <chr>, life_stage <chr>, measurement_type <chr>,
 #> #   measurement_value <dbl>, measurement_qual <chr>, measurement_prec <dbl>,
@@ -194,13 +194,13 @@ tibble(
 #> # A tibble: 23 × 2
 #>    table                  rows
 #>    <chr>                 <dbl>
-#>  1 obs                36007232
-#>  2 obs_env            34420437
-#>  3 sample_spatial      2295719
-#>  4 climatology         1922877
+#>  1 obs                36034877
+#>  2 obs_env            34448082
+#>  3 sample_spatial      2295877
+#>  4 climatology         1921596
 #>  5 obs_bio             1586795
-#>  6 sample              1467358
-#>  7 sample_measurement   714785
+#>  6 sample              1467380
+#>  7 sample_measurement   714892
 #>  8 obs_attribute        455300
 #>  9 ichthyo_net           77888
 #> 10 spatial_attribute     37968
@@ -517,14 +517,14 @@ dbGetQuery(con, "
 #> 10 atm_pressure_slc_mb
 #> 11 barometric_pressure
 #> 12    beam_attenuation
-#> 13            behavior
-#> 14         body_length
-#> 15        bottom_depth
-#> 16      bottom_depth_m
-#> 17   bottom_depth_mb_m
-#> 18        btl_ammonium
-#> 19   btl_chlorophyll_a
-#> 20           btl_depth
+#> 13            beaufort
+#> 14            behavior
+#> 15         body_length
+#> 16        bottom_depth
+#> 17      bottom_depth_m
+#> 18   bottom_depth_mb_m
+#> 19        btl_ammonium
+#> 20   btl_chlorophyll_a
 #>                                                                                                                                                                                        description
 #> 1                                                                                                                Specimen count per net tow (headline occurrence; standardize via std_haul_factor)
 #> 2  Presence (1) or absence (0) of the taxon's calls in one hour of sonobuoy recording, scanned as 60-s spectrogram windows (headline occurrence; the call types heard are obs_attribute call_type)
@@ -538,14 +538,14 @@ dbGetQuery(con, "
 #> 10                                                                                                                                                      Atmospheric pressure (sea-level corrected)
 #> 11                                                                                                                                                                             Barometric pressure
 #> 12                                                                                                                                                                    Beam attenuation coefficient
-#> 13                                                                                                                   Seabird/marine-mammal behavior category (obs_attribute; e.g. Flying, Feeding)
-#> 14                                                                                                                                                   Larva body length (obs_freq binned attribute)
-#> 15                                                                                                                            Water depth at the sampling event (sea floor depth beneath the cast)
-#> 16                                                                                                                                                                      Bottom depth (single-beam)
-#> 17                                                                                                                                                                        Bottom depth (multibeam)
-#> 18                                                                                                                                                                                 Bottle ammonium
-#> 19                                                                                                                                                                            Bottle chlorophyll-a
-#> 20                                                                                                                                                                               Bottle trip depth
+#> 13                                                                                                                            Beaufort sea state at a cetacean sighting (obs_attribute, bin_value)
+#> 14                                                                                                                   Seabird/marine-mammal behavior category (obs_attribute; e.g. Flying, Feeding)
+#> 15                                                                                                                                                   Larva body length (obs_freq binned attribute)
+#> 16                                                                                                                            Water depth at the sampling event (sea floor depth beneath the cast)
+#> 17                                                                                                                                                                      Bottom depth (single-beam)
+#> 18                                                                                                                                                                        Bottom depth (multibeam)
+#> 19                                                                                                                                                                                 Bottle ammonium
+#> 20                                                                                                                                                                            Bottle chlorophyll-a
 #>            units
 #> 1          count
 #> 2  dimensionless
@@ -559,14 +559,14 @@ dbGetQuery(con, "
 #> 10            mb
 #> 11     millibars
 #> 12           1/m
-#> 13          <NA>
-#> 14            mm
-#> 15             m
+#> 13      Beaufort
+#> 14          <NA>
+#> 15            mm
 #> 16             m
 #> 17             m
-#> 18        umol/L
-#> 19          ug/L
-#> 20             m
+#> 18             m
+#> 19        umol/L
+#> 20          ug/L
 ```
 
 ## Disconnect

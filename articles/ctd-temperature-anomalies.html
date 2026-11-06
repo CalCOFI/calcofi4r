@@ -213,7 +213,7 @@ station 120:</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>occupied_km <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">occ</span><span class="op">$</span><span class="va">dist_km</span><span class="op">)</span>, along_line_km <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">lin</span><span class="op">$</span><span class="va">dist_km</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   occupied_km along_line_km </span></span>
-<span><span class="co">#&gt;      689.0909      689.0093</span></span></code></pre></div>
+<span><span class="co">#&gt;      689.0909      689.0098</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="the-baseline-and-a-filter-before-it">The baseline, and a filter before it<a class="anchor" aria-label="anchor" href="#the-baseline-and-a-filter-before-it"></a>
@@ -225,7 +225,7 @@ station 120:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">clim</span>, <span class="st">"baseline"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1993 2013</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">clim</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 21008</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 21007</span></span></code></pre></div>
 <p><code><a href="../reference/cc_climatology.html">cc_climatology()</a></code> is a plain mean per (station, 5 m depth
 bin, calendar month) — the finest grouping CalCOFI’s design supports,
 since quarterly-ish cruises over decades give many <em>years</em> per
@@ -264,8 +264,8 @@ and 35 °C.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
 <span><span class="co">#&gt;   band       n</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> &lt;24   <span style="text-decoration: underline;">703</span>137</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 24-26      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> &lt;24   <span style="text-decoration: underline;">704</span>010</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 24-26     27</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> &gt;=35       1</span></span></code></pre></div>
 <p>So a regional ceiling well inside that gap removes every artifact and
 nothing else. This is a <em>client-side</em> screen — the release keeps

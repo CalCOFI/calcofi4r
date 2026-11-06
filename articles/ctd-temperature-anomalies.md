@@ -103,7 +103,7 @@ lin <- cc_transect_stations(con, LINE, cruise_recent, x = "line")
 
 c(occupied_km = max(occ$dist_km), along_line_km = max(lin$dist_km))
 #>   occupied_km along_line_km 
-#>      689.0909      689.0093
+#>      689.0909      689.0098
 ```
 
 ## The baseline, and a filter before it
@@ -116,7 +116,7 @@ clim <- cc_climatology(
 attr(clim, "baseline")
 #> [1] 1993 2013
 nrow(clim)
-#> [1] 21008
+#> [1] 21007
 ```
 
 [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
@@ -160,8 +160,8 @@ temp_all |>
 #> # A tibble: 3 × 2
 #>   band       n
 #>   <fct>  <int>
-#> 1 <24   703137
-#> 2 24-26      1
+#> 1 <24   704010
+#> 2 24-26     27
 #> 3 >=35       1
 ```
 
