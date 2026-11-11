@@ -40,7 +40,10 @@ case-insensitively as substrings (\verb{ILIKE '\%name\%'}).}
 string) on the tow start time.}
 
 \item{depth_m_min, depth_m_max}{Optional depth bounds (meters) on the bottle
-environmental observations.}
+environmental observations. With the default \code{NULL} there is no bound, so
+\code{env_value} is averaged over all depths of the matched cast (\code{env_depth_m}
+is their mean depth) and is not a near-surface value; set e.g.
+\verb{depth_m_min = 0, depth_m_max = 10} for the top 10 m.}
 
 \item{max_dist_km, max_time_hr}{Match tolerances. Default to 2 km / 6 hr, or
 5 km / 72 hr when \code{relax_matching = TRUE}; an explicit value always wins.}

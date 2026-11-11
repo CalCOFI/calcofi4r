@@ -22,20 +22,21 @@ knitr::opts_chunk$set(
   out.width = "100%")
 ```
 
-## A new paradigm: 22 GB of CalCOFI, queryable from anywhere
+## A new paradigm: the whole CalCOFI database, queryable from anywhere
 
 CalCOFI has been sampling the California Current since 1949 — three quarters of
 a century of co-located **biological** (net-tow ichthyoplankton + zooplankton
 biomass) and **environmental** (CTD-bottle) observations. Until recently, using
 that record for cross-domain analysis meant *picking your friction*: a Postgres
-server with credentials, an API account, or downloading 22 GB of CSV and
-joining it yourself.
+server with credentials, an API account, or downloading every table in full
+and joining them yourself.
 
 It doesn't anymore. Every CalCOFI release is now published as **versioned,
 public Apache Parquet** on Google Cloud Storage — and DuckDB can query it
 directly over HTTPS. **No credentials. No server. No full download.** DuckDB
-reads only the columns and row groups your query actually touches, and it runs
-the *same engine* on:
+reads only the columns and row groups your query actually touches
+(`cc_list_versions()` lists each release with its tables, rows and size), and it
+runs the *same engine* on:
 
 | Where | How |
 |---|---|
@@ -94,6 +95,44 @@ columns describe the matched temperature (`env_value` is the mean of `n_env`
 bottle measurements within the match window, `env_depth_m` is the mean
 sampling depth), and `dist_km` / `time_diff_hr` are the realized offsets — all
 well inside the 5 km / 72 hr relaxed window.
+
+### Which depths does the temperature come from?
+
+The call above sets no depth bounds. Without `depth_m_min` / `depth_m_max`,
+`env_value` is averaged over **all depths of the matched cast**, from the
+shallowest measurement to the deepest. It is a whole-cast mean, not the
+temperature at the surface. To match one layer, bound it. Here is the same call
+for the top 10 m:
+
+```{r match-surface, cache = TRUE, dependson = "match"}
+d_surface <- cc_match_ichthyo_by_name(
+  scientific_name = "Sardinops sagax",
+  env_var         = "temperature",
+  date_min        = "2014-01-01",
+  date_max        = "2019-12-31",
+  depth_m_min     = 0,
+  depth_m_max     = 10,
+  relax_matching  = TRUE,
+  version         = REL)
+
+# the same observations, matched to two different layers
+bind_rows(
+  `all depths (no bounds)` = d,
+  `0 to 10 m`              = d_surface,
+  .id = "env_depths") |>
+  group_by(env_depths) |>
+  summarise(
+    n_obs        = n(),
+    mean_depth_m = round(mean(env_depth_m), 1),
+    mean_temp_C  = round(mean(env_value), 1))
+```
+
+For these observations the top 10 m is
+`r round(mean(d_surface$env_value) - mean(d$env_value), 1)` °C warmer on average
+than the whole cast. Neither value is wrong: the right layer depends on the
+question, so choose the bounds deliberately and report them with your results.
+The rest of this article keeps the unbounded match `d`, so the temperatures in
+the figures below are whole-cast means.
 
 ## Where, when, how warm
 

@@ -462,7 +462,10 @@ cc_match_bio_env <- function(
 #' @param date_min,date_max Optional date bounds (`Date` or `"YYYY-MM-DD"`
 #'   string) on the tow start time.
 #' @param depth_m_min,depth_m_max Optional depth bounds (meters) on the bottle
-#'   environmental observations.
+#'   environmental observations. With the default `NULL` there is no bound, so
+#'   `env_value` is averaged over all depths of the matched cast (`env_depth_m`
+#'   is their mean depth) and is not a near-surface value; set e.g.
+#'   `depth_m_min = 0, depth_m_max = 10` for the top 10 m.
 #' @param max_dist_km,max_time_hr Match tolerances. Default to 2 km / 6 hr, or
 #'   5 km / 72 hr when `relax_matching = TRUE`; an explicit value always wins.
 #' @param relax_matching Convenience flag mirroring the old API's
@@ -552,7 +555,10 @@ cc_match_ichthyo_by_name <- function(
 #' @param life_stage Optional character vector restricting `ichthyo.life_stage`.
 #' @param date_min,date_max Optional date bounds on the tow start time.
 #' @param depth_m_min,depth_m_max Optional depth bounds (meters) on the bottle
-#'   environmental observations.
+#'   environmental observations. With the default `NULL` there is no bound, so
+#'   `env_value` is averaged over all depths of the matched cast (`env_depth_m`
+#'   is their mean depth) and is not a near-surface value; set e.g.
+#'   `depth_m_min = 0, depth_m_max = 10` for the top 10 m.
 #' @param max_dist_km,max_time_hr Match tolerances. Default to 2 km / 6 hr, or
 #'   5 km / 72 hr when `relax_matching = TRUE`; an explicit value always wins.
 #' @param relax_matching Widen the default tolerances to 5 km / 72 hr.
@@ -637,7 +643,10 @@ cc_match_ichthyo_by_taxon <- function(
 #'   `"smallplankton"` (= `small_plankton_biomass`).
 #' @param date_min,date_max Optional date bounds on the tow start time.
 #' @param depth_m_min,depth_m_max Optional depth bounds (meters) on the bottle
-#'   environmental observations.
+#'   environmental observations. With the default `NULL` there is no bound, so
+#'   `env_value` is averaged over all depths of the matched cast (`env_depth_m`
+#'   is their mean depth) and is not a near-surface value; set e.g.
+#'   `depth_m_min = 0, depth_m_max = 10` for the top 10 m.
 #' @param max_dist_km,max_time_hr Match tolerances. Default to 2 km / 6 hr, or
 #'   5 km / 72 hr when `relax_matching = TRUE`; an explicit value always wins.
 #' @param relax_matching Widen the default tolerances to 5 km / 72 hr.
