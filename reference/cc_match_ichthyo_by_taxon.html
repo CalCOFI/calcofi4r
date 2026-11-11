@@ -143,7 +143,10 @@ id and every descendant taxon.</p></dd>
 
 <dt id="arg-depth-m-min-depth-m-max">depth_m_min, depth_m_max<a class="anchor" aria-label="anchor" href="#arg-depth-m-min-depth-m-max"></a></dt>
 <dd><p>Optional depth bounds (meters) on the bottle
-environmental observations.</p></dd>
+environmental observations. With the default <code>NULL</code> there is no bound, so
+<code>env_value</code> is averaged over all depths of the matched cast (<code>env_depth_m</code>
+is their mean depth) and is not a near-surface value; set e.g.
+<code>depth_m_min = 0, depth_m_max = 10</code> for the top 10 m.</p></dd>
 
 
 <dt id="arg-max-dist-km-max-time-hr">max_dist_km, max_time_hr<a class="anchor" aria-label="anchor" href="#arg-max-dist-km-max-time-hr"></a></dt>

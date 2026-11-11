@@ -124,7 +124,8 @@
     
     
 <div class="section level2">
-<h2 id="a-new-paradigm-22-gb-of-calcofi-queryable-from-anywhere">A new paradigm: 22 GB of CalCOFI, queryable from anywhere<a class="anchor" aria-label="anchor" href="#a-new-paradigm-22-gb-of-calcofi-queryable-from-anywhere"></a>
+<h2 id="a-new-paradigm-the-whole-calcofi-database-queryable-from-anywhere">A new paradigm: the whole CalCOFI database, queryable from
+anywhere<a class="anchor" aria-label="anchor" href="#a-new-paradigm-the-whole-calcofi-database-queryable-from-anywhere"></a>
 </h2>
 <p>CalCOFI has been sampling the California Current since 1949 — three
 quarters of a century of co-located <strong>biological</strong> (net-tow
@@ -132,13 +133,14 @@ ichthyoplankton + zooplankton biomass) and
 <strong>environmental</strong> (CTD-bottle) observations. Until
 recently, using that record for cross-domain analysis meant <em>picking
 your friction</em>: a Postgres server with credentials, an API account,
-or downloading 22 GB of CSV and joining it yourself.</p>
+or downloading every table in full and joining them yourself.</p>
 <p>It doesn’t anymore. Every CalCOFI release is now published as
 <strong>versioned, public Apache Parquet</strong> on Google Cloud
 Storage — and DuckDB can query it directly over HTTPS. <strong>No
 credentials. No server. No full download.</strong> DuckDB reads only the
-columns and row groups your query actually touches, and it runs the
-<em>same engine</em> on:</p>
+columns and row groups your query actually touches
+(<code><a href="../reference/cc_list_versions.html">cc_list_versions()</a></code> lists each release with its tables,
+rows and size), and it runs the <em>same engine</em> on:</p>
 <table class="table">
 <colgroup>
 <col width="50%">
@@ -242,11 +244,53 @@ measurements within the match window, <code>env_depth_m</code> is the
 mean sampling depth), and <code>dist_km</code> /
 <code>time_diff_hr</code> are the realized offsets — all well inside the
 5 km / 72 hr relaxed window.</p>
+<div class="section level3">
+<h3 id="which-depths-does-the-temperature-come-from">Which depths does the temperature come from?<a class="anchor" aria-label="anchor" href="#which-depths-does-the-temperature-come-from"></a>
+</h3>
+<p>The call above sets no depth bounds. Without <code>depth_m_min</code>
+/ <code>depth_m_max</code>, <code>env_value</code> is averaged over
+<strong>all depths of the matched cast</strong>, from the shallowest
+measurement to the deepest. It is a whole-cast mean, not the temperature
+at the surface. To match one layer, bound it. Here is the same call for
+the top 10 m:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">d_surface</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cc_match_ichthyo_by_name.html">cc_match_ichthyo_by_name</a></span><span class="op">(</span></span>
+<span>  scientific_name <span class="op">=</span> <span class="st">"Sardinops sagax"</span>,</span>
+<span>  env_var         <span class="op">=</span> <span class="st">"temperature"</span>,</span>
+<span>  date_min        <span class="op">=</span> <span class="st">"2014-01-01"</span>,</span>
+<span>  date_max        <span class="op">=</span> <span class="st">"2019-12-31"</span>,</span>
+<span>  depth_m_min     <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  depth_m_max     <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  relax_matching  <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  version         <span class="op">=</span> <span class="va">REL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># the same observations, matched to two different layers</span></span>
+<span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
+<span>  `all depths (no bounds)` <span class="op">=</span> <span class="va">d</span>,</span>
+<span>  `0 to 10 m`              <span class="op">=</span> <span class="va">d_surface</span>,</span>
+<span>  .id <span class="op">=</span> <span class="st">"env_depths"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">env_depths</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span></span>
+<span>    n_obs        <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    mean_depth_m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">env_depth_m</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    mean_temp_C  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">env_value</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 4</span></span></span>
+<span><span class="co">#&gt;   env_depths             n_obs mean_depth_m mean_temp_C</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0 to 10 m                310          4.9        16.6</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> all depths (no bounds)   310         90          13.5</span></span></code></pre></div>
+<p>For these observations the top 10 m is 3.1 °C warmer on average than
+the whole cast. Neither value is wrong: the right layer depends on the
+question, so choose the bounds deliberately and report them with your
+results. The rest of this article keeps the unbounded match
+<code>d</code>, so the temperatures in the figures below are whole-cast
+means.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="where-when-how-warm">Where, when, how warm<a class="anchor" aria-label="anchor" href="#where-when-how-warm"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span>
 <span></span>
@@ -287,7 +331,7 @@ and a strong El Niño — the warmer reds dominate those panels.
 <div class="section level2">
 <h2 id="larvae-vs--temperature">Larvae vs. temperature<a class="anchor" aria-label="anchor" href="#larvae-vs--temperature"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">d</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">env_value</span>, <span class="va">bio_value</span> <span class="op">+</span> <span class="fl">1</span>, colour <span class="op">=</span> <span class="va">life_stage</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.5</span>, width <span class="op">=</span> <span class="fl">0.0</span>, height <span class="op">=</span> <span class="fl">0.05</span>, size <span class="op">=</span> <span class="fl">1.6</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"loess"</span>, se <span class="op">=</span> <span class="cn">FALSE</span>, linewidth <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span> <span class="op">+</span></span>
@@ -312,7 +356,7 @@ with relatively few observations in the warmest waters of the heatwave.
 <div class="section level2">
 <h2 id="the-signal-of-the-heatwave-year-by-year">The signal of the heatwave, year by year<a class="anchor" aria-label="anchor" href="#the-signal-of-the-heatwave-year-by-year"></a>
 </h2>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">yearly</span> <span class="op">&lt;-</span> <span class="va">d</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/year.html" class="external-link">year</a></span><span class="op">(</span><span class="va">bio_datetime</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -397,7 +441,7 @@ temperature.</caption>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">yearly</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">year</span>, <span class="va">mean_temp_C</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -438,7 +482,7 @@ that period.
 SQL</strong> that produced the result, plus query metadata, as
 attributes on the returned data. That is the package’s reproducibility
 contract:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">meta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">d</span>, <span class="st">"query_meta"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">meta</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 6</span></span>
@@ -449,18 +493,18 @@ contract:</p>
 <span><span class="co">#&gt;   ..$ max_time_hr: num 72</span></span>
 <span><span class="co">#&gt;   ..$ join_method: chr "nearest_time"</span></span>
 <span><span class="co">#&gt;  $ source_urls    : chr [1:99] "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_bio/30c7684fb542f3dd793d8ae0/obs_bio.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=air_temp_c/43ac66ab35ac90781"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity_rep1/f913592b191b"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity/f1b4a861478eeed0a"| __truncated__ ...</span></span>
-<span><span class="co">#&gt;  $ generated_at   : chr "2026-11-09 13:18:32 UTC"</span></span>
+<span><span class="co">#&gt;  $ generated_at   : chr "2026-11-11 23:05:20 UTC"</span></span>
 <span><span class="co">#&gt;  $ n_rows         : int 310</span></span></code></pre></div>
 <p><code>meta$release_version</code> pins which release the result came
 from (v2026.11.09 here). <code>meta$source_urls</code> is the full list
 of public GCS parquet files the query reads. And
 <code>attr(d, "sql")</code> is the literal query — no <code>dplyr</code>
 translation, no hidden state, ~90 lines of plain DuckDB SQL:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sql</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">d</span>, <span class="st">"sql"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/strsplit.html" class="external-link">strsplit</a></span><span class="op">(</span><span class="va">sql</span>, <span class="st">"\n"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 110</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">sql</span>, <span class="fl">1</span>, <span class="fl">600</span><span class="op">)</span>, <span class="st">"\n…\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; WITH bio AS (</span></span>
 <span><span class="co">#&gt; SELECT</span></span>
@@ -483,7 +527,7 @@ translation, no hidden state, ~90 lines of plain DuckDB SQL:</p>
 <p>To get the SQL <em>without</em> running it — e.g. to share, save into
 version control, or hand to a colleague who works in Python — pass
 <code>return_sql = TRUE</code>:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sql</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cc_match_ichthyo_by_name.html">cc_match_ichthyo_by_name</a></span><span class="op">(</span><span class="st">"Sardinops sagax"</span>, return_sql <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="va">sql</span>, <span class="st">"sardine_match.sql"</span><span class="op">)</span></span></code></pre></div>
 <p>This is the same artifact the <a href="https://app.calcofi.io/db-viz-hex" class="external-link">CalCOFI Integrated App</a>
@@ -496,13 +540,13 @@ it anywhere, get identical rows.</p>
 <p>Because the query is plain SQL against public Parquet, the
 <strong>same string</strong> runs in any DuckDB client:</p>
 <p><strong>Python</strong></p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="im">import</span> duckdb</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>con <span class="op">=</span> duckdb.<span class="ex">connect</span>()</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>con.sql(<span class="st">"INSTALL httpfs; LOAD httpfs; INSTALL spatial; LOAD spatial;"</span>)</span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>df <span class="op">=</span> con.sql(<span class="bu">open</span>(<span class="st">"sardine_match.sql"</span>).read()).df()</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="im">import</span> duckdb</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>con <span class="op">=</span> duckdb.<span class="ex">connect</span>()</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>con.sql(<span class="st">"INSTALL httpfs; LOAD httpfs; INSTALL spatial; LOAD spatial;"</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>df <span class="op">=</span> con.sql(<span class="bu">open</span>(<span class="st">"sardine_match.sql"</span>).read()).df()</span></code></pre></div>
 <p><strong>DuckDB CLI</strong></p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="ex">duckdb</span> <span class="at">-c</span> <span class="st">"INSTALL httpfs; LOAD httpfs; INSTALL spatial; LOAD spatial;</span></span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="va">$(</span><span class="fu">cat</span> sardine_match.sql<span class="va">)</span><span class="st">"</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="ex">duckdb</span> <span class="at">-c</span> <span class="st">"INSTALL httpfs; LOAD httpfs; INSTALL spatial; LOAD spatial;</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="va">$(</span><span class="fu">cat</span> sardine_match.sql<span class="va">)</span><span class="st">"</span></span></code></pre></div>
 <p><strong>A web browser, no install</strong> — open <a href="https://calcofi.io/db-query/" class="external-link"><strong>CalCOFI Query</strong></a>,
 pick a tab (by name / by taxon / zoo biomass / custom / SQL shell), fill
 the form, hit <strong>Run</strong>. The page loads <a href="https://duckdb.org/docs/api/wasm/overview.html" class="external-link">DuckDB-WASM</a> in
@@ -515,7 +559,7 @@ official WASM shell. Try either on a phone if you like.</p>
 <h2 id="version-pinning-for-archival-reproducibility">Version pinning for archival reproducibility<a class="anchor" aria-label="anchor" href="#version-pinning-for-archival-reproducibility"></a>
 </h2>
 <p>If your analysis is going into a paper, pin the release:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cc_match_ichthyo_by_name.html">cc_match_ichthyo_by_name</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Sardinops sagax"</span>, env_var <span class="op">=</span> <span class="st">"temperature"</span>,</span>
 <span>  date_min <span class="op">=</span> <span class="st">"2014-01-01"</span>, date_max <span class="op">=</span> <span class="st">"2019-12-31"</span>,</span>
@@ -542,7 +586,7 @@ query <code>obs</code>. The data was immutable exactly as promised — the
 <strong>code</strong> moved to a schema that data does not have.</p>
 <p>So immutable data is only half of reproducibility. Record the package
 version beside the release version:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>release <span class="op">=</span> <span class="va">REL</span>, calcofi4r <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/packageDescription.html" class="external-link">packageVersion</a></span><span class="op">(</span><span class="st">"calcofi4r"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>and restore both together (<a href="https://rstudio.github.io/renv/" class="external-link">renv</a> or
 <code>remotes::install_github("CalCOFI/calcofi4r@v1.5.1")</code> for the

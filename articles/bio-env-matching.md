@@ -1,20 +1,23 @@
 # Matching biology to environment: query 75 years of ocean data, anywhere
 
-## A new paradigm: 22 GB of CalCOFI, queryable from anywhere
+## A new paradigm: the whole CalCOFI database, queryable from anywhere
 
 CalCOFI has been sampling the California Current since 1949 — three
 quarters of a century of co-located **biological** (net-tow
 ichthyoplankton + zooplankton biomass) and **environmental**
 (CTD-bottle) observations. Until recently, using that record for
 cross-domain analysis meant *picking your friction*: a Postgres server
-with credentials, an API account, or downloading 22 GB of CSV and
-joining it yourself.
+with credentials, an API account, or downloading every table in full and
+joining them yourself.
 
 It doesn’t anymore. Every CalCOFI release is now published as
 **versioned, public Apache Parquet** on Google Cloud Storage — and
 DuckDB can query it directly over HTTPS. **No credentials. No server. No
 full download.** DuckDB reads only the columns and row groups your query
-actually touches, and it runs the *same engine* on:
+actually touches
+([`cc_list_versions()`](https://calcofi.io/calcofi4r/reference/cc_list_versions.md)
+lists each release with its tables, rows and size), and it runs the
+*same engine* on:
 
 | Where | How |
 |----|----|
@@ -92,6 +95,49 @@ mean of `n_env` bottle measurements within the match window,
 `env_depth_m` is the mean sampling depth), and `dist_km` /
 `time_diff_hr` are the realized offsets — all well inside the 5 km / 72
 hr relaxed window.
+
+### Which depths does the temperature come from?
+
+The call above sets no depth bounds. Without `depth_m_min` /
+`depth_m_max`, `env_value` is averaged over **all depths of the matched
+cast**, from the shallowest measurement to the deepest. It is a
+whole-cast mean, not the temperature at the surface. To match one layer,
+bound it. Here is the same call for the top 10 m:
+
+``` r
+
+d_surface <- cc_match_ichthyo_by_name(
+  scientific_name = "Sardinops sagax",
+  env_var         = "temperature",
+  date_min        = "2014-01-01",
+  date_max        = "2019-12-31",
+  depth_m_min     = 0,
+  depth_m_max     = 10,
+  relax_matching  = TRUE,
+  version         = REL)
+
+# the same observations, matched to two different layers
+bind_rows(
+  `all depths (no bounds)` = d,
+  `0 to 10 m`              = d_surface,
+  .id = "env_depths") |>
+  group_by(env_depths) |>
+  summarise(
+    n_obs        = n(),
+    mean_depth_m = round(mean(env_depth_m), 1),
+    mean_temp_C  = round(mean(env_value), 1))
+#> # A tibble: 2 × 4
+#>   env_depths             n_obs mean_depth_m mean_temp_C
+#>   <chr>                  <int>        <dbl>       <dbl>
+#> 1 0 to 10 m                310          4.9        16.6
+#> 2 all depths (no bounds)   310         90          13.5
+```
+
+For these observations the top 10 m is 3.1 °C warmer on average than the
+whole cast. Neither value is wrong: the right layer depends on the
+question, so choose the bounds deliberately and report them with your
+results. The rest of this article keeps the unbounded match `d`, so the
+temperatures in the figures below are whole-cast means.
 
 ## Where, when, how warm
 
@@ -257,7 +303,7 @@ str(meta)
 #>   ..$ max_time_hr: num 72
 #>   ..$ join_method: chr "nearest_time"
 #>  $ source_urls    : chr [1:99] "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_bio/30c7684fb542f3dd793d8ae0/obs_bio.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=air_temp_c/43ac66ab35ac90781"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity_rep1/f913592b191b"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity/f1b4a861478eeed0a"| __truncated__ ...
-#>  $ generated_at   : chr "2026-11-09 13:18:32 UTC"
+#>  $ generated_at   : chr "2026-11-11 23:05:20 UTC"
 #>  $ n_rows         : int 310
 ```
 
