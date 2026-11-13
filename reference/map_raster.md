@@ -28,7 +28,7 @@ interactive plot of
 
 ``` r
 (r_tif <- tempfile(fileext=".tif"))
-#> [1] "/tmp/RtmphCB4jG/file202f39d86779.tif"
+#> [1] "/tmp/RtmpNFZeBi/file1f5342a45d19.tif"
 
 # use second variable from previously fetched v
 c(v$table_field[2], v$plot_label[2])

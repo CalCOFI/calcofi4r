@@ -45,20 +45,20 @@ The package provides convenience functions for common operations:
 
 # list available versions
 cc_list_versions()
-#> # A tibble: 45 × 9
-#>    version     release_date tables total_rows size_mb doi           consolidated
-#>    <chr>       <chr>         <int>      <int>   <dbl> <chr>         <lgl>       
-#>  1 v2026.11.09 2026-11-09       26  386813199   2951. 10.5281/zeno… FALSE       
-#>  2 v2026.11.05 2026-11-05       26  385903651   2767  10.5281/zeno… FALSE       
-#>  3 v2026.11.04 2026-11-04       26  385501687   3054. 10.5281/zeno… FALSE       
-#>  4 v2026.10.30 2026-10-30       26  383803829   2717. 10.5281/zeno… FALSE       
-#>  5 v2026.10.21 2026-10-21       26  383803703   2717. 10.5281/zeno… FALSE       
-#>  6 v2026.10.20 2026-10-20       26  383803652   2717. 10.5281/zeno… FALSE       
-#>  7 v2026.10.19 2026-10-19       25  375348707   2620. 10.5281/zeno… FALSE       
-#>  8 v2026.10.14 2026-10-14       25  375348707   2620. 10.5281/zeno… FALSE       
-#>  9 v2026.10.13 2026-10-13       25  374740011   2614  10.5281/zeno… FALSE       
-#> 10 v2026.10.08 2026-10-08       25  373376204   2605. 10.5281/zeno… FALSE       
-#> # ℹ 35 more rows
+#> # A tibble: 46 × 9
+#>    version     release_date tables total_rows size_mb consolidated doi          
+#>    <chr>       <chr>         <int>      <int>   <dbl> <lgl>        <chr>        
+#>  1 v2026.11.12 2026-11-12       26  386813199   2756. FALSE        NA           
+#>  2 v2026.11.09 2026-11-09       26  386813199   2951. FALSE        10.5281/zeno…
+#>  3 v2026.11.05 2026-11-05       26  385903651   2767  FALSE        10.5281/zeno…
+#>  4 v2026.11.04 2026-11-04       26  385501687   3054. FALSE        10.5281/zeno…
+#>  5 v2026.10.30 2026-10-30       26  383803829   2717. FALSE        10.5281/zeno…
+#>  6 v2026.10.21 2026-10-21       26  383803703   2717. FALSE        10.5281/zeno…
+#>  7 v2026.10.20 2026-10-20       26  383803652   2717. FALSE        10.5281/zeno…
+#>  8 v2026.10.19 2026-10-19       25  375348707   2620. FALSE        10.5281/zeno…
+#>  9 v2026.10.14 2026-10-14       25  375348707   2620. FALSE        10.5281/zeno…
+#> 10 v2026.10.13 2026-10-13       25  374740011   2614  FALSE        10.5281/zeno…
+#> # ℹ 36 more rows
 #> # ℹ 2 more variables: retired <df[,3]>, is_latest <lgl>
 
 # list tables (con = reuses the connection opened above)
