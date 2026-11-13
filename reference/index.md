@@ -400,6 +400,9 @@ check for other functions or datasets not captured by above categories
 - [`cc_bathy_depth()`](https://calcofi.io/calcofi4r/reference/cc_bathy_depth.md)
   : Seafloor depth at points
 
+- [`cc_bin_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_bin_anomaly.md)
+  : Anomalies in 10 m depth bins, any dataset (bottle 1949-, CTD 1993-)
+
 - [`cc_cast_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_cast_anomaly.md)
   : Per-cast anomalies of the derived CTD products
 
@@ -432,6 +435,15 @@ check for other functions or datasets not captured by above categories
 
 - [`cc_grid_zones_build()`](https://calcofi.io/calcofi4r/reference/cc_grid_zones_build.md)
   : Dissolve grid cells into zones by station pattern and shore
+
+- [`cc_isopycnal()`](https://calcofi.io/calcofi4r/reference/cc_isopycnal.md)
+  : Conditions on isopycnals, from the 1 m CTD casts
+
+- [`cc_isopycnal_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_isopycnal_anomaly.md)
+  : Anomalies on isopycnals, against a baseline on the same surfaces
+
+- [`cc_layer_mean()`](https://calcofi.io/calcofi4r/reference/cc_layer_mean.md)
+  : Layer means per cast from 10 m bins, interpolated in depth
 
 - [`cc_match_bio_env()`](https://calcofi.io/calcofi4r/reference/cc_match_bio_env.md)
   : Match biological to environmental observations

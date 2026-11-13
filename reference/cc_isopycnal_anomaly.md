@@ -1,0 +1,115 @@
+# Anomalies on isopycnals, against a baseline on the same surfaces
+
+[`cc_isopycnal()`](https://calcofi.io/calcofi4r/reference/cc_isopycnal.md)
+for the casts asked for, beside a baseline built the way the release
+builds its `climatology` (`calcofi4db::build_climatology()`), but on
+density surfaces instead of 10 m depth bins: for each station
+(`site_key`), the cruise's month (or its season, `season = TRUE`: DJF /
+MAM / JJA / SON), each surface and each variable, the mean over the
+casts of cruises in `years`, kept where at least `min_cruises` distinct
+cruises contribute. `anomaly = value - clim_mean`; a cast with no
+baseline cell comes back `NA`, never 0. For `variable = "depth_m"` the
+anomaly is the surface's displacement in metres, positive deeper.
+
+## Usage
+
+``` r
+cc_isopycnal_anomaly(
+  con,
+  sigma = seq(24, 27, by = 0.2),
+  cruise_key = NULL,
+  site_key = NULL,
+  variables = c("temperature_ave", "salinity_ave_corr", "oxygen_ml_l_ave_sta_corr",
+    "est_nitrate_sta_corr"),
+  years = c(1993, 2013),
+  season = FALSE,
+  min_cruises = 5,
+  direction = c("down", "both"),
+  surface_max_m = 20,
+  min_n = 3
+)
+```
+
+## Arguments
+
+- con:
+
+  DuckDB connection to a release opened with the supplemental tables:
+  `cc_get_db(supplemental = TRUE)`.
+
+- sigma:
+
+  numeric: the surfaces, sigma-theta in kg m^-3. The default, 24.0 to
+  27.0 by 0.2, is the provider's list (25.0 to 27.0 by 0.2, Rasmus
+  Swalethorp, September 2026) extended to 24.0, where the upper
+  thermocline sits in fall; 27.0 is reached by about a quarter of the
+  down casts (the median density at the bottom of a 500 m cast is
+  26.98).
+
+- cruise_key:
+
+  optional cruise key(s) (`YYYY-MM-NODC`) to restrict to.
+
+- site_key:
+
+  optional station(s) (`sample.site_key`, e.g. `"093.3 030.0"`).
+
+- variables:
+
+  `obs_ctd_full` measurement types to carry onto each surface; the
+  default is the sensor-pair averages the release publishes (the
+  station-corrected oxygen and the bottle-fitted nitrate estimate, which
+  exist only on casts with bottle data).
+
+- years:
+
+  two-element baseline range of cruise years, inclusive (default
+  1993-2013, the release's window).
+
+- season:
+
+  `FALSE` (default) for the monthly baseline; `TRUE` for the seasonal
+  one.
+
+- min_cruises:
+
+  minimum distinct cruises behind a baseline cell (the release keeps \>=
+  5).
+
+- direction:
+
+  `"down"` (default): one cast per station occupation, the down cast
+  where there is one; `"both"`: every cast.
+
+- surface_max_m, min_n:
+
+  as in `calcofi4db::profile_threshold_depth()`: the deepest first bin
+  that counts as the surface (m) and the fewest bins a cast needs for
+  `"at_surface"`.
+
+## Value
+
+[`cc_isopycnal()`](https://calcofi.io/calcofi4r/reference/cc_isopycnal.md)'s
+columns plus `clim_mean`, `clim_sd`, `clim_n` (casts), `n_cruises`,
+`anomaly`, `anomaly_sd`; attributes `baseline` (the years), `period`
+(`"month"` or `"season"`) and `climatology` (the baseline cells:
+`site_key`, `month`, `sigma_theta`, `variable`, `clim_mean`, `clim_sd`,
+`clim_n`, `n_cruises`).
+
+## Details
+
+The baseline is computed from `obs_ctd_full` at the stations of the
+casts asked for, so it reads every cruise of the window at those
+stations (on the 1 m bins, as the anomaly is).
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+con <- cc_get_db(supplemental = TRUE)
+an  <- cc_isopycnal_anomaly(con, sigma = seq(24.4, 26.6, by = 0.2),
+                            cruise_key = "2026-11-33P4", season = TRUE)
+# the displacement of each surface and the temperature change on it, station by station
+dplyr::filter(an, variable %in% c("depth_m", "temperature_ave"))
+} # }
+```

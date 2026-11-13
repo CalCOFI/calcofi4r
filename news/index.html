@@ -42,7 +42,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.31.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.32.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,6 +82,15 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.32.0" id="calcofi4r-1320">calcofi4r 1.32.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1320"></a></h2>
+<ul><li>
+<strong>New <code><a href="../reference/cc_isopycnal.html">cc_isopycnal()</a></code></strong>: for each CTD cast and each sigma-theta surface, the depth at which the cast reaches it and the temperature, salinity, oxygen and estimated nitrate on it, from the 1 m bins of <code>obs_ctd_full</code> (open the release with <code>cc_get_db(supplemental = TRUE)</code>). Sigma-theta is the flag-aware sensor-pair average (<code>calcofi4db::ctd_sigma_theta_ave()</code>), and a surface’s depth is the shallowest crossing, interpolated between the bracketing bins: the rule <code>calcofi4db::profile_threshold_depth()</code> applies to the nitracline, checked against it in the tests. <code>status</code> says why a surface has no depth (<code>at_surface</code>, <code>no_bracket</code>, <code>not_reached</code>, <code>no_data</code>). Default surfaces 24.0 to 27.0 by 0.2; the down cast of each occupation by default (<code>direction = "both"</code> for every cast).</li>
+<li>
+<strong>New <code><a href="../reference/cc_isopycnal_anomaly.html">cc_isopycnal_anomaly()</a></code></strong>: the same values against a baseline on the same surfaces, built like the release’s <code>climatology</code> (station, the cruise’s month or with <code>season = TRUE</code> its season, 1993-2013, at least 5 cruises). The anomaly of <code>depth_m</code> is the surface’s displacement, positive deeper. The baseline cells are returned as the <code>climatology</code> attribute.</li>
+<li>
+<strong>New <code><a href="../reference/cc_bin_anomaly.html">cc_bin_anomaly()</a></code></strong>: 10 m bin means of any dataset in <code>obs_env</code> at stations, each against its own dataset’s row of the release’s <code>climatology</code> (monthly or seasonal), so the bottle series (1949-2021) and the CTD’s (1993 on) can be plotted as one time series without pooling their baselines. <strong>New <code><a href="../reference/cc_layer_mean.html">cc_layer_mean()</a></code></strong> averages a layer per cast after interpolating each profile in depth, so a bottle cast at standard depths and a CTD cast are averaged over the same bins.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.31.1" id="calcofi4r-1311">calcofi4r 1.31.1<a class="anchor" aria-label="anchor" href="#calcofi4r-1311"></a></h2>
 <ul><li>

@@ -25,6 +25,7 @@
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_basemap_style.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_bathy.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_bathy_depth.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_bin_anomaly.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_bottle.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_brand_head.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_brand_header.html</loc></url>
@@ -68,7 +69,10 @@
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_interpolate.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_interpolate_rast.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_is_dark.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_isopycnal.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_isopycnal_anomaly.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_latest_version.html</loc></url>
+<url><loc>https://calcofi.io/calcofi4r/reference/cc_layer_mean.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_list_measurement_types.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_list_tables.html</loc></url>
 <url><loc>https://calcofi.io/calcofi4r/reference/cc_list_versions.html</loc></url>
