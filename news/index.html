@@ -42,7 +42,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.31.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.31.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,6 +82,11 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.31.1" id="calcofi4r-1311">calcofi4r 1.31.1<a class="anchor" aria-label="anchor" href="#calcofi4r-1311"></a></h2>
+<ul><li>
+<code><a href="../reference/cc_release_sources.html">cc_release_sources()</a></code> reads an object path once however often a catalog lists it. Releases v2026.11.04 to v2026.11.09 list 24 <code>obs_ctd_full</code> paths two or three times, so <code>cc_get_db(..., supplemental = TRUE)</code> read those cruises’ rows two or three times. Pass <code>refresh = TRUE</code> to rebuild a cached database of those releases. New fixture <code>catalog_repeated_path.json</code>, shared byte for byte with calcofi4py.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.31.0" id="calcofi4r-1310">calcofi4r 1.31.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1310"></a></h2>
 <ul><li>
