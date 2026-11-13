@@ -1,3 +1,11 @@
+# calcofi4r 1.31.1
+
+- `cc_release_sources()` reads an object path once however often a catalog lists
+  it. Releases v2026.11.04 to v2026.11.09 list 24 `obs_ctd_full` paths two or three
+  times, so `cc_get_db(..., supplemental = TRUE)` read those cruises' rows two or
+  three times. Pass `refresh = TRUE` to rebuild a cached database of those releases.
+  New fixture `catalog_repeated_path.json`, shared byte for byte with calcofi4py.
+
 # calcofi4r 1.31.0
 
 - **New `cc_diagram_viewer()`**: an HTML dependency that gives every Mermaid

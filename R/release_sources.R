@@ -82,6 +82,10 @@ cc_release_sources <- function(catalog, table,
     }
     paths  <- vapply(objs, function(o) as.character(o$path), "")
     hashes <- vapply(objs, function(o) as.character(o$content_hash %||% NA), "")
+    # read a path once however often the catalog lists it: v2026.11.04 to v2026.11.09 listed
+    # 24 obs_ctd_full paths two or three times, and reading the list as it is repeats those rows
+    keep   <- !duplicated(paths)
+    paths  <- paths[keep]; hashes <- hashes[keep]
     return(c(list(
       urls        = paste0(base_https, "/", paths),
       hive        = partitioned,
