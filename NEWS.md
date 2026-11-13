@@ -1,3 +1,26 @@
+# calcofi4r 1.32.0
+
+- **New `cc_isopycnal()`**: for each CTD cast and each sigma-theta surface, the depth at
+  which the cast reaches it and the temperature, salinity, oxygen and estimated nitrate on it,
+  from the 1 m bins of `obs_ctd_full` (open the release with `cc_get_db(supplemental = TRUE)`).
+  Sigma-theta is the flag-aware sensor-pair average (`calcofi4db::ctd_sigma_theta_ave()`), and
+  a surface's depth is the shallowest crossing, interpolated between the bracketing bins: the
+  rule `calcofi4db::profile_threshold_depth()` applies to the nitracline, checked against it
+  in the tests. `status` says why a surface has no depth (`at_surface`, `no_bracket`,
+  `not_reached`, `no_data`). Default surfaces 24.0 to 27.0 by 0.2; the down cast of each
+  occupation by default (`direction = "both"` for every cast).
+- **New `cc_isopycnal_anomaly()`**: the same values against a baseline on the same surfaces,
+  built like the release's `climatology` (station, the cruise's month or with `season = TRUE`
+  its season, 1993-2013, at least 5 cruises). The anomaly of `depth_m` is the surface's
+  displacement, positive deeper. The baseline cells are returned as the `climatology`
+  attribute.
+- **New `cc_bin_anomaly()`**: 10 m bin means of any dataset in `obs_env` at stations, each
+  against its own dataset's row of the release's `climatology` (monthly or seasonal), so the
+  bottle series (1949-2021) and the CTD's (1993 on) can be plotted as one time series without
+  pooling their baselines. **New `cc_layer_mean()`** averages a layer per cast after
+  interpolating each profile in depth, so a bottle cast at standard depths and a CTD cast are
+  averaged over the same bins.
+
 # calcofi4r 1.31.1
 
 - `cc_release_sources()` reads an object path once however often a catalog lists
