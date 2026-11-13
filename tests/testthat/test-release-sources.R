@@ -129,3 +129,19 @@ test_that("a retired version errors naming its replacement", {
   expect_error(calcofi4r:::.cc_stop_if_retired("v2026.05.15"), "retired on 2026-09-01.*v2026.06.26")
   expect_true(calcofi4r:::.cc_stop_if_retired("v2026.06.26"))
 })
+
+test_that("a path the catalog lists more than once is read once (v2026.11.04-.09 listed 24 obs_ctd_full paths 2-3 times)", {
+  base <- "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_ctd_full/cruise_key="
+  for (cat_ in list(fx("catalog_repeated_path.json"),
+                    jsonlite::fromJSON(test_path("fixtures", "catalog_repeated_path.json")))) {
+    s <- cc_release_sources(cat_, "obs_ctd_full")
+    expect_equal(s$urls, paste0(base, c(
+      "1994-03-31JD/7c12d6b2ec5697fdb745ae62/data_0.parquet",
+      "2015-11-32OC/6a5b5b98bed1d952b0bd5a90/data_0.parquet",
+      "2026-11-33P4/0d0d0d0d0d0d0d0d0d0d0d0d/data_0.parquet")))
+    expect_length(s$hashes, 3); expect_length(s$local_paths, 3)
+    expect_equal(s$hashes[2], "6a5b5b98bed1d952b0bd5a90bbbbbbbb")
+    expect_equal(cc_release_sources(cat_, "cruise")$urls,
+      "https://storage.googleapis.com/calcofi-db/ducklake/tables/cruise/a1b2c3d4e5f60718293a4b5c/cruise.parquet")
+  }
+})
