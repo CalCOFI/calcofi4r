@@ -16,7 +16,8 @@ cc_isopycnal_anomaly(
   min_cruises = 5,
   direction = c("down", "both"),
   surface_max_m = 20,
-  min_n = 3
+  min_n = 3,
+  baseline = c("auto", "release", "compute")
 )
 }
 \arguments{
@@ -49,12 +50,17 @@ there is one; \code{"both"}: every cast.}
 
 \item{surface_max_m, min_n}{as in \code{calcofi4db::profile_threshold_depth()}: the deepest first bin
 that counts as the surface (m) and the fewest bins a cast needs for \code{"at_surface"}.}
+
+\item{baseline}{\code{"auto"} (default): the release's \code{climatology} when it carries this baseline,
+computed otherwise; \code{"release"}: the release's, an error when it does not carry it;
+\code{"compute"}: always computed from \code{obs_ctd_full}.}
 }
 \value{
 \code{\link[=cc_isopycnal]{cc_isopycnal()}}'s columns plus \code{clim_mean}, \code{clim_sd}, \code{clim_n} (casts), \code{n_cruises},
 \code{anomaly}, \code{anomaly_sd}; attributes \code{baseline} (the years), \code{period} (\code{"month"} or
-\code{"season"}) and \code{climatology} (the baseline cells: \code{site_key}, \code{month}, \code{sigma_theta},
-\code{variable}, \code{clim_mean}, \code{clim_sd}, \code{clim_n}, \code{n_cruises}).
+\code{"season"}), \code{source} (\code{"release"} or \code{"computed"}) and \code{climatology} (the baseline cells:
+\code{site_key}, \code{month}, \code{sigma_theta}, \code{variable}, \code{clim_mean}, \code{clim_sd}, \code{clim_n},
+\code{n_cruises}).
 }
 \description{
 \code{\link[=cc_isopycnal]{cc_isopycnal()}} for the casts asked for, beside a baseline built the way the release builds
@@ -65,8 +71,18 @@ DJF / MAM / JJA / SON), each surface and each variable, the mean over the casts 
 the anomaly is the surface's displacement in metres, positive deeper.
 }
 \details{
-The baseline is computed from \code{obs_ctd_full} at the stations of the casts asked for, so it
-reads every cruise of the window at those stations (on the 1 m bins, as the anomaly is).
+\strong{Where the baseline comes from.} A release from v2026.11.14 on carries the baseline on these
+surfaces in its \code{climatology} table (\code{calcofi4db::build_climatology(isopycnal_tbl = )}, built from
+the release's \code{isopycnal} table: the cells with a \code{sigma_theta}, types \code{\link[=cc_isopycnal_type]{cc_isopycnal_type()}}), and
+that is what is subtracted (\code{baseline = "auto"}) whenever it is the baseline asked for: the
+release's window (\code{years}), down casts and the default \code{surface_max_m} / \code{min_n}, every surface
+in \code{sigma} and every variable in \code{variables} present. Only the casts asked for are then computed.
+Otherwise (an older release, another window, \code{direction = "both"}, a surface the release does not
+carry) the baseline is computed here from \code{obs_ctd_full} at the stations of the casts asked for,
+reading every cruise of the window at those stations, by the same rules. The release keeps cells
+with at least 5 cruises, so a \code{min_cruises} below 5 still finds only those there, as
+\code{\link[=cc_climatology]{cc_climatology()}} does. The two give the same anomalies (to the release's rounding of the mean,
+1e-6); \code{attr(, "source")} says which was used.
 }
 \examples{
 \dontrun{
