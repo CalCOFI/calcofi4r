@@ -116,18 +116,32 @@ cc_isopycnal <- function(
 #' clim_mean`; a cast with no baseline cell comes back `NA`, never 0. For `variable = "depth_m"`
 #' the anomaly is the surface's displacement in metres, positive deeper.
 #'
-#' The baseline is computed from `obs_ctd_full` at the stations of the casts asked for, so it
-#' reads every cruise of the window at those stations (on the 1 m bins, as the anomaly is).
+#' **Where the baseline comes from.** A release from v2026.11.14 on carries the baseline on these
+#' surfaces in its `climatology` table (`calcofi4db::build_climatology(isopycnal_tbl = )`, built from
+#' the release's `isopycnal` table: the cells with a `sigma_theta`, types [cc_isopycnal_type()]), and
+#' that is what is subtracted (`baseline = "auto"`) whenever it is the baseline asked for: the
+#' release's window (`years`), down casts and the default `surface_max_m` / `min_n`, every surface
+#' in `sigma` and every variable in `variables` present. Only the casts asked for are then computed.
+#' Otherwise (an older release, another window, `direction = "both"`, a surface the release does not
+#' carry) the baseline is computed here from `obs_ctd_full` at the stations of the casts asked for,
+#' reading every cruise of the window at those stations, by the same rules. The release keeps cells
+#' with at least 5 cruises, so a `min_cruises` below 5 still finds only those there, as
+#' [cc_climatology()] does. The two give the same anomalies (to the release's rounding of the mean,
+#' 1e-6); `attr(, "source")` says which was used.
 #'
 #' @inheritParams cc_isopycnal
 #' @param years two-element baseline range of cruise years, inclusive (default 1993-2013, the
 #'   release's window).
 #' @param season `FALSE` (default) for the monthly baseline; `TRUE` for the seasonal one.
 #' @param min_cruises minimum distinct cruises behind a baseline cell (the release keeps >= 5).
+#' @param baseline `"auto"` (default): the release's `climatology` when it carries this baseline,
+#'   computed otherwise; `"release"`: the release's, an error when it does not carry it;
+#'   `"compute"`: always computed from `obs_ctd_full`.
 #' @return [cc_isopycnal()]'s columns plus `clim_mean`, `clim_sd`, `clim_n` (casts), `n_cruises`,
 #'   `anomaly`, `anomaly_sd`; attributes `baseline` (the years), `period` (`"month"` or
-#'   `"season"`) and `climatology` (the baseline cells: `site_key`, `month`, `sigma_theta`,
-#'   `variable`, `clim_mean`, `clim_sd`, `clim_n`, `n_cruises`).
+#'   `"season"`), `source` (`"release"` or `"computed"`) and `climatology` (the baseline cells:
+#'   `site_key`, `month`, `sigma_theta`, `variable`, `clim_mean`, `clim_sd`, `clim_n`,
+#'   `n_cruises`).
 #' @examples
 #' \dontrun{
 #' con <- cc_get_db(supplemental = TRUE)
@@ -150,14 +164,28 @@ cc_isopycnal_anomaly <- function(
   min_cruises   = 5,
   direction     = c("down", "both"),
   surface_max_m = 20,
-  min_n         = 3
+  min_n         = 3,
+  baseline      = c("auto", "release", "compute")
 ) {
   direction <- match.arg(direction)
+  baseline  <- match.arg(baseline)
   stopifnot(is.numeric(years), length(years) == 2, years[1] <= years[2],
             is.logical(season), length(season) == 1, !is.na(season),
             is.numeric(min_cruises), length(min_cruises) == 1, min_cruises >= 1)
   .cc_isopycnal_check(con, sigma, cruise_key, site_key, variables, surface_max_m, min_n)
   target <- .cc_isopycnal_casts(con, cruise_key, site_key, direction)
+
+  # the release's baseline on these surfaces, when it carries the one asked for
+  rel_ok <- baseline != "compute" &&
+    .cc_isopycnal_release_ok(con, sigma, variables, years, direction, surface_max_m, min_n)
+  if (baseline == "release" && !rel_ok)
+    stop("cc_isopycnal_anomaly(baseline = \"release\"): this release's climatology carries no ",
+         "isopycnal baseline for these surfaces, variables and window (release v2026.11.14+, ",
+         "years 1993-2013, direction = \"down\", the default surface_max_m and min_n).", call. = FALSE)
+  if (rel_ok)
+    return(.cc_isopycnal_anomaly_release(con, target, sigma, unique(variables), years, season,
+                                         min_cruises, surface_max_m, min_n))
+
   base_c <- if (nrow(target)) .cc_isopycnal_casts(con, NULL, unique(stats::na.omit(target$site_key)),
                                                   direction, years = years) else target[0, ]
   casts  <- dplyr::distinct(dplyr::bind_rows(target, base_c))
@@ -196,14 +224,114 @@ cc_isopycnal_anomaly <- function(
 
   attr(out, "baseline")    <- years
   attr(out, "period")      <- if (season) "season" else "month"
+  attr(out, "source")      <- "computed"
   attr(out, "climatology") <- clim
   out
 }
 
+#' The release's measurement type for an isopycnal variable
+#'
+#' The release's `isopycnal` table and the isopycnal cells of its `climatology` name each
+#' [cc_isopycnal()] variable `iso_` + the variable (`"depth_m"` -> `"iso_depth_m"`,
+#' `"temperature_ave"` -> `"iso_temperature_ave"`), so a value on a density surface is never read as
+#' the `obs` series of the same quantity at a depth. `cc_isopycnal_variable()` is the inverse.
+#'
+#' @param variable [cc_isopycnal()] variable name(s).
+#' @param type release measurement type(s) (`iso_*`).
+#' @return character, the same length.
+#' @examples
+#' cc_isopycnal_type(c("depth_m", "temperature_ave"))
+#' cc_isopycnal_variable("iso_spiciness0")
+#' @export
+#' @concept isopycnal
+cc_isopycnal_type <- function(variable) {
+  stopifnot(is.character(variable))
+  paste0(ISO_TYPE_PREFIX, variable)
+}
+
+#' @rdname cc_isopycnal_type
+#' @export
+cc_isopycnal_variable <- function(type) {
+  stopifnot(is.character(type))
+  sub(paste0("^", ISO_TYPE_PREFIX), "", type)
+}
+
+ISO_TYPE_PREFIX <- "iso_"
+
 # internals ----
 
+# does the connection carry the release's isopycnal baseline asked for? Its climatology must hold
+# isopycnal cells for the window, the cast rule must be the one the release builds with (down
+# casts, cc_isopycnal()'s default surface_max_m and min_n), and the release's `isopycnal` table, which
+# keeps a row for every cast x surface it built (reached or not), must carry every surface and
+# variable asked for. A station x surface with too few cruises then simply has no cell, as in a
+# computed baseline.
+.cc_isopycnal_release_ok <- function(con, sigma, variables, years, direction, surface_max_m, min_n) {
+  tbls <- DBI::dbListTables(con)
+  if (!all(c("climatology", "isopycnal") %in% tbls)) return(FALSE)
+  if (!all(c("sigma_theta", "season_mean", "clim_yr_min", "clim_yr_max") %in%
+           DBI::dbListFields(con, "climatology"))) return(FALSE)
+  fm <- formals(cc_isopycnal)
+  if (direction != "down" || surface_max_m != eval(fm$surface_max_m) || min_n != eval(fm$min_n))
+    return(FALSE)
+  win <- DBI::dbGetQuery(con, "
+    SELECT DISTINCT clim_yr_min, clim_yr_max FROM climatology WHERE sigma_theta IS NOT NULL")
+  if (nrow(win) != 1 || win$clim_yr_min != years[1] || win$clim_yr_max != years[2]) return(FALSE)
+  built <- DBI::dbGetQuery(con, "
+    SELECT DISTINCT measurement_type, round(sigma_theta, 6) AS sigma_theta FROM isopycnal")
+  all(cc_isopycnal_type(c("depth_m", variables)) %in% built$measurement_type) &&
+    all(round(sigma, 6) %in% built$sigma_theta)
+}
+
+# the anomaly against the release's own isopycnal baseline: the casts asked for are computed, the
+# baseline cells read (monthly clim_*, or the season_* columns on each month of the season)
+.cc_isopycnal_anomaly_release <- function(con, target, sigma, variables, years, season, min_cruises,
+                                          surface_max_m, min_n) {
+  iso <- .cc_isopycnal_compute(con, target, sigma, variables, surface_max_m, min_n)
+  q   <- function(x) paste0("'", gsub("'", "''", x), "'", collapse = ", ")
+  sites <- unique(stats::na.omit(target$site_key))
+  cols  <- if (season)
+    "season_mean AS clim_mean, season_sd AS clim_sd, season_n AS clim_n, season_n_cruises AS n_cruises" else
+    "clim_mean, clim_sd, clim_n, n_cruises"
+  clim <- if (length(sites)) DBI::dbGetQuery(con, glue::glue("
+    SELECT site_key, month, round(sigma_theta, 6) AS sig6, measurement_type, {cols}
+    FROM climatology
+    WHERE sigma_theta IS NOT NULL AND dataset_key = 'calcofi_ctd-cast'
+      AND site_key IN ({q(sites)})
+      AND measurement_type IN ({q(cc_isopycnal_type(c('depth_m', variables)))})
+      AND round(sigma_theta, 6) IN ({paste(sprintf('%.6f', round(sigma, 6)), collapse = ', ')})")) else
+    data.frame(site_key = character(), month = integer(), sig6 = double(), measurement_type = character(),
+               clim_mean = double(), clim_sd = double(), clim_n = integer(), n_cruises = integer())
+  clim <- tibble::as_tibble(clim) |>
+    dplyr::filter(!is.na(clim_mean), n_cruises >= min_cruises) |>
+    dplyr::mutate(variable = cc_isopycnal_variable(measurement_type), month = as.integer(month),
+                  clim_n = as.integer(clim_n), n_cruises = as.integer(n_cruises)) |>
+    dplyr::select(site_key, month, sig6, variable, clim_mean, clim_sd, clim_n, n_cruises)
+
+  out <- iso |>
+    dplyr::mutate(sig6 = round(sigma_theta, 6)) |>
+    dplyr::left_join(clim, by = c("site_key", "month", "sig6", "variable")) |>
+    dplyr::select(-sig6) |>
+    dplyr::mutate(
+      anomaly    = value - clim_mean,
+      anomaly_sd = dplyr::if_else(!is.na(clim_sd) & clim_sd > 0, anomaly / clim_sd, NA_real_))
+
+  sig_of <- stats::setNames(sort(unique(sigma)), round(sort(unique(sigma)), 6))
+  clim <- clim |>
+    dplyr::mutate(sigma_theta = unname(sig_of[as.character(sig6)])) |>
+    dplyr::select(site_key, month, sigma_theta, variable, clim_mean, clim_sd, clim_n, n_cruises) |>
+    dplyr::arrange(site_key, month, sigma_theta, variable)
+
+  attr(out, "baseline")    <- years
+  attr(out, "period")      <- if (season) "season" else "month"
+  attr(out, "source")      <- "release"
+  attr(out, "climatology") <- clim
+  out
+}
+
 utils::globalVariables(c("sigma_theta", "status", "n_obs", "obs_year", "n_bins_sampled", ".v", "depth_m",
-                         "longitude", "latitude", "variable", "value", "sample_key"))
+                         "longitude", "latitude", "variable", "value", "sample_key", "sig6",
+                         "measurement_type", "clim_mean", "clim_sd", "clim_n", "n_cruises"))
 
 # the arguments, and the tables the computation reads, with the error a reader can act on
 .cc_isopycnal_check <- function(con, sigma, cruise_key, site_key, variables, surface_max_m, min_n) {

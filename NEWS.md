@@ -1,3 +1,17 @@
+# calcofi4r 1.34.0
+
+- **`cc_isopycnal_anomaly()` reads the release's baseline on density surfaces.** From release
+  v2026.11.14 the `climatology` table carries the isopycnal baseline (cells with a `sigma_theta`,
+  types `iso_*`), built from the release's new `isopycnal` table by the same rules as the depth
+  bins. When it is the baseline asked for (the release's window, down casts, the default
+  `surface_max_m` / `min_n`, surfaces and variables the release was built with), it is
+  subtracted and only the casts asked for are computed; otherwise the baseline is computed from
+  `obs_ctd_full` as before. The two give the same anomalies (to the release's 1e-6 rounding of
+  the mean, a tested equality). New argument `baseline = c("auto", "release", "compute")`; new
+  attribute `source` (`"release"` or `"computed"`).
+- **New `cc_isopycnal_type()` / `cc_isopycnal_variable()`**: the release's name for an isopycnal
+  variable (`iso_` + the variable, e.g. `iso_depth_m`, `iso_temperature_ave`) and back.
+
 # calcofi4r 1.33.0
 
 - **`cc_get_db()` adds tables missing from a cached release.** Through 1.32.0 a release

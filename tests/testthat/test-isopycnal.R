@@ -256,3 +256,111 @@ test_that("spice gets a baseline and an anomaly like any other variable", {
   expect_equal(sp$n_cruises, 5L)
   expect_gt(sp$anomaly, 0)                              # warmer and saltier on the same surface: spicier
 })
+
+test_that("cc_isopycnal_type() names a variable as the release does, and cc_isopycnal_variable() inverts it", {
+  expect_identical(cc_isopycnal_type(c("depth_m", "temperature_ave")), c("iso_depth_m", "iso_temperature_ave"))
+  expect_identical(cc_isopycnal_variable(cc_isopycnal_type("spiciness0")), "spiciness0")
+})
+
+# a release's isopycnal baseline, built here the way calcofi4db::build_climatology(isopycnal_tbl =)
+# files it: one cell per station x cruise month x surface x type (and the season's columns on every
+# month of a passing season), the mean over casts, rounded to 1e-6, cells with >= 5 cruises
+iso_release_climatology <- function(con, years = c(1993, 2013), floor = 5L) {
+  iso <- cc_isopycnal(con)
+  DBI::dbWriteTable(con, "isopycnal", data.frame(
+    sample_key = iso$sample_key, sigma_theta = iso$sigma_theta,
+    measurement_type = cc_isopycnal_type(iso$variable), measurement_value = iso$value), overwrite = TRUE)
+  iso <- iso[!is.na(iso$value) & iso$year >= years[1] & iso$year <= years[2], ]
+  iso$measurement_type <- cc_isopycnal_type(iso$variable)
+  iso$quarter <- cc_season(iso$month)
+  agg <- function(d, by) dplyr::summarize(dplyr::group_by(d, dplyr::across(dplyr::all_of(by))),
+    m = round(mean(value), 6), sd = round(stats::sd(value), 6), n = dplyr::n(),
+    nc = dplyr::n_distinct(cruise_key), .groups = "drop") |> dplyr::filter(nc >= floor)
+  mon <- agg(iso, c("site_key", "month", "sigma_theta", "measurement_type"))
+  sea <- agg(iso, c("site_key", "quarter", "sigma_theta", "measurement_type")) |>
+    dplyr::inner_join(data.frame(quarter = cc_season(1:12), month = 1:12), by = "quarter",
+                      relationship = "many-to-many")
+  cl <- dplyr::full_join(
+    dplyr::rename(mon, clim_mean = m, clim_sd = sd, clim_n = n, n_cruises = nc),
+    dplyr::rename(sea, season_mean = m, season_sd = sd, season_n = n, season_n_cruises = nc),
+    by = c("site_key", "month", "sigma_theta", "measurement_type"))
+  cl$dataset_key <- "calcofi_ctd-cast"; cl$depth_bin <- NA_integer_
+  cl$clim_yr_min <- years[1]; cl$clim_yr_max <- years[2]
+  DBI::dbWriteTable(con, "climatology", as.data.frame(cl), overwrite = TRUE)
+  invisible(cl)
+}
+
+test_that("the release's isopycnal baseline and the one computed here give the same anomalies", {
+  # six baseline cruises at one station across Sep-Nov (a monthly and a seasonal baseline), a target
+  # cast in 2026; temperature and salinity, so spice gets a baseline too
+  yrs <- 2000:2005; mon <- c(11L, 11L, 11L, 11L, 11L, 10L)
+  ks  <- sprintf("calcofi_ctd-cast:cast:%02d%02d_001d", yrs %% 100, mon)
+  crs <- sprintf("%d-%02d-32NM", yrs, mon)
+  mk <- function(k, ck, shift) {
+    o <- iso_rows(k, Z + shift / 10, S, temp = 20 - Z + shift, cruise_key = ck)
+    rbind(o, data.frame(sample_key = k, cruise_key = ck, dataset_key = "calcofi_ctd-cast",
+                        depth_min_m = Z + shift / 10, measurement_type = "salinity_ave_corr",
+                        measurement_value = 33.2 + Z / 10 + shift / 10, measurement_qual = NA_character_))
+  }
+  obs <- do.call(rbind, Map(mk, c(ks, K), c(crs, "2026-11-33P4"), c(seq_along(yrs), 9)))
+  smp <- rbind(iso_sample(ks, cruise_key = crs, datetime = sprintf("%d-%02d-05", yrs, mon)), iso_sample(K))
+  cruise <- data.frame(cruise_key = c(crs, "2026-11-33P4"), month_median = c(mon, 11L),
+                       date_median = as.Date(c(sprintf("%d-%02d-05", yrs, mon), "2026-11-01")))
+  con <- iso_con(obs, smp, cruise); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+  sig <- formals(cc_isopycnal)$sigma |> eval()
+  vars <- c("temperature_ave", "salinity_ave_corr", "spiciness0")
+
+  for (ssn in c(FALSE, TRUE)) {
+    DBI::dbExecute(con, "DROP TABLE IF EXISTS climatology"); DBI::dbExecute(con, "DROP TABLE IF EXISTS isopycnal")
+    cmp <- cc_isopycnal_anomaly(con, cruise_key = "2026-11-33P4", variables = vars, season = ssn)
+    expect_identical(attr(cmp, "source"), "computed")
+    iso_release_climatology(con)
+    rel <- cc_isopycnal_anomaly(con, cruise_key = "2026-11-33P4", variables = vars, season = ssn)
+    expect_identical(attr(rel, "source"), "release")
+    expect_identical(attr(rel, "period"), attr(cmp, "period"))
+    expect_equal(nrow(rel), nrow(cmp))
+    key <- c("sample_key", "sigma_theta", "variable")
+    rel <- dplyr::arrange(rel, sample_key, sigma_theta, variable)
+    cmp <- dplyr::arrange(cmp, sample_key, sigma_theta, variable)
+    for (k in key) expect_identical(rel[[k]], cmp[[k]])
+    expect_gt(sum(!is.na(cmp$anomaly)), 0)
+    expect_identical(is.na(rel$anomaly), is.na(cmp$anomaly))
+    expect_equal(rel$anomaly, cmp$anomaly, tolerance = 1e-6)
+    expect_equal(rel$clim_n, cmp$clim_n)
+    expect_equal(rel$n_cruises, cmp$n_cruises)
+    # forcing the computed path on a connection that has the release's gives the same again
+    frc <- cc_isopycnal_anomaly(con, cruise_key = "2026-11-33P4", variables = vars, season = ssn,
+                                baseline = "compute")
+    expect_identical(attr(frc, "source"), "computed")
+    expect_equal(dplyr::arrange(frc, sample_key, sigma_theta, variable)$anomaly, cmp$anomaly)
+  }
+  # the monthly baseline: November only (5 cruises); the seasonal one adds October's (6)
+  expect_equal(unique(stats::na.omit(
+    cc_isopycnal_anomaly(con, cruise_key = "2026-11-33P4", variables = vars)$n_cruises)), 5L)
+  expect_equal(unique(stats::na.omit(
+    cc_isopycnal_anomaly(con, cruise_key = "2026-11-33P4", variables = vars, season = TRUE)$n_cruises)), 6L)
+})
+
+test_that("the release's baseline is used only when it is the one asked for", {
+  yrs <- 2000:2004
+  ks  <- sprintf("calcofi_ctd-cast:cast:%02d11_001d", yrs %% 100)
+  crs <- sprintf("%d-11-32NM", yrs)
+  obs <- do.call(rbind, lapply(seq_along(yrs), function(k) iso_rows(ks[k], Z + k / 10, S, cruise_key = crs[k])))
+  obs <- rbind(obs, iso_rows(K, Z + 1, S))
+  smp <- rbind(iso_sample(ks, cruise_key = crs, datetime = sprintf("%d-11-05", yrs)), iso_sample(K))
+  con <- iso_con(obs, smp); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+  iso_release_climatology(con)
+  v <- "temperature_ave"
+  expect_identical(attr(cc_isopycnal_anomaly(con, cruise_key = "2026-11-33P4", variables = v), "source"), "release")
+  # another window, both directions, a surface or a variable the release lacks: computed
+  expect_identical(attr(cc_isopycnal_anomaly(con, cruise_key = "2026-11-33P4", variables = v,
+                                             years = c(2000, 2013)), "source"), "computed")
+  expect_identical(attr(cc_isopycnal_anomaly(con, cruise_key = "2026-11-33P4", variables = v,
+                                             direction = "both"), "source"), "computed")
+  expect_identical(attr(cc_isopycnal_anomaly(con, cruise_key = "2026-11-33P4", variables = v,
+                                             sigma = 24.85), "source"), "computed")
+  expect_identical(attr(cc_isopycnal_anomaly(con, cruise_key = "2026-11-33P4",
+                                             variables = "est_nitrate_sta_corr"), "source"), "computed")
+  expect_error(cc_isopycnal_anomaly(con, cruise_key = "2026-11-33P4", variables = v, sigma = 24.85,
+                                    baseline = "release"), "no isopycnal baseline")
+})
