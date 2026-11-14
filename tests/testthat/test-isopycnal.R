@@ -203,3 +203,56 @@ test_that("the depth rule is calcofi4db::profile_threshold_depth(direction = 'ab
     if (r$status == "ok") expect_equal(val(iso, p$k, g), r$depth_m, tolerance = 1e-9, info = paste(p$k, g))
   }
 })
+
+test_that("the default surfaces are the provider's: 24.0-27.0 by 0.2 plus 25.5 and 26.5", {
+  # Rasmus Swalethorp, 2026-11-13: 25.5 and 26.5 sit near the California Current and Undercurrent cores
+  con <- iso_con(iso_rows(K, Z, S), iso_sample(K)); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+  sg <- sort(unique(cc_isopycnal(con)$sigma_theta))
+  expect_equal(sg, sort(c(seq(24, 27, by = 0.2), 25.5, 26.5)), tolerance = 1e-9)
+  expect_length(sg, 18)
+  expect_true(all(c(25.5, 26.5) %in% round(sg, 6)))
+})
+
+test_that("spice on a surface is TEOS-10 spiciness0 of the temperature and salinity interpolated there", {
+  sal <- data.frame(sample_key = K, cruise_key = "2026-11-33P4", dataset_key = "calcofi_ctd-cast",
+                    depth_min_m = Z, measurement_type = "salinity_ave_corr",
+                    measurement_value = 33.2 + Z / 10, measurement_qual = NA_character_)
+  con <- iso_con(rbind(iso_rows(K, Z, S), sal), iso_sample(K)); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+  iso <- cc_isopycnal(con, sigma = c(24.8, 25.4))
+  # at 24.8 the surface is 2.5 m deep: temperature 17.5, salinity 33.45; the cast is at -118, 33
+  p   <- gsw::gsw_p_from_z(-2.5, 33)
+  sa  <- gsw::gsw_SA_from_SP(33.45, p, -118, 33)
+  expect_equal(val(iso, K, 24.8, "salinity_ave_corr"), 33.45)
+  expect_equal(val(iso, K, 24.8, "spiciness0"), gsw::gsw_spiciness0(sa, gsw::gsw_CT_from_t(sa, 17.5, p)))
+  expect_equal(unique(iso$variable), c("depth_m", "temperature_ave", "salinity_ave_corr", "spiciness0"))
+  # spice alone: temperature and salinity are read for it but not returned
+  only <- cc_isopycnal(con, sigma = 24.8, variables = "spiciness0")
+  expect_equal(unique(only$variable), c("depth_m", "spiciness0"))
+  expect_equal(val(only, K, 24.8, "spiciness0"), val(iso, K, 24.8, "spiciness0"))
+  # a cast without salinity has no spice, and no error
+  con2 <- iso_con(iso_rows(K, Z, S), iso_sample(K)); on.exit(DBI::dbDisconnect(con2, shutdown = TRUE), add = TRUE)
+  expect_false("spiciness0" %in% cc_isopycnal(con2, sigma = 24.8)$variable)
+  # the same recipe as calcofi4db::ctd_spice(), which builds the release's spiciness0
+  skip_if_not_installed("calcofi4db")
+  expect_equal(val(iso, K, 25.4, "spiciness0"),
+               calcofi4db::ctd_spice(16, 33.6, gsw::gsw_p_from_z(-4, 33), -118, 33))
+})
+
+test_that("spice gets a baseline and an anomaly like any other variable", {
+  mk <- function(k, ck, shift) {
+    o <- iso_rows(k, Z, S, temp = 20 - Z + shift, cruise_key = ck)
+    rbind(o, data.frame(sample_key = k, cruise_key = ck, dataset_key = "calcofi_ctd-cast", depth_min_m = Z,
+                        measurement_type = "salinity_ave_corr", measurement_value = 33.2 + Z / 10 + shift / 10,
+                        measurement_qual = NA_character_))
+  }
+  ks  <- sprintf("calcofi_ctd-cast:cast:%02d11_001d", 0:5)
+  cks <- c(sprintf("20%02d-11-33XX", 0:4), "2026-11-33P4")
+  obs <- do.call(rbind, Map(mk, ks, cks, c(0, 0, 0, 0, 0, 1)))
+  smp <- do.call(rbind, Map(iso_sample, ks, cks, datetime = sprintf("%s-11-01", substr(cks, 1, 4))))
+  con <- iso_con(obs, smp); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+  an  <- cc_isopycnal_anomaly(con, sigma = 24.8, cruise_key = "2026-11-33P4", years = c(2000, 2004))
+  sp  <- an[an$variable == "spiciness0", ]
+  expect_equal(nrow(sp), 1)
+  expect_equal(sp$n_cruises, 5L)
+  expect_gt(sp$anomaly, 0)                              # warmer and saltier on the same surface: spicier
+})

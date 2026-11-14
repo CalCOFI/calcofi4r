@@ -6,11 +6,11 @@
 \usage{
 cc_isopycnal(
   con,
-  sigma = seq(24, 27, by = 0.2),
+  sigma = c(seq(24, 27, by = 0.2), 25.5, 26.5),
   cruise_key = NULL,
   site_key = NULL,
   variables = c("temperature_ave", "salinity_ave_corr", "oxygen_ml_l_ave_sta_corr",
-    "est_nitrate_sta_corr"),
+    "est_nitrate_sta_corr", "spiciness0"),
   direction = c("down", "both"),
   surface_max_m = 20,
   min_n = 3
@@ -20,18 +20,19 @@ cc_isopycnal(
 \item{con}{DuckDB connection to a release opened with the supplemental tables:
 \code{cc_get_db(supplemental = TRUE)}.}
 
-\item{sigma}{numeric: the surfaces, sigma-theta in kg m^-3. The default, 24.0 to 27.0 by 0.2,
-is the provider's list (25.0 to 27.0 by 0.2, Rasmus Swalethorp, September 2026) extended to
-24.0, where the upper thermocline sits in fall; 27.0 is reached by about a quarter of the down
-casts (the median density at the bottom of a 500 m cast is 26.98).}
+\item{sigma}{numeric: the surfaces, sigma-theta in kg m^-3. The default is the provider's
+list (Rasmus Swalethorp, 2026-11-13): 24.0 to 27.0 by 0.2, plus 25.5 and 26.5, which sit
+near the cores of the California Current and the California Undercurrent. 27.0 is reached by
+about a quarter of the down casts (the median density at the bottom of a 500 m cast is 26.98).}
 
 \item{cruise_key}{optional cruise key(s) (\code{YYYY-MM-NODC}) to restrict to.}
 
 \item{site_key}{optional station(s) (\code{sample.site_key}, e.g. \code{"093.3 030.0"}).}
 
-\item{variables}{\code{obs_ctd_full} measurement types to carry onto each surface; the default is the
-sensor-pair averages the release publishes (the station-corrected oxygen and the bottle-fitted
-nitrate estimate, which exist only on casts with bottle data).}
+\item{variables}{\code{obs_ctd_full} measurement types to carry onto each surface, and
+\code{"spiciness0"} for spice computed there (see the rules); the default is the sensor-pair
+averages the release publishes (the station-corrected oxygen and the bottle-fitted nitrate
+estimate, which exist only on casts with bottle data) and spice.}
 
 \item{direction}{\code{"down"} (default): one cast per station occupation, the down cast where
 there is one; \code{"both"}: every cast.}
@@ -74,6 +75,12 @@ good bins). Only \code{"ok"} carries a depth and values.
 \item \strong{a property on the surface} is its own profile interpolated linearly to that depth, after
 values its provider flags (8/9, \code{\link[=cc_qual_ok_sql]{cc_qual_ok_sql()}}) are dropped; \code{NA} where the property has no
 bin on one side of the depth.
+\item \strong{spice} (\code{spiciness0}) is computed on the surface from the temperature (\code{temperature_ave})
+and salinity (\code{salinity_ave_corr}) interpolated there, by \code{calcofi4db::ctd_spice()}'s recipe
+(Rasmus Swalethorp, 2026-09-22): TEOS-10 absolute salinity and conservative temperature at
+the surface's pressure (\code{gsw_p_from_z()} of its depth and the cast's latitude), then
+\code{gsw_spiciness0()} (McDougall & Krzysik 2015). The release carries \code{spiciness0} only on the
+thinned series in \code{obs_env}, so it is not read from \code{obs_ctd_full}.
 \item \strong{casts}: the down cast of each station occupation, the up cast only where there is none
 (\code{direction = "down"}, the release's thinned series makes the same choice), or every cast.
 }

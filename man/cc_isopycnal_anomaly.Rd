@@ -6,11 +6,11 @@
 \usage{
 cc_isopycnal_anomaly(
   con,
-  sigma = seq(24, 27, by = 0.2),
+  sigma = c(seq(24, 27, by = 0.2), 25.5, 26.5),
   cruise_key = NULL,
   site_key = NULL,
   variables = c("temperature_ave", "salinity_ave_corr", "oxygen_ml_l_ave_sta_corr",
-    "est_nitrate_sta_corr"),
+    "est_nitrate_sta_corr", "spiciness0"),
   years = c(1993, 2013),
   season = FALSE,
   min_cruises = 5,
@@ -23,18 +23,19 @@ cc_isopycnal_anomaly(
 \item{con}{DuckDB connection to a release opened with the supplemental tables:
 \code{cc_get_db(supplemental = TRUE)}.}
 
-\item{sigma}{numeric: the surfaces, sigma-theta in kg m^-3. The default, 24.0 to 27.0 by 0.2,
-is the provider's list (25.0 to 27.0 by 0.2, Rasmus Swalethorp, September 2026) extended to
-24.0, where the upper thermocline sits in fall; 27.0 is reached by about a quarter of the down
-casts (the median density at the bottom of a 500 m cast is 26.98).}
+\item{sigma}{numeric: the surfaces, sigma-theta in kg m^-3. The default is the provider's
+list (Rasmus Swalethorp, 2026-11-13): 24.0 to 27.0 by 0.2, plus 25.5 and 26.5, which sit
+near the cores of the California Current and the California Undercurrent. 27.0 is reached by
+about a quarter of the down casts (the median density at the bottom of a 500 m cast is 26.98).}
 
 \item{cruise_key}{optional cruise key(s) (\code{YYYY-MM-NODC}) to restrict to.}
 
 \item{site_key}{optional station(s) (\code{sample.site_key}, e.g. \code{"093.3 030.0"}).}
 
-\item{variables}{\code{obs_ctd_full} measurement types to carry onto each surface; the default is the
-sensor-pair averages the release publishes (the station-corrected oxygen and the bottle-fitted
-nitrate estimate, which exist only on casts with bottle data).}
+\item{variables}{\code{obs_ctd_full} measurement types to carry onto each surface, and
+\code{"spiciness0"} for spice computed there (see the rules); the default is the sensor-pair
+averages the release publishes (the station-corrected oxygen and the bottle-fitted nitrate
+estimate, which exist only on casts with bottle data) and spice.}
 
 \item{years}{two-element baseline range of cruise years, inclusive (default 1993-2013, the
 release's window).}
