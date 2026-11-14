@@ -52,7 +52,7 @@ the anomaly is the surface's displacement in metres, positive deeper."><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.33.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -116,7 +116,8 @@ the anomaly is the surface's displacement in metres, positive deeper.</p>
 <span>  min_cruises <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"down"</span>, <span class="st">"both"</span><span class="op">)</span>,</span>
 <span>  surface_max_m <span class="op">=</span> <span class="fl">20</span>,</span>
-<span>  min_n <span class="op">=</span> <span class="fl">3</span></span>
+<span>  min_n <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  baseline <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"release"</span>, <span class="st">"compute"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -173,18 +174,35 @@ there is one; <code>"both"</code>: every cast.</p></dd>
 <dd><p>as in <code>calcofi4db::profile_threshold_depth()</code>: the deepest first bin
 that counts as the surface (m) and the fewest bins a cast needs for <code>"at_surface"</code>.</p></dd>
 
+
+<dt id="arg-baseline">baseline<a class="anchor" aria-label="anchor" href="#arg-baseline"></a></dt>
+<dd><p><code>"auto"</code> (default): the release's <code>climatology</code> when it carries this baseline,
+computed otherwise; <code>"release"</code>: the release's, an error when it does not carry it;
+<code>"compute"</code>: always computed from <code>obs_ctd_full</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code><a href="cc_isopycnal.html">cc_isopycnal()</a></code>'s columns plus <code>clim_mean</code>, <code>clim_sd</code>, <code>clim_n</code> (casts), <code>n_cruises</code>,
 <code>anomaly</code>, <code>anomaly_sd</code>; attributes <code>baseline</code> (the years), <code>period</code> (<code>"month"</code> or
-<code>"season"</code>) and <code>climatology</code> (the baseline cells: <code>site_key</code>, <code>month</code>, <code>sigma_theta</code>,
-<code>variable</code>, <code>clim_mean</code>, <code>clim_sd</code>, <code>clim_n</code>, <code>n_cruises</code>).</p>
+<code>"season"</code>), <code>source</code> (<code>"release"</code> or <code>"computed"</code>) and <code>climatology</code> (the baseline cells:
+<code>site_key</code>, <code>month</code>, <code>sigma_theta</code>, <code>variable</code>, <code>clim_mean</code>, <code>clim_sd</code>, <code>clim_n</code>,
+<code>n_cruises</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The baseline is computed from <code>obs_ctd_full</code> at the stations of the casts asked for, so it
-reads every cruise of the window at those stations (on the 1 m bins, as the anomaly is).</p>
+    <p><strong>Where the baseline comes from.</strong> A release from v2026.11.14 on carries the baseline on these
+surfaces in its <code>climatology</code> table (<code>calcofi4db::build_climatology(isopycnal_tbl = )</code>, built from
+the release's <code>isopycnal</code> table: the cells with a <code>sigma_theta</code>, types <code><a href="cc_isopycnal_type.html">cc_isopycnal_type()</a></code>), and
+that is what is subtracted (<code>baseline = "auto"</code>) whenever it is the baseline asked for: the
+release's window (<code>years</code>), down casts and the default <code>surface_max_m</code> / <code>min_n</code>, every surface
+in <code>sigma</code> and every variable in <code>variables</code> present. Only the casts asked for are then computed.
+Otherwise (an older release, another window, <code>direction = "both"</code>, a surface the release does not
+carry) the baseline is computed here from <code>obs_ctd_full</code> at the stations of the casts asked for,
+reading every cruise of the window at those stations, by the same rules. The release keeps cells
+with at least 5 cruises, so a <code>min_cruises</code> below 5 still finds only those there, as
+<code><a href="cc_climatology.html">cc_climatology()</a></code> does. The two give the same anomalies (to the release's rounding of the mean,
+1e-6); <code>attr(, "source")</code> says which was used.</p>
     </div>
 
     <div class="section level2">

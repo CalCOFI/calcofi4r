@@ -26,7 +26,8 @@ cc_isopycnal_anomaly(
   min_cruises = 5,
   direction = c("down", "both"),
   surface_max_m = 20,
-  min_n = 3
+  min_n = 3,
+  baseline = c("auto", "release", "compute")
 )
 ```
 
@@ -88,20 +89,42 @@ cc_isopycnal_anomaly(
   that counts as the surface (m) and the fewest bins a cast needs for
   `"at_surface"`.
 
+- baseline:
+
+  `"auto"` (default): the release's `climatology` when it carries this
+  baseline, computed otherwise; `"release"`: the release's, an error
+  when it does not carry it; `"compute"`: always computed from
+  `obs_ctd_full`.
+
 ## Value
 
 [`cc_isopycnal()`](https://calcofi.io/calcofi4r/reference/cc_isopycnal.md)'s
 columns plus `clim_mean`, `clim_sd`, `clim_n` (casts), `n_cruises`,
 `anomaly`, `anomaly_sd`; attributes `baseline` (the years), `period`
-(`"month"` or `"season"`) and `climatology` (the baseline cells:
-`site_key`, `month`, `sigma_theta`, `variable`, `clim_mean`, `clim_sd`,
-`clim_n`, `n_cruises`).
+(`"month"` or `"season"`), `source` (`"release"` or `"computed"`) and
+`climatology` (the baseline cells: `site_key`, `month`, `sigma_theta`,
+`variable`, `clim_mean`, `clim_sd`, `clim_n`, `n_cruises`).
 
 ## Details
 
-The baseline is computed from `obs_ctd_full` at the stations of the
-casts asked for, so it reads every cruise of the window at those
-stations (on the 1 m bins, as the anomaly is).
+**Where the baseline comes from.** A release from v2026.11.14 on carries
+the baseline on these surfaces in its `climatology` table
+(`calcofi4db::build_climatology(isopycnal_tbl = )`, built from the
+release's `isopycnal` table: the cells with a `sigma_theta`, types
+[`cc_isopycnal_type()`](https://calcofi.io/calcofi4r/reference/cc_isopycnal_type.md)),
+and that is what is subtracted (`baseline = "auto"`) whenever it is the
+baseline asked for: the release's window (`years`), down casts and the
+default `surface_max_m` / `min_n`, every surface in `sigma` and every
+variable in `variables` present. Only the casts asked for are then
+computed. Otherwise (an older release, another window,
+`direction = "both"`, a surface the release does not carry) the baseline
+is computed here from `obs_ctd_full` at the stations of the casts asked
+for, reading every cruise of the window at those stations, by the same
+rules. The release keeps cells with at least 5 cruises, so a
+`min_cruises` below 5 still finds only those there, as
+[`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
+does. The two give the same anomalies (to the release's rounding of the
+mean, 1e-6); `attr(, "source")` says which was used.
 
 ## Examples
 

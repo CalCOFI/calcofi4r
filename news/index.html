@@ -42,7 +42,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.33.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,6 +82,13 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.34.0" id="calcofi4r-1340">calcofi4r 1.34.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1340"></a></h2>
+<ul><li>
+<strong><code><a href="../reference/cc_isopycnal_anomaly.html">cc_isopycnal_anomaly()</a></code> reads the release’s baseline on density surfaces.</strong> From release v2026.11.14 the <code>climatology</code> table carries the isopycnal baseline (cells with a <code>sigma_theta</code>, types <code>iso_*</code>), built from the release’s new <code>isopycnal</code> table by the same rules as the depth bins. When it is the baseline asked for (the release’s window, down casts, the default <code>surface_max_m</code> / <code>min_n</code>, surfaces and variables the release was built with), it is subtracted and only the casts asked for are computed; otherwise the baseline is computed from <code>obs_ctd_full</code> as before. The two give the same anomalies (to the release’s 1e-6 rounding of the mean, a tested equality). New argument <code>baseline = c("auto", "release", "compute")</code>; new attribute <code>source</code> (<code>"release"</code> or <code>"computed"</code>).</li>
+<li>
+<strong>New <code><a href="../reference/cc_isopycnal_type.html">cc_isopycnal_type()</a></code> / <code><a href="../reference/cc_isopycnal_type.html">cc_isopycnal_variable()</a></code></strong>: the release’s name for an isopycnal variable (<code>iso_</code> + the variable, e.g. <code>iso_depth_m</code>, <code>iso_temperature_ave</code>) and back.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.33.0" id="calcofi4r-1330">calcofi4r 1.33.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1330"></a></h2>
 <ul><li>

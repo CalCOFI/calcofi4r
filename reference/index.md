@@ -442,6 +442,10 @@ check for other functions or datasets not captured by above categories
 - [`cc_isopycnal_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_isopycnal_anomaly.md)
   : Anomalies on isopycnals, against a baseline on the same surfaces
 
+- [`cc_isopycnal_type()`](https://calcofi.io/calcofi4r/reference/cc_isopycnal_type.md)
+  [`cc_isopycnal_variable()`](https://calcofi.io/calcofi4r/reference/cc_isopycnal_type.md)
+  : The release's measurement type for an isopycnal variable
+
 - [`cc_layer_mean()`](https://calcofi.io/calcofi4r/reference/cc_layer_mean.md)
   : Layer means per cast from 10 m bins, interpolated in depth
 
