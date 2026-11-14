@@ -12,7 +12,10 @@
 #   behind the nitracline: the shallowest bin whose sigma-theta reaches the surface, interpolated
 #   linearly with the bin above it;
 # - a property on the surface is its own 1 m profile interpolated linearly to that depth
-#   (stats::approx(rule = 1)), after its flagged values (cc_qual_ok_sql()) are dropped.
+#   (stats::approx(rule = 1)), after its flagged values (cc_qual_ok_sql()) are dropped;
+# - spice on the surface is calcofi4db::ctd_spice()'s TEOS-10 recipe (gsw_spiciness0) on the
+#   temperature and salinity interpolated there: the release carries spiciness0 only on the thinned
+#   series (obs_env, calcofi_ctd-derived), not on the 1 m bins.
 
 #' Conditions on isopycnals, from the 1 m CTD casts
 #'
@@ -42,6 +45,12 @@
 #' - **a property on the surface** is its own profile interpolated linearly to that depth, after
 #'   values its provider flags (8/9, [cc_qual_ok_sql()]) are dropped; `NA` where the property has no
 #'   bin on one side of the depth.
+#' - **spice** (`spiciness0`) is computed on the surface from the temperature (`temperature_ave`)
+#'   and salinity (`salinity_ave_corr`) interpolated there, by `calcofi4db::ctd_spice()`'s recipe
+#'   (Rasmus Swalethorp, 2026-09-22): TEOS-10 absolute salinity and conservative temperature at
+#'   the surface's pressure (`gsw_p_from_z()` of its depth and the cast's latitude), then
+#'   `gsw_spiciness0()` (McDougall & Krzysik 2015). The release carries `spiciness0` only on the
+#'   thinned series in `obs_env`, so it is not read from `obs_ctd_full`.
 #' - **casts**: the down cast of each station occupation, the up cast only where there is none
 #'   (`direction = "down"`, the release's thinned series makes the same choice), or every cast.
 #'
@@ -50,15 +59,16 @@
 #'
 #' @param con DuckDB connection to a release opened with the supplemental tables:
 #'   `cc_get_db(supplemental = TRUE)`.
-#' @param sigma numeric: the surfaces, sigma-theta in kg m^-3. The default, 24.0 to 27.0 by 0.2,
-#'   is the provider's list (25.0 to 27.0 by 0.2, Rasmus Swalethorp, September 2026) extended to
-#'   24.0, where the upper thermocline sits in fall; 27.0 is reached by about a quarter of the down
-#'   casts (the median density at the bottom of a 500 m cast is 26.98).
+#' @param sigma numeric: the surfaces, sigma-theta in kg m^-3. The default is the provider's
+#'   list (Rasmus Swalethorp, 2026-11-13): 24.0 to 27.0 by 0.2, plus 25.5 and 26.5, which sit
+#'   near the cores of the California Current and the California Undercurrent. 27.0 is reached by
+#'   about a quarter of the down casts (the median density at the bottom of a 500 m cast is 26.98).
 #' @param cruise_key optional cruise key(s) (`YYYY-MM-NODC`) to restrict to.
 #' @param site_key optional station(s) (`sample.site_key`, e.g. `"093.3 030.0"`).
-#' @param variables `obs_ctd_full` measurement types to carry onto each surface; the default is the
-#'   sensor-pair averages the release publishes (the station-corrected oxygen and the bottle-fitted
-#'   nitrate estimate, which exist only on casts with bottle data).
+#' @param variables `obs_ctd_full` measurement types to carry onto each surface, and
+#'   `"spiciness0"` for spice computed there (see the rules); the default is the sensor-pair
+#'   averages the release publishes (the station-corrected oxygen and the bottle-fitted nitrate
+#'   estimate, which exist only on casts with bottle data) and spice.
 #' @param direction `"down"` (default): one cast per station occupation, the down cast where
 #'   there is one; `"both"`: every cast.
 #' @param surface_max_m,min_n as in `calcofi4db::profile_threshold_depth()`: the deepest first bin
@@ -76,15 +86,16 @@
 #'                     site_key = "093.3 030.0")
 #' tidyr::pivot_wider(iso, names_from = variable, values_from = value)
 #' }
+#' @importFrom gsw gsw_p_from_z gsw_SA_from_SP gsw_CT_from_t gsw_spiciness0
 #' @export
 #' @concept isopycnal
 cc_isopycnal <- function(
   con,
-  sigma         = seq(24, 27, by = 0.2),
+  sigma         = c(seq(24, 27, by = 0.2), 25.5, 26.5),
   cruise_key    = NULL,
   site_key      = NULL,
   variables     = c("temperature_ave", "salinity_ave_corr", "oxygen_ml_l_ave_sta_corr",
-                    "est_nitrate_sta_corr"),
+                    "est_nitrate_sta_corr", "spiciness0"),
   direction     = c("down", "both"),
   surface_max_m = 20,
   min_n         = 3
@@ -129,11 +140,11 @@ cc_isopycnal <- function(
 #' @concept isopycnal
 cc_isopycnal_anomaly <- function(
   con,
-  sigma         = seq(24, 27, by = 0.2),
+  sigma         = c(seq(24, 27, by = 0.2), 25.5, 26.5),
   cruise_key    = NULL,
   site_key      = NULL,
   variables     = c("temperature_ave", "salinity_ave_corr", "oxygen_ml_l_ave_sta_corr",
-                    "est_nitrate_sta_corr"),
+                    "est_nitrate_sta_corr", "spiciness0"),
   years         = c(1993, 2013),
   season        = FALSE,
   min_cruises   = 5,
@@ -191,7 +202,8 @@ cc_isopycnal_anomaly <- function(
 
 # internals ----
 
-utils::globalVariables(c("sigma_theta", "status", "n_obs", "obs_year", "n_bins_sampled", ".v"))
+utils::globalVariables(c("sigma_theta", "status", "n_obs", "obs_year", "n_bins_sampled", ".v", "depth_m",
+                         "longitude", "latitude", "variable", "value", "sample_key"))
 
 # the arguments, and the tables the computation reads, with the error a reader can act on
 .cc_isopycnal_check <- function(con, sigma, cruise_key, site_key, variables, surface_max_m, min_n) {
@@ -205,7 +217,9 @@ utils::globalVariables(c("sigma_theta", "status", "n_obs", "obs_year", "n_bins_s
   tbls <- DBI::dbListTables(con)
   if (!"obs_ctd_full" %in% tbls)
     stop("cc_isopycnal(): the 1 m casts are the supplemental table `obs_ctd_full`; open the ",
-         "release with cc_get_db(supplemental = TRUE).", call. = FALSE)
+         "release with cc_get_db(supplemental = TRUE). (calcofi4r 1.32.0 and earlier returned a ",
+         "release already cached without it as it was: update calcofi4r, or pass refresh = TRUE.)",
+         call. = FALSE)
   miss <- setdiff("sample", tbls)
   if (length(miss))
     stop("cc_isopycnal(): the connection has no `", miss, "` table.", call. = FALSE)
@@ -265,6 +279,19 @@ utils::globalVariables(c("sigma_theta", "status", "n_obs", "obs_year", "n_bins_s
           ELSE COALESCE(({a}), ({b})) END"))
 }
 
+# spice (spiciness at 0 dbar, TEOS-10) at a depth: calcofi4db::ctd_spice()'s recipe, at the pressure
+# of that depth and latitude
+.cc_spice0 <- function(temperature, salinity, depth, longitude, latitude) {
+  out <- rep(NA_real_, length(temperature))
+  ok  <- !is.na(temperature) & !is.na(salinity) & !is.na(depth) & !is.na(longitude) & !is.na(latitude)
+  if (!any(ok)) return(out)
+  p  <- gsw::gsw_p_from_z(-depth[ok], latitude[ok])
+  sa <- gsw::gsw_SA_from_SP(salinity[ok], p, longitude[ok], latitude[ok])
+  ct <- gsw::gsw_CT_from_t(sa, temperature[ok], p)
+  out[ok] <- gsw::gsw_spiciness0(sa, ct)
+  out
+}
+
 # the computation, in DuckDB: casts x surfaces -> depth and properties
 .cc_isopycnal_compute <- function(con, casts, sigma, variables, surface_max_m, min_n) {
   empty <- tibble::tibble(
@@ -285,6 +312,11 @@ utils::globalVariables(c("sigma_theta", "status", "n_obs", "obs_year", "n_bins_s
 
   DBI::dbWriteTable(con, nm("casts"), as.data.frame(casts[, "sample_key"]), temporary = TRUE)
 
+  # spice is computed on the surface, from the temperature and salinity interpolated there
+  spice   <- "spiciness0" %in% variables
+  fetched <- setdiff(variables, "spiciness0")
+  if (spice) fetched <- union(fetched, c("temperature_ave", "salinity_ave_corr"))
+
   # one row per cast x depth: both sigma-theta sensors with their flags, each property averaged over
   # its unflagged rows (repeated rows for a cast and depth are averaged, as profile_threshold_depth()
   # averages duplicate depths)
@@ -293,7 +325,7 @@ utils::globalVariables(c("sigma_theta", "status", "n_obs", "obs_year", "n_bins_s
   piv <- paste(c(
     glue::glue("avg(f.measurement_value) FILTER (WHERE f.measurement_type = 'sigma_theta_{1:2}') AS s{1:2}"),
     glue::glue("max({nqual}) FILTER (WHERE f.measurement_type = 'sigma_theta_{1:2}') AS q{1:2}"),
-    glue::glue("avg(f.measurement_value) FILTER (WHERE f.measurement_type = '{variables}' AND {qok}) AS \"{variables}\"")),
+    glue::glue("avg(f.measurement_value) FILTER (WHERE f.measurement_type = '{fetched}' AND {qok}) AS \"{fetched}\"")),
     collapse = ",\n      ")
   cruise_sql <- glue::glue("f.cruise_key IN ({q(unique(casts$cruise_key))}) AND")
   DBI::dbExecute(con, glue::glue("
@@ -303,7 +335,7 @@ utils::globalVariables(c("sigma_theta", "status", "n_obs", "obs_year", "n_bins_s
     FROM obs_ctd_full f
     WHERE {cruise_sql}
       f.sample_key IN (SELECT sample_key FROM {nm('casts')})
-      AND f.measurement_type IN ({q(c('sigma_theta_1', 'sigma_theta_2', variables))})
+      AND f.measurement_type IN ({q(c('sigma_theta_1', 'sigma_theta_2', fetched))})
       AND f.depth_min_m IS NOT NULL AND f.depth_min_m >= 0
       AND f.measurement_value IS NOT NULL AND isfinite(f.measurement_value)
     GROUP BY f.sample_key, f.depth_min_m"))
@@ -349,14 +381,14 @@ utils::globalVariables(c("sigma_theta", "status", "n_obs", "obs_year", "n_bins_s
   DBI::dbExecute(con, glue::glue("
     CREATE TEMP TABLE {nm('prop')} AS
     SELECT sample_key, z, variable, val
-    FROM (UNPIVOT (SELECT sample_key, z, {paste0('\"', variables, '\"', collapse = ', ')} FROM {nm('piv')})
-          ON {paste0('\"', variables, '\"', collapse = ', ')} INTO NAME variable VALUE val)
+    FROM (UNPIVOT (SELECT sample_key, z, {paste0('\"', fetched, '\"', collapse = ', ')} FROM {nm('piv')})
+          ON {paste0('\"', fetched, '\"', collapse = ', ')} INTO NAME variable VALUE val)
     WHERE val IS NOT NULL AND isfinite(val)"))
 
   vals <- DBI::dbGetQuery(con, glue::glue("
     WITH x AS (
       SELECT i.sample_key, i.sigma_theta, i.depth_m, v.variable
-      FROM {nm('iso')} i CROSS JOIN (SELECT unnest([{q(variables)}]) AS variable) v
+      FROM {nm('iso')} i CROSS JOIN (SELECT unnest([{q(fetched)}]) AS variable) v
       WHERE i.status = 'ok')
     SELECT x.sample_key, x.sigma_theta, x.variable,
       CASE WHEN lo.z = hi.z THEN lo.val
@@ -366,6 +398,20 @@ utils::globalVariables(c("sigma_theta", "status", "n_obs", "obs_year", "n_bins_s
     ASOF LEFT JOIN {nm('prop')} lo ON lo.sample_key = x.sample_key AND lo.variable = x.variable AND lo.z <= x.depth_m
     ASOF LEFT JOIN {nm('prop')} hi ON hi.sample_key = x.sample_key AND hi.variable = x.variable AND hi.z >= x.depth_m"))
   iso <- DBI::dbGetQuery(con, glue::glue("SELECT sample_key, sigma_theta, status, depth_m FROM {nm('iso')}"))
+
+  if (spice) {
+    ts <- vals[vals$variable %in% c("temperature_ave", "salinity_ave_corr") & !is.na(vals$value), ] |>
+      tidyr::pivot_wider(id_cols = c(sample_key, sigma_theta), names_from = variable, values_from = value)
+    if (nrow(ts) && all(c("temperature_ave", "salinity_ave_corr") %in% names(ts))) {
+      ts <- ts |>
+        dplyr::inner_join(dplyr::select(iso, sample_key, sigma_theta, depth_m), by = c("sample_key", "sigma_theta")) |>
+        dplyr::inner_join(dplyr::select(casts, sample_key, longitude, latitude), by = "sample_key")
+      vals <- dplyr::bind_rows(vals, tibble::tibble(
+        sample_key = ts$sample_key, sigma_theta = ts$sigma_theta, variable = "spiciness0",
+        value = .cc_spice0(ts$temperature_ave, ts$salinity_ave_corr, ts$depth_m, ts$longitude, ts$latitude)))
+    }
+    vals <- vals[vals$variable %in% variables, ]
+  }
 
   status <- dplyr::select(iso, sample_key, sigma_theta, status)
   out <- dplyr::bind_rows(

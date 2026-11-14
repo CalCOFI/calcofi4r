@@ -132,6 +132,43 @@ test_that("cc_get_db() serves obs as the catalog view over obs_bio + obs_env, of
   expect_equal(DBI::dbGetQuery(con2, "SELECT count(*) AS n FROM obs")$n, 3)
 })
 
+test_that("a cached release gains the supplemental tables asked for later (regression, 2026-11-13)", {
+  # through 1.32.0 any non-empty cache came back as it was: a release first opened by default had
+  # no obs_ctd_full, and cc_get_db(supplemental = TRUE) returned it without, so cc_isopycnal()
+  # told a user who had passed supplemental = TRUE to pass supplemental = TRUE
+  skip_if_not_installed("duckdb")
+  root  <- withr::local_tempdir(); write_pair_fixture(root)
+  p <- file.path(root, "ducklake/tables/obs_ctd_full/year=2019/3333333333333333333333cc/data_0.parquet")
+  dir.create(dirname(p), recursive = TRUE)
+  con0 <- DBI::dbConnect(duckdb::duckdb())
+  DBI::dbExecute(con0, sprintf(
+    "COPY (SELECT 'ctd:cast:1d' AS sample_key, 'sigma_theta_1' AS measurement_type, 25.1 AS measurement_value) TO '%s' (FORMAT parquet)", p))
+  DBI::dbDisconnect(con0, shutdown = TRUE)
+  cache <- withr::local_tempdir()
+  mock_release_fetches("catalog_canonical.json")
+  orig_sources <- cc_release_sources
+  local_mocked_bindings(
+    cc_release_sources = function(catalog, table, base_https = NULL) orig_sources(catalog, table, base_https = root),
+    .cc_load_httpfs = function(con) invisible(con))
+
+  con1 <- suppressMessages(cc_get_db(version = "v2026.09.01", cache_dir = cache))
+  expect_false("obs_ctd_full" %in% DBI::dbListTables(con1))
+  DBI::dbDisconnect(con1, shutdown = TRUE)
+
+  expect_message(con2 <- cc_get_db(version = "v2026.09.01", cache_dir = cache, supplemental = TRUE),
+                 "Using cached database: v2026.09.01, adding obs_ctd_full")
+  expect_true("obs_ctd_full" %in% DBI::dbListTables(con2))
+  expect_equal(DBI::dbGetQuery(con2, "SELECT measurement_value FROM obs_ctd_full")$measurement_value, 25.1)
+  DBI::dbDisconnect(con2, shutdown = TRUE)
+
+  # once in the cache it stays, and a later call adds nothing
+  msgs <- testthat::capture_messages(con3 <- cc_get_db(version = "v2026.09.01", cache_dir = cache, supplemental = TRUE))
+  withr::defer(DBI::dbDisconnect(con3, shutdown = TRUE))
+  expect_true(any(grepl("^Using cached database: v2026.09.01$", trimws(msgs))))
+  expect_false(any(grepl("adding", msgs)))
+  expect_setequal(DBI::dbListTables(con3), c("cruise", "obs", "obs_bio", "obs_env", "obs_ctd_full"))
+})
+
 test_that("cc_get_db(tables = 'obs') pulls in the view's tables; without them, the deprecated objects", {
   skip_if_not_installed("duckdb")
   root <- withr::local_tempdir(); write_pair_fixture(root)

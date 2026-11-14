@@ -30,7 +30,10 @@
 #' @return DuckDB connection object with every requested table present. A table
 #'   that cannot be loaded is an \strong{error} naming it (never a warning and a
 #'   database missing tables); the views are created in one transaction, so a
-#'   failed call leaves no partial local cache behind.
+#'   failed call leaves no partial local cache behind. A release already cached
+#'   is returned as it is only when it holds every table asked for: a table
+#'   requested now but not when the cache was made (`supplemental = TRUE` after a
+#'   default call, or one named in `tables`) is added to the cache.
 #' @export
 #' @concept database
 #'
@@ -131,12 +134,14 @@ cc_get_db <- function(
     storage_compatibility_version = "latest")
 
   # try to connect, with fallback to read-only if locked
+  read_only <- FALSE
   con <- tryCatch({
     drv <- duckdb::duckdb(dbdir = db_path, config = db_config)
     DBI::dbConnect(drv)
   }, error = function(e) {
     if (grepl("lock", e$message, ignore.case = TRUE)) {
       message("Database locked, opening in read-only mode")
+      read_only <<- TRUE
       drv <- duckdb::duckdb(
         dbdir = db_path, read_only = TRUE, config = db_config)
       DBI::dbConnect(drv)
@@ -183,13 +188,6 @@ cc_get_db <- function(
     .cc_setup_gcs_httpfs(con)
   }
 
-  # check if already initialized
-  existing_tables <- DBI::dbListTables(con)
-  if (length(existing_tables) > 0 && !refresh) {
-    message(glue::glue("Using cached database: {version}"))
-    return(con)
-  }
-
   # views the catalog carries beside its tables (calcofi4db 3.31.0, plan D-S1):
   # `obs` is the UNION ALL over obs_bio + obs_env. A requested view pulls in the
   # tables it reads, so `tables = "obs"` keeps working once obs is a view alone.
@@ -215,7 +213,34 @@ cc_get_db <- function(
     all(cc_view_tables(views[[vn]]) %in% tbl_catalog$name), TRUE)]
   tbl_physical <- tbl_catalog[!(tbl_catalog$name %in% served_by_view), ]
 
-  if (nrow(tbl_physical) == 0) {
+  # a cached database is returned as it is only when it already holds every table and view asked
+  # for; otherwise the missing ones are bound into it. Through 1.32.0 any non-empty cache was
+  # returned at once, so cc_get_db(supplemental = TRUE) on a release first opened without the
+  # supplemental tables came back without obs_ctd_full (Rasmus Swalethorp and Ben Best,
+  # 2026-11-13: cc_isopycnal() then failed with "open the release with supplemental = TRUE").
+  existing_tables <- DBI::dbListTables(con)
+  if (length(existing_tables) > 0 && !refresh) {
+    missing_tbl  <- setdiff(tbl_physical$name, existing_tables)
+    missing_view <- setdiff(served_by_view, existing_tables)
+    if (!length(missing_tbl) && !length(missing_view)) {
+      message(glue::glue("Using cached database: {version}"))
+      return(con)
+    }
+    if (read_only) {
+      try(DBI::dbDisconnect(con), silent = TRUE)
+      stop(glue::glue(
+        "cc_get_db(): the cached database for {version} lacks ",
+        "{paste(c(missing_tbl, missing_view), collapse = ', ')}, and it is open read-only because ",
+        "another connection holds it. Close that connection (DBI::dbDisconnect(con, shutdown = TRUE)) ",
+        "and call cc_get_db() again, or pass local_cache = FALSE."), call. = FALSE)
+    }
+    message(glue::glue(
+      "Using cached database: {version}, adding {paste(c(missing_tbl, missing_view), collapse = ', ')}"))
+    tbl_physical   <- tbl_physical[tbl_physical$name %in% missing_tbl, ]
+    served_by_view <- missing_view
+  }
+
+  if (nrow(tbl_physical) == 0 && !length(served_by_view)) {
     try(DBI::dbDisconnect(con), silent = TRUE)
     stop(glue::glue(
       "cc_get_db(): none of the requested tables are in release {version} ",

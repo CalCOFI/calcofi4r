@@ -192,6 +192,12 @@ importFrom(dplyr,
 )
 importFrom(fuzzyjoin,difference_inner_join)
 importFrom(glue,glue)
+importFrom(gsw,
+  gsw_CT_from_t,
+  gsw_SA_from_SP,
+  gsw_p_from_z,
+  gsw_spiciness0
+)
 importFrom(highcharter,
   datetime_to_timestamp,
   hc_add_series,
