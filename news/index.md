@@ -1,5 +1,29 @@
 # Changelog
 
+## calcofi4r 1.33.0
+
+- **[`cc_get_db()`](https://calcofi.io/calcofi4r/reference/cc_get_db.md)
+  adds tables missing from a cached release.** Through 1.32.0 a release
+  already cached was returned as it was, so
+  `cc_get_db(supplemental = TRUE)` on a release first opened without the
+  supplemental tables came back without `obs_ctd_full`, and
+  [`cc_isopycnal()`](https://calcofi.io/calcofi4r/reference/cc_isopycnal.md)
+  failed asking for `supplemental = TRUE`. Now any table asked for
+  (`supplemental = TRUE`, or named in `tables`) that the cache lacks is
+  bound into it, with a message naming it; a cache held read-only by
+  another connection is an error saying so.
+- **[`cc_isopycnal()`](https://calcofi.io/calcofi4r/reference/cc_isopycnal.md)
+  /
+  [`cc_isopycnal_anomaly()`](https://calcofi.io/calcofi4r/reference/cc_isopycnal_anomaly.md):
+  the provider’s surfaces and spice.** The default `sigma` is 24.0 to
+  27.0 by 0.2 plus 25.5 and 26.5, near the cores of the California
+  Current and Undercurrent (Rasmus Swalethorp, 2026-11-13). New variable
+  `spiciness0`, in the default `variables`: spice computed on each
+  surface from the temperature and salinity interpolated there, by
+  `calcofi4db::ctd_spice()`’s TEOS-10 recipe (`gsw_spiciness0()`), since
+  the release carries spice only on the thinned series. It gets a
+  baseline and an anomaly like the other variables. New import: `gsw`.
+
 ## calcofi4r 1.32.0
 
 - **New

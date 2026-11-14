@@ -64,7 +64,11 @@ cc_get_db(
 DuckDB connection object with every requested table present. A table
 that cannot be loaded is an **error** naming it (never a warning and a
 database missing tables); the views are created in one transaction, so a
-failed call leaves no partial local cache behind.
+failed call leaves no partial local cache behind. A release already
+cached is returned as it is only when it holds every table asked for: a
+table requested now but not when the cache was made
+(`supplemental = TRUE` after a default call, or one named in `tables`)
+is added to the cache.
 
 ## Details
 

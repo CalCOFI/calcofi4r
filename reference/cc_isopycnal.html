@@ -54,7 +54,7 @@ saltier), so their departure there is the spice of the water."><meta property="o
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.33.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,11 +109,11 @@ saltier), so their departure there is the spice of the water.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">cc_isopycnal</span><span class="op">(</span></span>
 <span>  <span class="va">con</span>,</span>
-<span>  sigma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">24</span>, <span class="fl">27</span>, by <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>,</span>
+<span>  sigma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">24</span>, <span class="fl">27</span>, by <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>, <span class="fl">25.5</span>, <span class="fl">26.5</span><span class="op">)</span>,</span>
 <span>  cruise_key <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site_key <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  variables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"temperature_ave"</span>, <span class="st">"salinity_ave_corr"</span>, <span class="st">"oxygen_ml_l_ave_sta_corr"</span>,</span>
-<span>    <span class="st">"est_nitrate_sta_corr"</span><span class="op">)</span>,</span>
+<span>    <span class="st">"est_nitrate_sta_corr"</span>, <span class="st">"spiciness0"</span><span class="op">)</span>,</span>
 <span>  direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"down"</span>, <span class="st">"both"</span><span class="op">)</span>,</span>
 <span>  surface_max_m <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  min_n <span class="op">=</span> <span class="fl">3</span></span>
@@ -130,10 +130,10 @@ saltier), so their departure there is the spice of the water.</p>
 
 
 <dt id="arg-sigma">sigma<a class="anchor" aria-label="anchor" href="#arg-sigma"></a></dt>
-<dd><p>numeric: the surfaces, sigma-theta in kg m^-3. The default, 24.0 to 27.0 by 0.2,
-is the provider's list (25.0 to 27.0 by 0.2, Rasmus Swalethorp, September 2026) extended to
-24.0, where the upper thermocline sits in fall; 27.0 is reached by about a quarter of the down
-casts (the median density at the bottom of a 500 m cast is 26.98).</p></dd>
+<dd><p>numeric: the surfaces, sigma-theta in kg m^-3. The default is the provider's
+list (Rasmus Swalethorp, 2026-11-13): 24.0 to 27.0 by 0.2, plus 25.5 and 26.5, which sit
+near the cores of the California Current and the California Undercurrent. 27.0 is reached by
+about a quarter of the down casts (the median density at the bottom of a 500 m cast is 26.98).</p></dd>
 
 
 <dt id="arg-cruise-key">cruise_key<a class="anchor" aria-label="anchor" href="#arg-cruise-key"></a></dt>
@@ -145,9 +145,10 @@ casts (the median density at the bottom of a 500 m cast is 26.98).</p></dd>
 
 
 <dt id="arg-variables">variables<a class="anchor" aria-label="anchor" href="#arg-variables"></a></dt>
-<dd><p><code>obs_ctd_full</code> measurement types to carry onto each surface; the default is the
-sensor-pair averages the release publishes (the station-corrected oxygen and the bottle-fitted
-nitrate estimate, which exist only on casts with bottle data).</p></dd>
+<dd><p><code>obs_ctd_full</code> measurement types to carry onto each surface, and
+<code>"spiciness0"</code> for spice computed there (see the rules); the default is the sensor-pair
+averages the release publishes (the station-corrected oxygen and the bottle-fitted nitrate
+estimate, which exist only on casts with bottle data) and spice.</p></dd>
 
 
 <dt id="arg-direction">direction<a class="anchor" aria-label="anchor" href="#arg-direction"></a></dt>
@@ -186,6 +187,12 @@ good bins). Only <code>"ok"</code> carries a depth and values.</p></li>
 <li><p><strong>a property on the surface</strong> is its own profile interpolated linearly to that depth, after
 values its provider flags (8/9, <code><a href="cc_qual_ok_sql.html">cc_qual_ok_sql()</a></code>) are dropped; <code>NA</code> where the property has no
 bin on one side of the depth.</p></li>
+<li><p><strong>spice</strong> (<code>spiciness0</code>) is computed on the surface from the temperature (<code>temperature_ave</code>)
+and salinity (<code>salinity_ave_corr</code>) interpolated there, by <code>calcofi4db::ctd_spice()</code>'s recipe
+(Rasmus Swalethorp, 2026-09-22): TEOS-10 absolute salinity and conservative temperature at
+the surface's pressure (<code>gsw_p_from_z()</code> of its depth and the cast's latitude), then
+<code>gsw_spiciness0()</code> (McDougall &amp; Krzysik 2015). The release carries <code>spiciness0</code> only on the
+thinned series in <code>obs_env</code>, so it is not read from <code>obs_ctd_full</code>.</p></li>
 <li><p><strong>casts</strong>: the down cast of each station occupation, the up cast only where there is none
 (<code>direction = "down"</code>, the release's thinned series makes the same choice), or every cast.</p></li>
 </ul><p>The cruise's month and year are its median cast date (<code>cruise.month_median</code>, release

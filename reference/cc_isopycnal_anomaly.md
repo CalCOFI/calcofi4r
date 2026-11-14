@@ -16,11 +16,11 @@ anomaly is the surface's displacement in metres, positive deeper.
 ``` r
 cc_isopycnal_anomaly(
   con,
-  sigma = seq(24, 27, by = 0.2),
+  sigma = c(seq(24, 27, by = 0.2), 25.5, 26.5),
   cruise_key = NULL,
   site_key = NULL,
   variables = c("temperature_ave", "salinity_ave_corr", "oxygen_ml_l_ave_sta_corr",
-    "est_nitrate_sta_corr"),
+    "est_nitrate_sta_corr", "spiciness0"),
   years = c(1993, 2013),
   season = FALSE,
   min_cruises = 5,
@@ -39,11 +39,11 @@ cc_isopycnal_anomaly(
 
 - sigma:
 
-  numeric: the surfaces, sigma-theta in kg m^-3. The default, 24.0 to
-  27.0 by 0.2, is the provider's list (25.0 to 27.0 by 0.2, Rasmus
-  Swalethorp, September 2026) extended to 24.0, where the upper
-  thermocline sits in fall; 27.0 is reached by about a quarter of the
-  down casts (the median density at the bottom of a 500 m cast is
+  numeric: the surfaces, sigma-theta in kg m^-3. The default is the
+  provider's list (Rasmus Swalethorp, 2026-11-13): 24.0 to 27.0 by 0.2,
+  plus 25.5 and 26.5, which sit near the cores of the California Current
+  and the California Undercurrent. 27.0 is reached by about a quarter of
+  the down casts (the median density at the bottom of a 500 m cast is
   26.98).
 
 - cruise_key:
@@ -56,10 +56,11 @@ cc_isopycnal_anomaly(
 
 - variables:
 
-  `obs_ctd_full` measurement types to carry onto each surface; the
-  default is the sensor-pair averages the release publishes (the
+  `obs_ctd_full` measurement types to carry onto each surface, and
+  `"spiciness0"` for spice computed there (see the rules); the default
+  is the sensor-pair averages the release publishes (the
   station-corrected oxygen and the bottle-fitted nitrate estimate, which
-  exist only on casts with bottle data).
+  exist only on casts with bottle data) and spice.
 
 - years:
 

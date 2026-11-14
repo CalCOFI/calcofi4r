@@ -15,11 +15,11 @@ their departure there is the spice of the water.
 ``` r
 cc_isopycnal(
   con,
-  sigma = seq(24, 27, by = 0.2),
+  sigma = c(seq(24, 27, by = 0.2), 25.5, 26.5),
   cruise_key = NULL,
   site_key = NULL,
   variables = c("temperature_ave", "salinity_ave_corr", "oxygen_ml_l_ave_sta_corr",
-    "est_nitrate_sta_corr"),
+    "est_nitrate_sta_corr", "spiciness0"),
   direction = c("down", "both"),
   surface_max_m = 20,
   min_n = 3
@@ -35,11 +35,11 @@ cc_isopycnal(
 
 - sigma:
 
-  numeric: the surfaces, sigma-theta in kg m^-3. The default, 24.0 to
-  27.0 by 0.2, is the provider's list (25.0 to 27.0 by 0.2, Rasmus
-  Swalethorp, September 2026) extended to 24.0, where the upper
-  thermocline sits in fall; 27.0 is reached by about a quarter of the
-  down casts (the median density at the bottom of a 500 m cast is
+  numeric: the surfaces, sigma-theta in kg m^-3. The default is the
+  provider's list (Rasmus Swalethorp, 2026-11-13): 24.0 to 27.0 by 0.2,
+  plus 25.5 and 26.5, which sit near the cores of the California Current
+  and the California Undercurrent. 27.0 is reached by about a quarter of
+  the down casts (the median density at the bottom of a 500 m cast is
   26.98).
 
 - cruise_key:
@@ -52,10 +52,11 @@ cc_isopycnal(
 
 - variables:
 
-  `obs_ctd_full` measurement types to carry onto each surface; the
-  default is the sensor-pair averages the release publishes (the
+  `obs_ctd_full` measurement types to carry onto each surface, and
+  `"spiciness0"` for spice computed there (see the rules); the default
+  is the sensor-pair averages the release publishes (the
   station-corrected oxygen and the bottle-fitted nitrate estimate, which
-  exist only on casts with bottle data).
+  exist only on casts with bottle data) and spice.
 
 - direction:
 
@@ -107,6 +108,15 @@ derived products):
   [`cc_qual_ok_sql()`](https://calcofi.io/calcofi4r/reference/cc_qual_ok_sql.md))
   are dropped; `NA` where the property has no bin on one side of the
   depth.
+
+- **spice** (`spiciness0`) is computed on the surface from the
+  temperature (`temperature_ave`) and salinity (`salinity_ave_corr`)
+  interpolated there, by `calcofi4db::ctd_spice()`'s recipe (Rasmus
+  Swalethorp, 2026-09-22): TEOS-10 absolute salinity and conservative
+  temperature at the surface's pressure (`gsw_p_from_z()` of its depth
+  and the cast's latitude), then `gsw_spiciness0()` (McDougall & Krzysik
+  2015). The release carries `spiciness0` only on the thinned series in
+  `obs_env`, so it is not read from `obs_ctd_full`.
 
 - **casts**: the down cast of each station occupation, the up cast only
   where there is none (`direction = "down"`, the release's thinned
