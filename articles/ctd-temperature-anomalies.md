@@ -103,7 +103,7 @@ lin <- cc_transect_stations(con, LINE, cruise_recent, x = "line")
 
 c(occupied_km = max(occ$dist_km), along_line_km = max(lin$dist_km))
 #>   occupied_km along_line_km 
-#>      689.0909      689.0098
+#>      689.0909      689.0099
 ```
 
 ## The baseline, and a filter before it
@@ -160,7 +160,7 @@ temp_all |>
 #> # A tibble: 3 × 2
 #>   band       n
 #>   <fct>  <int>
-#> 1 <24   705792
+#> 1 <24   702306
 #> 2 24-26     49
 #> 3 >=35       1
 ```
@@ -365,7 +365,7 @@ comparison <- series |>
 
 summary(abs(comparison$difference))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#> 0.04147 0.05520 0.06206 0.14212 0.22094 0.40609
+#> 0.04125 0.05520 0.06206 0.14211 0.22094 0.40609
 ```
 
 ## Reading it honestly

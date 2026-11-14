@@ -213,7 +213,7 @@ station 120:</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>occupied_km <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">occ</span><span class="op">$</span><span class="va">dist_km</span><span class="op">)</span>, along_line_km <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">lin</span><span class="op">$</span><span class="va">dist_km</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   occupied_km along_line_km </span></span>
-<span><span class="co">#&gt;      689.0909      689.0098</span></span></code></pre></div>
+<span><span class="co">#&gt;      689.0909      689.0099</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="the-baseline-and-a-filter-before-it">The baseline, and a filter before it<a class="anchor" aria-label="anchor" href="#the-baseline-and-a-filter-before-it"></a>
@@ -264,7 +264,7 @@ and 35 °C.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
 <span><span class="co">#&gt;   band       n</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> &lt;24   <span style="text-decoration: underline;">705</span>792</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> &lt;24   <span style="text-decoration: underline;">702</span>306</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 24-26     49</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> &gt;=35       1</span></span></code></pre></div>
 <p>So a regional ceiling well inside that gap removes every artifact and
@@ -447,7 +447,7 @@ possible before the 1993–2002 cruises were ingested.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">comparison</span><span class="op">$</span><span class="va">difference</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span><span class="co">#&gt; 0.04147 0.05520 0.06206 0.14212 0.22094 0.40609</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.04125 0.05520 0.06206 0.14211 0.22094 0.40609</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="reading-it-honestly">Reading it honestly<a class="anchor" aria-label="anchor" href="#reading-it-honestly"></a>

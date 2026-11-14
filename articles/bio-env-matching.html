@@ -212,7 +212,7 @@ over the window. <em>Relaxed</em> matching widens the windows to 5 km /
 <span>  version         <span class="op">=</span> <span class="va">REL</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">REL</span></span>
-<span><span class="co">#&gt; [1] "v2026.11.12"</span></span>
+<span><span class="co">#&gt; [1] "v2026.11.14"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 310  19</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -487,16 +487,16 @@ contract:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">meta</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 6</span></span>
 <span><span class="co">#&gt;  $ package_version: chr "1.34.0"</span></span>
-<span><span class="co">#&gt;  $ release_version: chr "v2026.11.12"</span></span>
+<span><span class="co">#&gt;  $ release_version: chr "v2026.11.14"</span></span>
 <span><span class="co">#&gt;  $ params         :List of 3</span></span>
 <span><span class="co">#&gt;   ..$ max_dist_km: num 5</span></span>
 <span><span class="co">#&gt;   ..$ max_time_hr: num 72</span></span>
 <span><span class="co">#&gt;   ..$ join_method: chr "nearest_time"</span></span>
-<span><span class="co">#&gt;  $ source_urls    : chr [1:99] "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_bio/30c7684fb542f3dd793d8ae0/obs_bio.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=air_temp_c/43ac66ab35ac90781"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity_rep1/f913592b191b"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity/f1b4a861478eeed0a"| __truncated__ ...</span></span>
-<span><span class="co">#&gt;  $ generated_at   : chr "2026-11-14 09:49:16 UTC"</span></span>
+<span><span class="co">#&gt;  $ source_urls    : chr [1:99] "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_bio/350d8382bdee153de3028ce3/obs_bio.parquet" "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=air_temp_c/8546bdebcfc3b6667"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity_rep1/f913592b191b"| __truncated__ "https://storage.googleapis.com/calcofi-db/ducklake/tables/obs_env/measurement_type=alkalinity/86c56ef04d6a8d3f1"| __truncated__ ...</span></span>
+<span><span class="co">#&gt;  $ generated_at   : chr "2026-11-14 16:02:55 UTC"</span></span>
 <span><span class="co">#&gt;  $ n_rows         : int 310</span></span></code></pre></div>
 <p><code>meta$release_version</code> pins which release the result came
-from (v2026.11.12 here). <code>meta$source_urls</code> is the full list
+from (v2026.11.14 here). <code>meta$source_urls</code> is the full list
 of public GCS parquet files the query reads. And
 <code>attr(d, "sql")</code> is the literal query — no <code>dplyr</code>
 translation, no hidden state, ~90 lines of plain DuckDB SQL:</p>
