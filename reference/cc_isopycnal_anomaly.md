@@ -35,7 +35,11 @@ cc_isopycnal_anomaly(
 
 - con:
 
-  DuckDB connection to a release opened with the supplemental tables:
+  DuckDB connection to a release. With the release's baseline
+  (v2026.11.14+, the defaults) a plain
+  [`cc_get_db()`](https://calcofi.io/calcofi4r/reference/cc_get_db.md)
+  is enough; computing (`baseline = "compute"`, or a baseline the
+  release does not carry) reads the 1 m casts:
   `cc_get_db(supplemental = TRUE)`.
 
 - sigma:
@@ -115,13 +119,20 @@ release's `isopycnal` table: the cells with a `sigma_theta`, types
 and that is what is subtracted (`baseline = "auto"`) whenever it is the
 baseline asked for: the release's window (`years`), down casts and the
 default `surface_max_m` / `min_n`, every surface in `sigma` and every
-variable in `variables` present. Only the casts asked for are then
-computed. Otherwise (an older release, another window,
-`direction = "both"`, a surface the release does not carry) the baseline
-is computed here from `obs_ctd_full` at the stations of the casts asked
-for, reading every cruise of the window at those stations, by the same
-rules. The release keeps cells with at least 5 cruises, so a
-`min_cruises` below 5 still finds only those there, as
+variable in `variables` present. The casts' own values are then read
+from the same `isopycnal` table (built by
+[`cc_isopycnal()`](https://calcofi.io/calcofi4r/reference/cc_isopycnal.md)
+with these rules), not recomputed, so a pull over every cruise at many
+stations is a quick read and needs no `obs_ctd_full`: a plain
+[`cc_get_db()`](https://calcofi.io/calcofi4r/reference/cc_get_db.md)
+serves it. A cast the table lacks is computed from `obs_ctd_full` when
+the connection has it, and otherwise left out with a warning. Otherwise
+(an older release, another window, `direction = "both"`, a surface the
+release does not carry) the baseline is computed here from
+`obs_ctd_full` at the stations of the casts asked for, reading every
+cruise of the window at those stations, by the same rules. The release
+keeps cells with at least 5 cruises, so a `min_cruises` below 5 still
+finds only those there, as
 [`cc_climatology()`](https://calcofi.io/calcofi4r/reference/cc_climatology.md)
 does. The two give the same anomalies (to the release's rounding of the
 mean, 1e-6); `attr(, "source")` says which was used.

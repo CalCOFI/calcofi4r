@@ -42,7 +42,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.34.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.35.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,6 +82,11 @@
       <small>Source: <a href="https://github.com/calcofi/calcofi4r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.35.0" id="calcofi4r-1350">calcofi4r 1.35.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1350"></a></h2>
+<ul><li>
+<strong><code><a href="../reference/cc_isopycnal_anomaly.html">cc_isopycnal_anomaly()</a></code> reads the casts’ values from the release’s <code>isopycnal</code> table</strong> when it uses the release’s baseline (v2026.11.14+, the defaults), instead of recomputing every cast from the 1 m bins. A pull over every cruise at many stations (Rasmus Swalethorp, 2026-11-17: all seasons 1993-2026 at the Fall 2026 stations) is now a read, and needs no <code>obs_ctd_full</code>: a plain <code><a href="../reference/cc_get_db.html">cc_get_db()</a></code> serves it. The values are the table’s, built by <code><a href="../reference/cc_isopycnal.html">cc_isopycnal()</a></code> with the same rules, so the anomalies are unchanged (a tested equality). A cast the table lacks is computed from <code>obs_ctd_full</code> when the connection has it, and otherwise left out with a warning; <code>baseline = "compute"</code> still recomputes both from the 1 m bins.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.34.0" id="calcofi4r-1340">calcofi4r 1.34.0<a class="anchor" aria-label="anchor" href="#calcofi4r-1340"></a></h2>
 <ul><li>

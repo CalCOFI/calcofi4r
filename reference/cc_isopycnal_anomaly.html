@@ -52,7 +52,7 @@ the anomaly is the surface's displacement in metres, positive deeper."><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">calcofi4r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.34.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.35.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -126,8 +126,9 @@ the anomaly is the surface's displacement in metres, positive deeper.</p>
 
 
 <dl><dt id="arg-con">con<a class="anchor" aria-label="anchor" href="#arg-con"></a></dt>
-<dd><p>DuckDB connection to a release opened with the supplemental tables:
-<code>cc_get_db(supplemental = TRUE)</code>.</p></dd>
+<dd><p>DuckDB connection to a release. With the release's baseline (v2026.11.14+, the
+defaults) a plain <code><a href="cc_get_db.html">cc_get_db()</a></code> is enough; computing (<code>baseline = "compute"</code>, or a baseline the
+release does not carry) reads the 1 m casts: <code>cc_get_db(supplemental = TRUE)</code>.</p></dd>
 
 
 <dt id="arg-sigma">sigma<a class="anchor" aria-label="anchor" href="#arg-sigma"></a></dt>
@@ -196,7 +197,11 @@ surfaces in its <code>climatology</code> table (<code>calcofi4db::build_climatol
 the release's <code>isopycnal</code> table: the cells with a <code>sigma_theta</code>, types <code><a href="cc_isopycnal_type.html">cc_isopycnal_type()</a></code>), and
 that is what is subtracted (<code>baseline = "auto"</code>) whenever it is the baseline asked for: the
 release's window (<code>years</code>), down casts and the default <code>surface_max_m</code> / <code>min_n</code>, every surface
-in <code>sigma</code> and every variable in <code>variables</code> present. Only the casts asked for are then computed.
+in <code>sigma</code> and every variable in <code>variables</code> present. The casts' own values are then read from the
+same <code>isopycnal</code> table (built by <code><a href="cc_isopycnal.html">cc_isopycnal()</a></code> with these rules), not recomputed, so a pull over
+every cruise at many stations is a quick read and needs no <code>obs_ctd_full</code>: a plain <code><a href="cc_get_db.html">cc_get_db()</a></code>
+serves it. A cast the table lacks is computed from <code>obs_ctd_full</code> when the connection has it, and
+otherwise left out with a warning.
 Otherwise (an older release, another window, <code>direction = "both"</code>, a surface the release does not
 carry) the baseline is computed here from <code>obs_ctd_full</code> at the stations of the casts asked for,
 reading every cruise of the window at those stations, by the same rules. The release keeps cells
