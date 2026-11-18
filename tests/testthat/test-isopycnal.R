@@ -268,7 +268,7 @@ test_that("cc_isopycnal_type() names a variable as the release does, and cc_isop
 iso_release_climatology <- function(con, years = c(1993, 2013), floor = 5L) {
   iso <- cc_isopycnal(con)
   DBI::dbWriteTable(con, "isopycnal", data.frame(
-    sample_key = iso$sample_key, sigma_theta = iso$sigma_theta,
+    sample_key = iso$sample_key, sigma_theta = iso$sigma_theta, status = iso$status,
     measurement_type = cc_isopycnal_type(iso$variable), measurement_value = iso$value), overwrite = TRUE)
   iso <- iso[!is.na(iso$value) & iso$year >= years[1] & iso$year <= years[2], ]
   iso$measurement_type <- cc_isopycnal_type(iso$variable)
@@ -323,6 +323,8 @@ test_that("the release's isopycnal baseline and the one computed here give the s
     rel <- dplyr::arrange(rel, sample_key, sigma_theta, variable)
     cmp <- dplyr::arrange(cmp, sample_key, sigma_theta, variable)
     for (k in key) expect_identical(rel[[k]], cmp[[k]])
+    expect_equal(rel$value, cmp$value)
+    expect_identical(rel$status, cmp$status)
     expect_gt(sum(!is.na(cmp$anomaly)), 0)
     expect_identical(is.na(rel$anomaly), is.na(cmp$anomaly))
     expect_equal(rel$anomaly, cmp$anomaly, tolerance = 1e-6)
@@ -363,4 +365,56 @@ test_that("the release's baseline is used only when it is the one asked for", {
                                              variables = "est_nitrate_sta_corr"), "source"), "computed")
   expect_error(cc_isopycnal_anomaly(con, cruise_key = "2026-11-33P4", variables = v, sigma = 24.85,
                                     baseline = "release"), "no isopycnal baseline")
+})
+
+# a station with five November baseline cruises and a 2026 target cast, its release tables built
+iso_release_con <- function() {
+  yrs <- 2000:2004
+  ks  <- sprintf("calcofi_ctd-cast:cast:%02d11_001d", yrs %% 100)
+  crs <- sprintf("%d-11-32NM", yrs)
+  obs <- do.call(rbind, lapply(seq_along(yrs), function(k) iso_rows(ks[k], Z + k / 10, S, cruise_key = crs[k])))
+  obs <- rbind(obs, iso_rows(K, Z + 1, S))
+  smp <- rbind(iso_sample(ks, cruise_key = crs, datetime = sprintf("%d-11-05", yrs)), iso_sample(K))
+  con <- iso_con(obs, smp)
+  iso_release_climatology(con)
+  con
+}
+
+test_that("with the release's baseline the casts' values are read from its isopycnal table", {
+  # Rasmus Swalethorp (2026-11-17) pulled every cruise 1993-2026 at the Fall 2026 stations: a read
+  # of the released table, not a recomputation of thousands of casts from the 1 m bins
+  con <- iso_release_con(); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+  an <- function(...) cc_isopycnal_anomaly(con, cruise_key = "2026-11-33P4", variables = "temperature_ave",
+                                           sigma = 24.8, ...)
+  d  <- function(x) x[x$variable == "depth_m", ]
+  a  <- an()
+  expect_identical(attr(a, "source"), "release")
+  expect_equal(d(a)$value, 3.5)
+  # a value changed in the table is the value returned: it is read, not recomputed
+  DBI::dbExecute(con, glue::glue("UPDATE isopycnal SET measurement_value = measurement_value + 100
+                                  WHERE sample_key = '{K}' AND measurement_type = 'iso_depth_m'"))
+  b <- an()
+  expect_equal(d(b)$value, d(a)$value + 100)
+  expect_equal(d(b)$anomaly, d(a)$anomaly + 100)
+  # the 1 m casts are not needed for it: a plain cc_get_db() serves the release's table
+  DBI::dbExecute(con, "DROP TABLE obs_ctd_full")
+  expect_equal(an()$anomaly, b$anomaly)
+  # ... but computing still needs them, and says so
+  expect_error(an(baseline = "compute"), "supplemental = TRUE")
+  expect_error(an(years = c(2000, 2013)), "supplemental = TRUE")
+})
+
+test_that("a cast missing from the release's isopycnal table is computed, or left out with a warning", {
+  con <- iso_release_con(); on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+  an <- function() cc_isopycnal_anomaly(con, cruise_key = "2026-11-33P4", variables = "temperature_ave",
+                                        sigma = 24.8)
+  full <- an()
+  DBI::dbExecute(con, glue::glue("DELETE FROM isopycnal WHERE sample_key = '{K}'"))
+  part <- an()                                          # computed from obs_ctd_full, as before
+  expect_identical(attr(part, "source"), "release")
+  expect_equal(part$value, full$value)
+  expect_equal(part$anomaly, full$anomaly)
+  DBI::dbExecute(con, "DROP TABLE obs_ctd_full")
+  expect_warning(none <- an(), "not in the release's isopycnal table")
+  expect_equal(nrow(none), 0)
 })

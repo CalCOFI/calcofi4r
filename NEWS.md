@@ -1,3 +1,14 @@
+# calcofi4r 1.35.0
+
+- **`cc_isopycnal_anomaly()` reads the casts' values from the release's `isopycnal` table** when it
+  uses the release's baseline (v2026.11.14+, the defaults), instead of recomputing every cast from
+  the 1 m bins. A pull over every cruise at many stations (Rasmus Swalethorp, 2026-11-17: all
+  seasons 1993-2026 at the Fall 2026 stations) is now a read, and needs no `obs_ctd_full`: a plain
+  `cc_get_db()` serves it. The values are the table's, built by `cc_isopycnal()` with the same
+  rules, so the anomalies are unchanged (a tested equality). A cast the table lacks is computed
+  from `obs_ctd_full` when the connection has it, and otherwise left out with a warning;
+  `baseline = "compute"` still recomputes both from the 1 m bins.
+
 # calcofi4r 1.34.0
 
 - **`cc_isopycnal_anomaly()` reads the release's baseline on density surfaces.** From release
