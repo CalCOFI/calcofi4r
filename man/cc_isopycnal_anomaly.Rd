@@ -21,8 +21,9 @@ cc_isopycnal_anomaly(
 )
 }
 \arguments{
-\item{con}{DuckDB connection to a release opened with the supplemental tables:
-\code{cc_get_db(supplemental = TRUE)}.}
+\item{con}{DuckDB connection to a release. With the release's baseline (v2026.11.14+, the
+defaults) a plain \code{\link[=cc_get_db]{cc_get_db()}} is enough; computing (\code{baseline = "compute"}, or a baseline the
+release does not carry) reads the 1 m casts: \code{cc_get_db(supplemental = TRUE)}.}
 
 \item{sigma}{numeric: the surfaces, sigma-theta in kg m^-3. The default is the provider's
 list (Rasmus Swalethorp, 2026-11-13): 24.0 to 27.0 by 0.2, plus 25.5 and 26.5, which sit
@@ -76,7 +77,11 @@ surfaces in its \code{climatology} table (\code{calcofi4db::build_climatology(is
 the release's \code{isopycnal} table: the cells with a \code{sigma_theta}, types \code{\link[=cc_isopycnal_type]{cc_isopycnal_type()}}), and
 that is what is subtracted (\code{baseline = "auto"}) whenever it is the baseline asked for: the
 release's window (\code{years}), down casts and the default \code{surface_max_m} / \code{min_n}, every surface
-in \code{sigma} and every variable in \code{variables} present. Only the casts asked for are then computed.
+in \code{sigma} and every variable in \code{variables} present. The casts' own values are then read from the
+same \code{isopycnal} table (built by \code{\link[=cc_isopycnal]{cc_isopycnal()}} with these rules), not recomputed, so a pull over
+every cruise at many stations is a quick read and needs no \code{obs_ctd_full}: a plain \code{\link[=cc_get_db]{cc_get_db()}}
+serves it. A cast the table lacks is computed from \code{obs_ctd_full} when the connection has it, and
+otherwise left out with a warning.
 Otherwise (an older release, another window, \code{direction = "both"}, a surface the release does not
 carry) the baseline is computed here from \code{obs_ctd_full} at the stations of the casts asked for,
 reading every cruise of the window at those stations, by the same rules. The release keeps cells

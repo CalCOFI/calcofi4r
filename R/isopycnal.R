@@ -121,7 +121,11 @@ cc_isopycnal <- function(
 #' the release's `isopycnal` table: the cells with a `sigma_theta`, types [cc_isopycnal_type()]), and
 #' that is what is subtracted (`baseline = "auto"`) whenever it is the baseline asked for: the
 #' release's window (`years`), down casts and the default `surface_max_m` / `min_n`, every surface
-#' in `sigma` and every variable in `variables` present. Only the casts asked for are then computed.
+#' in `sigma` and every variable in `variables` present. The casts' own values are then read from the
+#' same `isopycnal` table (built by [cc_isopycnal()] with these rules), not recomputed, so a pull over
+#' every cruise at many stations is a quick read and needs no `obs_ctd_full`: a plain [cc_get_db()]
+#' serves it. A cast the table lacks is computed from `obs_ctd_full` when the connection has it, and
+#' otherwise left out with a warning.
 #' Otherwise (an older release, another window, `direction = "both"`, a surface the release does not
 #' carry) the baseline is computed here from `obs_ctd_full` at the stations of the casts asked for,
 #' reading every cruise of the window at those stations, by the same rules. The release keeps cells
@@ -130,6 +134,9 @@ cc_isopycnal <- function(
 #' 1e-6); `attr(, "source")` says which was used.
 #'
 #' @inheritParams cc_isopycnal
+#' @param con DuckDB connection to a release. With the release's baseline (v2026.11.14+, the
+#'   defaults) a plain [cc_get_db()] is enough; computing (`baseline = "compute"`, or a baseline the
+#'   release does not carry) reads the 1 m casts: `cc_get_db(supplemental = TRUE)`.
 #' @param years two-element baseline range of cruise years, inclusive (default 1993-2013, the
 #'   release's window).
 #' @param season `FALSE` (default) for the monthly baseline; `TRUE` for the seasonal one.
@@ -172,8 +179,8 @@ cc_isopycnal_anomaly <- function(
   stopifnot(is.numeric(years), length(years) == 2, years[1] <= years[2],
             is.logical(season), length(season) == 1, !is.na(season),
             is.numeric(min_cruises), length(min_cruises) == 1, min_cruises >= 1)
-  .cc_isopycnal_check(con, sigma, cruise_key, site_key, variables, surface_max_m, min_n)
-  target <- .cc_isopycnal_casts(con, cruise_key, site_key, direction)
+  .cc_isopycnal_check(con, sigma, cruise_key, site_key, variables, surface_max_m, min_n,
+                      need_full = FALSE)
 
   # the release's baseline on these surfaces, when it carries the one asked for
   rel_ok <- baseline != "compute" &&
@@ -182,6 +189,9 @@ cc_isopycnal_anomaly <- function(
     stop("cc_isopycnal_anomaly(baseline = \"release\"): this release's climatology carries no ",
          "isopycnal baseline for these surfaces, variables and window (release v2026.11.14+, ",
          "years 1993-2013, direction = \"down\", the default surface_max_m and min_n).", call. = FALSE)
+  # computing needs the 1 m casts; reading the release's isopycnal table does not
+  if (!rel_ok) .cc_isopycnal_need_full(con)
+  target <- .cc_isopycnal_casts(con, cruise_key, site_key, direction)
   if (rel_ok)
     return(.cc_isopycnal_anomaly_release(con, target, sigma, unique(variables), years, season,
                                          min_cruises, surface_max_m, min_n))
@@ -271,6 +281,8 @@ ISO_TYPE_PREFIX <- "iso_"
   if (!all(c("climatology", "isopycnal") %in% tbls)) return(FALSE)
   if (!all(c("sigma_theta", "season_mean", "clim_yr_min", "clim_yr_max") %in%
            DBI::dbListFields(con, "climatology"))) return(FALSE)
+  if (!all(c("sample_key", "sigma_theta", "status", "measurement_type", "measurement_value") %in%
+           DBI::dbListFields(con, "isopycnal"))) return(FALSE)
   fm <- formals(cc_isopycnal)
   if (direction != "down" || surface_max_m != eval(fm$surface_max_m) || min_n != eval(fm$min_n))
     return(FALSE)
@@ -287,7 +299,7 @@ ISO_TYPE_PREFIX <- "iso_"
 # baseline cells read (monthly clim_*, or the season_* columns on each month of the season)
 .cc_isopycnal_anomaly_release <- function(con, target, sigma, variables, years, season, min_cruises,
                                           surface_max_m, min_n) {
-  iso <- .cc_isopycnal_compute(con, target, sigma, variables, surface_max_m, min_n)
+  iso <- .cc_isopycnal_read(con, target, sigma, variables, surface_max_m, min_n)
   q   <- function(x) paste0("'", gsub("'", "''", x), "'", collapse = ", ")
   sites <- unique(stats::na.omit(target$site_key))
   cols  <- if (season)
@@ -333,8 +345,68 @@ utils::globalVariables(c("sigma_theta", "status", "n_obs", "obs_year", "n_bins_s
                          "longitude", "latitude", "variable", "value", "sample_key", "sig6",
                          "measurement_type", "clim_mean", "clim_sd", "clim_n", "n_cruises"))
 
+# the casts' values from the release's own isopycnal table (calcofi4db::build_isopycnal(): this
+# package's cc_isopycnal() over every down cast, with its defaults), shaped as
+# .cc_isopycnal_compute() returns them, so a pull over many cruises is a read, not a recomputation
+# from the 1 m bins, and needs no obs_ctd_full. The caller has checked (.cc_isopycnal_release_ok())
+# that the table carries every surface and variable asked for, with the default cast rule. A cast
+# the table lacks (one ingested after the table was built) is computed when obs_ctd_full is there,
+# and otherwise left out with a warning.
+.cc_isopycnal_read <- function(con, casts, sigma, variables, surface_max_m, min_n) {
+  empty <- .cc_isopycnal_compute(con, casts[0, ], sigma, variables, surface_max_m, min_n)
+  if (!nrow(casts)) return(empty)
+  tag <- paste0("cc_isor_", paste(sample(c(letters, 0:9), 8, replace = TRUE), collapse = ""))
+  on.exit(try(DBI::dbExecute(con, glue::glue("DROP TABLE IF EXISTS {tag}")), silent = TRUE), add = TRUE)
+  q   <- function(x) paste0("'", gsub("'", "''", x), "'", collapse = ", ")
+  sig <- sort(unique(sigma))
+  sig_of <- stats::setNames(sig, sprintf("%.6f", round(sig, 6)))
+  DBI::dbWriteTable(con, tag, data.frame(sample_key = unique(casts$sample_key)), temporary = TRUE)
+  rd <- tibble::as_tibble(DBI::dbGetQuery(con, glue::glue("
+    SELECT i.sample_key, round(i.sigma_theta, 6) AS sig6, i.status, i.measurement_type,
+           i.measurement_value AS value
+    FROM isopycnal i JOIN {tag} c USING (sample_key)
+    WHERE i.measurement_type IN ({q(cc_isopycnal_type(c('depth_m', variables)))})
+      AND round(i.sigma_theta, 6) IN ({paste(names(sig_of), collapse = ', ')})")))
+  rd <- rd |>
+    dplyr::mutate(
+      sigma_theta = unname(sig_of[sprintf("%.6f", sig6)]),
+      variable    = cc_isopycnal_variable(measurement_type)) |>
+    # as cc_isopycnal() returns them: a depth row for every cast x surface, a property only with a value
+    dplyr::filter(variable == "depth_m" | !is.na(value)) |>
+    dplyr::select(sample_key, sigma_theta, status, variable, value) |>
+    dplyr::inner_join(casts, by = "sample_key")
+
+  miss <- setdiff(casts$sample_key, rd$sample_key)
+  if (length(miss)) {
+    if ("obs_ctd_full" %in% DBI::dbListTables(con)) {
+      rd <- dplyr::bind_rows(rd, .cc_isopycnal_compute(
+        con, casts[casts$sample_key %in% miss, ], sigma, variables, surface_max_m, min_n))
+    } else {
+      warning("cc_isopycnal_anomaly(): ", length(miss), " cast(s) are not in the release's ",
+              "isopycnal table and are left out; open the release with cc_get_db(supplemental = ",
+              "TRUE) to compute them from the 1 m bins.", call. = FALSE)
+    }
+  }
+  rd |>
+    dplyr::mutate(variable = factor(variable, levels = c("depth_m", variables))) |>
+    dplyr::arrange(cruise_key, sample_key, sigma_theta, variable) |>
+    dplyr::mutate(variable = as.character(variable)) |>
+    dplyr::select(dplyr::all_of(names(empty)))
+}
+
+# the 1 m casts the computation reads, with the error a reader can act on
+.cc_isopycnal_need_full <- function(con) {
+  if (!"obs_ctd_full" %in% DBI::dbListTables(con))
+    stop("cc_isopycnal(): the 1 m casts are the supplemental table `obs_ctd_full`; open the ",
+         "release with cc_get_db(supplemental = TRUE). (calcofi4r 1.32.0 and earlier returned a ",
+         "release already cached without it as it was: update calcofi4r, or pass refresh = TRUE.)",
+         call. = FALSE)
+  invisible(TRUE)
+}
+
 # the arguments, and the tables the computation reads, with the error a reader can act on
-.cc_isopycnal_check <- function(con, sigma, cruise_key, site_key, variables, surface_max_m, min_n) {
+.cc_isopycnal_check <- function(con, sigma, cruise_key, site_key, variables, surface_max_m, min_n,
+                                need_full = TRUE) {
   stopifnot(is.numeric(sigma), length(sigma) >= 1, all(is.finite(sigma)),
             is.null(cruise_key) || is.character(cruise_key),
             is.null(site_key) || is.character(site_key),
@@ -343,11 +415,7 @@ utils::globalVariables(c("sigma_theta", "status", "n_obs", "obs_year", "n_bins_s
             is.numeric(surface_max_m), length(surface_max_m) == 1, surface_max_m >= 0,
             is.numeric(min_n), length(min_n) == 1, min_n >= 1)
   tbls <- DBI::dbListTables(con)
-  if (!"obs_ctd_full" %in% tbls)
-    stop("cc_isopycnal(): the 1 m casts are the supplemental table `obs_ctd_full`; open the ",
-         "release with cc_get_db(supplemental = TRUE). (calcofi4r 1.32.0 and earlier returned a ",
-         "release already cached without it as it was: update calcofi4r, or pass refresh = TRUE.)",
-         call. = FALSE)
+  if (need_full) .cc_isopycnal_need_full(con)
   miss <- setdiff("sample", tbls)
   if (length(miss))
     stop("cc_isopycnal(): the connection has no `", miss, "` table.", call. = FALSE)
